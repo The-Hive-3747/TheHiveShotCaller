@@ -1,0 +1,11 @@
+## sessions
+[{"session_id":"8d03e4db","name":"Session 2026-10-10 15:03:33","started_at":1791666213.4488635,"ended_at":null,"shots":6,"made":4}]
+## csv head
+shot_id,session_id,t_launch,burst_id,burst_index,ball_type,result,exit_speed_ips,exit_speed_mps,launch_angle_deg,launch_azimuth_deg,parabola_a,parabola_b,parabola_c,apex_z_in,notes
+1,8d03e4db,0.0,1,1,pollen,made,237.31095564006748,6.027698273257713,78.67030316397833,-108.95207431919135,-0.08888627796727525,4.99104665908397,12.110225850418002,82.17319654406218,track extrapolated into the up-CELL opening (ball hidden)
+2,8d03e4db,0.25,1,2,pollen,made,224.78059286963585,5.709427058888751,74.74539831581677,-124.55637562902169,-0.055151095269292114,3.6667970130477805,12.007577219861785,72.9555976954518,track extrapolated into the up-CELL opening (ball hidden)
+3,8d03e4db,0.5,1,3,pollen,miss,234.941465676974,5.9675132281951395,79.54770382156507,-51.01054927422325,-0.10573886200937242,5.420700895745123,11.641862042909215,81.11489599358538,
+## status
+{"running":true,"cameras":{"cam0":{"fps":0.0,"dropped":0,"frames_read":164,"is_alive":false,"last_error":null,"reconnects":0,"props":{"width":1920,"height":1080,"fps":60.0,"backend":"ffmpeg"}},"cam1":{"fps":0.0,"dropped":0,"frames_read":164,"is_alive":false,"last_error":null,"reconnects":0,"props":{"width":1920,"height":1080,"fps":60.0,"backend":"ffmpeg"}}},"detector_fps":0.0,"last_shot_id":6,"hive_state":{"alliance":"red","up_cell":"audience"},"rtmp":{"available":true,"running":false,"urls":{"cam0":"rtmp://127.0.0.1:1935/cam0","cam1":"rtmp://127.0.0.1:1935/cam1"}}}
+## after restart (PID 15172)
+[{"session_id":"8d03e4db","name":"Session 2026-10-10 15:03:33","started_at":1791666213.4488635,"ended_at":null,"shots":6,"made":4}]

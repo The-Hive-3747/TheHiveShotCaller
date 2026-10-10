@@ -1,0 +1,10 @@
+click noise 0.5 px: reported rmse_in A/B mean 0.05/0.05 | opening center: median 0.03 in, p95 0.05 in | launch zone (-13,55,30): median 0.11 in, p95 0.25 in | mid flight (-13,40,70): median 0.04 in, p95 0.08 in
+click noise 1.0 px: reported rmse_in A/B mean 0.09/0.10 | opening center: median 0.05 in, p95 0.09 in | launch zone (-13,55,30): median 0.20 in, p95 0.52 in | mid flight (-13,40,70): median 0.08 in, p95 0.16 in
+click noise 2.0 px: reported rmse_in A/B mean 0.20/0.22 | opening center: median 0.12 in, p95 0.23 in | launch zone (-13,55,30): median 0.46 in, p95 1.15 in | mid flight (-13,40,70): median 0.19 in, p95 0.37 in
+Traceback (most recent call last):
+  File "C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\refute16\mc.py", line 13, in <module>
+    eb=calib.solve_extrinsics_from_points(IB,calib.project(IB,EB,F)+rng.normal(0,sig,(8,2)),F,'B')
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\calib.py", line 205, in solve_extrinsics_from_points
+    raise ValueError("PnP RANSAC failed: too few consistent points")
+ValueError: PnP RANSAC failed: too few consistent points

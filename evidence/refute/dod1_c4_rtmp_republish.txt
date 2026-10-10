@@ -1,0 +1,17 @@
+4 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+8 {'cam0': (173, True, ''), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+12 {'cam0': (625, True, ''), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+16 {'cam0': (861, True, ''), 'cam1': (344, True, '')} shot None
+20 {'cam0': (1100, True, ''), 'cam1': (736, True, '')} shot None
+24 {'cam0': (1344, True, ''), 'cam1': (1015, True, '')} shot None
+28 {'cam0': (1585, True, ''), 'cam1': (1255, True, '')} shot None
+32 {'cam0': (1827, True, ''), 'cam1': (1497, True, '')} shot None
+36 {'cam0': (2068, True, ''), 'cam1': (1737, True, '')} shot None
+40 {'cam0': (2304, True, ''), 'cam1': (1975, True, '')} shot None
+44 {'cam0': (2549, True, ''), 'cam1': (2219, True, '')} shot None
+48 {'cam0': (2791, True, ''), 'cam1': (2461, True, '')} shot None
+52 {'cam0': (3033, True, ''), 'cam1': (2703, True, '')} shot None
+56 {'cam0': (3188, True, ''), 'cam1': (2853, True, '')} shot 7
+60 {'cam0': (3347, True, ''), 'cam1': (3008, True, '')} shot 21
+65 {'cam0': (3473, True, ''), 'cam1': (3141, True, '')} shot 32
+ad3f0bc0 33 [('miss', 6.0), ('made', 5.7), ('made', 5.8), ('miss', 5.6), ('made', 5.7), ('made', 5.3), ('miss', 5.8), ('made', 5.6), ('made', 6.0), ('miss', 5.9), ('made', 6.1), ('made', 5.8)]

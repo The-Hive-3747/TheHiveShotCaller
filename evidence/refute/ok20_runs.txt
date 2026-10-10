@@ -1,0 +1,21 @@
+== ok20_777
+{"finished": true, "n_truth": 20, "n_shots": 20, "truth_made": 15, "expected_failure_hist": {"1": 1, "2": 1, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 22.742408514022827}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 2.80 mean 1.10 n=20
+no parabola: [] no drag: []
+burst mismatches: []
+== ok20_4242
+{"finished": true, "n_truth": 20, "n_shots": 20, "truth_made": 14, "expected_failure_hist": {"1": 1, "2": 2, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 29.71113872528076}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 2.81 mean 1.08 n=20
+no parabola: [] no drag: []
+burst mismatches: []
+== ok20_99
+{"finished": true, "n_truth": 20, "n_shots": 20, "truth_made": 14, "expected_failure_hist": {"1": 1, "2": 2, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 25.247058153152466}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 2.81 mean 1.08 n=20
+no parabola: [] no drag: []
+burst mismatches: []

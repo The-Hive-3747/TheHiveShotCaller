@@ -1,0 +1,153 @@
+{
+ "fixture": "C:\\Users\\3747h\\AppData\\Local\\Temp\\claude\\C--Users-3747h-Documents-HiveShotTracker\\386da1de-9207-4304-8c4f-9284e5732d29\\scratchpad\\fx20",
+ "finished": true,
+ "n_truth": 20,
+ "n_shots": 1,
+ "truth_made": 14,
+ "stats": {
+  "session_id": "d5f03586",
+  "shots": 1,
+  "made": 0,
+  "bounce_out": 0,
+  "miss": 1,
+  "unknown": 0,
+  "make_rate": 0.0,
+  "by_ball_type": {
+   "pollen": {
+    "made": 0,
+    "bounce_out": 0,
+    "miss": 1,
+    "unknown": 0,
+    "shots": 1
+   }
+  },
+  "failure_order_hist": {
+   "1": 1,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "bounce_out_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "tips": 0,
+  "mean_exit_speed_ips": 229.5464309836225,
+  "mean_launch_angle_deg": 75.43939735627369
+ },
+ "expected_failure_hist": {
+  "1": 1,
+  "2": 2,
+  "3": 2,
+  "4": 1,
+  "5": 0
+ },
+ "rows": [
+  {
+   "truth": 0,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "miss",
+   "speed_truth": 229.42287541567228,
+   "speed_meas": 229.5464309836225,
+   "speed_err_pct": 0.05385494699532423,
+   "angle_deg": 75.43939735627369,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    1
+   ],
+   "burst_truth": [
+    1,
+    1
+   ],
+   "ball_type": "pollen",
+   "notes": ""
+  },
+  {
+   "truth": 1,
+   "matched": false
+  },
+  {
+   "truth": 2,
+   "matched": false
+  },
+  {
+   "truth": 3,
+   "matched": false
+  },
+  {
+   "truth": 4,
+   "matched": false
+  },
+  {
+   "truth": 5,
+   "matched": false
+  },
+  {
+   "truth": 6,
+   "matched": false
+  },
+  {
+   "truth": 7,
+   "matched": false
+  },
+  {
+   "truth": 8,
+   "matched": false
+  },
+  {
+   "truth": 9,
+   "matched": false
+  },
+  {
+   "truth": 10,
+   "matched": false
+  },
+  {
+   "truth": 11,
+   "matched": false
+  },
+  {
+   "truth": 12,
+   "matched": false
+  },
+  {
+   "truth": 13,
+   "matched": false
+  },
+  {
+   "truth": 14,
+   "matched": false
+  },
+  {
+   "truth": 15,
+   "matched": false
+  },
+  {
+   "truth": 16,
+   "matched": false
+  },
+  {
+   "truth": 17,
+   "matched": false
+  },
+  {
+   "truth": 18,
+   "matched": false
+  },
+  {
+   "truth": 19,
+   "matched": false
+  }
+ ],
+ "extra_shots": [],
+ "elapsed_s": 13.34637713432312,
+ "burst_gap": 1.5
+}

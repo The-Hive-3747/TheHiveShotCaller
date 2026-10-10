@@ -1,0 +1,10 @@
+A
+   HIVE frame base corner (-X, -Y)        1964.4   1543.7 OUT OF FRAME
+   HIVE frame base corner (+X, +Y)        1038.6   1333.9 OUT OF FRAME
+   Tile intersection (-48, -48)           2887.3   1682.9 OUT OF FRAME
+   Tile intersection (+48, +48)            687.2   1288.5 OUT OF FRAME
+B
+   HIVE frame base corner (-X, -Y)         487.0   1195.4 OUT OF FRAME
+   HIVE frame base corner (+X, +Y)         212.1   1625.1 OUT OF FRAME
+   Tile intersection (-48, -48)            478.7   1113.9 OUT OF FRAME
+   Tile intersection (+48, +48)           -233.9   3095.8 OUT OF FRAME

@@ -1,0 +1,17 @@
+up True
+persisted calib cams ['cam0', 'cam1'] extrinsics [('cam0', 3.97), ('cam1', 1.71)]
+backend names now:
+   1 Red HIVE up-CELL opening, high-left corner
+   2 Red HIVE up-CELL opening, high-right corner
+   3 Red HIVE up-CELL opening, low-right corner
+   4 Red HIVE up-CELL opening, low-left corner
+   5 HIVE frame top corner (-X, +Y)
+   6 HIVE frame top corner (+X, +Y)
+   7 HIVE frame top corner (-X, -Y)
+   8 HIVE frame top corner (+X, -Y)
+UI-hardcoded names not known by backend: ['HIVE frame base corner (-X, -Y)', 'HIVE frame base corner (+X, +Y)', 'Tile intersection (-48, -48)', 'Tile intersection (+48, +48)']
+POST with the UI's hardcoded names -> (422, {'detail': "unknown reference point name 'HIVE frame base corner (-X, -Y)'"})
+cam0 in frame [True, True, True, True, True, True, True, True] -> 200 rmse_in 0.10415151115409178 max err_px 1.6586776425787124 0.03s
+   solved tvec [34.  66.3 77.8] true tvec [34.  66.3 77.8]
+cam1 in frame [True, True, True, True, True, True, True, True] -> 200 rmse_in 0.1142775479628836 max err_px 1.4459569802065417 0.02s
+   solved tvec [-42.6  60.1  78.5] true tvec [-42.6  60.2  78.5]

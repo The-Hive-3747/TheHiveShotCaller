@@ -1,0 +1,31 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# App data (sessions, clips, db, demo data, downloaded CAD)
+data/
+# Build output
+dist/
+build/work/
+build/*.log
+*.spec.bak
+# Large downloaded binaries and documents (fetch with tools/fetch_deps.ps1)
+bin/*.exe
+docs/official/*.pdf
+# Evidence media (keep text reports)
+evidence/**/*.mp4
+evidence/**/*.avi
+evidence/**/*.db
+evidence/**/*.db-wal
+evidence/**/*.db-shm
+evidence/**/live_data/
+# Local editor/OS
+.claude/launch.json
+Thumbs.db
+desktop.ini
+# TLS material MediaMTX may generate in the working directory
+auto.crt
+auto.key
+*.pem

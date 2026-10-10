@@ -1,0 +1,216 @@
+124 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.8
+124 INFO: Python: 3.12.10
+142 INFO: Platform: Windows-11-10.0.26200-SP0
+142 INFO: Python environment: C:\Users\3747h\Documents\HiveShotTracker\.venv
+1886 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\3747h\\Documents\\HiveShotTracker',
+ 'C:\\Users\\3747h\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip',
+ 'C:\\Users\\3747h\\AppData\\Local\\Programs\\Python\\Python312\\DLLs',
+ 'C:\\Users\\3747h\\AppData\\Local\\Programs\\Python\\Python312\\Lib',
+ 'C:\\Users\\3747h\\AppData\\Local\\Programs\\Python\\Python312',
+ 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv',
+ 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages',
+ 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\build',
+ 'C:\\Users\\3747h\\Documents\\HiveShotTracker']
+2253 INFO: Appending 'binaries' from .spec
+2254 INFO: Appending 'datas' from .spec
+2255 INFO: checking Analysis
+2255 INFO: Building Analysis because Analysis-00.toc is non existent
+2255 INFO: Looking for Python shared library...
+2255 INFO: Using Python shared library: C:\Users\3747h\AppData\Local\Programs\Python\Python312\python312.dll
+2255 INFO: Running Analysis Analysis-00.toc
+2255 INFO: Target bytecode optimization level: 0
+2255 INFO: Initializing module dependency graph...
+2256 INFO: Initializing module graph hook caches...
+2267 INFO: Analyzing modules for base_library.zip ...
+3720 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+4126 INFO: Processing standard module hook 'hook-math.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5390 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+6940 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7506 INFO: Caching module dependency graph...
+7551 INFO: Analyzing C:\Users\3747h\Documents\HiveShotTracker\build\entry.py
+7601 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7809 INFO: Processing standard module hook 'hook-xml.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8087 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8645 INFO: Processing standard module hook 'hook-webbrowser.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8671 INFO: Processing standard module hook 'hook-cv2.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+9195 INFO: Processing standard module hook 'hook-numpy.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+9512 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+9512 INFO: SetuptoolsInfo: initializing cached setuptools info...
+10484 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+10651 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+12245 INFO: Processing standard module hook 'hook-difflib.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+13704 INFO: Processing standard module hook 'hook-anyio.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+15181 INFO: Processing standard module hook 'hook-pydantic.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+16539 INFO: Processing standard module hook 'hook-zoneinfo.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+18175 INFO: Processing standard module hook 'hook-opentelemetry.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+18810 INFO: Processing standard module hook 'hook-scipy.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+19610 INFO: Processing standard module hook 'hook-scipy.linalg.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+20227 INFO: Processing standard module hook 'hook-scipy.special._ufuncs.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+20452 INFO: Processing standard module hook 'hook-scipy.special._ellip_harm_2.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+22787 INFO: Processing standard module hook 'hook-scipy.spatial._ckdtree.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23325 INFO: Processing standard module hook 'hook-scipy.spatial.transform.rotation.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24169 INFO: Processing standard module hook 'hook-scipy.stats._stats.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24614 INFO: Processing standard module hook 'hook-scipy.sparse.csgraph.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+25255 INFO: Processing standard module hook 'hook-sqlite3.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+26321 INFO: Processing standard module hook 'hook-uvicorn.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+27571 INFO: Processing standard module hook 'hook-websockets.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+28462 INFO: Analyzing hidden import 'hiveshot.__main__'
+28462 INFO: Analyzing hidden import 'hiveshot.placement'
+28520 INFO: Analyzing hidden import 'uvicorn.__main__'
+28520 INFO: Analyzing hidden import 'uvicorn.lifespan'
+28520 INFO: Analyzing hidden import 'uvicorn.lifespan.off'
+28520 INFO: Analyzing hidden import 'uvicorn.lifespan.on'
+28533 INFO: Analyzing hidden import 'uvicorn.loops'
+28533 INFO: Analyzing hidden import 'uvicorn.loops.asyncio'
+28533 INFO: Analyzing hidden import 'uvicorn.loops.auto'
+28545 INFO: Analyzing hidden import 'uvicorn.loops.zuvloop'
+28549 INFO: Analyzing hidden import 'uvicorn.protocols.http.auto'
+28549 INFO: Analyzing hidden import 'uvicorn.protocols.websockets.auto'
+28549 INFO: Analyzing hidden import 'uvicorn.workers'
+28549 INFO: Analyzing hidden import 'websockets.__main__'
+28565 INFO: Analyzing hidden import 'websockets.auth'
+28565 INFO: Analyzing hidden import 'websockets.connection'
+28565 INFO: Analyzing hidden import 'websockets.legacy.client'
+28607 INFO: Analyzing hidden import 'websockets.sync'
+28609 INFO: Analyzing hidden import 'websockets.sync.client'
+28677 INFO: Analyzing hidden import 'websockets.sync.router'
+28724 INFO: Analyzing hidden import 'websockets.trio'
+28726 INFO: Analyzing hidden import 'websockets.trio.client'
+28822 INFO: Analyzing hidden import 'websockets.trio.router'
+28850 INFO: Analyzing hidden import 'scipy.special._add_newdocs'
+28860 INFO: Analyzing hidden import 'scipy.special._mptestutils'
+28905 INFO: Analyzing hidden import 'scipy.special._precompute'
+28905 INFO: Analyzing hidden import 'scipy.special._precompute.cosine_cdf'
+28905 INFO: Analyzing hidden import 'scipy.special._precompute.expn_asy'
+28911 INFO: Analyzing hidden import 'scipy.special._precompute.gammainc_asy'
+28914 INFO: Analyzing hidden import 'scipy.special._precompute.gammainc_data'
+28918 INFO: Analyzing hidden import 'scipy.special._precompute.hyp2f1_data'
+28988 INFO: Analyzing hidden import 'scipy.special._precompute.lambertw'
+28988 INFO: Analyzing hidden import 'scipy.special._precompute.loggamma'
+29000 INFO: Analyzing hidden import 'scipy.special._precompute.struve_convergence'
+29000 INFO: Analyzing hidden import 'scipy.special._precompute.wright_bessel'
+29016 INFO: Analyzing hidden import 'scipy.special._precompute.wright_bessel_data'
+29032 INFO: Analyzing hidden import 'scipy.special._precompute.wrightomega'
+29032 INFO: Analyzing hidden import 'scipy.special._precompute.zetac'
+29044 INFO: Analyzing hidden import 'scipy.special._test_internal'
+29046 INFO: Analyzing hidden import 'scipy.special._ufuncs_cxx'
+29046 INFO: Analyzing hidden import 'scipy.special.cython_special'
+29046 INFO: Analyzing hidden import 'scipy.special.tests.data'
+29046 INFO: Analyzing hidden import 'scipy.special.tests.test_basic'
+29353 INFO: Analyzing hidden import 'scipy.special.tests.test_bdtr'
+29359 INFO: Analyzing hidden import 'scipy.special.tests.test_boost_ufuncs'
+29359 INFO: Analyzing hidden import 'scipy.special.tests.test_boxcox'
+29382 INFO: Analyzing hidden import 'scipy.special.tests.test_cdflib'
+29440 INFO: Analyzing hidden import 'scipy.special.tests.test_cdft_asymptotic'
+29448 INFO: Analyzing hidden import 'scipy.special.tests.test_cephes_intp_cast'
+29452 INFO: Analyzing hidden import 'scipy.special.tests.test_cosine_distr'
+29456 INFO: Analyzing hidden import 'scipy.special.tests.test_cython_abi'
+29461 INFO: Analyzing hidden import 'scipy.special.tests.test_cython_special'
+29494 INFO: Analyzing hidden import 'scipy.special.tests.test_data'
+29534 INFO: Analyzing hidden import 'scipy.special.tests.test_dd'
+29534 INFO: Analyzing hidden import 'scipy.special.tests.test_digamma'
+29545 INFO: Analyzing hidden import 'scipy.special.tests.test_ellip_harm'
+29566 INFO: Analyzing hidden import 'scipy.special.tests.test_erfinv'
+29566 INFO: Analyzing hidden import 'scipy.special.tests.test_exponential_integrals'
+29585 INFO: Analyzing hidden import 'scipy.special.tests.test_extending'
+29585 INFO: Analyzing hidden import 'scipy.special.tests.test_faddeeva'
+29585 INFO: Analyzing hidden import 'scipy.special.tests.test_gamma'
+29585 INFO: Analyzing hidden import 'scipy.special.tests.test_gammainc'
+29598 INFO: Analyzing hidden import 'scipy.special.tests.test_gen_harmonic'
+29598 INFO: Analyzing hidden import 'scipy.special.tests.test_hypergeometric'
+29622 INFO: Analyzing hidden import 'scipy.special.tests.test_iv_ratio'
+29635 INFO: Analyzing hidden import 'scipy.special.tests.test_kolmogorov'
+29661 INFO: Analyzing hidden import 'scipy.special.tests.test_lambertw'
+29679 INFO: Analyzing hidden import 'scipy.special.tests.test_legendre'
+29761 INFO: Analyzing hidden import 'scipy.special.tests.test_log1mexp'
+29761 INFO: Analyzing hidden import 'scipy.special.tests.test_loggamma'
+29777 INFO: Analyzing hidden import 'scipy.special.tests.test_logit'
+29777 INFO: Analyzing hidden import 'scipy.special.tests.test_logsumexp'
+29820 INFO: Analyzing hidden import 'scipy.special.tests.test_mpmath'
+29909 INFO: Analyzing hidden import 'scipy.special.tests.test_nan_inputs'
+29914 INFO: Analyzing hidden import 'scipy.special.tests.test_ndtr'
+29918 INFO: Analyzing hidden import 'scipy.special.tests.test_ndtri_exp'
+29923 INFO: Analyzing hidden import 'scipy.special.tests.test_orthogonal'
+29986 INFO: Analyzing hidden import 'scipy.special.tests.test_orthogonal_eval'
+29992 INFO: Analyzing hidden import 'scipy.special.tests.test_owens_t'
+29992 INFO: Analyzing hidden import 'scipy.special.tests.test_pcf'
+29992 INFO: Analyzing hidden import 'scipy.special.tests.test_pdtr'
+30007 INFO: Analyzing hidden import 'scipy.special.tests.test_powm1'
+30014 INFO: Analyzing hidden import 'scipy.special.tests.test_precompute_expn_asy'
+30016 INFO: Analyzing hidden import 'scipy.special.tests.test_precompute_gammainc'
+30022 INFO: Analyzing hidden import 'scipy.special.tests.test_precompute_utils'
+30026 INFO: Analyzing hidden import 'scipy.special.tests.test_round'
+30026 INFO: Analyzing hidden import 'scipy.special.tests.test_sf_error'
+30026 INFO: Analyzing hidden import 'scipy.special.tests.test_sici'
+30026 INFO: Analyzing hidden import 'scipy.special.tests.test_specfun'
+30036 INFO: Analyzing hidden import 'scipy.special.tests.test_spence'
+30038 INFO: Analyzing hidden import 'scipy.special.tests.test_spfun_stats'
+30042 INFO: Analyzing hidden import 'scipy.special.tests.test_sph_harm'
+30048 INFO: Analyzing hidden import 'scipy.special.tests.test_spherical_bessel'
+30054 INFO: Analyzing hidden import 'scipy.special.tests.test_support_alternative_backends'
+30120 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30161 INFO: Analyzing hidden import 'scipy.special.tests.test_trig'
+30167 INFO: Analyzing hidden import 'scipy.special.tests.test_ufunc_infra'
+30169 INFO: Analyzing hidden import 'scipy.special.tests.test_ufunc_signatures'
+30177 INFO: Analyzing hidden import 'scipy.special.tests.test_wright_bessel'
+30182 INFO: Analyzing hidden import 'scipy.special.tests.test_wrightomega'
+30184 INFO: Analyzing hidden import 'scipy.special.tests.test_zeta'
+30187 INFO: Analyzing hidden import 'anyio._backends._asyncio'
+30303 INFO: Processing module hooks (post-graph stage)...
+30518 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30518 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+30528 INFO: Processing standard module hook 'hook-setuptools.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+30544 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30570 INFO: Processing pre-safe-import-module hook 'hook-jaraco.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30570 INFO: Setuptools: 'jaraco' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco'!
+30583 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30583 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+30760 INFO: Processing standard module hook 'hook-_osx_support.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+31014 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+31021 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+31062 INFO: Processing pre-safe-import-module hook 'hook-backports.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+31062 INFO: Setuptools: 'backports' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.backports'!
+32083 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+32083 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+32246 WARNING: Hidden import "tzdata" not found!
+32274 WARNING: Hidden import "scipy.special._cdflib" not found!
+32491 INFO: Performing binary vs. data reclassification (37 entries)
+32510 INFO: Looking for ctypes DLLs
+32662 INFO: Analyzing run-time hooks ...
+32673 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+32678 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+32682 INFO: Including run-time hook 'pyi_rth_setuptools.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+32685 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+32720 INFO: Creating base_library.zip...
+32749 INFO: Looking for dynamic libraries
+34189 INFO: Extra DLL search directories (AddDllDirectory): ['C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\numpy.libs', 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\scipy.libs', 'C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\cv2\\../../x64/vc17/bin']
+34189 INFO: Extra DLL search directories (PATH): ['C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Lib\\site-packages\\cv2\\../../x64/vc17/bin']
+36637 INFO: Warnings written to C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\sw\hiveshot\warn-hiveshot.txt
+36821 INFO: Graph cross-reference written to C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\sw\hiveshot\xref-hiveshot.html
+36890 INFO: checking PYZ
+36890 INFO: Building PYZ because PYZ-00.toc is non existent
+36890 INFO: Building PYZ (ZlibArchive) C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\sw\hiveshot\PYZ-00.pyz
+39038 INFO: Building PYZ (ZlibArchive) C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\sw\hiveshot\PYZ-00.pyz completed successfully.
+39090 INFO: checking PKG
+39090 INFO: Building PKG because PKG-00.toc is non existent
+39090 INFO: Building PKG (CArchive) HiveShotTracker.pkg
+39146 INFO: Building PKG (CArchive) HiveShotTracker.pkg completed successfully.
+39146 INFO: Bootloader C:\Users\3747h\Documents\HiveShotTracker\.venv\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\run.exe
+39146 INFO: checking EXE
+39146 INFO: Building EXE because EXE-00.toc is non existent
+39146 INFO: Building EXE from EXE-00.toc
+39146 INFO: Copying bootloader EXE to C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\sw\hiveshot\HiveShotTracker.exe
+39246 INFO: Copying icon to EXE
+39314 INFO: Copying 0 resources to EXE
+39314 INFO: Embedding manifest in EXE
+39393 INFO: Appending PKG archive to EXE
+39509 INFO: Fixing EXE headers
+39945 INFO: Building EXE from EXE-00.toc completed successfully.
+39945 INFO: checking COLLECT
+39945 INFO: Building COLLECT because COLLECT-00.toc is non existent
+39945 INFO: Building COLLECT COLLECT-00.toc
+40718 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+40722 INFO: Build complete! The results are available in: C:\Users\3747h\AppData\Local\Temp\claude\C--Users-3747h-Documents-HiveShotTracker\386da1de-9207-4304-8c4f-9284e5732d29\scratchpad\sd
+hiveshot.spec: bundling VC++ runtime -> msvcp140.dll, vcruntime140.dll, vcruntime140_1.dll, concrt140.dll
+hiveshot.spec: bundling fixtures/synth_20

@@ -1,0 +1,3 @@
+{'cam0': {'fps': 60.729856434060835, 'frames_read': 3158, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.783711010646954, 'frames_read': 2828, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}} ad3f0bc0 None
+[{'session_id': 'ad3f0bc0', 'name': 'Session 2026-10-10 15:29:56', 'started_at': 1791667796.3860862, 'ended_at': None, 'shots': 0, 'made': 0}]
+ad3f0bc0 0 []

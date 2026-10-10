@@ -1,0 +1,9 @@
+trial0 synth_burst realtime=True mode=after2: seen-before-kill=2 in-db=2 integrity=[('ok',)] after-restart=2 missing=[] changed=[1, 2] csv_rows={'28da6242': 2} sessions=[('28da6242', 2, None)]
+trial1 synth_burst realtime=True mode=after1: seen-before-kill=1 in-db=1 integrity=[('ok',)] after-restart=1 missing=[] changed=[1] csv_rows={'c7abf0b1': 1} sessions=[('c7abf0b1', 1, None)]
+trial2 synth_basic realtime=True mode=after3: seen-before-kill=3 in-db=4 integrity=[('ok',)] after-restart=4 missing=[] changed=[1, 2] csv_rows={'e7d45d6b': 4} sessions=[('e7d45d6b', 4, None)]
+trial3 synth_basic realtime=False mode=rand: seen-before-kill=0 in-db=0 integrity=[('ok',)] after-restart=0 missing=[] changed=[] csv_rows={'c717bae5': 0} sessions=[('c717bae5', 0, None)]
+trial4 synth_basic realtime=False mode=rand: seen-before-kill=0 in-db=0 integrity=[('ok',)] after-restart=0 missing=[] changed=[] csv_rows={'37803178': 0} sessions=[('37803178', 0, None)]
+trial5 synth_burst realtime=False mode=rand: seen-before-kill=1 in-db=1 integrity=[('ok',)] after-restart=1 missing=[] changed=[1] csv_rows={'2499536e': 1} sessions=[('2499536e', 1, None)]
+trial6 synth_basic realtime=True mode=copy: seen-before-kill=2 in-db=2 integrity=[('ok',)] after-restart=2 missing=[] changed=[1, 2] csv_rows={'1a5ee986': 2} sessions=[('1a5ee986', 2, None)]
+   COPY-while-running (db+wal+shm copied, no clips): integrity=[('ok',)] shots=2 seen_at_copy=2
+   copy served via app: [('1a5ee986', 2)]

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HiveShotTracker</title>
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
+</head>
+<body>
+<header id="topbar">
+  <div class="brand">HiveShot<span>Tracker</span></div>
+  <span id="demoBadge" class="demo-badge" style="display:none">DEMO</span>
+  <span id="wsState" class="pill bad">ws: connecting</span>
+  <span id="pipeState" class="pill">pipeline: ?</span>
+  <span id="calMismatch" class="pill warn" style="display:none"></span>
+  <span id="noCalib" class="pill warn" style="display:none">no calibration</span>
+  <div class="group">
+    <label>Session <select id="selSession"><option value="">(none)</option></select></label>
+    <input id="sessName" placeholder="session name" size="16">
+    <button id="btnStart">Start session</button>
+    <button id="btnEnd">End session</button>
+    <span id="sessLabel" class="muted">no session</span>
+  </div>
+  <div class="group">
+    <button id="btnPipeStart">Pipeline start</button>
+    <button id="btnPipeStop">Pipeline stop</button>
+  </div>
+  <div class="group">
+    <label>Alliance
+      <select id="selAlliance"><option>red</option><option>blue</option></select></label>
+    <label>Up cell
+      <select id="selUpCell"><option>audience</option><option>far</option></select></label>
+    <button id="btnHive">Set HIVE state</button>
+    <span id="hiveSrc" class="pill">HIVE: manual</span>
+  </div>
+  <button id="btnDemo" title="Run the bundled synthetic videos; nothing external is needed">Run demo</button>
+  <a id="lnkCsv" class="btnlink" href="#">Export CSV</a>
+</header>
+<div id="warnBanner" role="alert" style="display:none"></div>
+<div id="layout">
+  <aside id="cams"><h3>Cameras</h3><div id="camList" class="muted">loading config...</div></aside>
+  <main>
+    <nav id="tabs">
+      <button data-tab="setup">Setup</button>
+      <button data-tab="dashboard" class="active">Dashboard</button>
+      <button data-tab="shots">Shots</button>
+      <button data-tab="replay">Replay</button>
+      <button data-tab="calibration">Calibration</button>
+      <button data-tab="settings">Settings</button>
+    </nav>
+    <section id="tab-setup" class="tab">
+      <div class="card"><div id="setupStepBtns" class="stepper">
+        <button data-step="cameras" class="active">1. Cameras</button>
+        <button data-step="tags">2. Tags</button>
+        <button data-step="hivetags">3. Verify HIVE tags (optional)</button>
+        <button data-step="colors">4. Colors</button>
+        <button data-step="done">5. Done</button>
+      </div></div>
+      <div class="card setupstep active" data-step="cameras">
+        <h3>1. Cameras</h3>
+        <div class="hints"></div>
+        <p>Plug in both cameras, then press <b>Detect and preview</b>. Click <b>This is the -X wall camera</b> under the
+          picture taken from the minus-X wall; it becomes <b>cam0</b> and the other one becomes <b>cam1</b>.
+          This replaces the configured sources.</p>
+        <label><input id="chkProfile" type="checkbox" checked> Use Arducam 1080p90 profile</label>
+        <div style="margin-top:8px"><button id="btnDetectStart">Detect and preview</button></div>
+        <div id="setupCamMsg" class="muted" style="margin-top:6px"></div>
+        <div id="setupDevices" class="thumbs"></div>
+      </div>
+      <div class="card setupstep" data-step="tags">
+        <h3>2. Tags and auto-calibration</h3>
+        <div class="hints"></div>
+        <div id="tagSource">
+          <label><input type="radio" name="tagSource" value="kit" checked> I printed the tag sheet (recommended)</label><br>
+          <label><input type="radio" name="tagSource" value="hive"> No printer: use the HIVE's own tags</label>
+        </div>
+        <p><a id="lnkTagsPdf" class="btnlink" href="/api/calib/tags.pdf" target="_blank" rel="noopener">Open printable tag sheet (PDF)</a>
+          <span class="muted"> Print at 100% / Actual size and check the size line.</span></p>
+        <div id="tagsInfo">Place one tag at each frame corner so both cameras can see at least 2 tags.</div>
+        <div id="tagsSeen" class="muted" style="margin:6px 0"></div>
+        <button id="btnAutoCal">Auto-calibrate</button>
+        <div id="autoCalOut" style="margin-top:8px"></div>
+      </div>
+      <div class="card setupstep" data-step="hivetags">
+        <h3>3. Verify HIVE tags (optional)</h3>
+        <div class="hints"></div>
+        <p>The tags on the up CELL are already known from the manual. This step checks them against what the
+          cameras see and learns the tags on the down CELL, so the HIVE state can then be detected automatically.</p>
+        <p>Make sure the audience CELL is up. Press Learn. Then tip the HIVE by hand so the far CELL is up,
+          wait until it settles, press Learn again.</p>
+        <label>HIVE state being learned
+          <select id="learnState"><option value="audience">audience CELL up</option>
+            <option value="far">far CELL up</option></select></label>
+        <button id="btnLearn">Learn</button>
+        <div id="learnOut" style="margin-top:8px"></div>
+        <div id="learnSummary" style="margin-top:8px"></div>
+      </div>
+      <div class="card setupstep" data-step="colors">
+        <h3>4. Ball colors</h3>
+        <div class="hints"></div>
+        <p>Place a ball in view, choose its type, then click the ball in the picture.</p>
+        <label>Ball type <select id="colorBall"><option>pollen</option><option>nectar</option></select></label>
+        <div id="colorCams" class="thumbs"></div>
+        <pre id="colorOut" class="json"></pre>
+      </div>
+      <div class="card setupstep" data-step="done">
+        <h3>5. Done</h3>
+        <div class="hints"></div>
+        <p>Starts the pipeline (if stopped) and creates a session using the name in the top bar.</p>
+        <button id="btnFinish">Start pipeline and session</button>
+        <div id="finishMsg" class="muted" style="margin-top:6px"></div>
+      </div>
+    </section>
+    <section id="tab-dashboard" class="tab active">
+      <div id="tiles" class="tiles"></div>
+      <div class="row">
+        <div class="card"><h3>Failures by burst order</h3>
+          <canvas id="histChart" width="560" height="260"></canvas>
+          <div class="legend"><i class="sw s1"></i>All failures <i class="sw s2"></i>Bounce-outs</div></div>
+        <div class="card"><h3>By ball type</h3><table id="ballTable"></table></div>
+      </div>
+      <details id="tipsBox" class="card"><summary>Tip events <span id="tipCount" class="muted">(0)</span></summary>
+        <table id="tipTable" class="data"><thead><tr><th>Time</th><th>Alliance</th><th>New up cell</th><th>Caused by shot</th></tr></thead><tbody></tbody></table>
+      </details>
+    </section>
+    <section id="tab-shots" class="tab">
+      <div class="filterbar"><label>Result
+        <select id="shotFilter"><option value="all">all</option><option value="made">made</option>
+          <option value="miss">miss</option><option value="bounce_out">bounce_out</option>
+          <option value="unknown">unknown</option></select></label>
+        <span id="shotCount" class="muted"></span></div>
+      <table id="shotTable" class="data">
+        <thead><tr><th>#</th><th>Time</th><th>Burst</th><th>Ball</th><th>Result</th>
+          <th>Exit m/s</th><th>Exit in/s</th><th>Angle</th><th>Azimuth</th><th>Apex in</th></tr></thead>
+        <tbody></tbody></table>
+    </section>
+    <section id="tab-replay" class="tab">
+      <div class="replay">
+        <div id="viewport"><div id="noTrack">No 3D track for this shot</div></div>
+        <div class="side">
+          <div id="replayInfo" class="card muted">Select a shot in the Shots tab.</div>
+          <div class="card controls">
+            <button id="btnPlay">Play</button>
+            <label><input id="chkFollow" type="checkbox"> Follow ball</label>
+            <input id="scrub" type="range" min="0" max="1000" value="0">
+            <label>Speed <select id="speed"><option>0.1</option><option>0.25</option>
+              <option>0.5</option><option selected>1</option></select>x</label>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="tab-calibration" class="tab">
+      <div class="card"><a id="lnkCheckerboard" class="btnlink" href="/api/calib/checkerboard.pdf" download>Download checkerboard PDF</a>
+        <span class="muted"> Print at 100% / Actual size (1.00 in squares).</span>
+        <div style="margin-top:8px"><button id="btnCrosscheck">Cross-check</button>
+          <span class="muted"> Compares triangulated reference points with the field model.</span></div>
+        <div id="crosscheckOut" style="margin-top:6px"></div></div>
+      <div id="calibWarn" class="card warnbox" style="display:none"></div>
+      <div id="calibCams"></div>
+      <div class="card"><h3>Current calibration</h3><pre id="calibJson" class="json"></pre></div>
+    </section>
+    <section id="tab-settings" class="tab">
+      <div id="demoBanner" class="card warnbox" style="display:none"><b>demo config (not saved)</b>
+        <span> Changes made now are not stored; Exit demo restores your saved configuration.</span></div>
+      <form id="settingsForm" class="card"></form>
+    </section>
+  </main>
+</div>
+<div id="toast"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\3747h\Documents\HiveShotTracker
+configfile: pyproject.toml
+plugins: anyio-4.15.1, cov-7.1.0
+collected 18 items
+
+tests\test_recon.py ..................                                   [100%]
+
+============================= slowest 3 durations =============================
+0.33s call     tests/test_recon.py::test_alias_candidate_loses_to_true_offset
+0.28s call     tests/test_recon.py::test_periodic_bursts_alias_robust[0.0]
+0.28s call     tests/test_recon.py::test_periodic_bursts_alias_robust[0.137]
+============================= 18 passed in 2.02s ==============================

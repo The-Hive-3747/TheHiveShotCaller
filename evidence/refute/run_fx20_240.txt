@@ -1,0 +1,7 @@
+{"finished": true, "n_truth": 20, "n_shots": 19, "truth_made": 14, "expected_failure_hist": {"1": 1, "2": 2, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 74.58023977279663}
+STATS {"session_id": "e7a3b879", "shots": 19, "made": 11, "bounce_out": 0, "miss": 4, "unknown": 4, "make_rate": 0.5789473684210527, "by_ball_type": {"pollen": {"made": 11, "bounce_out": 0, "miss": 4, "unknown": 4, "shots": 19}}, "failure_order_hist": {"1": 1, "2": 1, "3": 3, "4": 3, "5": 0}, "bounce_out_order_hist": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}, "tips": 0, "mean_exit_speed_ips": 222.66273698005085, "mean_launch_angle_deg": 72.27205402125088}
+unmatched truth: [19]
+make/miss mismatches: [(3, True, 'unknown'), (8, False, 'made'), (10, True, 'miss'), (15, True, 'unknown'), (16, True, 'unknown'), (17, False, 'made')]
+speed err pct: max 78.05 mean 6.06 n=19
+no parabola: [] no drag: []
+burst mismatches: []

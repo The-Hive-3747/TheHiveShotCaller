@@ -1,0 +1,277 @@
+server pid 26928
+preview cam0.jpg bytes=72013
+--- status @~10s
+{
+ "running": true,
+ "cameras": {
+  "cam0": {
+   "fps": 0.0,
+   "dropped": 0,
+   "frames_read": 164,
+   "is_alive": false,
+   "last_error": null,
+   "reconnects": 0,
+   "props": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60.0,
+    "backend": "ffmpeg"
+   }
+  },
+  "cam1": {
+   "fps": 0.0,
+   "dropped": 0,
+   "frames_read": 164,
+   "is_alive": false,
+   "last_error": null,
+   "reconnects": 0,
+   "props": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60.0,
+    "backend": "ffmpeg"
+   }
+  }
+ },
+ "detector_fps": 0.0,
+ "last_shot_id": 6,
+ "hive_state": {
+  "alliance": "red",
+  "up_cell": "audience"
+ },
+ "rtmp": {
+  "available": true,
+  "running": false,
+  "urls": {
+   "cam0": "rtmp://127.0.0.1:1935/cam0",
+   "cam1": "rtmp://127.0.0.1:1935/cam1"
+  }
+ }
+}
+--- status @~25s
+{
+ "running": true,
+ "cameras": {
+  "cam0": {
+   "fps": 0.0,
+   "dropped": 0,
+   "frames_read": 164,
+   "is_alive": false,
+   "last_error": null,
+   "reconnects": 0,
+   "props": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60.0,
+    "backend": "ffmpeg"
+   }
+  },
+  "cam1": {
+   "fps": 0.0,
+   "dropped": 0,
+   "frames_read": 164,
+   "is_alive": false,
+   "last_error": null,
+   "reconnects": 0,
+   "props": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60.0,
+    "backend": "ffmpeg"
+   }
+  }
+ },
+ "detector_fps": 0.0,
+ "last_shot_id": 6,
+ "hive_state": {
+  "alliance": "red",
+  "up_cell": "audience"
+ },
+ "rtmp": {
+  "available": true,
+  "running": false,
+  "urls": {
+   "cam0": "rtmp://127.0.0.1:1935/cam0",
+   "cam1": "rtmp://127.0.0.1:1935/cam1"
+  }
+ }
+}
+--- status @~40s
+{
+ "running": true,
+ "cameras": {
+  "cam0": {
+   "fps": 0.0,
+   "dropped": 0,
+   "frames_read": 164,
+   "is_alive": false,
+   "last_error": null,
+   "reconnects": 0,
+   "props": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60.0,
+    "backend": "ffmpeg"
+   }
+  },
+  "cam1": {
+   "fps": 0.0,
+   "dropped": 0,
+   "frames_read": 164,
+   "is_alive": false,
+   "last_error": null,
+   "reconnects": 0,
+   "props": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60.0,
+    "backend": "ffmpeg"
+   }
+  }
+ },
+ "detector_fps": 0.0,
+ "last_shot_id": 6,
+ "hive_state": {
+  "alliance": "red",
+  "up_cell": "audience"
+ },
+ "rtmp": {
+  "available": true,
+  "running": false,
+  "urls": {
+   "cam0": "rtmp://127.0.0.1:1935/cam0",
+   "cam1": "rtmp://127.0.0.1:1935/cam1"
+  }
+ }
+}
+sessions: [{"session_id": "e0cb1a9d", "name": "Session 2026-10-10 15:00:16", "started_at": 1791666016.5063577, "ended_at": null, "shots": 6, "made": 4}]
+stats: {
+ "session_id": "e0cb1a9d",
+ "shots": 6,
+ "made": 4,
+ "bounce_out": 0,
+ "miss": 2,
+ "unknown": 0,
+ "make_rate": 0.6666666666666666,
+ "by_ball_type": {
+  "pollen": {
+   "made": 4,
+   "bounce_out": 0,
+   "miss": 2,
+   "unknown": 0,
+   "shots": 6
+  }
+ },
+ "failure_order_hist": {
+  "1": 0,
+  "2": 0,
+  "3": 1,
+  "4": 0,
+  "5": 1
+ },
+ "bounce_out_order_hist": {
+  "1": 0,
+  "2": 0,
+  "3": 0,
+  "4": 0,
+  "5": 0
+ },
+ "tips": 0,
+ "mean_exit_speed_ips": 233.4312460400768,
+ "mean_launch_angle_deg": 77.84374030104784
+}
+shots: [
+ {
+  "shot_id": 1,
+  "t_launch": 0.0,
+  "burst_id": 1,
+  "burst_index": 1,
+  "ball_type": "pollen",
+  "result": "made",
+  "exit_speed_ips": 237.31095564006748,
+  "exit_speed_mps": 6.027698273257713,
+  "launch_angle_deg": 78.67030316397833,
+  "launch_azimuth_deg": -108.95207431919135,
+  "apex_z_in": 82.17319654406218,
+  "equation": "z = -0.0889 s^2 + 4.99 s + 12.1 (in)",
+  "clip_url": "/clips/1_cam0.mp4"
+ },
+ {
+  "shot_id": 2,
+  "t_launch": 0.25,
+  "burst_id": 1,
+  "burst_index": 2,
+  "ball_type": "pollen",
+  "result": "made",
+  "exit_speed_ips": 224.78059286963585,
+  "exit_speed_mps": 5.709427058888751,
+  "launch_angle_deg": 74.74539831581677,
+  "launch_azimuth_deg": -124.55637562902169,
+  "apex_z_in": 72.9555976954518,
+  "equation": "z = -0.0552 s^2 + 3.67 s + 12.0 (in)",
+  "clip_url": "/clips/2_cam0.mp4"
+ },
+ {
+  "shot_id": 3,
+  "t_launch": 0.5,
+  "burst_id": 1,
+  "burst_index": 3,
+  "ball_type": "pollen",
+  "result": "miss",
+  "exit_speed_ips": 234.941465676974,
+  "exit_speed_mps": 5.9675132281951395,
+  "launch_angle_deg": 79.54770382156507,
+  "launch_azimuth_deg": -51.01054927422325,
+  "apex_z_in": 81.11489599358538,
+  "equation": "z = -0.1057 s^2 + 5.42 s + 11.6 (in)",
+  "clip_url": "/clips/3_cam0.mp4"
+ },
+ {
+  "shot_id": 4,
+  "t_launch": 0.75,
+  "burst_id": 1,
+  "burst_index": 4,
+  "ball_type": "pollen",
+  "result": "made",
+  "exit_speed_ips": 223.91364056854536,
+  "exit_speed_mps": 5.687406470441052,
+  "launch_angle_deg": 77.46919321648768,
+  "launch_azimuth_deg": -137.75681388793632,
+  "apex_z_in": 73.95161570608039,
+  "equation": "z = -0.0823 s^2 + 4.50 s + 12.5 (in)",
+  "clip_url": "/clips/4_cam0.mp4"
+ },
+ {
+  "shot_id": 5,
+  "t_launch": 1.0,
+  "burst_id": 1,
+  "burst_index": 5,
+  "ball_type": "pollen",
+  "result": "made",
+  "exit_speed_ips": 239.69402268797373,
+  "exit_speed_mps": 6.088228176274533,
+  "launch_angle_deg": 78.30554280835462,
+  "launch_azimuth_deg": -139.05216073639457,
+  "apex_z_in": 83.40838797266765,
+  "equation": "z = -0.0817 s^2 + 4.83 s + 12.0 (in)",
+  "clip_url": "/clips/5_cam0.mp4"
+ },
+ {
+  "shot_id": 6,
+  "t_launch": 1.25,
+  "burst_id": 1,
+  "burst_index": 6,
+  "ball_type": "pollen",
+  "result": "miss",
+  "exit_speed_ips": 239.9467987972643,
+  "exit_speed_mps": 6.094648689450513,
+  "launch_angle_deg": 78.32430048008462,
+  "launch_azimuth_deg": -159.1845146265342,
+  "apex_z_in": 83.54681678495585,
+  "equation": "z = -0.0820 s^2 + 4.84 s + 12.2 (in)",
+  "clip_url": "/clips/6_cam0.mp4"
+ }
+]
+shot0 track points=59 parabola={'a': -0.08888627796727525, 'b': 4.99104665908397, 'c': 12.110225850418002, 'rmse_in': 0.06950712921063862} clip=/clips/1_cam0.mp4
+clip bytes=92475
+killed pid 26928, returncode 1

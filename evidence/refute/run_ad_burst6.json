@@ -1,0 +1,261 @@
+{
+ "fixture": "C:\\Users\\3747h\\AppData\\Local\\Temp\\claude\\C--Users-3747h-Documents-HiveShotTracker\\386da1de-9207-4304-8c4f-9284e5732d29\\scratchpad\\ad_burst6",
+ "finished": true,
+ "n_truth": 9,
+ "n_shots": 9,
+ "truth_made": 6,
+ "stats": {
+  "session_id": "dc9fb691",
+  "shots": 9,
+  "made": 6,
+  "bounce_out": 0,
+  "miss": 3,
+  "unknown": 0,
+  "make_rate": 0.6666666666666666,
+  "by_ball_type": {
+   "pollen": {
+    "made": 6,
+    "bounce_out": 0,
+    "miss": 3,
+    "unknown": 0,
+    "shots": 9
+   }
+  },
+  "failure_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 2,
+   "4": 0,
+   "5": 1
+  },
+  "bounce_out_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "tips": 0,
+  "mean_exit_speed_ips": 231.49210032853964,
+  "mean_launch_angle_deg": 77.49256141354851
+ },
+ "expected_failure_hist": {
+  "1": 0,
+  "2": 0,
+  "3": 2,
+  "4": 0,
+  "5": 1
+ },
+ "rows": [
+  {
+   "truth": 0,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "made",
+   "speed_truth": 229.42287541567228,
+   "speed_meas": 229.41903485474512,
+   "speed_err_pct": -0.001674009586094538,
+   "angle_deg": 75.44125583177417,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    1
+   ],
+   "burst_truth": [
+    1,
+    1
+   ],
+   "ball_type": "pollen",
+   "notes": "track extrapolated into the up-CELL opening (ball hidden)"
+  },
+  {
+   "truth": 1,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "made",
+   "speed_truth": 227.0155715647741,
+   "speed_meas": 227.1198401585753,
+   "speed_err_pct": 0.04593015055420757,
+   "angle_deg": 77.78776243315009,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    2
+   ],
+   "burst_truth": [
+    1,
+    2
+   ],
+   "ball_type": "pollen",
+   "notes": "track extrapolated into the up-CELL opening (ball hidden)"
+  },
+  {
+   "truth": 2,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": false,
+   "result": "miss",
+   "speed_truth": 226.10697473591387,
+   "speed_meas": 226.126577161218,
+   "speed_err_pct": 0.00866953588098962,
+   "angle_deg": 78.81647165239325,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    3
+   ],
+   "burst_truth": [
+    1,
+    3
+   ],
+   "ball_type": "pollen",
+   "notes": ""
+  },
+  {
+   "truth": 3,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "made",
+   "speed_truth": 238.39997112396287,
+   "speed_meas": 238.45989204518193,
+   "speed_err_pct": 0.02513461764972469,
+   "angle_deg": 78.92302879179287,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    4
+   ],
+   "burst_truth": [
+    1,
+    4
+   ],
+   "ball_type": "pollen",
+   "notes": "track extrapolated into the up-CELL opening (ball hidden)"
+  },
+  {
+   "truth": 4,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "made",
+   "speed_truth": 240.6690749409002,
+   "speed_meas": 240.6472609946505,
+   "speed_err_pct": -0.009063875886439199,
+   "angle_deg": 77.30427286608152,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    5
+   ],
+   "burst_truth": [
+    1,
+    5
+   ],
+   "ball_type": "pollen",
+   "notes": "track extrapolated into the up-CELL opening (ball hidden); burst exceeds 4 balls (index 5)"
+  },
+  {
+   "truth": 5,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": false,
+   "result": "miss",
+   "speed_truth": 228.523218080567,
+   "speed_meas": 228.54152344448246,
+   "speed_err_pct": 0.00801028624977107,
+   "angle_deg": 75.68628341450929,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    1,
+    6
+   ],
+   "burst_truth": [
+    1,
+    6
+   ],
+   "ball_type": "pollen",
+   "notes": "burst exceeds 4 balls (index 6)"
+  },
+  {
+   "truth": 6,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "made",
+   "speed_truth": 223.3195835990707,
+   "speed_meas": 223.34939620681962,
+   "speed_err_pct": 0.01334975073321587,
+   "angle_deg": 76.09848292785635,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    2,
+    1
+   ],
+   "burst_truth": [
+    2,
+    1
+   ],
+   "ball_type": "pollen",
+   "notes": "track extrapolated into the up-CELL opening (ball hidden)"
+  },
+  {
+   "truth": 7,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": true,
+   "result": "made",
+   "speed_truth": 236.98786671415328,
+   "speed_meas": 236.99666771154514,
+   "speed_err_pct": 0.0037136911327451116,
+   "angle_deg": 78.833307195158,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    2,
+    2
+   ],
+   "burst_truth": [
+    2,
+    2
+   ],
+   "ball_type": "pollen",
+   "notes": "track extrapolated into the up-CELL opening (ball hidden)"
+  },
+  {
+   "truth": 8,
+   "matched": true,
+   "dt_launch": 0.0,
+   "made_truth": false,
+   "result": "miss",
+   "speed_truth": 232.74871629724893,
+   "speed_meas": 232.76871037963886,
+   "speed_err_pct": 0.008590415753095826,
+   "angle_deg": 78.54218760922107,
+   "has_parabola": true,
+   "has_drag": true,
+   "burst": [
+    2,
+    3
+   ],
+   "burst_truth": [
+    2,
+    3
+   ],
+   "ball_type": "pollen",
+   "notes": ""
+  }
+ ],
+ "extra_shots": [],
+ "elapsed_s": 8.623616695404053,
+ "burst_gap": 1.5
+}

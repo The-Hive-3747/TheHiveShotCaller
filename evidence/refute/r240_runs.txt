@@ -1,0 +1,16 @@
+== r240_a
+{"finished": true, "n_truth": 8, "n_shots": 9, "truth_made": 6, "expected_failure_hist": {"1": 0, "2": 1, "3": 1, "4": 0, "5": 0}, "extra_shots": [4], "elapsed_s": 17.114644050598145}
+unmatched truth: []
+make/miss mismatches: [(0, True, 'unknown')]
+speed err pct: max 0.04 mean 0.01 n=8
+no parabola: [] no drag: []
+burst mismatches: [(1, (1, 3), (1, 2)), (2, (1, 4), (1, 3)), (3, (1, 5), (1, 4))]
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s
+== r240_b
+{"finished": true, "n_truth": 8, "n_shots": 9, "truth_made": 6, "expected_failure_hist": {"1": 0, "2": 1, "3": 1, "4": 0, "5": 0}, "extra_shots": [5], "elapsed_s": 16.267045736312866}
+unmatched truth: []
+make/miss mismatches: [(6, True, 'unknown')]
+speed err pct: max 0.15 mean 0.04 n=8
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s

@@ -1,0 +1,12 @@
+start with kind=banana: (200, {'ok': True, 'running': True})
+{'running': True, 'rtmp': True, 'cams': {'cam0': {'fps': 0.0, 'frames_read': 0, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 0.0, 'frames_read': 0, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}, 'last_error': None, 'calib_mismatch': {}}
+GET /api/config sources [('cam0', 'rtmp'), ('cam1', 'rtmp')]
+restore 409
+PUT dup cam_id 409
+ start dup 200 {'ok': True, 'running': True}
+{'running': True, 'rtmp': True, 'cams': {'cam0': {'fps': 0.0, 'frames_read': 0, 'is_alive': True, 'last_error': "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)", 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 0.0, 'frames_read': 0, 'is_alive': True, 'last_error': "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)", 'reconnects': 0, 'ended': False}}, 'last_error': None, 'calib_mismatch': {}}
+200
+PUT zero sources 200
+ start zero 200 {'ok': True, 'running': True}
+200
+restore 200

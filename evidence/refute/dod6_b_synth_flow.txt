@@ -1,0 +1,32 @@
+up True
+PUT 200
+calib initial {'version': 1, 'intrinsics': [], 'extrinsics': []}
+start 200
+cam0 intr start {'ok': True, 'recording': True}
+cam0 intr stop 200 {'reprojection_rmse_px': 0.18072205613070988, 'frames_used': 39} stop call 1.5s
+cam1 intr start {'ok': True, 'recording': True}
+cam1 intr stop 200 {'reprojection_rmse_px': 0.22837359761833587, 'frames_used': 39} stop call 1.4s
+cam0 projected clicks (u,v):
+   Red HIVE up-CELL opening, high-left corner          738.4    370.1 
+   Red HIVE up-CELL opening, high-right corner         636.5    355.3 
+   Red HIVE up-CELL opening, low-right corner          692.0    463.7 
+   Red HIVE up-CELL opening, low-left corner           786.2    461.6 
+   HIVE frame base corner (-X, -Y)                     582.2    808.1 
+   HIVE frame base corner (+X, +Y)                     521.6   1076.2 
+   Tile intersection (-48, -48)                        552.6    742.0 
+   Tile intersection (+48, +48)                        587.0   1487.1 OUT OF FRAME
+cam0 extrinsics 200 {"rmse_in": 3.9691255061434325, "per_point": [{"name": "Red HIVE up-CELL opening, high-left corner", "err_px": 1.2557968634733854}, {"name": "Red HIVE up-CELL opening, high-right corner", "err_px": 0.5333016657811256}, {"name": "Red HIVE up-CELL opening, low-right corner", "err_px": 1.048162741817698}, {"name": "Red HIVE up-CELL opening, low-left corner", "err_px": 0.2846938781218166}, {"name": "HIVE frame base corner (-X, -Y)", "err_px": 0.9417036405945534}, {"name": "HIVE frame base corner (+X, +Y)", "err_px": 0.5072302441275854}, {"name": "Tile intersection (-48, -48)", "err_px": 0.33542068 0.05s
+cam1 projected clicks (u,v):
+   Red HIVE up-CELL opening, high-left corner         1356.5    304.3 
+   Red HIVE up-CELL opening, high-right corner        1204.2    325.5 
+   Red HIVE up-CELL opening, low-right corner         1150.1    436.6 
+   Red HIVE up-CELL opening, low-left corner          1293.3    439.7 
+   HIVE frame base corner (-X, -Y)                    1531.7    911.9 
+   HIVE frame base corner (+X, +Y)                    1014.9    810.8 
+   Tile intersection (-48, -48)                       1923.9    953.4 OUT OF FRAME
+   Tile intersection (+48, +48)                        774.9    788.1 
+cam1 extrinsics 200 {"rmse_in": 1.7134898601108437, "per_point": [{"name": "Red HIVE up-CELL opening, high-left corner", "err_px": 0.3837893851762809}, {"name": "Red HIVE up-CELL opening, high-right corner", "err_px": 0.17866212593804695}, {"name": "Red HIVE up-CELL opening, low-right corner", "err_px": 0.6996996349323727}, {"name": "Red HIVE up-CELL opening, low-left corner", "err_px": 0.23528039201919404}, {"name": "HIVE frame base corner (-X, -Y)", "err_px": 0.048554144553569864}, {"name": "HIVE frame base corner (+X, +Y)", "err_px": 0.49316820622282836}, {"name": "Tile intersection (-48, -48)", "err_px": 42.6 0.03s
+total scripted wall 45.4 s
+{"version": 1, "intrinsics": [{"cam_id": "cam0", "width": 1920, "height": 1080, "fx": 899.2958733808802, "fy": 899.1282199125142, "cx": 960.1304225335672, "cy": 539.9312265451028, "dist": [0.004385274145225068, -0.03386677393750666, -0.00019298423212165634, 0.00015368721647519897, 0.07840656093338291], "reprojection_rmse_px": 0.18072205613070988}, {"cam_id": "cam1", "width": 1920, "height": 1080, "fx": 900.38315530443, "fy": 900.0763181507651, "cx": 959.6938235042431, "cy": 538.208111936814, "dist": [-0.0008736587322401665, -0.011084346921989067, -0.0005829474234265439, -0.00030132486705558467, 0.02408316950770205], "reprojection_rmse_px": 0.22837359761833587}], "extrinsics": [{"cam_id": "cam0", "rvec": [1.085808079877443, 1.540751595667605, -1.4032954992941875], "tvec": [-48.48320997875327, 44.34184853439749, 109.34866751441712], "rmse_in": 3.9691255061434325, "stale": false}, {"cam_id": "cam1", "rvec": [1.024138879414008, -1.6572145432999956, 1.457533088280207], "tvec": [36.248069079921855, 40.64274475999421, 115.05861027964535], "rmse_in": 1.7134898601108437, "stale": false}]}
+stale [False, False]
+200

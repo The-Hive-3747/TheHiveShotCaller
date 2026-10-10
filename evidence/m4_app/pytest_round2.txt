@@ -1,0 +1,12 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\3747h\Documents\HiveShotTracker
+configfile: pyproject.toml
+plugins: anyio-4.15.1, cov-7.1.0
+collected 15 items
+
+tests\test_pipeline.py ...                                               [ 20%]
+tests\test_app.py .........                                              [ 80%]
+tests\test_store.py ...                                                  [100%]
+
+============================= 15 passed in 22.42s =============================

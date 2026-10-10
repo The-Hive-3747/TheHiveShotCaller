@@ -1,0 +1,10 @@
+.                                                                        [100%]
+============================== warnings summary ===============================
+tests\test_build_smoke.py:15
+  C:\Users\3747h\Documents\HiveShotTracker\tests\test_build_smoke.py:15: PytestUnknownMarkWarning: Unknown pytest.mark.build - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytest.mark.build,
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=================================== PASSES ====================================
+=========================== short test summary info ===========================
+PASSED tests/test_build_smoke.py::test_packaged_exe_runs_from_foreign_cwd

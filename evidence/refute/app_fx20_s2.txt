@@ -1,0 +1,6 @@
+truth shots 20 made 15
+app stats {"shots": 20, "made": 14, "bounce_out": 0, "miss": 5, "unknown": 1, "make_rate": 0.7, "by_ball_type": {"pollen": {"made": 14, "bounce_out": 0, "miss": 5, "unknown": 1, "shots": 20}}, "failure_order_hist": {"1": 2, "2": 1, "3": 2, "4": 1, "5": 0}}
+csv rows 20 shots keys ['apex_z_in', 'ball_type', 'burst_id', 'burst_index', 'clip_url', 'dropped_during_flight', 'equation', 'exit_speed_ips', 'exit_speed_mps', 'launch_angle_deg', 'launch_azimuth_deg', 'result', 'shot_id', 't_launch', 't_launch_wall']
+with equation: 20 with speed: 20 with angle: 20
+sample eq: z = -0.0679 s^2 + 4.25 s + 12.1 (in)
+server exit 1

@@ -1,0 +1,18 @@
+M4 UI verification (worker, no browser available)
+
+VERIFIED
+- tests/test_ui_static.py: 7 passed (index.html references exist, no external URLs, JS delimiter balance
+  via a comment/string/template/regex-aware scanner, relative imports resolve, every $('id') in app.js exists
+  in index.html or is created dynamically, every /api/ path used appears in docs/api.md, stub server serves
+  index.html + all JS/CSS/vendor files with 200 and non-empty bodies).
+- Manual stub fetch: see evidence/m4_ui/stub_fetch.txt (all 200, non-empty).
+- ruff check tests: All checks passed.
+
+NOT VERIFIED (no Node, no browser execution)
+- JS has never been parsed by a real engine: syntax errors, runtime exceptions, or typos are possible.
+- three.js scene rendering, OrbitControls with camera.up=(0,0,1), sprite labels, ball animation, scrubber.
+- WebSocket reconnect against the real backend, MJPEG <img> previews, calibration click->pixel mapping
+  (uses naturalWidth/getBoundingClientRect), Settings save round-trip, 1366 px layout appearance.
+- Assumptions about unspecified shapes: parabola z=a*s^2+b*s+c with s = horizontal distance from launch_point
+  along the measured-track direction; ball_type strings "pollen"/"nectar"; result strings made/bounce_out/miss/unknown;
+  t_launch > 1e8 treated as epoch seconds.

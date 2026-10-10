@@ -1,0 +1,15 @@
+== 86cd4d44 200 text/csv; charset=utf-8 attachment; filename="session_86cd4d44.csv" 594 bytes; BOM: False ; CRLF count 0 LF count 6
+ header==CSV_FIELDS: True ncols consistent: True
+ data rows 4 == shots 4 True
+   {'shot_id': '2', 't_launch': '2.0', 'result': 'bounce_out', 'exit_speed_ips': '230.123456789', 'exit_speed_mps': '5.845135802440599', 'parabola_a': '-0.0888', 'apex_z_in': '80.0'} notes= 'has, comma "quote"\nnewline and unicode é中' bad []
+   {'shot_id': '3', 't_launch': '3.0', 'result': 'unknown', 'exit_speed_ips': '', 'exit_speed_mps': '', 'parabola_a': '', 'apex_z_in': ''} notes= '' bad []
+   {'shot_id': '4', 't_launch': '4.0', 'result': 'made', 'exit_speed_ips': '1e-07', 'exit_speed_mps': '2.54e-09', 'parabola_a': '-0.0888', 'apex_z_in': '1e+22'} notes= "=cmd|' /C calc'!A0" bad []
+   {'shot_id': '1', 't_launch': '1000000000.123456', 'result': 'made', 'exit_speed_ips': '230.123456789', 'exit_speed_mps': '5.845135802440599', 'parabola_a': '-0.0888', 'apex_z_in': '80.0'} notes= '' bad []
+== c9c078cb 200 text/csv; charset=utf-8 attachment; filename="session_c9c078cb.csv" 181 bytes; BOM: False ; CRLF count 0 LF count 1
+ header==CSV_FIELDS: True ncols consistent: True
+ data rows 0 == shots 0 True
+== unassigned 200 text/csv; charset=utf-8 attachment; filename="session_unassigned.csv" 385 bytes; BOM: False ; CRLF count 0 LF count 3
+ header==CSV_FIELDS: True ncols consistent: True
+ data rows 2 == shots 2 True
+   {'shot_id': '5', 't_launch': '5.0', 'result': 'made', 'exit_speed_ips': '230.123456789', 'exit_speed_mps': '5.845135802440599', 'parabola_a': '-0.0888', 'apex_z_in': '80.0'} notes= '' bad []
+   {'shot_id': '6', 't_launch': '6.0', 'result': 'miss', 'exit_speed_ips': '230.123456789', 'exit_speed_mps': '5.845135802440599', 'parabola_a': '-0.0888', 'apex_z_in': '80.0'} notes= '' bad []

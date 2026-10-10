@@ -1,0 +1,9 @@
+PUT 200
+start 200
+intr stop w/o start (409, {'detail': 'not recording'})
+intr start (200, {'ok': True, 'recording': True})
+intr stop (422, {'detail': "Only 0 of 40 frames had a detectable 9x6 checkerboard for camera 'cam0'; need at least 8. Hold the board flat, fully visible, at varied angles and distances."}) stop took 4.77s
+extrinsics without intrinsics (422, {'detail': "unknown reference point name 'x'"})
+preview jpg 200 50539 640 480
+200
+(200, {'version': 1, 'intrinsics': [{'cam_id': 'cam0', 'width': 1920, 'height': 1080, 'fx': 900.0, 'fy': 900.0, 'cx': 960.0, 'cy': 540.0, 'dist': [0.0, 0.0, 0.0, 0.0, 0.0], 'reprojection_rmse_px': 0.0}, {'cam_id': 'cam1', 'width': 1920, 'height': 1080, 'fx': 900.0, 'fy': 900.0, 'cx': 960.0, 'cy': 540.0, 'dist': [0.0, 0.0, 0.0, 0.0, 0.0], 'reprojection_rmse_px': 0.0}], 'extrinsics': [{'cam_id': 'cam0', 'rvec': [1.0829350966638505, 1.5478215702556988, -1.4009424077015902], 'tvec': [-48.52323868481526, 44.366828973770694, 109.21117064819254], 'rmse_in': 0.0, 'stale': False}, {'cam_id': 'cam1', 'rvec': [1.0245754919969385, -1.6585255275007609, 1.4562669918710318], 'tvec': [36.323378654443204, 40.42717965714667, 115.30938950534222], 'rmse_in': 0.0, 'stale': False}]})

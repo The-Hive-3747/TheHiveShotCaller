@@ -1,0 +1,35 @@
+== ruff
+F821 Undefined name `FRAG_MAX_GAP_S`
+   --> hiveshot\pipeline.py:575:34
+    |
+573 |         for ch in self._chains:
+574 |             gap = first.t - ch.points[-1].t
+575 |             if gap <= 0 or gap > FRAG_MAX_GAP_S:
+    |                                  ^^^^^^^^^^^^^^
+576 |                 continue
+577 |             pred = self._extrapolate(ch.points, first.t)
+    |
+
+F821 Undefined name `FRAG_HOLD_S`
+   --> hiveshot\pipeline.py:594:51
+    |
+592 |         keep: list[Track3D] = []
+593 |         for ch in self._chains:
+594 |             if final or t_now - ch.points[-1].t > FRAG_HOLD_S:
+    |                                                   ^^^^^^^^^^^
+595 |                 self._finalize(ch)
+596 |             else:
+    |
+
+Found 2 errors.
+ruff failed (exit 1)
+At C:\Users\3747h\Documents\HiveShotTracker\build.ps1:9 char:32
++ ... f ($LASTEXITCODE -ne 0) { throw "$name failed (exit $LASTEXITCODE)" }
++                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (ruff failed (exit 1):String) [], RuntimeException
+    + FullyQualifiedErrorId : ruff failed (exit 1)
+ 
+
+real	0m0.401s
+user	0m0.000s
+sys	0m0.000s

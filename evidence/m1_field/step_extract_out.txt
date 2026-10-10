@@ -1,0 +1,87 @@
+$ .venv/Scripts/python.exe -I tools/step_extract.py --pattern "Bottom Skin|Goal Rib|April Tag|Pivot Bracket" --extents --max 100
+entities: 527790
+products: 188 nauo: 1076 with transform: 1076
+length unit: ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.) ) -> inches factor 39.37007874015748
+roots: ['am-5850 BIOBUZZ', 'Hex lock nut with nylon insert #10-32', 'am-1775: #6 x 1/2in Sheet Metal Screw', 'Pan head machine screw #10-32 x 1.75', 'Socket head cap screw #10-32 x 0.75']
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue1: Blue Cell (Audience) <1>/am-5866-blue: Blue Goal Rib: origin_in=[12.758, 49.254, 14.034] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.866, 0.5] z=[-0.0, 0.5, -0.866]
+    vertices=3991 world_min_in=[2.26, 35.67, 6.69] world_max_in=[23.26, 50.49, 15.44]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue1: Blue Cell (Audience) <1>/am-5866-blue: Blue Goal Rib: origin_in=[12.758, 43.308, 24.333] x=[1.0, 0.0, 0.0] y=[-0.0, 0.866, 0.5] z=[0.0, -0.5, 0.866]
+    vertices=3991 world_min_in=[2.26, 30.65, 15.37] world_max_in=[23.26, 44.81, 25.04]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue1: Blue Cell (Audience) <1>/am-5888-blue1: Blue Goal April Tag (Audience): origin_in=[21.258, 34.401, 13.562] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.5, -0.866] z=[0.0, -0.866, -0.5]
+    vertices=32 world_min_in=[4.26, 34.39, 9.23] world_max_in=[21.26, 36.9, 13.56]
+    local_min_in=[0.0, 0.0, 0.0] local_max_in=[17.0, 5.0, 0.01]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue1: Blue Cell (Audience) <1>/am-5888: Hive Goal Bottom Skin: origin_in=[2.679, 37.856, 7.618] x=[1.0, 0.0, 0.0] y=[-0.0, 0.866, 0.5] z=[0.0, -0.5, 0.866]
+    vertices=80 world_min_in=[2.66, 31.96, 7.61] world_max_in=[22.86, 44.58, 21.66]
+    local_min_in=[-0.02, -0.02, -0.0] local_max_in=[20.18, 7.8, 11.75]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/Goal Pivot Assembly <1>/am-5873: Goal Pivot Bracket: origin_in=[13.333, 43.95, 0.0] x=[-0.0, 0.5, -0.866] y=[-0.0, 0.866, 0.5] z=[1.0, 0.0, 0.0]
+    vertices=118 world_min_in=[13.26, 38.37, -7.13] world_max_in=[13.33, 45.7, 4.91]
+    local_min_in=[-6.89, -2.71, -0.07] local_max_in=[6.89, 0.88, 0.0]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/Goal Pivot Assembly <1>/am-5873: Goal Pivot Bracket: origin_in=[12.258, 43.95, 0.0] x=[-0.0, 0.5, -0.866] y=[-0.0, 0.866, 0.5] z=[1.0, 0.0, 0.0]
+    vertices=118 world_min_in=[12.18, 38.37, -7.13] world_max_in=[12.26, 45.7, 4.91]
+    local_min_in=[-6.89, -2.71, -0.07] local_max_in=[6.89, 0.88, 0.0]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue2: Blue Cell (Scoring) <1>/am-5888: Hive Goal Bottom Skin: origin_in=[22.837, 47.5, -9.086] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.866, 0.5] z=[-0.0, 0.5, -0.866]
+    vertices=80 world_min_in=[2.66, 47.48, -19.27] world_max_in=[22.86, 60.1, -5.22]
+    local_min_in=[-0.02, -0.02, -0.0] local_max_in=[20.18, 7.8, 11.75]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue2: Blue Cell (Scoring) <1>/am-5866-blue: Blue Goal Rib: origin_in=[12.758, 64.702, -12.722] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.866, 0.5] z=[-0.0, 0.5, -0.866]
+    vertices=3991 world_min_in=[2.26, 51.12, -20.06] world_max_in=[23.26, 65.93, -11.32]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue2: Blue Cell (Scoring) <1>/am-5866-blue: Blue Goal Rib: origin_in=[12.758, 58.756, -2.423] x=[1.0, 0.0, 0.0] y=[-0.0, 0.866, 0.5] z=[0.0, -0.5, 0.866]
+    vertices=3991 world_min_in=[2.26, 46.1, -11.38] world_max_in=[23.26, 60.26, -1.71]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Blue Hive <1>/am-5865-blue2: Blue Cell (Scoring) <1>/am-5888-blue2: Blue Goal April Tag (Scoring): origin_in=[4.258, 50.92, -15.05] x=[1.0, 0.0, 0.0] y=[0.0, -0.5, 0.866] z=[0.0, -0.866, -0.5]
+    vertices=32 world_min_in=[4.26, 48.41, -15.06] world_max_in=[21.26, 50.92, -10.72]
+    local_min_in=[0.0, 0.0, 0.0] local_max_in=[17.0, 5.0, 0.01]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red1: Red Cell (Audience) <1>/am-5866-red: Red Goal Rib: origin_in=[-12.742, 58.756, 2.423] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.866, -0.5] z=[0.0, -0.5, -0.866]
+    vertices=3991 world_min_in=[-23.24, 46.1, 1.71] world_max_in=[-2.24, 60.26, 11.38]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red1: Red Cell (Audience) <1>/am-5888: Hive Goal Bottom Skin: origin_in=[-22.821, 47.5, 9.086] x=[1.0, 0.0, 0.0] y=[-0.0, 0.866, -0.5] z=[-0.0, 0.5, 0.866]
+    vertices=80 world_min_in=[-22.84, 47.48, 5.22] world_max_in=[-2.64, 60.1, 19.27]
+    local_min_in=[-0.02, -0.02, -0.0] local_max_in=[20.18, 7.8, 11.75]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red1: Red Cell (Audience) <1>/am-5888-red1: Red Goal April Tag (Audience): origin_in=[-4.242, 50.92, 15.05] x=[-1.0, 0.0, 0.0] y=[-0.0, -0.5, -0.866] z=[-0.0, -0.866, 0.5]
+    vertices=32 world_min_in=[-21.24, 48.41, 10.72] world_max_in=[-4.24, 50.92, 15.06]
+    local_min_in=[0.0, 0.0, 0.0] local_max_in=[17.0, 5.0, 0.01]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red1: Red Cell (Audience) <1>/am-5866-red: Red Goal Rib: origin_in=[-12.742, 64.702, 12.722] x=[1.0, 0.0, 0.0] y=[-0.0, 0.866, -0.5] z=[-0.0, 0.5, 0.866]
+    vertices=3991 world_min_in=[-23.24, 51.12, 11.32] world_max_in=[-2.24, 65.93, 20.06]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/Goal Pivot Assembly <1>/am-5873: Goal Pivot Bracket: origin_in=[-12.167, 43.95, 0.0] x=[0.0, -0.5, -0.866] y=[-0.0, 0.866, -0.5] z=[1.0, 0.0, -0.0]
+    vertices=118 world_min_in=[-12.24, 38.37, -4.91] world_max_in=[-12.17, 45.7, 7.13]
+    local_min_in=[-6.89, -2.71, -0.07] local_max_in=[6.89, 0.88, 0.0]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/Goal Pivot Assembly <1>/am-5873: Goal Pivot Bracket: origin_in=[-13.242, 43.95, 0.0] x=[0.0, -0.5, -0.866] y=[-0.0, 0.866, -0.5] z=[1.0, 0.0, 0.0]
+    vertices=118 world_min_in=[-13.32, 38.37, -4.91] world_max_in=[-13.24, 45.7, 7.13]
+    local_min_in=[-6.89, -2.71, -0.07] local_max_in=[6.89, 0.88, 0.0]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red2: Red Cell (Scoring) <1>/am-5888-red2: Red Goal April Tag (Scoring): origin_in=[-21.242, 34.401, -13.562] x=[1.0, -0.0, -0.0] y=[0.0, 0.5, 0.866] z=[-0.0, -0.866, 0.5]
+    vertices=32 world_min_in=[-21.24, 34.39, -13.56] world_max_in=[-4.24, 36.9, -9.23]
+    local_min_in=[0.0, 0.0, 0.0] local_max_in=[17.0, 5.0, 0.01]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red2: Red Cell (Scoring) <1>/am-5866-red: Red Goal Rib: origin_in=[-12.742, 43.308, -24.333] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.866, -0.5] z=[0.0, -0.5, -0.866]
+    vertices=3991 world_min_in=[-23.24, 30.65, -25.04] world_max_in=[-2.24, 44.81, -15.37]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red2: Red Cell (Scoring) <1>/am-5888: Hive Goal Bottom Skin: origin_in=[-2.663, 37.856, -7.618] x=[-1.0, -0.0, -0.0] y=[-0.0, 0.866, -0.5] z=[0.0, -0.5, -0.866]
+    vertices=80 world_min_in=[-22.84, 31.96, -21.66] world_max_in=[-2.64, 44.58, -7.61]
+    local_min_in=[-0.02, -0.02, -0.0] local_max_in=[20.18, 7.8, 11.75]
+am-5850 BIOBUZZ/am-5853-Red Hive <1>/am-5865-red2: Red Cell (Scoring) <1>/am-5866-red: Red Goal Rib: origin_in=[-12.742, 49.254, -14.034] x=[1.0, 0.0, 0.0] y=[-0.0, 0.866, -0.5] z=[-0.0, 0.5, 0.866]
+    vertices=3991 world_min_in=[-23.24, 35.67, -15.44] world_max_in=[-2.24, 50.49, -6.69]
+    local_min_in=[-10.5, -14.58, -1.94] local_max_in=[10.5, 1.45, 0.06]
+
+$ .venv/Scripts/python.exe -I tools/step_extract.py --summary
+entities: 527790
+products: 188 nauo: 1076 with transform: 1076
+length unit: ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.) ) -> inches factor 39.37007874015748
+roots: ['am-5850 BIOBUZZ', 'Hex lock nut with nylon insert #10-32', 'am-1775: #6 x 1/2in Sheet Metal Screw', 'Pan head machine screw #10-32 x 1.75', 'Socket head cap screw #10-32 x 0.75']
+== am-5865-blue1: Blue Cell (Audience) <1>
+  Goal Ribs: world y(up) min=30.653 max=50.486  z min=6.693 max=25.044  x min=2.258 max=23.258
+  am-5888-blue1: Blue Goal April Tag (Audience): bbox center x,y,z = [12.758, 35.647, 11.394] (a,b audience-up frame) = (5.716, -12.888) size = [17.0, 2.509, 4.335]
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [12.758, 38.27, 14.636] (a,b audience-up frame) = (9.835, -12.237) size = [20.198, 12.613, 14.055]
+== am-5865-blue2: Blue Cell (Scoring) <1>
+  Goal Ribs: world y(up) min=46.100 max=65.934  z min=-20.063 max=-1.712  x min=2.258 max=23.258
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [12.758, 53.789, -12.244] (a,b audience-up frame) = (-5.684, 14.643) size = [20.198, 12.613, 14.055]
+  am-5888-blue2: Blue Goal April Tag (Scoring): bbox center x,y,z = [12.758, 49.666, -12.887] (a,b audience-up frame) = (-8.303, 11.394) size = [17.0, 2.509, 4.335]
+== am-5865-red1: Red Cell (Audience) <1>
+  Goal Ribs: world y(up) min=46.100 max=65.934  z min=1.712 max=20.063  x min=-23.242 max=-2.242
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [-12.742, 53.789, 12.244] (a,b audience-up frame) = (15.523, 2.399) size = [20.198, 12.613, 14.055]
+  am-5888-red1: Red Goal April Tag (Audience): bbox center x,y,z = [-12.742, 49.666, 12.887] (a,b audience-up frame) = (14.019, -1.493) size = [17.0, 2.509, 4.335]
+== am-5865-red2: Red Cell (Scoring) <1>
+  Goal Ribs: world y(up) min=30.653 max=50.486  z min=-25.044 max=-6.693  x min=-23.242 max=-2.242
+  am-5888-red2: Red Goal April Tag (Scoring): bbox center x,y,z = [-12.742, 35.647, -11.394] (a,b audience-up frame) = (-14.019, -1.493) size = [17.0, 2.509, 4.335]
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [-12.742, 38.27, -14.636] (a,b audience-up frame) = (-15.515, 2.399) size = [20.198, 12.613, 14.055]

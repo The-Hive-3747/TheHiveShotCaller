@@ -1,0 +1,18 @@
+A hfov 86
+   Red HIVE up-CELL opening, high-left corner       (-22.8, 20.7, 65.6)    1274.8    469.0 
+   Red HIVE up-CELL opening, high-right corner      (-2.8, 20.7, 65.6)    1135.1    554.9 
+   Red HIVE up-CELL opening, low-right corner       (-2.8, 27.8, 53.5)    1068.1    684.8 
+   Red HIVE up-CELL opening, low-left corner        (-22.8, 27.8, 53.5)    1203.3    624.9 
+   HIVE frame top corner (-X, +Y)                   (-24.7, 19.5, 64.0)    1310.1    482.6 
+   HIVE frame top corner (+X, +Y)                   (24.7, 19.5, 64.0)    1023.8    645.4 
+   HIVE frame top corner (-X, -Y)                   (-24.7, -19.5, 64.0)    1704.9    547.3 
+   HIVE frame top corner (+X, -Y)                   (24.7, -19.5, 64.0)    1312.1    671.8 
+B hfov 86
+   Red HIVE up-CELL opening, high-left corner       (-22.8, 20.7, 65.6)     825.3    544.2 
+   Red HIVE up-CELL opening, high-right corner      (-2.8, 20.7, 65.6)     702.1    487.9 
+   Red HIVE up-CELL opening, low-right corner       (-2.8, 27.8, 53.5)     760.4    615.8 
+   Red HIVE up-CELL opening, low-left corner        (-22.8, 27.8, 53.5)     881.2    653.7 
+   HIVE frame top corner (-X, +Y)                   (-24.7, 19.5, 64.0)     824.7    565.1 
+   HIVE frame top corner (+X, +Y)                   (24.7, 19.5, 64.0)     411.2    389.8 
+   HIVE frame top corner (-X, -Y)                   (-24.7, -19.5, 64.0)     553.9    599.9 
+   HIVE frame top corner (+X, -Y)                   (24.7, -19.5, 64.0)      80.1    476.6 

@@ -1,0 +1,22 @@
+Finalize delay (source seconds from last measured 3D point to shot emission; since_closed = from 2D track closure).
+Stitching triggered on either fixture: no (fragments == 1 for every shot, before and after).
+
+BEFORE (FRAG_HOLD_S=2.0 s hold after last point, recon cycle 0.5 s wall time; baseline run on original code):
+ synth_basic lag_s: 1.783 1.650 0.983 1.133 0.767 0.217(final flush) -> median 1.06, max 1.78 (excl. flush)
+ synth_burst lag_s: 2.917 2.600 2.983 3.017 0.933 0.217(final flush) -> median 2.92, max 3.02 (excl. flush)
+
+AFTER (finalize_delay_s=0.5, stitch_gap_s=2.0, recon cycles paced in source time every 0.2 s), final-code runs:
+== synth_basic
+{last_pt: 0.933, 't_now': 1.75, 'lag_s': 0.817, 'since_closed_s': 0.717
+{last_pt: 1.067, 't_now': 1.8, 'lag_s': 0.733, 'since_closed_s': 0.633
+{last_pt: 1.583, 't_now': 2.3, 'lag_s': 0.717, 'since_closed_s': 0.617
+{last_pt: 1.733, 't_now': 2.6, 'lag_s': 0.867, 'since_closed_s': 0.767
+{last_pt: 1.95, 't_now': 2.65, 'lag_s': 0.7, 'since_closed_s': 0.6
+{last_pt: 2.5, 't_now': 2.717, 'lag_s': 0.217, 'since_closed_s': 0.117
+== synth_burst
+{last_pt: 0.85, 't_now': 1.533, 'lag_s': 0.683, 'since_closed_s': 0.583
+{last_pt: 1.2, 't_now': 1.833, 'lag_s': 0.633, 'since_closed_s': 0.533
+{last_pt: 1.833, 't_now': 2.667, 'lag_s': 0.833, 'since_closed_s': 0.733
+{last_pt: 1.833, 't_now': 2.717, 'lag_s': 0.883, 'since_closed_s': 0.783
+{last_pt: 4.7, 't_now': 5.6, 'lag_s': 0.9, 'since_closed_s': 0.8
+{last_pt: 5.417, 't_now': 5.633, 'lag_s': 0.217, 'since_closed_s': 0.117

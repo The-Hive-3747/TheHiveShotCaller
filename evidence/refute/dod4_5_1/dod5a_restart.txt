@@ -1,0 +1,8 @@
+BEFORE kill: sessions [{'session_id': '60056b6a', 'name': 'Session 2026-10-10 15:31:47', 'started_at': 1791667907.0110528, 'ended_at': None, 'shots': 6, 'made': 3}]
+tips {'60056b6a': [{'t': 0.06666666666666667, 'alliance': 'red', 'new_up_cell': 'far', 'caused_by_shot_id': None}, {'t': 0.5166666666666667, 'alliance': 'red', 'new_up_cell': 'audience', 'caused_by_shot_id': None}]}
+files after kill: [('clips', 4096), ('hiveshot.db', 4096), ('hiveshot.db-shm', 32768), ('hiveshot.db-wal', 449112)]
+integrity (direct open after kill): ([('ok',)], (6,))
+integrity after restart+kill: ([('ok',)], (6,))
+DIFFS (shots,tips,stats,csv): []
+session 60056b6a before {'session_id': '60056b6a', 'name': 'Session 2026-10-10 15:31:47', 'started_at': 1791667907.0110528, 'ended_at': None, 'shots': 6, 'made': 3} after {'session_id': '60056b6a', 'name': 'Session 2026-10-10 15:31:47', 'started_at': 1791667907.0110528, 'ended_at': None, 'shots': 6, 'made': 3}
+csv rows 6 shots 6

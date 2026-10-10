@@ -1,0 +1,1 @@
+watertight=True volume_cm3=20.53 extents=[44.0, 47.0, 50.0] faces=2622

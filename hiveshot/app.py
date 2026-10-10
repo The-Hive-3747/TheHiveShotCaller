@@ -1,0 +1,963 @@
+"""FastAPI application implementing docs/api.md."""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import contextlib
+import json
+import logging
+import os
+import tempfile
+import threading
+import webbrowser
+from pathlib import Path
+from typing import Optional
+
+import cv2
+import numpy as np
+from fastapi import Body, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
+
+from . import calib, calib_targets, field, ingest
+from . import config as cfgmod
+from .pipeline import ConfigConflict, Pipeline, computed_hive_defs
+from .resources import resource_path
+from .shots import annotate, summarize
+from .stats import compute_stats, shots_to_csv, stats_to_dict
+from .store import Store, shot_full
+
+log = logging.getLogger("hiveshot.app")
+
+DEMO_REALTIME = True            # tests may set False so the demo footage runs flat out
+DEMO_SESSION_TEMPLATE = "Demo {date} {time}"
+DEMO_FIXTURES = ("synth_20", "synth_basic")
+
+
+def demo_config() -> cfgmod.AppConfig:
+    """The demo setup: two bundled synthetic videos on loop, the calibration embedded in the
+    fixture truth JSON, HIVE state manual (red, audience up). Never written to config.json."""
+    fx = next((f for f in DEMO_FIXTURES
+               if (cfgmod.ROOT / "fixtures" / f / "cam0.mp4").exists()), DEMO_FIXTURES[-1])
+    return cfgmod.AppConfig(
+        sources=[cfgmod.SourceConfig(cam_id=f"cam{i}", kind="file", loop=True,
+                                     realtime=DEMO_REALTIME,
+                                     target=f"fixtures/{fx}/cam{i}.mp4") for i in (0, 1)],
+        calibration_path="data/calibration.json",    # absent in the demo dir: fixture truth
+        alliance="red", hive_up_cell="audience", session_name_template=DEMO_SESSION_TEMPLATE,
+        session_idle_end_min=0.0, autosave_csv=False)
+
+UI_DIR = resource_path("ui")
+MAX_INTRINSIC_FRAMES = 40
+_REQ = Body(...)
+_OPT = Body(default_factory=dict)
+
+
+class _Recorder:
+    """Records frames from a capture reader at ~2 fps into memory."""
+
+    def __init__(self, reader, period_s: float = 0.5):
+        self.reader = reader
+        self.period_s = period_s
+        self.frames: list[np.ndarray] = []
+        self._stop = threading.Event()
+        self._last_idx = -1
+        self._th = threading.Thread(target=self._run, daemon=True, name="intr-recorder")
+        self._th.start()
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            fr = self.reader.latest()
+            if fr is not None and fr.frame_idx != self._last_idx \
+                    and len(self.frames) < MAX_INTRINSIC_FRAMES:
+                self._last_idx = fr.frame_idx
+                self.frames.append(fr.image.copy())
+            self._stop.wait(self.period_s)
+
+    def stop(self) -> list[np.ndarray]:
+        self._stop.set()
+        self._th.join(timeout=2)
+        return self.frames
+
+
+class AppState:
+    def __init__(self, config_path: Path, data_dir: Path, overrides: Optional[dict] = None,
+                 autostart: bool = False):
+        self.config_path = Path(config_path)
+        self.data_dir = Path(data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        (self.data_dir / "clips").mkdir(parents=True, exist_ok=True)
+        self.cfg = cfgmod.load(self.config_path)
+        if overrides:
+            self.cfg = cfgmod.AppConfig.model_validate(cfgmod.merge(self.cfg.to_dict(), overrides))
+        self.autostart = autostart
+        self.demo = False
+        self._user: Optional[dict] = None       # the user's state while the demo runs
+        self.store = Store(self.data_dir / "hiveshot.db")
+        self.loop: Optional[asyncio.AbstractEventLoop] = None
+        self.clients: set[WebSocket] = set()
+        self.pipeline = Pipeline(self.cfg, self.store, self.data_dir, on_event=self.on_event)
+        self.recorders: dict[str, _Recorder] = {}
+        self.lock = threading.Lock()
+        # last extrinsics click set per camera: {cam_id: [{name, u, v}]} (image pixels)
+        self.clicks: dict[str, list[dict]] = self._load_clicks()
+        # learned HIVE tag corners per state: {"red_audience": {"34": [[x,y,z] x4]}}
+        self.hive_tags: dict[str, dict[str, list]] = self._load_extra("hive_tags")
+
+    def _calib_path(self) -> Path:
+        return cfgmod.resolve_path(self.cfg.calibration_path, self.data_dir)
+
+    def _load_extra(self, key: str) -> dict:
+        try:
+            data = json.loads(self._calib_path().read_text(encoding="utf-8"))
+            return dict(data.get(key) or {})
+        except (OSError, ValueError, AttributeError):
+            return {}
+
+    def _load_clicks(self) -> dict[str, list[dict]]:
+        return {str(k): list(v) for k, v in self._load_extra("clicks").items()}
+
+    # events from pipeline threads -> websocket clients
+    def on_event(self, ev: dict) -> None:
+        loop = self.loop
+        if loop is None or loop.is_closed():
+            return
+        asyncio.run_coroutine_threadsafe(self.broadcast(ev), loop)
+
+    async def broadcast(self, msg: dict) -> None:
+        for ws in list(self.clients):
+            try:
+                await ws.send_json(msg)
+            except Exception:  # noqa: BLE001
+                self.clients.discard(ws)
+
+    def status_msg(self) -> dict:
+        return {"type": "status", **self.pipeline.status()}
+
+    def save_cfg(self) -> None:
+        if self.demo:
+            return          # the demo config is never persisted
+        cfgmod.save(self.config_path, self.cfg)
+
+    # ------------------------------------------------------------------ demo mode
+    def start_demo(self) -> str:
+        """Swap to the demo setup (own data dir `<data>/demo`, own database, in-memory
+        config), start it and open a "Demo ..." session. Returns the session id."""
+        with self.lock:
+            if self._user is None and not self.demo:
+                self.pipeline.stop()
+                demo_dir = self.data_dir / "demo"
+                demo_dir.mkdir(parents=True, exist_ok=True)
+                (demo_dir / "clips").mkdir(exist_ok=True)
+                cfg = demo_config()
+                store = Store(demo_dir / "hiveshot.db")
+                self._user = {"cfg": self.cfg, "pipeline": self.pipeline, "store": self.store,
+                              "data_dir": self.data_dir, "clicks": self.clicks,
+                              "hive_tags": self.hive_tags}
+                self.cfg, self.store, self.data_dir = cfg, store, demo_dir
+                self.pipeline = Pipeline(cfg, store, demo_dir, on_event=self.on_event,
+                                         demo=True)
+                self.clicks, self.hive_tags = {}, {}
+                self.demo = True
+            else:
+                self.pipeline.stop()        # demo already active: restart it
+            self.demo = True
+            self.pipeline.demo = True
+            for sid in self.store.open_sessions():
+                self.store.end_session(sid)
+            sid = self.store.create_session(
+                cfgmod.format_session_name(DEMO_SESSION_TEMPLATE))
+            self.pipeline.set_session(sid)
+            self.pipeline.start()
+            return sid
+
+    def stop_demo(self) -> None:
+        """Stop the demo and restore the user's config, pipeline and database."""
+        with self.lock:
+            self.pipeline.stop()
+            if self._user is not None:
+                u, self._user = self._user, None
+                self.store.close()
+                self.cfg, self.pipeline, self.store = u["cfg"], u["pipeline"], u["store"]
+                self.data_dir, self.clicks, self.hive_tags = (
+                    u["data_dir"], u["clicks"], u["hive_tags"])
+            self.demo = False
+            self.pipeline.demo = False
+
+    def shutdown(self) -> None:
+        """Stop everything (demo and user pipelines) and close the databases."""
+        try:
+            self.pipeline.stop()
+        finally:
+            self.store.close()
+            if self._user is not None:
+                try:
+                    self._user["pipeline"].stop()
+                finally:
+                    self._user["store"].close()
+
+    def calib_dict(self) -> dict:
+        intr, ext = self.pipeline.calibration()
+        stale = self.pipeline.stale_extrinsics()
+        return {"version": 1,
+                "intrinsics": [{**i.__dict__, "dist": list(i.dist)} for i in intr.values()],
+                "extrinsics": [{**e.__dict__, "rvec": list(e.rvec), "tvec": list(e.tvec),
+                                "stale": e.cam_id in stale} for e in ext.values()]}
+
+    def save_calib(self, intr: dict, ext: dict, stale: Optional[set] = None) -> None:
+        """Write the calibration JSON. Extrinsics of cameras in `stale` get ``stale: true``
+        (their intrinsics changed after they were solved); load tolerates the extra key."""
+        path = self._calib_path()
+        calib.save_calibration(path, list(intr.values()), list(ext.values()))
+        stale = set(stale or ()) & set(ext)
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for e in data["extrinsics"]:
+            if e["cam_id"] in stale:
+                e["stale"] = True
+        # clicks of cameras whose extrinsics still exist survive any calibration save
+        self.clicks = {c: v for c, v in self.clicks.items() if c in ext}
+        if self.clicks:
+            data["clicks"] = self.clicks
+        if self.hive_tags:
+            data["hive_tags"] = self.hive_tags
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        self.pipeline.reload_calibration()
+
+
+def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path | str] = None,
+               overrides: Optional[dict] = None, autostart: bool = False,
+               demo: bool = False) -> FastAPI:
+    """`demo=True` (the --demo flag): the whole app lives in `<data_dir>/demo` and the demo
+    pipeline starts with the server; the user's config.json and database are not opened."""
+    dd = Path(data_dir) if data_dir else cfgmod.default_data_dir()
+    if demo:
+        dd = dd / "demo"
+        cp = dd / "demo_config.json"          # never read or written in demo mode
+        overrides = demo_config().to_dict()
+    else:
+        cp = Path(config_path) if config_path else dd / "config.json"
+    st = AppState(cp, dd, overrides, autostart)
+    st.demo = demo
+    st.pipeline.demo = demo
+
+    async def status_task() -> None:
+        while True:
+            await asyncio.sleep(1.0)
+            if st.clients:
+                await st.broadcast(st.status_msg())
+
+    @contextlib.asynccontextmanager
+    async def lifespan(app: FastAPI):
+        st.loop = asyncio.get_running_loop()
+        # sessions left open by a previous run (crash or kill) are over: close them before
+        # autostart creates a new one
+        for sid in st.store.open_sessions():
+            st.store.end_session(sid)
+        task = asyncio.create_task(status_task())
+        if demo:
+            try:
+                await asyncio.to_thread(st.start_demo)
+            except Exception:  # noqa: BLE001
+                log.exception("demo start failed")
+        elif st.autostart:
+            try:
+                await asyncio.to_thread(st.pipeline.start)
+            except Exception:  # noqa: BLE001
+                log.exception("autostart failed")
+        try:
+            yield
+        finally:
+            task.cancel()
+            # stop() joins every worker and flushes; only then are the stores closed
+            await asyncio.to_thread(st.shutdown)
+
+    app = FastAPI(title="HiveShotTracker", lifespan=lifespan)
+    app.state.hs = st
+
+    def _session_start(session_id: str) -> Optional[float]:
+        return (st.store.session_summary(session_id) or {}).get("started_at")
+
+    def _need_session(session_id: str) -> None:
+        if not st.store.session_exists(session_id):
+            raise HTTPException(404, f"unknown session {session_id}")
+
+    # ------------------------------------------------------------- sessions
+    @app.get("/api/sessions")
+    def sessions_list():
+        return st.store.list_sessions()
+
+    @app.post("/api/sessions")
+    def sessions_create(body: dict = _OPT):
+        name = str(body.get("name") or cfgmod.format_session_name(st.cfg.session_name_template))
+        for sid in st.store.open_sessions():
+            st.store.end_session(sid)
+        sid = st.store.create_session(name)
+        st.pipeline.set_session(sid)
+        return {"session_id": sid}
+
+    @app.post("/api/sessions/{session_id}/end")
+    def sessions_end(session_id: str):
+        _need_session(session_id)
+        st.store.end_session(session_id)
+        if st.pipeline.session_id == session_id:
+            st.pipeline.set_session(None)
+        return {"ok": True}
+
+    @app.get("/api/sessions/{session_id}/stats")
+    def sessions_stats(session_id: str):
+        _need_session(session_id)
+        return stats_to_dict(compute_stats(st.store.list_shots(session_id),
+                                           st.store.list_tips(session_id), session_id))
+
+    @app.get("/api/sessions/{session_id}/shots")
+    def sessions_shots(session_id: str):
+        _need_session(session_id)
+        started = _session_start(session_id)
+        return [summarize(s, started) for s in st.store.list_shots(session_id)]
+
+    @app.get("/api/sessions/{session_id}/export.csv")
+    def sessions_csv(session_id: str):
+        _need_session(session_id)
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "shots.csv"
+            shots_to_csv(st.store.list_shots(session_id), p, _session_start(session_id))
+            text = p.read_text(encoding="utf-8")
+        return Response(text, media_type="text/csv", headers={
+            "Content-Disposition": f'attachment; filename="session_{session_id}.csv"'})
+
+    @app.get("/api/shots/{shot_id}")
+    def shots_get(shot_id: int):
+        s = st.store.get_shot(shot_id)
+        if s is None:
+            raise HTTPException(404, f"unknown shot {shot_id}")
+        return annotate(shot_full(s), s, _session_start(s.session_id))
+
+    @app.get("/api/sessions/{session_id}/tips")
+    def sessions_tips(session_id: str):
+        _need_session(session_id)
+        return [{"t": t.t, "alliance": t.alliance, "new_up_cell": t.new_up_cell,
+                 "caused_by_shot_id": t.caused_by_shot_id}
+                for t in st.store.list_tips(session_id)]
+
+    # ------------------------------------------------------------ config etc.
+    @app.get("/api/config")
+    def config_get():
+        return st.cfg.to_dict()
+
+    @app.put("/api/config")
+    def config_put(patch: dict = _REQ):
+        try:
+            new = cfgmod.AppConfig.model_validate(cfgmod.merge(st.cfg.to_dict(), patch))
+            field.HiveState(new.alliance, new.hive_up_cell)
+        except (ValidationError, ValueError) as e:
+            raise HTTPException(422, str(e)) from e
+        with st.lock:
+            try:
+                deferred = st.pipeline.apply_config(new)
+            except ConfigConflict as e:
+                raise HTTPException(409, str(e)) from e
+            st.cfg = new
+            st.save_cfg()
+            if not st.pipeline.running:
+                st.pipeline.reload_calibration()
+        if deferred:
+            log.info("config keys applied at next pipeline start: %s", deferred)
+        return new.to_dict()
+
+    @app.get("/api/devices")
+    def devices(max_index: int = 10):
+        return [{"index": d["index"], "width": d["width"], "height": d["height"],
+                 "fps": d["fps"]} for d in ingest.list_devices(max_index=max_index)]
+
+    @app.post("/api/demo/start")
+    def demo_start():
+        """Swap to the bundled demo (separate data dir, in-memory config) and start it."""
+        try:
+            sid = st.start_demo()
+        except Exception as e:  # noqa: BLE001
+            log.exception("demo start failed")
+            raise HTTPException(500, f"demo start failed: {e}") from e
+        return {"ok": True, "session_id": sid}
+
+    @app.post("/api/demo/stop")
+    def demo_stop():
+        """Stop the demo and restore the saved user config."""
+        st.stop_demo()
+        return {"ok": True}
+
+    @app.post("/api/pipeline/start")
+    def pipeline_start():
+        try:
+            st.pipeline.start()
+        except Exception as e:  # noqa: BLE001
+            log.exception("pipeline start failed")
+            raise HTTPException(500, f"pipeline start failed: {e}") from e
+        return {"ok": True, "running": True}
+
+    @app.post("/api/pipeline/stop")
+    def pipeline_stop():
+        st.pipeline.stop()
+        return {"ok": True, "running": False}
+
+    @app.get("/api/pipeline/status")
+    def pipeline_status():
+        return st.pipeline.status()
+
+    @app.post("/api/hive/state")
+    def hive_state(body: dict = _REQ):
+        try:
+            h = st.pipeline.set_hive_state(str(body.get("alliance", st.cfg.alliance)),
+                                           str(body.get("up_cell", st.cfg.hive_up_cell)),
+                                           source="manual")
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        st.cfg = st.cfg.model_copy(update={"alliance": h.alliance, "hive_up_cell": h.up_cell})
+        st.pipeline.cfg = st.cfg
+        st.save_cfg()
+        return {"alliance": h.alliance, "up_cell": h.up_cell}
+
+    # --------------------------------------------------------------- preview
+    def _known_cam(cam_id: str) -> None:
+        if cam_id not in {s.cam_id for s in st.cfg.sources}:
+            raise HTTPException(404, f"unknown camera {cam_id}")
+
+    @app.get("/api/preview/{cam_id}.jpg")
+    def preview_jpg(cam_id: str):
+        # Raw full-resolution latest frame (unannotated) so calibration clicks map 1:1.
+        # 404 while the pipeline is not running / no frame has arrived yet.
+        _known_cam(cam_id)
+        buf = st.pipeline.raw_jpeg(cam_id)
+        if buf is None:
+            raise HTTPException(404, "no frame available (pipeline not running?)")
+        fr = st.pipeline.latest_frame(cam_id)
+        h, w = fr.image.shape[:2]
+        return Response(buf, media_type="image/jpeg", headers={
+            "Cache-Control": "no-store", "X-Frame-Width": str(w), "X-Frame-Height": str(h)})
+
+    @app.get("/api/preview/{cam_id}.mjpg")
+    async def preview_mjpg(cam_id: str, request: Request):
+        _known_cam(cam_id)
+        if not st.pipeline.running:
+            raise HTTPException(404, "pipeline not running")
+
+        async def gen():
+            last = None
+            period = 1.0 / 15.0
+            # the pipeline only encodes preview JPEGs while at least one client is attached
+            st.pipeline.preview_client_add(cam_id)
+            try:
+                while st.pipeline.running:
+                    if await request.is_disconnected():
+                        break
+                    buf = st.pipeline.latest_jpeg(cam_id)
+                    if buf is not None and buf is not last:
+                        last = buf
+                        yield (b"--frame\r\nContent-Type: image/jpeg\r\nContent-Length: "
+                               + str(len(buf)).encode() + b"\r\n\r\n" + buf + b"\r\n")
+                    await asyncio.sleep(period)
+            finally:
+                st.pipeline.preview_client_remove(cam_id)
+
+        return StreamingResponse(gen(), media_type="multipart/x-mixed-replace; boundary=frame",
+                                 headers={"Cache-Control": "no-store"})
+
+    # ----------------------------------------------------------- calibration
+    @app.get("/api/calib")
+    def calib_get():
+        return st.calib_dict()
+
+    @app.get("/api/calib/checkerboard.pdf")
+    def calib_checkerboard():
+        name = "checkerboard_10x7_1in.pdf"
+        path = st.data_dir / name
+        with st.lock:
+            if not path.exists():
+                calib_targets.write_checkerboard_pdf(path, 10, 7, 1.0)
+            data = path.read_bytes()
+        return Response(data, media_type="application/pdf", headers={
+            "Content-Disposition": f'attachment; filename="{name}"'})
+
+    @app.get("/api/calib/points")
+    def calib_points():
+        return [{"name": n, "xyz": [float(v) for v in xyz]}
+                for n, xyz in calib_targets.field_reference_points()]
+
+    def _expected_points() -> dict[str, tuple]:
+        """Known field positions by click name: the 8 reference points and, when the tag
+        kit is available, every kit tag corner ("tag 100 corner 0")."""
+        exp = {n: p for n, p in calib_targets.field_reference_points()}
+        try:
+            from . import tagkit
+            for t in tagkit.KIT_TAGS:
+                for k, p in enumerate(tagkit.tag_corners_xyz(t)):
+                    exp[f"tag {t.id} corner {k}"] = tuple(float(v) for v in p)
+        except ImportError:
+            pass
+        return exp
+
+    @app.post("/api/calib/crosscheck")
+    def calib_crosscheck(body: dict = _OPT):
+        """Triangulate every reference point clicked in both cameras (from the last
+        extrinsics solves) and compare with its known field position."""
+        return _crosscheck()
+
+    def _crosscheck() -> dict:
+        cams = [s.cam_id for s in st.cfg.sources][:2]
+        intr, ext = st.pipeline.calibration()
+        if len(cams) < 2 or not all(c in intr and c in ext for c in cams):
+            raise HTTPException(409, "need intrinsics and extrinsics for both cameras")
+        missing = [c for c in cams if not st.clicks.get(c)]
+        if missing:
+            raise HTTPException(409, "no stored extrinsics clicks for " + ", ".join(missing)
+                                + "; solve the extrinsics of both cameras first")
+        a, b = cams
+        ca = {c["name"]: c for c in st.clicks[a]}
+        cb = {c["name"]: c for c in st.clicks[b]}
+        expected = _expected_points()
+        names = [n for n in expected if n in ca and n in cb]
+        if not names:
+            raise HTTPException(422, "no reference point was clicked in both cameras")
+        xyz, resid = calib.triangulate(
+            intr[a], ext[a], np.array([[ca[n]["u"], ca[n]["v"]] for n in names]),
+            intr[b], ext[b], np.array([[cb[n]["u"], cb[n]["v"]] for n in names]))
+        pts = []
+        for n, m, r in zip(names, xyz, resid, strict=True):
+            e = np.array(expected[n], float)
+            pts.append({"name": n, "xyz_measured": [float(v) for v in m],
+                        "xyz_expected": [float(v) for v in e],
+                        "error_in": float(np.linalg.norm(m - e)), "residual_in": float(r)})
+        worst = max(p["error_in"] for p in pts)
+        return {"points": pts, "max_error_in": worst, "within_1_in": worst <= 1.0}
+
+    # --------------------------------------------- setup wizard, tags, auto-calibration
+    def _tagkit():
+        try:
+            from . import tagkit
+            return tagkit
+        except ImportError as e:
+            raise HTTPException(503, f"AprilTag kit is not available in this build: {e}") from e
+
+    @app.get("/api/calib/tags")
+    def calib_tags():
+        return _tagkit().tags_json()
+
+    @app.get("/api/calib/tags.pdf")
+    def calib_tags_pdf():
+        tk = _tagkit()
+        name = "hive_calibration_tags.pdf"
+        data = tk.tag_sheet_pdf_bytes()
+        return Response(data, media_type="application/pdf", headers={
+            "Content-Disposition": f'attachment; filename="{name}"'})
+
+    def _auto_solve(cam_id: str, body: dict) -> dict:
+        tk = _tagkit()
+        if not hasattr(calib, "solve_extrinsics_from_tags"):
+            raise HTTPException(503, "tag-based extrinsics are not available in this build")
+        _known_cam(cam_id)
+        fr = st.pipeline.latest_frame(cam_id)
+        if fr is None:
+            raise HTTPException(409, f"no frame from {cam_id}: start the pipeline first")
+        old_i, old_e = st.pipeline.calibration()
+        if cam_id not in old_i:
+            raise HTTPException(409, f"no intrinsics for {cam_id}; calibrate intrinsics first")
+        source = str(body.get("source") or ("hive" if body.get("use_hive_tags") else "both")).lower()
+        if source not in ("kit", "hive", "both"):
+            raise HTTPException(422, "source must be 'kit', 'hive' or 'both'")
+        defs: dict[int, np.ndarray] = {}
+        if source in ("kit", "both"):
+            defs.update(tk.tag_defs())
+        if source in ("hive", "both"):
+            hs = st.pipeline.hive_state()
+            # the up CELL's tags have computed positions; learned ones (this state) win
+            defs.update(computed_hive_defs(hs.alliance, hs.up_cell))
+            defs.update({int(i): np.asarray(c, float)
+                         for i, c in (st.hive_tags.get(f"{hs.alliance}_{hs.up_cell}") or {}).items()})
+        if source == "hive" and not defs:
+            raise HTTPException(422, "no HIVE tag positions are known for the current state; "
+                                "learn them first (POST /api/calib/hive_tags/learn)")
+        try:
+            ext, info = calib.solve_extrinsics_from_tags(
+                old_i[cam_id], fr.image, defs, cam_id, min_tags=2)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        kit_ids = [t for t in info["tags_used"] if 100 <= t <= 103]
+        hive_used = [t for t in info["tags_used"] if t not in kit_ids]
+        if kit_ids:
+            corners = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fr.image)}
+            st.clicks[cam_id] = [
+                {"name": f"tag {tid} corner {k}", "u": float(u), "v": float(v)}
+                for tid in kit_ids for k, (u, v) in enumerate(corners[tid])]
+        warnings = []
+        if not kit_ids:
+            warnings.append("calibrated from HIVE tags only: expect 2-3x lower accuracy than "
+                            "the kit")
+        st.save_calib(old_i, {**old_e, cam_id: ext},
+                      st.pipeline.stale_extrinsics() - {cam_id})
+        return {"rmse_in": ext.rmse_in, "tags_used": info["tags_used"],
+                "tags_missing": info.get("tags_missing", []),
+                "reprojection_px": info["reprojection_px"],
+                "max_corner_px": info.get("max_corner_px"),
+                "hive_tags_used": bool(hive_used), "source": source, "warnings": warnings}
+
+    @app.post("/api/calib/extrinsics/{cam_id}/auto")
+    def extr_auto(cam_id: str, body: dict = _OPT):
+        # body {"use_hive_tags": true}: solve from the learned HIVE tags of the current state
+        return _auto_solve(cam_id, body)
+
+    @app.post("/api/calib/auto_all")
+    def calib_auto_all(body: dict = _OPT):
+        _tagkit()
+        if not st.pipeline.running:
+            raise HTTPException(409, "start the pipeline first (frames come from the cameras)")
+        cams = [s.cam_id for s in st.cfg.sources]
+        results: dict[str, dict] = {}
+        for cam in cams:
+            try:
+                results[cam] = {"ok": True, **_auto_solve(cam, body)}
+            except HTTPException as e:
+                results[cam] = {"ok": False, "status": e.status_code, "error": e.detail}
+        check = None
+        if len(cams) >= 2 and all(results[c]["ok"] for c in cams[:2]):
+            try:
+                check = _crosscheck()
+            except HTTPException as e:
+                check = {"error": e.detail}
+        return {"results": results, "crosscheck": check,
+                "max_error_in": None if not check else check.get("max_error_in"),
+                "ok": all(r["ok"] for r in results.values())}
+
+    def _hive_ids() -> list[int]:
+        from .field_constants import APRILTAG_IDS
+        return sorted({i for ids in APRILTAG_IDS.values() for i in ids})
+
+    @app.post("/api/calib/hive_tags/learn")
+    def hive_tags_learn(body: dict = _REQ):
+        """With the HIVE settled in `state`, triangulate every HIVE tag corner seen by both
+        cameras and store it as that state's reference."""
+        s = body.get("state") or {}
+        try:
+            hs = field.HiveState(str(s.get("alliance", "")), str(s.get("up_cell", "")))
+        except ValueError as e:
+            raise HTTPException(422, f"state needs a valid alliance and up_cell: {e}") from e
+        cams = [c.cam_id for c in st.cfg.sources][:2]
+        intr, ext = st.pipeline.calibration()
+        if len(cams) < 2 or not all(c in intr and c in ext for c in cams):
+            raise HTTPException(409, "calibrate both cameras (intrinsics and extrinsics) first")
+        frames = {c: st.pipeline.latest_frame(c) for c in cams}
+        if any(f is None for f in frames.values()):
+            raise HTTPException(409, "start the pipeline first (frames come from the cameras)")
+        ids_ok = set(_hive_ids())
+        dets = {c: {int(d["id"]): d["corners"] for d in calib.detect_apriltags(frames[c].image)
+                    if int(d["id"]) in ids_ok} for c in cams}
+        visible = {c: sorted(dets[c]) for c in cams}
+        common = sorted(set(dets[cams[0]]) & set(dets[cams[1]]))
+        if len(common) < 2:
+            raise HTTPException(
+                422, f"only {len(common)} HIVE tag(s) seen by both cameras (cam0 sees "
+                f"{visible[cams[0]]}, cam1 sees {visible[cams[1]]}); need at least 2. Check the "
+                "HIVE is settled, well lit, and the tags face the cameras.")
+        a, b = cams
+        learned: dict[str, list] = {}
+        worst = 0.0
+        for i in common:
+            xyz, resid = calib.triangulate(intr[a], ext[a], dets[a][i], intr[b], ext[b], dets[b][i])
+            learned[str(i)] = [[float(v) for v in p] for p in np.asarray(xyz).reshape(4, 3)]
+            worst = max(worst, float(np.max(resid)))
+        key = f"{hs.alliance}_{hs.up_cell}"
+        st.hive_tags[key] = learned
+        st.save_calib(intr, ext, st.pipeline.stale_extrinsics())
+        from .field_constants import APRILTAG_IDS
+        want = {i for (al, _c), ids in APRILTAG_IDS.items() if al == hs.alliance for i in ids}
+        # sanity check of the whole calibration: the up CELL's tags were triangulated, their
+        # positions are also known from the field CAD
+        up_err = None
+        comp = computed_hive_defs(hs.alliance, hs.up_cell)
+        errs = [float(np.mean(np.linalg.norm(np.asarray(learned[str(i)]) - comp[i], axis=1)))
+                for i in common if i in comp]
+        if errs:
+            up_err = float(np.mean(errs))
+        return {"state": key, "learned_ids": common,
+                "missing_ids": sorted(want - set(common)), "max_residual_in": worst,
+                "visible_per_camera": visible, "up_cell_error_in": up_err}
+
+    @app.get("/api/calib/hive_tags")
+    def hive_tags_get():
+        from .field_constants import APRILTAG_IDS
+        states = {}
+        for key, tags in st.hive_tags.items():
+            alliance = key.split("_", 1)[0]
+            rows = {}
+            for (al, cell), ids in APRILTAG_IDS.items():
+                if al != alliance:
+                    continue
+                zs = [np.mean(np.asarray(tags[str(i)], float)[:, 2]) for i in ids if str(i) in tags]
+                if zs:
+                    rows[f"{al}_{cell}"] = float(np.mean(zs))
+            states[key] = {"tags": {i: {"corners_xyz": c,
+                                        "center_xyz": np.mean(np.asarray(c, float), axis=0).tolist()}
+                                    for i, c in tags.items()},
+                           "row_height_in": rows}
+        al = st.pipeline.hive_state().alliance
+        ready = st.pipeline.hive_tags_ready()
+        return {"alliance": al, "states": states, "ready": ready,
+                "hive_state_source": st.pipeline.hive_state_source()}
+
+    @app.get("/api/setup/status")
+    def setup_status():
+        status = st.pipeline.status()
+        running = status["running"]
+        cams = status["cameras"]
+        if running:
+            # a running pipeline holds the devices: report what it is reading
+            detected = []
+            for s in st.cfg.sources:
+                p = cams.get(s.cam_id, {}).get("props") or {}
+                if s.kind == "device" and p:
+                    detected.append({"index": int(s.target) if str(s.target).isdigit() else -1,
+                                     "width": int(p.get("width") or 0),
+                                     "height": int(p.get("height") or 0),
+                                     "fps": float(p.get("fps") or 0.0)})
+        else:
+            detected = [{"index": d["index"], "width": d["width"], "height": d["height"],
+                         "fps": d["fps"]} for d in ingest.list_devices(max_index=6)]
+        tags = st.pipeline.tags_seen() if running else {}
+        roll = st.pipeline.tags_roll() if running else {}
+        loaded = status["calibration_loaded"]
+        rec: list[str] = []
+        live = [s for s in st.cfg.sources if s.kind != "file"]
+        if not detected and all(s.kind == "device" for s in st.cfg.sources):
+            rec.append("No cameras detected: plug in the cameras (each on its own USB port), "
+                       "then press Refresh.")
+        if len(st.cfg.sources) < 2:
+            rec.append("Only one camera is configured: add a second camera source "
+                       "(3D needs two).")
+        for s in st.cfg.sources:
+            c = cams.get(s.cam_id, {})
+            h = int((c.get("props") or {}).get("height") or 0)
+            if (running and s.kind == "device" and c.get("is_alive")
+                    and c.get("frames_read", 0) > 60 and h >= 1080 and c.get("fps", 0.0) < 59.0):
+                rec.append(f"camera {s.cam_id} is at {c['fps']:.0f} fps; move it to its own "
+                           "USB port, not a shared hub.")
+        if not running:
+            for d in detected:
+                if d["height"] >= 1080 and 0 < d["fps"] < 59.0:
+                    rec.append(f"camera {d['index']} is at {d['fps']:.0f} fps at 1080p; move "
+                               "it to its own USB port, not a shared hub.")
+        if not loaded:
+            rec.append("No calibration yet: print the tag sheet (Calibration tab) and press "
+                       "Auto-calibrate.")
+        if running and not loaded:
+            for cid, ids in tags.items():
+                n = len([i for i in ids if 100 <= i <= 103])
+                if n < 2:
+                    rec.append(f"{cid} sees {n} of the 4 calibration tags: move the camera or "
+                               "the tags so at least 2 are fully visible.")
+        if not running and loaded and live:
+            rec.append("Calibrated. Press Start to begin tracking shots.")
+        return {"cameras_detected": detected, "sources_configured": len(st.cfg.sources) >= 2,
+                "calibration_loaded": loaded, "tags_seen": tags, "tags_roll": roll,
+                "pipeline_running": running, "recommendations": rec}
+
+    @app.post("/api/detector/sample")
+    def detector_sample(body: dict = _REQ):
+        """Sample a 9x9 HSV patch at a click and widen that ball type's colour range."""
+        cam = str(body.get("cam_id", ""))
+        _known_cam(cam)
+        kind = str(body.get("ball_type", "")).lower()
+        if kind not in ("pollen", "nectar"):
+            raise HTTPException(422, "ball_type must be 'pollen' or 'nectar'")
+        try:
+            u, v = float(body["u"]), float(body["v"])
+        except (KeyError, TypeError, ValueError) as e:
+            raise HTTPException(422, "u and v (image pixels) are required") from e
+        fr = st.pipeline.latest_frame(cam)
+        if fr is None:
+            raise HTTPException(409, f"no frame from {cam}: start the pipeline first")
+        h, w = fr.image.shape[:2]
+        if body.get("image_width"):
+            scale = w / float(body["image_width"])
+            u, v = u * scale, v * scale
+        if not (0 <= u < w and 0 <= v < h):
+            raise HTTPException(422, f"click ({u:.0f}, {v:.0f}) is outside the {w}x{h} frame")
+        x, y = int(round(u)), int(round(v))
+        patch = fr.image[max(0, y - 4):y + 5, max(0, x - 4):x + 5]
+        hsv = cv2.cvtColor(patch, cv2.COLOR_BGR2HSV).reshape(-1, 3)
+        sample = [int(round(float(c))) for c in np.median(hsv, axis=0)]
+        key = f"{kind}_hsv"
+        lo, hi = (list(r) for r in getattr(st.cfg.detector, key))
+        new_lo = [max(0, min(lo[0], sample[0] - 8)), max(0, min(lo[1], sample[1] - 40)),
+                  max(0, min(lo[2], sample[2] - 40))]
+        new_hi = [min(179, max(hi[0], sample[0] + 8)), min(255, max(hi[1], sample[1] + 40)),
+                  min(255, max(hi[2], sample[2] + 40))]
+        with st.lock:
+            new = cfgmod.AppConfig.model_validate(
+                cfgmod.merge(st.cfg.to_dict(), {"detector": {key: [new_lo, new_hi]}}))
+            st.pipeline.apply_config(new)
+            st.cfg = new
+            st.save_cfg()
+        st.pipeline.set_detector_colors(new.detector.pollen_hsv, new.detector.nectar_hsv)
+        return {"ball_type": kind, "sampled_hsv": sample, "range": [new_lo, new_hi]}
+
+    @app.get("/api/field/geometry")
+    def field_geometry():
+        return field.to_json({st.pipeline.hive_state().alliance:
+                              st.pipeline.hive_state().up_cell})
+
+    @app.post("/api/calib/intrinsics/{cam_id}/start")
+    def intr_start(cam_id: str, body: dict = _OPT):
+        _known_cam(cam_id)
+        reader = st.pipeline._readers.get(cam_id)
+        if not st.pipeline.running or reader is None:
+            raise HTTPException(409, "start the pipeline first (frames come from the capture)")
+        old = st.recorders.pop(cam_id, None)
+        if old:
+            old.stop()
+        st.recorders[cam_id] = _Recorder(reader)
+        return {"ok": True, "recording": True}
+
+    @app.post("/api/calib/intrinsics/{cam_id}/stop")
+    def intr_stop(cam_id: str, body: dict = _OPT):
+        rec = st.recorders.pop(cam_id, None)
+        if rec is None:
+            raise HTTPException(409, "not recording")
+        frames = rec.stop()
+        pattern = tuple(body.get("pattern", (9, 6)))
+        square = float(body.get("square_in", 1.0))
+        try:
+            intr = calib.calibrate_intrinsics(frames, pattern, square, cam_id)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        used = 0
+        for f in frames:
+            g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+            used += bool(cv2.findChessboardCorners(g, pattern)[0])
+        old_i, old_e = st.pipeline.calibration()
+        new_i = {**old_i, cam_id: intr}
+        # extrinsics solved with the old intrinsics no longer match: flag them stale
+        stale = st.pipeline.stale_extrinsics() | ({cam_id} if cam_id in old_e else set())
+        st.save_calib(new_i, old_e, stale)
+        return {"reprojection_rmse_px": intr.reprojection_rmse_px, "frames_used": used}
+
+    @app.post("/api/calib/extrinsics/{cam_id}")
+    def extr_solve(cam_id: str, body: dict = _REQ):
+        _known_cam(cam_id)
+        old_i, old_e = st.pipeline.calibration()
+        if cam_id not in old_i:
+            raise HTTPException(409, f"no intrinsics for {cam_id}; calibrate intrinsics first")
+        ref = calib_targets.field_reference_points()
+        lookup = {n.lower(): p for n, p in ref}
+        pts = body.get("points") or []
+        scale = 1.0
+        if body.get("image_width"):
+            fr = st.pipeline.latest_frame(cam_id)
+            w = fr.image.shape[1] if fr is not None else old_i[cam_id].width
+            scale = w / float(body["image_width"])
+        img, fld, names = [], [], []
+        for p in pts:
+            n = str(p.get("name", ""))
+            xyz = lookup.get(n.lower())
+            if xyz is None:
+                raise HTTPException(422, f"unknown reference point name {n!r}")
+            img.append((float(p["u"]) * scale, float(p["v"]) * scale))
+            fld.append(xyz)
+            names.append(n)
+        try:
+            ext = calib.solve_extrinsics_from_points(
+                old_i[cam_id], np.array(img), np.array(fld), cam_id)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        rep = calib.reprojection_report(old_i[cam_id], ext, np.array(img), np.array(fld))
+        st.clicks[cam_id] = [{"name": n, "u": float(u), "v": float(v)}
+                             for n, (u, v) in zip(names, img, strict=True)]
+        st.save_calib(old_i, {**old_e, cam_id: ext},
+                      st.pipeline.stale_extrinsics() - {cam_id})
+        return {"rmse_in": ext.rmse_in,
+                "per_point": [{"name": n, "err_px": e}
+                              for n, e in zip(names, rep["per_point_px"], strict=True)]}
+
+    # ------------------------------------------------------------- websocket
+    @app.websocket("/ws")
+    async def ws_endpoint(ws: WebSocket):
+        await ws.accept()
+        st.clients.add(ws)
+        try:
+            await ws.send_json(st.status_msg())
+            while True:
+                await ws.receive_text()
+        except WebSocketDisconnect:
+            pass
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            st.clients.discard(ws)
+
+    # ----------------------------------------------------------------- static
+    @app.exception_handler(ValueError)
+    async def _value_error(_: Request, exc: ValueError):
+        return JSONResponse({"detail": str(exc)}, status_code=422)
+
+    if (UI_DIR / "vendor").is_dir():
+        app.mount("/vendor", StaticFiles(directory=UI_DIR / "vendor"), name="vendor")
+    class _ClipFiles(StaticFiles):
+        """/clips from the current data dir (it changes while the demo runs)."""
+
+        def lookup_path(self, path: str):
+            root = os.path.realpath(st.data_dir / "clips")
+            if path.startswith(("/", "\\")):
+                return "", None
+            full = os.path.realpath(os.path.join(root, path))
+            try:
+                if os.path.commonpath([full, root]) != root:
+                    return "", None
+                return full, os.stat(full)
+            except (ValueError, FileNotFoundError, NotADirectoryError):
+                return "", None
+
+    app.mount("/clips", _ClipFiles(directory=st.data_dir / "clips", check_dir=False),
+              name="clips")
+    app.mount("/", StaticFiles(directory=UI_DIR, html=True, check_dir=False), name="ui")
+    return app
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="hiveshot", description="HiveShotTracker server")
+    p.add_argument("--config", default=None, help="config json (default data/config.json)")
+    p.add_argument("--data-dir", default=None,
+                   help=f"data directory (default {cfgmod.default_data_dir()})")
+    p.add_argument("--port", type=int, default=8765)
+    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--source", action="append", default=[], metavar="CAM_ID=PATH",
+                   help="override sources with video files (repeatable)")
+    p.add_argument("--autostart", action="store_true", help="start the pipeline on launch")
+    p.add_argument("--open-browser", action="store_true")
+    p.add_argument("--demo", action="store_true",
+                   help="run the bundled demo footage in <data-dir>/demo (nothing external, "
+                        "your config and sessions are not touched)")
+    return p
+
+
+def main(argv: Optional[list[str]] = None) -> None:
+    import uvicorn
+    a = build_parser().parse_args(argv)
+    overrides = None
+    if a.source:
+        srcs = []
+        for s in a.source:
+            cam, _, path = s.partition("=")
+            if not path:
+                raise SystemExit(f"--source expects CAM_ID=PATH, got {s!r}")
+            srcs.append({"cam_id": cam, "kind": "file", "target": path,
+                         "loop": False, "realtime": True})
+        overrides = {"sources": srcs}
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+    app = create_app(a.config, a.data_dir, overrides=overrides, autostart=a.autostart,
+                     demo=a.demo)
+    if a.open_browser or a.demo:
+        threading.Timer(1.5, lambda: webbrowser.open(f"http://{a.host}:{a.port}/")).start()
+    uvicorn.run(app, host=a.host, port=a.port, log_level="info")
+
+
+if __name__ == "__main__":
+    main()

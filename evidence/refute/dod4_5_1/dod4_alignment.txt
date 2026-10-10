@@ -1,0 +1,6 @@
+shot 1: max|parabola(s)-z| over track (viewer formula)=0.21 in; lp->track[0] dist=0.00; track-dir az=-109.0 api az=-109.0; z range 12.0..82.2 track xy bounds ok=True
+shot 2: max|parabola(s)-z| over track (viewer formula)=0.24 in; lp->track[0] dist=0.00; track-dir az=-124.6 api az=-124.6; z range 12.1..73.0 track xy bounds ok=True
+shot 4: max|parabola(s)-z| over track (viewer formula)=0.60 in; lp->track[0] dist=0.00; track-dir az=-51.0 api az=-51.0; z range 3.4..81.1 track xy bounds ok=True
+shot 3: max|parabola(s)-z| over track (viewer formula)=0.41 in; lp->track[0] dist=0.00; track-dir az=-137.8 api az=-137.8; z range 12.0..74.2 track xy bounds ok=True
+shot 5: max|parabola(s)-z| over track (viewer formula)=0.74 in; lp->track[0] dist=0.00; track-dir az=-139.1 api az=-139.1; z range 12.1..83.4 track xy bounds ok=True
+shot 6: max|parabola(s)-z| over track (viewer formula)=0.29 in; lp->track[0] dist=0.00; track-dir az=-159.2 api az=-159.2; z range 4.2..83.5 track xy bounds ok=True

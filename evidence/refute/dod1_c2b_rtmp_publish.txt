@@ -1,0 +1,14 @@
+2 {'cam0': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0."), 'cam1': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.")} last_shot None det_fps 0.0 mism {} None
+4 {'cam0': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0."), 'cam1': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.")} last_shot None det_fps 0.0 mism {} None
+6 {'cam0': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0."), 'cam1': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.")} last_shot None det_fps 0.0 mism {} None
+8 {'cam0': (49, 204.7, True, 0, ''), 'cam1': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.")} last_shot None det_fps 127.09292466448942 mism {} None
+10 {'cam0': (366, 158.3, True, 0, ''), 'cam1': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.")} last_shot None det_fps 112.76951349973193 mism {} None
+12 {'cam0': (559, 94.2, True, 0, ''), 'cam1': (0, 0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.")} last_shot None det_fps 80.87929558846821 mism {} None
+14 {'cam0': (680, 59.8, True, 0, ''), 'cam1': (123, 161.7, True, 0, '')} last_shot None det_fps 158.19312140072506 mism {} None
+16 {'cam0': (800, 60.5, True, 0, ''), 'cam1': (393, 134.3, True, 0, '')} last_shot None det_fps 136.3939692768117 mism {} None
+18 {'cam0': (922, 59.9, True, 0, ''), 'cam1': (592, 97.3, True, 0, '')} last_shot None det_fps 127.72196464458568 mism {} None
+20 {'cam0': (1042, 60.5, True, 0, ''), 'cam1': (711, 60.6, True, 0, '')} last_shot None det_fps 119.18367095132474 mism {} None
+22 {'cam0': (1164, 59.8, True, 0, ''), 'cam1': (834, 60.5, True, 0, '')} last_shot None det_fps 116.79168328532805 mism {} None
+24 {'cam0': (1285, 60.0, True, 0, ''), 'cam1': (955, 60.1, True, 0, '')} last_shot None det_fps 119.969878246814 mism {} None
+26 {'cam0': (1405, 60.5, True, 0, ''), 'cam1': (1075, 60.5, True, 0, '')} last_shot None det_fps 120.6293760501998 mism {} None
+28 {'cam0': (1527, 60.1, True, 0, ''), 'cam1': (1196, 59.4, True, 0, '')} last_shot None det_fps 120.48734325751917 mism {} None

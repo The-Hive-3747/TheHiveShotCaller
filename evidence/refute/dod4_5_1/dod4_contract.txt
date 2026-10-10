@@ -1,0 +1,44 @@
+==================== synth_basic total shots 6
+geom[audience] cells=4 segs=30 is_up cells=[('red', 'audience'), ('blue', 'audience')] bounds={'min': [-72.0, -72.0, 0.0], 'max': [72.0, 72.0, 120.0]}
+geom[far] cells=4 segs=30 is_up cells=[('red', 'far'), ('blue', 'audience')] bounds={'min': [-72.0, -72.0, 0.0], 'max': [72.0, 72.0, 120.0]}
+session e5578fd5 name=Session 2026-10-10 15:29:42 shots=6 listed=6
+  shot 1 result=made ball=pollen track=59 dur=0.967 rmse=0.070 lp=[1.6, 65.9, 12.0] ok
+  shot 2 result=made ball=pollen track=52 dur=0.850 rmse=0.083 lp=[15.0, 64.5, 12.1] ok
+  shot 4 result=miss ball=pollen track=74 dur=1.233 rmse=0.155 lp=[-27.1, 61.4, 12.1] ok
+  shot 3 result=made ball=pollen track=53 dur=0.867 rmse=0.121 lp=[17.4, 51.5, 12.0] ok
+  shot 5 result=made ball=pollen track=60 dur=0.983 rmse=0.151 lp=[22.6, 54.8, 12.1] ok
+  shot 6 result=miss ball=pollen track=75 dur=1.250 rmse=0.089 lp=[33.8, 27.8, 12.1] ok
+asset /styles.css -> 200 6125B text/css; charset=utf-8
+asset /app.js -> 200 28351B text/javascript; charset=utf-8
+asset /vendor/three.module.min.js -> 200 691648B text/javascript; charset=utf-8
+asset /vendor/OrbitControls.js -> 200 32134B text/javascript; charset=utf-8
+asset /vendor/three.module.min.js -> 200 691648B text/javascript; charset=utf-8
+asset /viewer3d.js -> 200 10313B text/javascript; charset=utf-8
+asset /app.js -> 200 28351B text/javascript; charset=utf-8
+asset /styles.css -> 200 6125B text/css; charset=utf-8
+  /vendor/OrbitControls.js imports three
+  /viewer3d.js imports three
+  /viewer3d.js imports ./vendor/OrbitControls.js
+  /app.js imports ./viewer3d.js
+==================== synth_burst total shots 6
+geom[audience] cells=4 segs=30 is_up cells=[('red', 'audience'), ('blue', 'audience')] bounds={'min': [-72.0, -72.0, 0.0], 'max': [72.0, 72.0, 120.0]}
+geom[far] cells=4 segs=30 is_up cells=[('red', 'far'), ('blue', 'audience')] bounds={'min': [-72.0, -72.0, 0.0], 'max': [72.0, 72.0, 120.0]}
+session 7d2739c3 name=Session 2026-10-10 15:29:59 shots=6 listed=6
+  shot 1 result=made ball=pollen track=54 dur=0.883 rmse=0.135 lp=[30.2, 33.1, 12.0] ok
+  shot 2 result=made ball=pollen track=57 dur=0.933 rmse=0.105 lp=[25.7, 29.7, 12.1] ok
+  shot 3 result=miss ball=pollen track=75 dur=1.233 rmse=0.090 lp=[-4.5, 60.2, 12.0] ok
+  shot 4 result=made ball=pollen track=59 dur=0.967 rmse=0.088 lp=[20.0, 65.9, 12.0] ok
+  shot 5 result=made ball=pollen track=51 dur=0.833 rmse=0.086 lp=[30.8, 36.4, 12.1] ok
+  shot 6 result=miss ball=pollen track=74 dur=1.217 rmse=0.121 lp=[15.8, 54.6, 12.0] ok
+asset /styles.css -> 200 6125B text/css; charset=utf-8
+asset /app.js -> 200 28351B text/javascript; charset=utf-8
+asset /vendor/three.module.min.js -> 200 691648B text/javascript; charset=utf-8
+asset /vendor/OrbitControls.js -> 200 32134B text/javascript; charset=utf-8
+asset /vendor/three.module.min.js -> 200 691648B text/javascript; charset=utf-8
+asset /viewer3d.js -> 200 10313B text/javascript; charset=utf-8
+asset /app.js -> 200 28351B text/javascript; charset=utf-8
+asset /styles.css -> 200 6125B text/css; charset=utf-8
+  /vendor/OrbitControls.js imports three
+  /viewer3d.js imports three
+  /viewer3d.js imports ./vendor/OrbitControls.js
+  /app.js imports ./viewer3d.js

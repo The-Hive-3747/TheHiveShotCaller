@@ -1,0 +1,6 @@
+Browser pane, http://127.0.0.1:8771 (run.ps1 instance, code state at 15:47 MDT; ui/app.js mtime 15:41:48, hiveshot/calib_targets.py 15:39:23)
+Calibration tab, cam0 card: ol.pts lists (old, hardcoded in ui/app.js CALIB_POINTS):
+  Red HIVE up-CELL opening, high-left/high-right/low-right/low-left corner, HIVE frame base corner (-X,-Y), HIVE frame base corner (+X,+Y), Tile intersection (-48,-48), Tile intersection (+48,+48)
+8 clicks on the image then Solve extrinsics -> result div empty, toast:
+  POST /api/calib/extrinsics/cam0: 422 {"detail":"unknown reference point name 'HIVE frame base corner (-X, -Y)'"}
+GET /api/calib/points (backend) returns: 4 CELL corners + 'HIVE frame top corner (-X,+Y)', '(+X,+Y)', '(-X,-Y)', '(+X,-Y)'

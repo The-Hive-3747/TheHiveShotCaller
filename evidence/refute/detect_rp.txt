@@ -1,0 +1,12 @@
+fx20 cam0 color+motion: truth=1213 tp=1189 fp=14 recall=0.9802 precision=0.9884 fps=60.0 frames=1013
+fx20 cam0 motion only: truth=1213 tp=1182 fp=17 recall=0.9744 precision=0.9858 fps=60.0 frames=1013
+fx20 cam1 color+motion: truth=1213 tp=1202 fp=4 recall=0.9909 precision=0.9967 fps=60.0 frames=1013
+fx20 cam1 motion only: truth=1213 tp=1201 fp=5 recall=0.9901 precision=0.9959 fps=60.0 frames=1013
+synth_basic cam0 color+motion: truth=367 tp=365 fp=1 recall=0.9946 precision=0.9973 fps=60.0 frames=164
+synth_basic cam0 motion only: truth=367 tp=362 fp=3 recall=0.9864 precision=0.9918 fps=60.0 frames=164
+synth_basic cam1 color+motion: truth=367 tp=358 fp=3 recall=0.9755 precision=0.9917 fps=60.0 frames=164
+synth_basic cam1 motion only: truth=367 tp=356 fp=5 recall=0.9700 precision=0.9861 fps=60.0 frames=164
+synth_burst cam0 color+motion: truth=362 tp=362 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=339
+synth_burst cam0 motion only: truth=362 tp=361 fp=1 recall=0.9972 precision=0.9972 fps=60.0 frames=339
+synth_burst cam1 color+motion: truth=362 tp=362 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=339
+synth_burst cam1 motion only: truth=362 tp=361 fp=1 recall=0.9972 precision=0.9972 fps=60.0 frames=339

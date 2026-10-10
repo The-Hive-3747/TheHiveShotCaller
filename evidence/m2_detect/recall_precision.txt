@@ -1,0 +1,5 @@
+synth_basic cam0 color+motion: truth=367 tp=365 fp=1 recall=0.9946 precision=0.9973
+synth_basic cam0 motion only: truth=367 tp=362 fp=3 recall=0.9864 precision=0.9918
+synth_burst cam0 color+motion: truth=362 tp=362 fp=0 recall=1.0000 precision=1.0000
+synth_burst cam0 motion only: truth=362 tp=361 fp=1 recall=0.9972 precision=0.9972
+match <=6px and radius within 50%; touching balls split via distance transform

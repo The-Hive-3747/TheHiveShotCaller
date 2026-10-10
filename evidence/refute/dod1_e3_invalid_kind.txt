@@ -1,0 +1,9 @@
+PUT kind=banana 200
+start with kind=banana: (500, {'detail': "pipeline start failed: 'banana' is not a valid SourceKind"})
+False
+dup cam ids start -> running?
+PUT dup 200
+ start 200
+  {'running': True, 'rtmp': False, 'cams': {'cam0': {'fps': 61.13833153855698, 'frames_read': 121, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}, 'last_error': None, 'calib_mismatch': {}}
+200
+restore 200

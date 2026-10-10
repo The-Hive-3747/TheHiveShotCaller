@@ -1,0 +1,4 @@
+synth_basic motion_scale=0.5: stock 7.57 ms  low-res-motion 3.76 ms  frames same-count 328 / differ 0  max centre shift 0.54 px (full-res)
+synth_burst motion_scale=0.5: stock 8.93 ms  low-res-motion 4.55 ms  frames same-count 678 / differ 0  max centre shift 0.21 px (full-res)
+synth_basic motion_scale=0.25: stock 8.76 ms  low-res-motion 3.78 ms  frames same-count 328 / differ 0  max centre shift 1.00 px (full-res)
+synth_burst motion_scale=0.25: stock 8.95 ms  low-res-motion 3.88 ms  frames same-count 678 / differ 0  max centre shift 6.37 px (full-res)

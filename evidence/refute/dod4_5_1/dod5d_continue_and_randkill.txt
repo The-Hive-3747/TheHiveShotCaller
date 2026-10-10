@@ -1,0 +1,11 @@
+sessions after 2nd run: [('60056b6a', 6, None), ('0e0408a6', 6, None)]
+first-session shots unchanged: True
+ids unique: True [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+rand-kill 0: seen=1 db=1 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 1: seen=0 db=0 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 2: seen=2 db=2 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 3: seen=0 db=1 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 4: seen=1 db=1 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 5: seen=1 db=1 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 6: seen=0 db=1 lost=[] integrity=[('ok',)] all-shots-fetchable=True
+rand-kill 7: seen=1 db=2 lost=[] integrity=[('ok',)] all-shots-fetchable=True

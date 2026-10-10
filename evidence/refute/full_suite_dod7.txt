@@ -1,0 +1,75 @@
+....................F..F...........................................ss... [ 33%]
+.....................................F.................................. [ 67%]
+....................................................................     [100%]
+================================== FAILURES ===================================
+_____________ test_vc_runtime_dlls_ship_with_bundle[msvcp140.dll] _____________
+
+dll = 'msvcp140.dll'
+
+    @pytest.mark.parametrize("dll", ["msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"])
+    def test_vc_runtime_dlls_ship_with_bundle(dll):
+        """App-local VC++ runtime so a PC without the redistributable can start the exe."""
+        f = _find_ci(dll)
+>       assert f is not None, f"{dll} missing from {BUNDLE} (root or _internal)"
+E       AssertionError: msvcp140.dll missing from C:\Users\3747h\Documents\HiveShotTracker\dist\HiveShotTracker (root or _internal)
+E       assert None is not None
+
+tests\test_build_smoke.py:102: AssertionError
+______________________ test_bundle_ships_docs_and_readme ______________________
+
+    def test_bundle_ships_docs_and_readme():
+        """build.ps1 copies docs/ and writes README.txt next to the exe (run the test after build.ps1)."""
+        docs = BUNDLE / "docs"
+        for name in ("operator_guide.md", "troubleshooting.md", "calibration.md", "clean_machine_test.md",
+                     "camera_placement.md", "camera_placement.png", "camera_placement.svg",
+                     "camera_bracket.md", "camera_bracket.stl", "camera_bracket.png"):
+>           assert (docs / name).is_file(), f"docs/{name} missing from bundle"
+E           AssertionError: docs/operator_guide.md missing from bundle
+E           assert False
+E            +  where False = is_file()
+E            +    where is_file = (WindowsPath('C:/Users/3747h/Documents/HiveShotTracker/dist/HiveShotTracker/docs') / 'operator_guide.md').is_file
+
+tests\test_build_smoke.py:112: AssertionError
+_____________ test_dropped_frames_are_flagged_on_shots_in_flight ______________
+
+tmp_path = WindowsPath('C:/Users/3747h/AppData/Local/Temp/refute_pt2/test_dropped_frames_are_flagge0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D82AE0C890>
+
+    @pytest.mark.xfail(not HAVE_MODULES, reason="detect/track2d/recon not present yet", strict=False)
+    def test_dropped_frames_are_flagged_on_shots_in_flight(tmp_path, monkeypatch):
+        orig = pipemod._LockstepReader.get
+    
+        def get(self, timeout=None):
+            fr = orig(self, timeout)
+            while fr is not None and 60 <= fr.frame_idx < 66:     # 6 frames lost, t = 1.0-1.1 s
+                fr = orig(self, timeout)
+            return fr
+    
+        monkeypatch.setattr(pipemod._LockstepReader, "get", get)
+        events = []
+        store = Store(tmp_path / "p.db")
+        pl = Pipeline(_file_cfg(), store, tmp_path, on_event=events.append, save_clips=False)
+        sid = store.create_session("drops")
+        pl.set_session(sid)
+        pl.start()
+        try:
+            assert _wait(pl.is_finished, 90)
+        finally:
+            pl.stop()
+        try:
+            shots = store.list_shots(sid)
+            flagged = [s for s in shots if "frames dropped during flight" in s.notes]
+            assert flagged, "no shot carries the dropped-frames note"
+            for s in flagged:
+                t0, t1 = s.track.points[0].t, s.track.points[-1].t
+>               assert t0 < 1.1 and t1 + 0.05 > 0.98, "flagged shot was not in flight during the loss"
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: flagged shot was not in flight during the loss
+E               assert (0.0 < 1.1 and 0.9666666666666668 > 1.0)
+
+tests\test_pipeline.py:534: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_build_smoke.py::test_vc_runtime_dlls_ship_with_bundle[msvcp140.dll]
+FAILED tests/test_build_smoke.py::test_bundle_ships_docs_and_readme - Asserti...
+FAILED tests/test_pipeline.py::test_dropped_frames_are_flagged_on_shots_in_flight
+3 failed, 207 passed, 2 skipped in 159.34s (0:02:39)

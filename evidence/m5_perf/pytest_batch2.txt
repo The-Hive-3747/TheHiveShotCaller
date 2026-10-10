@@ -1,0 +1,121 @@
+........................................................................ [ 75%]
+........................                                                 [100%]
+=================================== PASSES ====================================
+___________________ test_calibration_size_mismatch_reported ___________________
+------------------------------ Captured log call ------------------------------
+WARNING  hiveshot.pipeline:pipeline.py:351 calibration for cam0 does not match the video frame size (1280x720 vs 1920x1080); 3D results will be wrong until recalibrated
+WARNING  hiveshot.pipeline:pipeline.py:351 calibration for cam1 does not match the video frame size (1280x720 vs 1920x1080); 3D results will be wrong until recalibrated
+___________ test_unavailable_device_source_does_not_wedge_pipeline ____________
+------------------------------ Captured log call ------------------------------
+WARNING  hiveshot.pipeline:pipeline.py:351 no calibration for cam0/cam1; cannot reconstruct
+WARNING  hiveshot.ingest:ingest.py:272 cam1: open failed: cannot open device source 99 for cam 'cam1' (backend msmf)
+_____________ test_shots_without_active_session_go_to_unassigned ______________
+------------------------------ Captured log call ------------------------------
+WARNING  hiveshot.pipeline:pipeline.py:351 no active session: shots are stored in the 'unassigned' session until a session is started
+________ test_session_end_is_visible_in_status_and_shots_go_unassigned ________
+------------------------------ Captured log call ------------------------------
+WARNING  hiveshot.pipeline:pipeline.py:351 no active session: shots are stored in the 'unassigned' session until a session is started
+_________________ test_intrinsics_save_marks_extrinsics_stale _________________
+------------------------------ Captured log call ------------------------------
+WARNING  hiveshot.pipeline:pipeline.py:351 extrinsics for cam0 are stale (intrinsics were recalibrated); re-solve the extrinsics
+___________ test_detector_plus_tracker_mean_frame_time_under_bound ____________
+---------------------------- Captured stdout call -----------------------------
+
+per-frame detector+tracker time over 60 frames at 1920x1080: mean 5.36 ms, median 5.28 ms, max 7.65 ms (bound 15.0 ms, 147 detections)
+=========================== short test summary info ===========================
+PASSED tests/test_pipeline.py::test_pipeline_on_synth_fixture
+PASSED tests/test_pipeline.py::test_pipeline_on_burst_fixture
+PASSED tests/test_pipeline.py::test_stitching_disabled_gives_same_shots
+PASSED tests/test_pipeline.py::test_made_shot_that_tips_hive_stays_made_and_links_tip
+PASSED tests/test_pipeline.py::test_hive_state_history_lookup
+PASSED tests/test_pipeline.py::test_link_tips_requires_window_and_entry
+PASSED tests/test_pipeline.py::test_concurrent_start_creates_one_set_of_threads
+PASSED tests/test_pipeline.py::test_stop_mid_fixture_flushes_completed_shots
+PASSED tests/test_pipeline.py::test_calibration_size_mismatch_reported
+PASSED tests/test_pipeline.py::test_matching_calibration_reports_no_mismatch
+PASSED tests/test_pipeline.py::test_clock_ignores_stalled_camera
+PASSED tests/test_pipeline.py::test_stalled_camera_does_not_block_finalization
+PASSED tests/test_pipeline.py::test_unavailable_device_source_does_not_wedge_pipeline
+PASSED tests/test_pipeline.py::test_shots_without_active_session_go_to_unassigned
+PASSED tests/test_pipeline.py::test_apply_config_rejects_source_change_while_running
+PASSED tests/test_pipeline.py::test_burst_changes_are_broadcast_consistently
+PASSED tests/test_pipeline.py::test_stream_cut_mid_flight_gives_unknown_not_miss
+PASSED tests/test_pipeline.py::test_dropped_frames_are_flagged_on_shots_in_flight
+PASSED tests/test_pipeline.py::test_no_drops_means_no_note_and_status_reports_timing
+PASSED tests/test_pipeline.py::test_preview_jpeg_only_encoded_while_a_client_is_attached
+PASSED tests/test_pipeline.py::test_clip_ring_frames_survive_buffer_recycling
+PASSED tests/test_pipeline.py::test_bare_rtmp_stream_name_resolves_to_local_url
+PASSED tests/test_pipeline.py::test_status_warnings_and_calibration_loaded
+PASSED tests/test_shots.py::test_made_when_inside_thereafter
+PASSED tests/test_shots.py::test_bounce_out_when_leaves_cell
+PASSED tests/test_shots.py::test_miss_without_crossing
+PASSED tests/test_shots.py::test_unknown_with_three_points
+PASSED tests/test_shots.py::test_leaving_after_settle_time_still_made
+PASSED tests/test_shots.py::test_radius_passed_by_ball_type
+PASSED tests/test_shots.py::test_build_shot_fields
+PASSED tests/test_shots.py::test_build_shot_short_track_has_no_fits
+PASSED tests/test_shots.py::test_assign_bursts
+PASSED tests/test_shots.py::test_assign_bursts_overflow_notes
+PASSED tests/test_shots.py::test_detect_tip_one_event_after_shot_three
+PASSED tests/test_shots.py::test_detect_tip_ignores_non_made
+PASSED tests/test_shots.py::test_assign_bursts_is_idempotent
+PASSED tests/test_shots.py::test_assign_bursts_keeps_other_notes_and_drops_stale_tag
+PASSED tests/test_shots.py::test_complete_made_trajectory_is_made_control
+PASSED tests/test_shots.py::test_truncated_made_trajectory_at_apex_is_unknown
+PASSED tests/test_shots.py::test_track_lost_near_the_opening_is_unknown_with_note[0.58]
+PASSED tests/test_shots.py::test_track_lost_near_the_opening_is_unknown_with_note[0.64]
+PASSED tests/test_shots.py::test_track_lost_near_the_opening_is_unknown_with_note[0.68]
+PASSED tests/test_shots.py::test_full_miss_landing_on_the_floor_is_miss
+PASSED tests/test_shots.py::test_pass_beside_the_opening_and_continue_below_it_is_miss
+PASSED tests/test_shots.py::test_clear_plane_crossing_outside_the_opening_is_miss_even_while_still_high
+PASSED tests/test_shots.py::test_shot_just_outside_the_opening_edge_is_not_clearly_a_miss
+PASSED tests/test_shots.py::test_without_geometry_a_midair_stop_is_unknown_and_landing_is_miss
+PASSED tests/test_shots.py::test_classify_track_tuple_api_unchanged_for_crossings
+PASSED tests/test_shots.py::test_dropped_note_roundtrip_and_summary_fields
+PASSED tests/test_app.py::test_config_get_put
+PASSED tests/test_app.py::test_sessions_and_stats
+PASSED tests/test_app.py::test_csv_export
+PASSED tests/test_app.py::test_geometry_devices_calib
+PASSED tests/test_app.py::test_checkerboard_pdf_and_reference_points
+PASSED tests/test_app.py::test_hive_state_roundtrip
+PASSED tests/test_app.py::test_preview_before_start_is_404
+PASSED tests/test_app.py::test_static_root_does_not_crash
+PASSED tests/test_app.py::test_websocket_status
+PASSED tests/test_app.py::test_restart_keeps_session_and_shots
+PASSED tests/test_app.py::test_websocket_receives_shot_events
+PASSED tests/test_app.py::test_put_config_rejects_source_change_while_running
+PASSED tests/test_app.py::test_session_end_is_visible_in_status_and_shots_go_unassigned
+PASSED tests/test_app.py::test_intrinsics_save_marks_extrinsics_stale
+PASSED tests/test_app.py::test_put_config_rejects_bad_sources[sources0-kind]
+PASSED tests/test_app.py::test_put_config_rejects_bad_sources[sources1-unique]
+PASSED tests/test_app.py::test_put_config_rejects_bad_sources[sources2-target]
+PASSED tests/test_app.py::test_put_config_rejects_bad_sources[sources3-target]
+PASSED tests/test_app.py::test_put_config_rejects_bad_sources[sources4-cam_id]
+PASSED tests/test_app.py::test_put_config_accepts_every_valid_kind
+PASSED tests/test_app.py::test_crosscheck_needs_clicks
+PASSED tests/test_app.py::test_crosscheck_reports_small_error_for_clean_clicks_and_persists_them
+PASSED tests/test_app.py::test_crosscheck_flags_a_mis_clicked_point
+PASSED tests/test_app.py::test_clicks_survive_a_later_calibration_save
+PASSED tests/test_app.py::test_status_reports_calibration_loaded_and_warnings
+PASSED tests/test_app.py::test_status_with_embedded_fixture_calibration_has_no_calibration_warning
+PASSED tests/test_stats.py::test_counts_and_rate
+PASSED tests/test_stats.py::test_histograms
+PASSED tests/test_stats.py::test_by_ball_type
+PASSED tests/test_stats.py::test_means_skip_missing_and_tips_counted
+PASSED tests/test_stats.py::test_empty
+PASSED tests/test_stats.py::test_stats_to_dict_json_safe
+PASSED tests/test_stats.py::test_csv
+PASSED tests/test_stats.py::test_csv_neutralizes_formula_injection
+PASSED tests/test_stats.py::test_csv_t_launch_wall
+PASSED tests/test_perf.py::test_detector_plus_tracker_mean_frame_time_under_bound
+PASSED tests/test_detect.py::test_fixture_recall_precision_color[synth_basic]
+PASSED tests/test_detect.py::test_fixture_recall_precision_color[synth_burst]
+PASSED tests/test_detect.py::test_fixture_recall_precision_motion_only[synth_basic]
+PASSED tests/test_detect.py::test_fixture_recall_precision_motion_only[synth_burst]
+PASSED tests/test_detect.py::test_fixture_ball_type_pollen
+PASSED tests/test_detect.py::test_detection_fields
+PASSED tests/test_detect.py::test_nectar_classified_and_scaled_coordinates
+PASSED tests/test_detect.py::test_static_scene_has_no_detections_and_reset
+PASSED tests/test_detect.py::test_radius_filter_rejects_huge_blob
+PASSED tests/test_detect.py::test_draw_returns_annotated_copy
+PASSED tests/test_detect.py::test_config_from_dict_ignores_unknown_keys

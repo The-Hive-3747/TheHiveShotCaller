@@ -1,0 +1,12 @@
+up True
+devices [] [{'index': 0, 'width': 640, 'height': 480, 'fps': 30.0}]
+PUT dev 200
+start 200
+device (exe): {'cam0': (135, 30.2, True, None), 'cam1': (302, 60.0, True, None)}
+stop 200
+PUT rtmp 200
+start 200
+rtmp status {'available': True, 'running': True, 'urls': {'cam0': 'rtmp://127.0.0.1:1935/cam0', 'cam1': 'rtmp://127.0.0.1:1935/cam1'}} ['mediamtx.exe:19704']
+rtmp (exe): {'cam0': (2184, 60.1, True), 'cam1': (2513, 60.2, True)} last_shot None
+[('bbbca0e6', 0, 0)]
+200

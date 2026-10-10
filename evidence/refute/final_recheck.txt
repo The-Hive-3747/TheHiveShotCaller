@@ -1,0 +1,22 @@
+== fx20
+{"finished": true, "n_truth": 20, "n_shots": 17, "truth_made": 14, "expected_failure_hist": {"1": 1, "2": 2, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 19.86766481399536}
+unmatched truth: [17, 18, 19]
+make/miss mismatches: []
+speed err pct: max 5.30 mean 0.32 n=17
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s
+== ok20_777
+{"finished": true, "n_truth": 20, "n_shots": 20, "truth_made": 15, "expected_failure_hist": {"1": 1, "2": 1, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 25.69718360900879}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 2.80 mean 1.10 n=20
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s
+== ad_late20
+{"finished": true, "n_truth": 20, "n_shots": 17, "truth_made": 14, "expected_failure_hist": {"1": 1, "2": 2, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 24.65161919593811}
+unmatched truth: [17, 18, 19]
+make/miss mismatches: []
+speed err pct: max 0.07 mean 0.01 n=17
+INFO:hiveshot.pipeline:time offset cam B -> cam A: -0.0000 s
+e49db15b636ca47409f294ec8c1cf909 *hiveshot/pipeline.py
+2b09899c2019627604ae544bd1e37a88 *hiveshot/shots.py
+1c28b97569973b1a29f7eea90b7d6559 *hiveshot/recon.py
+cb0946b993b6304b925ed574a5f94da9 *hiveshot/stats.py

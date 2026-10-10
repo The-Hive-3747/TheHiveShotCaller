@@ -1,0 +1,3 @@
+list_devices: [{'index': 0, 'width': 640, 'height': 480, 'fps': 30.0, 'read_ok': True}]
+backend=msmf props={'width': 640, 'height': 480, 'fps': 30.0, 'backend': 'msmf'} frames_consumed=141 wall_fps=28.20 stats_fps=30.00 frames_read=141 dropped=0 last_error=None
+backend=dshow props={'width': 640, 'height': 480, 'fps': 30.00003000003, 'backend': 'dshow'} frames_consumed=88 wall_fps=17.60 stats_fps=29.51 frames_read=88 dropped=0 last_error=None

@@ -1,0 +1,14 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\3747h\Documents\HiveShotTracker
+configfile: pyproject.toml
+plugins: anyio-4.15.1, cov-7.1.0
+collected 5 items
+
+tests\test_bracket.py .....                                              [100%]
+
+============================= slowest 3 durations =============================
+0.06s setup    tests/test_bracket.py::test_mesh_is_watertight
+0.02s call     tests/test_bracket.py::test_features_present
+0.01s setup    tests/test_bracket.py::test_stl_written
+============================== 5 passed in 0.96s ==============================

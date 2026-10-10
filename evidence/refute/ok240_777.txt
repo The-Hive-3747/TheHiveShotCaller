@@ -1,0 +1,6 @@
+{"finished": true, "n_truth": 20, "n_shots": 20, "truth_made": 15, "expected_failure_hist": {"1": 1, "2": 1, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 57.005486726760864}
+unmatched truth: []
+make/miss mismatches: [(0, True, 'unknown'), (4, True, 'unknown'), (7, True, 'unknown'), (9, True, 'unknown'), (13, True, 'unknown'), (17, True, 'unknown')]
+speed err pct: max 75.76 mean 4.18 n=20
+no parabola: [] no drag: []
+burst mismatches: []

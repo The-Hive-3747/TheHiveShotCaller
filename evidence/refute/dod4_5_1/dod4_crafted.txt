@@ -1,0 +1,24 @@
+{'unknown_nulls': 1, 'unknown_unassigned': 2, 'track1pt': 3, 'track_empty': 4, 'nan_parabola': 5, 'nan_speed': 6, 'unknown_ball': 7, 'dup_t': 8} sid a48dac26
+SESSION {'session_id': 'a48dac26', 'name': 'crafted', 'started_at': 1791667844.205146, 'ended_at': 1791667844.205146, 'shots': 7, 'made': 0}
+SESSION {'session_id': 'unassigned', 'name': 'Unassigned shots', 'started_at': 1791667844.205146, 'ended_at': 1791667844.205146, 'shots': 1, 'made': 0}
+SESSION {'session_id': '7c703030', 'name': 'empty', 'started_at': 1791667844.205146, 'ended_at': None, 'shots': 0, 'made': 0}
+unknown_nulls 1 200 {'shot_id': 1, 't_launch': 1.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'pollen', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 0
+unknown_unassigned 2 200 {'shot_id': 2, 't_launch': 2.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'pollen', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 0
+track1pt 3 200 {'shot_id': 3, 't_launch': 3.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'nectar', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 1
+track_empty 4 200 {'shot_id': 4, 't_launch': 4.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'pollen', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 0
+nan_parabola 5 422 {"detail":"Out of range float values are not JSON compliant: nan"} track_len= None
+nan_speed 6 200 {'shot_id': 6, 't_launch': 6.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'pollen', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 0
+unknown_ball 7 200 {'shot_id': 7, 't_launch': 7.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'unknown', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 6
+dup_t 8 200 {'shot_id': 8, 't_launch': 8.0, 'burst_id': 1, 'burst_index': 1, 'ball_type': 'pollen', 'result': 'unknown', 'exit_speed_ips': None, 'exit_speed_mps': None, 'launch_angle_deg': None, 'launch_azimuth_deg': None, 'apex_z_in': None, 'equation': None, 'clip_url': None, 'parabola': None, 'drag': None, 'launch_point': None} track_len= 6
+GET unassigned shots 200 242 [{"shot_id":2,"t_launch":2.0,"burst_id":1,"burst_index":1,"ball_type":"pollen","result":"unknown","exit_speed_ips":null,"exit_speed_mps":null,"launch_angle_deg"
+GET unassigned stats 200 355 {"session_id":"unassigned","shots":1,"made":0,"bounce_out":0,"miss":0,"unknown":1,"make_rate":0.0,"by_ball_type":{"pollen":{"made":0,"bounce_out":0,"miss":0,"un
+GET unassigned export.csv 200 226 shot_id,session_id,t_launch,burst_id,burst_index,ball_type,result,exit_speed_ips,exit_speed_mps,launch_angle_deg,launch_azimuth_deg,parabola_a,parabola_b,parabo
+GET unassigned tips 200 2 []
+GET a48dac26 shots 200 1715 [{"shot_id":1,"t_launch":1.0,"burst_id":1,"burst_index":1,"ball_type":"pollen","result":"unknown","exit_speed_ips":null,"exit_speed_mps":null,"launch_angle_deg"
+GET a48dac26 stats 200 486 {"session_id":"a48dac26","shots":7,"made":0,"bounce_out":0,"miss":1,"unknown":6,"make_rate":0.0,"by_ball_type":{"pollen":{"made":0,"bounce_out":0,"miss":1,"unkn
+GET a48dac26 export.csv 200 485 shot_id,session_id,t_launch,burst_id,burst_index,ball_type,result,exit_speed_ips,exit_speed_mps,launch_angle_deg,launch_azimuth_deg,parabola_a,parabola_b,parabo
+GET a48dac26 tips 200 2 []
+GET nonexistent shots 404 40 {"detail":"unknown session nonexistent"}
+GET nonexistent stats 404 40 {"detail":"unknown session nonexistent"}
+GET nonexistent export.csv 404 40 {"detail":"unknown session nonexistent"}
+GET nonexistent tips 404 40 {"detail":"unknown session nonexistent"}

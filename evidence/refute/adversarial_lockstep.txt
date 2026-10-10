@@ -1,0 +1,48 @@
+=== late20
+{"finished": true, "n_truth": 20, "n_shots": 17, "truth_made": 14, "expected_failure_hist": {"1": 1, "2": 2, "3": 2, "4": 1, "5": 0}, "extra_shots": [], "elapsed_s": 20.06539297103882}
+unmatched truth: [17, 18, 19]
+make/miss mismatches: []
+speed err pct: max 0.07 mean 0.01 n=17
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: -0.0000 s
+=== overlap
+{"finished": true, "n_truth": 8, "n_shots": 8, "truth_made": 6, "expected_failure_hist": {"1": 0, "2": 1, "3": 1, "4": 0, "5": 0}, "extra_shots": [], "elapsed_s": 9.728353023529053}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 0.05 mean 0.01 n=8
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: -0.0000 s
+=== burst6
+{"finished": true, "n_truth": 9, "n_shots": 9, "truth_made": 6, "expected_failure_hist": {"1": 0, "2": 0, "3": 2, "4": 0, "5": 1}, "extra_shots": [], "elapsed_s": 8.623616695404053}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 0.05 mean 0.01 n=9
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: -0.0000 s
+=== gap15
+{"finished": true, "n_truth": 6, "n_shots": 6, "truth_made": 4, "expected_failure_hist": {"1": 0, "2": 0, "3": 1, "4": 0, "5": 1}, "extra_shots": [], "elapsed_s": 6.3195977210998535}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 0.03 mean 0.01 n=6
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s
+=== lowarc
+{"finished": true, "n_truth": 6, "n_shots": 6, "truth_made": 6, "expected_failure_hist": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0}, "extra_shots": [], "elapsed_s": 6.22338080406189}
+unmatched truth: []
+make/miss mismatches: [(1, True, 'bounce_out'), (5, True, 'bounce_out')]
+speed err pct: max 0.94 mean 0.36 n=6
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s
+=== edge
+{"finished": true, "n_truth": 6, "n_shots": 6, "truth_made": 2, "expected_failure_hist": {"1": 1, "2": 2, "3": 1, "4": 0, "5": 0}, "extra_shots": [], "elapsed_s": 10.779109239578247}
+unmatched truth: []
+make/miss mismatches: []
+speed err pct: max 2.68 mean 0.46 n=6
+no parabola: [] no drag: []
+burst mismatches: []
+INFO:hiveshot.pipeline:time offset cam B -> cam A: 0.0000 s

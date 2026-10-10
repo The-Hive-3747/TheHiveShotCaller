@@ -1,0 +1,33 @@
+state True ['mediamtx.exe:25408']
+stop 200 procs after stop []
+PUT bad device 200
+start bad dev 200 
+  True {'cam0': (0, True, "cannot open device source 7 for cam 'cam0' (backend msmf)", 0), 'cam1': (241, True, '', 0)}
+ stop 200 []
+PUT kind=banana (200, {'sources': [{'cam_id': 'cam0', 'kind': 'banana', 'target': 'fixtures/synth_basic/cam0.mp4', 'width': 1920, 'height': 1080, 'fps_hint': 60.0, 'backend': 'auto', 'loop': True, 'realtime': True}], 'calibration_path': 'data/calibration.json', 'alliance': 'red', 'hive_up_cell': 'audience', 'robot': {'length': 18.0, 'width': 18.0, 'height': 18.0, 'launch_exit_height': 12.0}, 'burst_gap_s': 1.5, 'settle_time_s': 0.75, 'detector': {'min_radius_px': 4.0, 'max_radius_px': 60.0, 'pollen_hsv': [[15, 100, 100], [38, 255, 255]], 'nectar_hsv': [[125, 60, 60], [170, 255, 255]], 'motion_thresh': 25.0}, 'preview_fps': 15.0, 'stitch_gap_s': 2.0, 'finalize_delay_s': 0.5})
+PUT device target "abc" 200
+ start named device 200
+  {'cam0': (0, True, "cannot open device source 'abc' for cam 'cam0' (backend dshow)"), 'cam1': (182, True, '')}
+PUT file missing 200
+ start 200
+  True {'cam0': (0, False, "cannot open file source 'C:\\\\Users\\\\3747h\\\\Documents\\\\HiveShotTracker\\", False), 'cam1': (181, True, '', False)}
+ stop 200
+SWITCH -> device 200
+ start 200 True rtmp False {'cam0': (124, True), 'cam1': (301, True)}
+ stop 200 []
+SWITCH -> rtmp 200
+ start 200 True rtmp True {'cam0': (0, True), 'cam1': (0, True)}
+ stop 200 []
+SWITCH -> files 200
+ start 200 True rtmp False {'cam0': (275, True), 'cam1': (281, True)}
+ stop 200 []
+SWITCH -> device 200
+ start 200 True rtmp False {'cam0': (130, True), 'cam1': (302, True)}
+ stop 200 []
+cycle 0 start 200 rtmp True ['mediamtx.exe:23576']
+   stop 200 0.02 procs []
+cycle 1 start 200 rtmp True ['mediamtx.exe:26780']
+   stop 200 0.02 procs []
+cycle 2 start 200 rtmp True ['mediamtx.exe:22652']
+   stop 200 0.02 procs []
+double start 200 200 200 200 []

@@ -1,0 +1,13 @@
+== pytest tests/test_ui_static.py ==
+..........                                                               [100%]
+== ruff check tests ==
+All checks passed!
+
+== NOT VERIFIED (no browser run by this worker; static checks only) ==
+- Replay grid stacking / 360px viewport at narrow widths; container-query vs @supports fallback behavior
+- Camera column collapsing to a thumbnail row (<900px window)
+- Session picker behavior against the live backend (selecting old session, Start session selecting the new one)
+- Shots result filter and "burst N . #M" rendering in a browser
+- Follow ball camera motion, ResizeObserver resizing of the WebGL viewport
+- ENDED/DOWN/LIVE overlay text: depends on backend adding camera status `ended: true` (not present in the stub)
+- Equation: taken from GET /api/shots/{id} `equation`, falling back to the list row; backend detail endpoint must supply it

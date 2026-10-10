@@ -1,0 +1,23 @@
+stop 200
+start 200
+3 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+6 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+9 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+12 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+15 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+18 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+21 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+24 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+27 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+30 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+33 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+36 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+39 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+42 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+45 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+48 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+51 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+54 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+57 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+60 {'cam0': (0, True, 'cannot open rtmp sou'), 'cam1': (0, True, 'cannot open rtmp sou')} shot None
+ad3f0bc0 0 []

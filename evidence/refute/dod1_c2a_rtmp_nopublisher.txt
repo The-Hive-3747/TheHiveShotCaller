@@ -1,0 +1,10 @@
+PUT 200
+start 200
+0 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+1 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+2 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+3 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+4 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+5 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+6 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True
+7 {'cam0': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam0' for cam 'cam0' (backend ffmpeg)"), 'cam1': (0, True, 0, "cannot open rtmp source 'rtmp://127.0.0.1:1935/cam1' for cam 'cam1' (backend ffmpeg)")} True

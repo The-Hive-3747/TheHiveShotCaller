@@ -1,0 +1,6 @@
+frames=164 size=1920x1080
+detect   cpu   7.146 ms/frame  wall   7.841 ms/frame
+track    cpu   0.000 ms/frame  wall   0.131 ms/frame
+preview  cpu   0.572 ms/frame  wall   0.586 ms/frame
+ring     cpu   2.096 ms/frame  wall   1.781 ms/frame
+sum      cpu   9.813 ms/frame  wall  10.338 ms/frame

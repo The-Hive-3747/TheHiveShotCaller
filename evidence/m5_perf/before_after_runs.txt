@@ -1,0 +1,70 @@
+--- before run 1
+detect   cpu  12.671 ms/frame  wall  13.136 ms/frame
+track    cpu   0.381 ms/frame  wall   0.188 ms/frame
+preview  cpu   0.953 ms/frame  wall   1.126 ms/frame
+ring     cpu   2.382 ms/frame  wall   3.172 ms/frame
+sum      cpu  16.387 ms/frame  wall  17.622 ms/frame
+--- after run 1
+frames=164 size=1920x1080
+detect   mean  15.849 ms/frame  median  15.939
+track    mean   0.207 ms/frame  median   0.186
+preview  mean   1.530 ms/frame  median   0.000
+ring     mean   0.377 ms/frame  median   0.323
+(after-frame wall incl. bookkeeping: mean 1.929 ms)
+sum      mean  17.963 ms/frame  (median-sum  16.449)
+--- before run 2
+detect   cpu  11.147 ms/frame  wall   8.639 ms/frame
+track    cpu   0.095 ms/frame  wall   0.132 ms/frame
+preview  cpu   0.191 ms/frame  wall   0.648 ms/frame
+ring     cpu   0.476 ms/frame  wall   1.933 ms/frame
+sum      cpu  11.909 ms/frame  wall  11.352 ms/frame
+--- after run 2
+frames=164 size=1920x1080
+detect   mean   8.698 ms/frame  median   8.356
+track    mean   0.154 ms/frame  median   0.140
+preview  mean   0.547 ms/frame  median   0.000
+ring     mean   0.159 ms/frame  median   0.149
+(after-frame wall incl. bookkeeping: mean 0.720 ms)
+sum      mean   9.558 ms/frame  (median-sum   8.645)
+--- before run 3
+detect   cpu   9.051 ms/frame  wall   8.371 ms/frame
+track    cpu   0.000 ms/frame  wall   0.138 ms/frame
+preview  cpu   0.286 ms/frame  wall   0.633 ms/frame
+ring     cpu   1.715 ms/frame  wall   1.876 ms/frame
+sum      cpu  11.052 ms/frame  wall  11.019 ms/frame
+--- after run 3
+frames=164 size=1920x1080
+detect   mean   8.758 ms/frame  median   8.392
+track    mean   0.120 ms/frame  median   0.121
+preview  mean   0.428 ms/frame  median   0.000
+ring     mean   0.155 ms/frame  median   0.145
+(after-frame wall incl. bookkeeping: mean 0.595 ms)
+sum      mean   9.461 ms/frame  (median-sum   8.659)
+--- before run 4
+detect   cpu   7.241 ms/frame  wall   8.960 ms/frame
+track    cpu   0.095 ms/frame  wall   0.135 ms/frame
+preview  cpu   0.953 ms/frame  wall   0.677 ms/frame
+ring     cpu   2.763 ms/frame  wall   2.127 ms/frame
+sum      cpu  11.052 ms/frame  wall  11.898 ms/frame
+--- after run 4
+frames=164 size=1920x1080
+detect   mean   9.988 ms/frame  median  10.226
+track    mean   0.155 ms/frame  median   0.163
+preview  mean   0.628 ms/frame  median   0.000
+ring     mean   0.195 ms/frame  median   0.183
+(after-frame wall incl. bookkeeping: mean 0.839 ms)
+sum      mean  10.967 ms/frame  (median-sum  10.572)
+--- before run 5
+detect   cpu   8.670 ms/frame  wall   8.608 ms/frame
+track    cpu   0.191 ms/frame  wall   0.134 ms/frame
+preview  cpu   0.476 ms/frame  wall   0.626 ms/frame
+ring     cpu   1.620 ms/frame  wall   1.977 ms/frame
+sum      cpu  10.957 ms/frame  wall  11.345 ms/frame
+--- after run 5
+frames=164 size=1920x1080
+detect   mean   8.867 ms/frame  median   8.546
+track    mean   0.134 ms/frame  median   0.135
+preview  mean   0.449 ms/frame  median   0.000
+ring     mean   0.170 ms/frame  median   0.162
+(after-frame wall incl. bookkeeping: mean 0.632 ms)
+sum      mean   9.621 ms/frame  (median-sum   8.843)

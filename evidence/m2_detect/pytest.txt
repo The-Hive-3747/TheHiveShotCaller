@@ -1,0 +1,13 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\3747h\Documents\HiveShotTracker
+configfile: pyproject.toml
+plugins: anyio-4.15.1, cov-7.1.0
+collected 19 items
+
+tests\test_detect.py ...........                                         [ 57%]
+tests\test_track2d.py ........                                           [100%]
+
+============================= 19 passed in 15.18s =============================
+--- ruff ---
+All checks passed!

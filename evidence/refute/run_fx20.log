@@ -1,0 +1,3 @@
+INFO:hiveshot.ingest:opened cam0: {'width': 1920, 'height': 1080, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}
+INFO:hiveshot.ingest:opened cam1: {'width': 1920, 'height': 1080, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}
+INFO:hiveshot.pipeline:time offset cam B -> cam A: -0.2505 s

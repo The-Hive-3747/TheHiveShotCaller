@@ -1,0 +1,12 @@
+up True
+checkerboard.pdf 200 application/pdf 39448 bytes b'%PDF-1.4' True b'MediaBox [0 0 792.000 612.000] /Resource'
+points 200 ['Red HIVE up-CELL opening, high-left corner', 'Red HIVE up-CELL opening, high-right corner', 'Red HIVE up-CELL opening, low-right corner', 'Red HIVE up-CELL opening, low-left corner', 'HIVE frame top corner (-X, +Y)', 'HIVE frame top corner (+X, +Y)', 'HIVE frame top corner (-X, -Y)', 'HIVE frame top corner (+X, -Y)']
+PUT 200
+start 200
+cam0 intrinsics 200 {'reprojection_rmse_px': 0.18016178069774186, 'frames_used': 39} solve 1.5s
+cam1 intrinsics 200 {'reprojection_rmse_px': 0.22747310013821984, 'frames_used': 39} solve 1.5s
+cam0 extrinsics 200 rmse_in 0.194 max px 3.20 0.02s
+cam1 extrinsics 200 rmse_in 0.185 max px 3.33 0.03s
+machine time for calibration steps (excl. human): 43 s
+200
+stale flags [False, False]

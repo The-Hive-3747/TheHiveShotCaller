@@ -1,0 +1,72 @@
+--- run 1: motion_scale 1.0 (shared downscale only)
+motion_scale=1.0
+frames=164 size=1920x1080
+detect   mean   8.265 ms/frame  median   8.071
+track    mean   0.132 ms/frame  median   0.131
+preview  mean   0.472 ms/frame  median   0.000
+ring     mean   0.145 ms/frame  median   0.138
+(after-frame wall incl. bookkeeping: mean 0.630 ms)
+sum      mean   9.014 ms/frame  (median-sum   8.340)
+--- run 1: motion_scale 0.5 (default)
+motion_scale=0.5
+frames=164 size=1920x1080
+detect   mean   4.252 ms/frame  median   4.167
+track    mean   0.119 ms/frame  median   0.123
+preview  mean   0.407 ms/frame  median   0.000
+ring     mean   0.130 ms/frame  median   0.118
+(after-frame wall incl. bookkeeping: mean 0.548 ms)
+sum      mean   4.908 ms/frame  (median-sum   4.408)
+--- run 1: before
+detect   cpu   8.194 ms/frame  wall   7.798 ms/frame
+track    cpu   0.095 ms/frame  wall   0.133 ms/frame
+preview  cpu   0.762 ms/frame  wall   0.609 ms/frame
+ring     cpu   1.429 ms/frame  wall   1.782 ms/frame
+sum      cpu  10.480 ms/frame  wall  10.321 ms/frame
+--- run 2: motion_scale 1.0 (shared downscale only)
+motion_scale=1.0
+frames=164 size=1920x1080
+detect   mean   7.849 ms/frame  median   7.636
+track    mean   0.119 ms/frame  median   0.121
+preview  mean   0.405 ms/frame  median   0.000
+ring     mean   0.127 ms/frame  median   0.124
+(after-frame wall incl. bookkeeping: mean 0.543 ms)
+sum      mean   8.500 ms/frame  (median-sum   7.881)
+--- run 2: motion_scale 0.5 (default)
+motion_scale=0.5
+frames=164 size=1920x1080
+detect   mean   4.260 ms/frame  median   4.126
+track    mean   0.116 ms/frame  median   0.119
+preview  mean   0.409 ms/frame  median   0.000
+ring     mean   0.128 ms/frame  median   0.115
+(after-frame wall incl. bookkeeping: mean 0.547 ms)
+sum      mean   4.913 ms/frame  (median-sum   4.360)
+--- run 2: before
+detect   cpu   7.812 ms/frame  wall   7.621 ms/frame
+track    cpu   0.381 ms/frame  wall   0.125 ms/frame
+preview  cpu   0.381 ms/frame  wall   0.607 ms/frame
+ring     cpu   1.715 ms/frame  wall   1.750 ms/frame
+sum      cpu  10.290 ms/frame  wall  10.103 ms/frame
+--- run 3: motion_scale 1.0 (shared downscale only)
+motion_scale=1.0
+frames=164 size=1920x1080
+detect   mean   8.174 ms/frame  median   8.068
+track    mean   0.120 ms/frame  median   0.123
+preview  mean   0.430 ms/frame  median   0.000
+ring     mean   0.150 ms/frame  median   0.140
+(after-frame wall incl. bookkeeping: mean 0.592 ms)
+sum      mean   8.874 ms/frame  (median-sum   8.331)
+--- run 3: motion_scale 0.5 (default)
+motion_scale=0.5
+frames=164 size=1920x1080
+detect   mean   4.563 ms/frame  median   4.386
+track    mean   0.127 ms/frame  median   0.123
+preview  mean   0.420 ms/frame  median   0.000
+ring     mean   0.143 ms/frame  median   0.131
+(after-frame wall incl. bookkeeping: mean 0.575 ms)
+sum      mean   5.253 ms/frame  (median-sum   4.640)
+--- run 3: before
+detect   cpu   6.098 ms/frame  wall   8.357 ms/frame
+track    cpu   0.191 ms/frame  wall   0.133 ms/frame
+preview  cpu   0.572 ms/frame  wall   0.634 ms/frame
+ring     cpu   2.191 ms/frame  wall   1.964 ms/frame
+sum      cpu   9.051 ms/frame  wall  11.089 ms/frame

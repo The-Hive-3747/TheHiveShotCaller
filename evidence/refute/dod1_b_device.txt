@@ -1,0 +1,17 @@
+PUT 200 [('cam0', 'device', 0), ('cam1', 'file', 'fixtures/synth_basic/cam1.mp4')]
+start 200 0.4
+0 {'cam0': {'fps': 31.745427075609555, 'frames_read': 8, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 62.65291548227726, 'frames_read': 62, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+1 {'cam0': {'fps': 30.07062451919486, 'frames_read': 38, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 59.85485850710513, 'frames_read': 124, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+2 {'cam0': {'fps': 29.969132301280226, 'frames_read': 69, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.03481413778016, 'frames_read': 185, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+3 {'cam0': {'fps': 30.227881956840495, 'frames_read': 100, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.01030361927835, 'frames_read': 246, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+4 {'cam0': {'fps': 29.8173429993945, 'frames_read': 130, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.16696935675819, 'frames_read': 307, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+5 {'cam0': {'fps': 29.972717715024167, 'frames_read': 160, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 59.9852023045941, 'frames_read': 367, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+6 {'cam0': {'fps': 30.197467896152332, 'frames_read': 190, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 59.7057729607019, 'frames_read': 428, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+7 {'cam0': {'fps': 29.650014298227497, 'frames_read': 220, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.19932045468931, 'frames_read': 488, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+8 {'cam0': {'fps': 30.146277402155913, 'frames_read': 251, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 59.823513596572525, 'frames_read': 549, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+9 {'cam0': {'fps': 29.98329777875804, 'frames_read': 281, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.29190479009987, 'frames_read': 609, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+10 {'cam0': {'fps': 30.181848707463637, 'frames_read': 312, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 60.110129839224285, 'frames_read': 670, 'is_alive': True, 'last_error': None, 'reconnects': 0, 'ended': False}}
+PUT sources while running (409, {'detail': 'sources cannot be changed while the pipeline is running; stop it first'})
+PUT benign while running 200
+stop (200, {'ok': True, 'running': False}) 0.4
+{'running': False, 'rtmp': False, 'cams': {'cam0': {'fps': 0.0, 'frames_read': 0, 'is_alive': False, 'last_error': None, 'reconnects': 0, 'ended': False}, 'cam1': {'fps': 0.0, 'frames_read': 0, 'is_alive': False, 'last_error': None, 'reconnects': 0, 'ended': False}}, 'last_error': None, 'calib_mismatch': {}}

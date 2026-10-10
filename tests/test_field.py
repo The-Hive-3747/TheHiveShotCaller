@@ -1,0 +1,188 @@
+import math
+
+import numpy as np
+import pytest
+
+from hiveshot import field
+from hiveshot import field_constants as C
+
+ST = field.HiveState("red", "audience")
+
+
+def test_center_on_plane_and_z_exact():
+    for al in ("red", "blue"):
+        for which in ("audience", "far"):
+            poly = field.cell_opening_polygon(al, which, ST)
+            pt, n = field.cell_opening_plane(al, which, ST)
+            assert np.allclose(poly.mean(axis=0), pt)
+            assert np.allclose((poly - pt) @ n, 0, atol=1e-9)
+    pt, _ = field.cell_opening_plane("red", "audience", ST)
+    assert pt[2] == pytest.approx(C.UP_CELL_OPENING_CENTER_Z)
+    assert pt[0] == pytest.approx(C.RED_HIVE_X)
+    pt, _ = field.cell_opening_plane("red", "far", ST)
+    assert pt[1] < 0 and pt[2] < C.UP_CELL_OPENING_CENTER_Z
+    poly = field.cell_opening_polygon("red", "audience", ST)
+    assert poly[:, 2].min() == pytest.approx(C.UP_CELL_OPENING_BOTTOM_Z, abs=0.05)
+    assert poly[:, 2].max() == pytest.approx(C.UP_CELL_OPENING_TOP_Z, abs=0.05)
+
+
+def test_normal_unit_points_away_from_pivot_and_angle():
+    pt, n = field.cell_opening_plane("blue", "audience", ST)
+    assert np.linalg.norm(n) == pytest.approx(1.0)
+    pivot = np.array([C.BLUE_HIVE_X, 0, C.PIVOT_HEIGHT])
+    assert np.dot(pt - pivot, n) > 0
+    elev = math.degrees(math.asin(n[2]))
+    assert elev == pytest.approx(30.0, abs=0.2)  # CAD: exactly the 30 deg beam tilt
+    assert n[1] > 0
+    _, nf = field.cell_opening_plane("blue", "far", ST)
+    assert nf[1] < 0
+
+
+def test_polygon_width_height():
+    poly = field.cell_opening_polygon("red", "audience", ST)
+    assert len(poly) == 4
+    assert np.ptp(poly[:, 0]) == pytest.approx(20.0)
+    assert np.linalg.norm(poly[2] - poly[1]) == pytest.approx(14.0)
+    g = field.cell_opening_polygon("red", "audience", ST, gabled=True)
+    assert len(g) == 5
+    assert np.ptp(g[:, 0]) == pytest.approx(20.0)
+
+
+def test_swapped_state_swaps_heights():
+    st = field.HiveState("red", "far")
+    pt, _ = field.cell_opening_plane("red", "far", st)
+    assert pt[2] == pytest.approx(C.UP_CELL_OPENING_CENTER_Z)
+    pt, _ = field.cell_opening_plane("red", "audience", st)
+    assert pt[2] < C.UP_CELL_OPENING_CENTER_Z
+    far_up = field.cell_opening_plane("red", "far", st)[0]
+    aud_up = field.cell_opening_plane("red", "audience", ST)[0]
+    assert far_up[1] == pytest.approx(-aud_up[1]) and far_up[2] == pytest.approx(aud_up[2])
+
+
+def test_segment_crossing():
+    c, n = field.cell_opening_plane("red", "audience", ST)
+    r = field.segment_crosses_opening(c + 10 * n, c - 10 * n, "red", "audience", ST)
+    assert r is not None
+    t, p = r
+    assert t == pytest.approx(0.5)
+    assert np.allclose(p, c)
+    # outward (wrong direction) does not count
+    assert field.segment_crosses_opening(c - 10 * n, c + 10 * n, "red", "audience", ST) is None
+    # 30 in to the side
+    side = np.array([30.0, 0, 0])
+    assert field.segment_crosses_opening(c + side + 10 * n, c + side - 10 * n,
+                                         "red", "audience", ST) is None
+    # short segment that stops before the plane
+    assert field.segment_crosses_opening(c + 10 * n, c + 1 * n, "red", "audience", ST) is None
+
+
+def test_ball_radius_inset():
+    c, n = field.cell_opening_plane("red", "audience", ST)
+    off = np.array([9.0, 0, 0])
+    a, b = c + off + 5 * n, c + off - 5 * n
+    assert field.segment_crosses_opening(a, b, "red", "audience", ST, 0.0)
+    off = np.array([8.0, 0, 0])
+    a, b = c + off + 5 * n, c + off - 5 * n
+    assert field.segment_crosses_opening(a, b, "red", "audience", ST, 1.4)
+    off = np.array([9.0, 0, 0])
+    a, b = c + off + 5 * n, c + off - 5 * n
+    assert field.segment_crosses_opening(a, b, "red", "audience", ST, 1.4) is None
+
+
+def test_point_inside_cell():
+    c, n = field.cell_opening_plane("red", "audience", ST)
+    assert field.point_inside_cell(c - 5 * n, "red", "audience", ST)
+    assert not field.point_inside_cell(c + 1 * n, "red", "audience", ST)
+    assert not field.point_inside_cell(c - (C.CELL_EXTENT_Y + 1) * n, "red", "audience", ST)
+    assert not field.point_inside_cell(c - 5 * n + np.array([11.0, 0, 0]), "red", "audience", ST)
+
+
+def test_wireframe_bounds_json():
+    segs = field.hive_frame_wireframe()
+    assert all(len(s) == 2 and len(s[0]) == 3 for s in segs)
+    lo, hi = field.field_bounds()
+    assert lo[0] == -72 and hi[1] == 72
+    j = field.to_json()
+    assert set(j["hives"]) == {"red", "blue"}
+    assert len(j["wireframe"]) == len(segs)
+    import json
+    json.dumps(j)
+    with pytest.raises(ValueError):
+        field.HiveState("green", "far")
+
+
+# ---- CELL floor / HIVE AprilTags / rigid-body down CELL
+def test_cell_floor_frame():
+    o, ux, ud, nrm = field.cell_floor_frame("red", "audience", ST)
+    c, n = field.cell_opening_plane("red", "audience", ST)
+    poly = field.cell_opening_polygon("red", "audience", ST)
+    assert np.allclose(o, (poly[0] + poly[1]) / 2)           # bottom-edge center
+    assert np.allclose(ux, [1, 0, 0])
+    assert np.allclose(ud, -n)
+    assert np.dot(nrm, ud) == pytest.approx(0, abs=1e-12) and nrm[2] < 0
+    assert np.allclose(nrm, [0, 0.5, -0.866], atol=1e-3)
+
+
+def test_tag_ids_and_size():
+    t = field.hive_tag_corners("red", "audience", ST)
+    assert list(t) == [34, 35, 36, 37]
+    assert list(field.hive_tag_corners("red", "far", ST)) == [30, 31, 32, 33]
+    assert list(field.hive_tag_corners("blue", "audience", ST)) == [38, 39, 40, 41]
+    assert list(field.hive_tag_corners("blue", "far", ST)) == [42, 43, 44, 45]
+    for cor in t.values():
+        assert cor.shape == (4, 3)
+        sides = [np.linalg.norm(cor[(i + 1) % 4] - cor[i]) for i in range(4)]
+        assert sides == pytest.approx([C.APRILTAG_SIZE] * 4)
+        assert np.dot(cor[1] - cor[0], cor[3] - cor[0]) == pytest.approx(0, abs=1e-9)
+
+
+def test_tag_row_center_and_normal():
+    # Expected from the official CAD (evidence/m1_field/step_extract.md): sticker center
+    # (y_up 49.666, z_audience 12.887) + 0.25 in toward the opening along the beam.
+    t = field.hive_tag_corners("red", "audience", ST)
+    centers = np.array([c.mean(axis=0) for c in t.values()])
+    row = centers.mean(axis=0)
+    assert row[0] == pytest.approx(C.RED_HIVE_X, abs=0.1)
+    assert row[1] == pytest.approx(13.10, abs=0.1)
+    assert row[2] == pytest.approx(49.79, abs=0.1)
+    # centers spaced +-2.75 / +-6.5 from the row center along one line
+    assert sorted(np.abs(centers[:, 0] - row[0])) == pytest.approx([2.75, 2.75, 6.5, 6.5])
+    assert np.allclose(centers[:, 1:], row[1:], atol=1e-9)
+    for cor in t.values():
+        nrm = np.cross(cor[1] - cor[0], cor[3] - cor[0])
+        nrm /= np.linalg.norm(nrm)
+        # aruco order seen from outside: TL->TR x TL->BL points INTO the scene, so the face
+        # normal toward the viewer is -nrm
+        face = -nrm
+        ang = math.degrees(math.acos(np.clip(np.dot(face, [0, 0.5, -0.866]), -1, 1)))
+        assert ang < 1.0
+
+
+def test_tag_orientation_bottom_edge_toward_pivot():
+    t = field.hive_tag_corners("red", "audience", ST)
+    pivot = np.array([C.RED_HIVE_X, 0, C.PIVOT_HEIGHT])
+    for cor in t.values():
+        top = (cor[0] + cor[1]) / 2
+        bot = (cor[2] + cor[3]) / 2
+        assert np.linalg.norm(bot - pivot) < np.linalg.norm(top - pivot)
+    # far-up state mirrors: tags of the far CELL face the far side and down
+    st = field.HiveState("red", "far")
+    for cor in field.hive_tag_corners("red", "far", st).values():
+        face = -np.cross(cor[1] - cor[0], cor[3] - cor[0])
+        face /= np.linalg.norm(face)
+        assert face == pytest.approx([0, -0.5, -0.866], abs=2e-2)
+
+
+def test_down_cell_rigid_body_matches_cad_tag():
+    # CAD: the far (scoring) sticker is the audience sticker with a -> -a: center
+    # (y_up 35.647, z_aud -11.394) in CAD = field y -11.394, z 35.647, row +0.25 toward opening.
+    t = field.hive_tag_corners("red", "far", ST)
+    row = np.array([c.mean(axis=0) for c in t.values()]).mean(axis=0)
+    assert row[1] == pytest.approx(-11.394 - 0.25 * math.cos(math.radians(30)) , abs=0.1)
+    assert row[2] == pytest.approx(35.647 - 0.25 * math.sin(math.radians(30)), abs=0.1)
+
+
+def test_hive_lowest_point_matches_official():
+    z = field.hive_lowest_point_z(ST)
+    assert z == pytest.approx(C.HIVE_LOWEST_POINT_Z, abs=1.5)   # official Figure 9-9: 30.6
+    assert field.hive_lowest_point_z(field.HiveState("red", "far")) == pytest.approx(z)
