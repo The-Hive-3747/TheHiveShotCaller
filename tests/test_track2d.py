@@ -37,13 +37,14 @@ def _det(f, u, v, r=10.0, bt=BallType.POLLEN):
     return Detection2D("c", f, f / 60, u, v, r, bt, 1.0)
 
 
-@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst"])
-def test_fixture_tracks_match_truth_segments(fixture):
+@pytest.mark.parametrize("fixture,n_shots", [("synth_basic", 6), ("synth_burst", 6),
+                                              ("synth_20", 20), ("synth_240", 8)])
+def test_fixture_tracks_match_truth_segments(fixture, n_shots):
     FIX = FIXROOT / fixture
     truth = json.loads((FIX / "cam0_truth.json").read_text())
     shots = json.loads((FIX / "shots.json").read_text())
     segs = _segments(truth)
-    assert len(segs) == len(shots) == 6
+    assert len(segs) == len(shots) == n_shots
     assert all(len(v) == 1 for v in segs.values())  # continuous arcs, all in frame
     det = BallDetector(DetectorConfig())
     trk = Tracker2D("cam0")
@@ -62,16 +63,18 @@ def test_fixture_tracks_match_truth_segments(fixture):
 
     per_ball = {b: 0 for b in segs}
     for tr in tracks:
-        owners = set()
+        # A detection may legitimately represent several truth balls when they overlap
+        # in the image (one merged blob): it covers every truth ball whose center lies
+        # within the detection radius. A track is consistent if one ball covers them all.
+        owners = None
         for d in tr.detections:
-            near = min(truth["frames"][d.frame_idx]["balls"],
-                       key=lambda b: np.hypot(d.u - b["u"], d.v - b["v"]))
-            # nearest truth ball; split detections of touching balls can be off by ~10 px
-            assert np.hypot(d.u - near["u"], d.v - near["v"]) <= 20
-            hits = [near["ball"]]
-            owners.add(hits[0])
-        assert len(owners) == 1, "identity switch within a track"
-        ball = owners.pop()
+            covered = {b["ball"] for b in truth["frames"][d.frame_idx]["balls"]
+                       if np.hypot(d.u - b["u"], d.v - b["v"]) <= max(d.radius_px, 8)}
+            assert covered, f"detection at frame {d.frame_idx} matches no truth ball"
+            owners = covered if owners is None else owners & covered
+            assert owners, "identity switch within a track"
+        assert len(owners) == 1, f"ambiguous track ownership {owners}"
+        ball = min(owners)
         per_ball[ball] += 1
         a, b = tr.detections[0].frame_idx, tr.detections[-1].frame_idx
         assert any(a <= s1 and b >= s0 for s0, s1 in segs[ball])

@@ -26,6 +26,11 @@ class DetectorConfig:
     use_color: bool = True
     use_motion: bool = True
     bg_history: int = 200
+    # MOG2 learning rate. None = 0.001 with color gating (a slow/apex ball is not
+    # absorbed into the background; ghosts are removed by the color mask) or the
+    # OpenCV automatic rate (~1/bg_history) in motion-only mode, where a slow
+    # rate would leave ghosts of anything that was in the first frames.
+    bg_learning_rate: Optional[float] = None
     min_circularity: float = 0.6
     process_scale: float = 0.5
 
@@ -58,7 +63,10 @@ class BallDetector:
         cfg = self.cfg
         motion = None
         if cfg.use_motion:
-            motion = self._bg.apply(small)
+            lr = cfg.bg_learning_rate
+            if lr is None:
+                lr = 0.001 if cfg.use_color else -1.0
+            motion = self._bg.apply(small, learningRate=lr)
         pollen = nectar = None
         if cfg.use_color:
             hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)

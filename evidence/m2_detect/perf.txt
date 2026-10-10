@@ -1,5 +1,10 @@
-1920x1080 synthetic frames (164), detect() only (decode excluded), cv2 threads=16, logical cores=16
-process_scale=0.5 use_color=True: 252.1 fps (best of 3)
-process_scale=0.5 use_color=False: 451.7 fps (best of 3)
-process_scale=1.0 use_color=True: 55.4 fps (best of 3)
-process_scale=1.0 use_color=False: 80.0 fps (best of 3)
+synth_basic: 1920x1080, 164 frames, detect() only (decode excluded), cv2 threads=16, logical cores=16
+  process_scale=0.5 use_color=True: 242.2 fps (best of 3)
+  process_scale=0.5 use_color=False: 358.6 fps (best of 3)
+  process_scale=1.0 use_color=True: 51.8 fps (best of 3)
+  process_scale=1.0 use_color=False: 77.3 fps (best of 3)
+synth_20: 1280x720, 1005 frames, detect() only (decode excluded), cv2 threads=16, logical cores=16
+  process_scale=0.5 use_color=True: 549.7 fps (best of 3)
+  process_scale=0.5 use_color=False: 758.7 fps (best of 3)
+  process_scale=1.0 use_color=True: 151.6 fps (best of 3)
+  process_scale=1.0 use_color=False: 307.3 fps (best of 3)

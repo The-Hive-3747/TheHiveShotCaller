@@ -1,9 +1,9 @@
-points: 366
-3D RMS error (in): 0.0549
-3D max error (in): 0.1499
-3D median error (in): 0.0440
-mean residual (in): 0.0347  max residual (in): 0.1293
+points: 358
+3D RMS error (in): 0.0535
+3D max error (in): 0.1397
+3D median error (in): 0.0433
+mean residual (in): 0.0362  max residual (in): 0.1338
 noise: 0.3 px gaussian; cam1 shifted by +0.137 s
 true offset (s): -0.1370
-coarse estimate (s): -0.1353  error (ms): +1.67  confidence: 0.502
-epipolar-refined estimate (s): -0.1373  error (ms): -0.33
+coarse estimate (s): -0.1354  error (ms): +1.64  confidence: 0.542
+epipolar-refined estimate (s): -0.1374  error (ms): -0.36

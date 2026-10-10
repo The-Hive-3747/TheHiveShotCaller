@@ -15,7 +15,7 @@ from hiveshot.detect import BallDetector, DetectorConfig
 from hiveshot.models import BallType
 
 FIXROOT = Path(__file__).resolve().parent.parent / "fixtures"
-FIXTURES = ["synth_basic", "synth_burst"]
+FIXTURES = ["synth_basic", "synth_burst", "synth_20", "synth_240"]
 W, H = 1920, 1080
 
 

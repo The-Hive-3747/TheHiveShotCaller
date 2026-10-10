@@ -1,32 +1,28 @@
 # Current handoff (lead)
 
-Updated: 2026-10-10 15:50 (session 1)
+Updated: 2026-10-10 ~17:10 (session 1, paused by owner for an offline period)
 
-## State
-- M0–M4 implemented and verified on synthetic fixtures. Full suite: 126 passed, 2 live skipped, ruff clean (evidence/run_20261010_145024 and later runs).
-- Browser pass done by lead against the real backend (evidence/m4_e2e/browser_pass_1.txt): dashboard, shots table, CSV export, 3D replay, restart persistence all OK. Measured speeds/apex/made-miss match fixture truth exactly.
-- Round 3 workers running (disjoint ownership):
-  - pipeline/app/store: synth_burst pipeline test, finalize delay, restart E2E, `ended` status key
-  - ui/: responsive replay layout, session picker, ENDED state, shot filter, follow-ball
-  - independent reviewer (read-only) -> evidence/review_round1/report.md
-  - packaging (PyInstaller), hiveshot/resources.py, docs/operator_guide.md, docs/troubleshooting.md -> evidence/m5_build/
+## Where things stand
+- Repo: https://github.com/The-Hive-3747/TheHiveShotCaller.git, branch main. Last pushed commits: phase 1 import, WIP CAD geometry, README. This checkpoint commit adds everything below.
+- Field geometry is CAD-grounded (hiveshot/field.py reads field_constants; red HIVE at +X; opening y=15.77; tag poses computed for both CELLs). All four fixtures regenerated (synth_basic, synth_burst, synth_20, synth_240), evidence/m1_field/synth_cli.txt has the commands.
+- Detection/tracking updated for the new fixtures: 25 tests pass, recall >= 0.95 on all four (evidence/m2_detect/).
+- Recon: alias-robust time offset (choose_offset_by_epipolar) done, 18 tests pass.
+- Tag kit, HIVE-tag defs, learn/verify, infer_hive_state: done (tests pass).
+- UI: wizard (Cameras, Tags with kit/no-printer choice, Verify HIVE tags, Colors, Done), demo button/badge, session picker, warnings banner, cross-check, ENDED/dropped indicators: static tests + Node syntax gate pass (29 tests).
+- Packaging: spec bundles VC++ DLLs, docs, both fixtures; demo smoke test ready; needs a rebuild.
+- Two workers were STOPPED mid-task at the owner's request (their partial edits are in the tree, uncommitted until this checkpoint):
+  1. Placement re-run (hiveshot/placement.py, docs/camera_placement.*, tests/test_placement.py): asked to re-optimize with (a) HIVE tags readable by >= 1 camera, (b) triangulation >= 75°, (c) min lens height 20 in, (d) robot-box occlusion, (e) prefer wall corners. The last complete result (both cameras on the audience wall, 62°, 12 in height) is NOT accepted. State of files unknown: re-run `pytest tests/test_placement.py` first.
+  2. Backend worker (pipeline.py, app.py, config.py, shots.py, stats.py, store.py and tests): long queue partly done. Done per its last reports: perf stage timers, mid-air-lost -> UNKNOWN, dropped_during_flight, checkerboard/points routes, stale-session close, CSV hardening. Possibly partial: setup/status, auto-calibration routes, detector/sample, smart defaults, HIVE-tag state, demo mode, DoD2 fixes (offset window, end-of-stream flush, bounce-out rule, synth_20/synth_240 pipeline tests). Check `git diff HEAD~1 -- hiveshot/app.py hiveshot/pipeline.py` and run `pytest tests/test_app.py tests/test_pipeline.py tests/test_setup.py tests/test_demo.py -q` to see what exists.
 
-## Decisions
-- See PLAN.md section 8 and QUESTIONS.md. Field frame: origin field center on tiles, Z up, X toward audience, Y along beam, audience CELL at +Y.
-- Pipeline heuristics (fragment stitching, extrapolation into the opening) are tuned on synthetic data only.
+## Resume plan (in order)
+1. `.\test.ps1` to get the real failure list (expect some from the stopped workers).
+2. Relaunch a backend worker with the remaining items from docs/api.md v1.1-v1.3 (setup, auto-calib routes incl. source kit|hive|both, detector/sample, defaults, HIVE-tag state, demo mode) and the DoD2 fixes (evidence/refute/dod2_3_7_1.md), telling it what already exists.
+3. Relaunch the placement re-run with the five constraints above.
+4. Full suite green -> `powershell -ExecutionPolicy Bypass -File build.ps1` -> browser pass 3 (wizard, demo) -> refuters for DoD 2, 3, 6, 9, 10 -> phase commit + push.
 
-## Next
-- Integrate review findings; route resources.py call sites; re-run test.ps1; rebuild; final E2E in browser; update PLAN.md status and QUESTIONS.md.
+## Owner actions pending
+- QUESTIONS.md #5 clean-machine test (after a green build); #4 robot dimensions; hardware arriving Oct 11-20.
+- holtb invited as collaborator (write), pending acceptance.
 
-## Unresolved
-- Official CAD numbers (VERIFY in field_constants.py); AprilTag corner geometry placeholder; real-ball HSV ranges unverified; no real camera footage yet.
-
-## Round 4 (in progress)
-- Review round 1 report: evidence/review_round1/report.md (13 findings). Fix workers running: backend (F1,2,3,4,6,7,8,10,12,13,14), ingest (F5,11,14), recon (F9), UI (shot_updated, ordering, mismatch chip, tips list).
-- After round 4: full test.ps1, rebuild via build.ps1, browser pass 2, then refuter pass per DoD item (PLAN.md section 11).
-
-## Round 6 (2026-10-10 16:20)
-- Official field geometry read from the manual figures and assembly guide (docs/research_apriltags.md, docs/official/). Up-CELL HIVE tags computable; down-CELL learned; placement to be re-optimized for tag visibility (lower cameras).
-- Refuter pass 1 summary: evidence/refute/SUMMARY.md. Root cause of DoD 2/3 failures: time-offset aliasing on periodic bursts (recon fix dispatched) + end-of-stream chain loss (pipeline fix queued).
-- In flight: field worker (hive_tag_corners, down-cell reconciliation, STEP extraction), tagkit/placement worker (computed tags, tag-visibility placement), backend worker (long queue: perf, calib routes, setup, hive tags, DoD2 fixes), recon worker (offset aliasing, synth_20 fixture), UI worker (wizard tweaks).
-- Next: full suite, build.ps1, browser pass 3 (wizard), re-refute 2,3,6,9,10.
+## Rules learned
+- Never git stash/checkout while workers run (reverted edits once). Commit the tree as-is first.

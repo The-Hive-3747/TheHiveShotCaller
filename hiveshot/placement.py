@@ -43,9 +43,18 @@ LAUNCH_HEIGHT_IN = C.ROBOT_LAUNCH_EXIT_HEIGHT
 LAUNCH_SPEED_IPS = 230.0   # apex ~75 in; aim_for_cell returns the steep (lob) solution
 EXIT_WINDOW_S = 0.2        # exit-speed camera only needs the first 0.2 s of flight
 TRACK_FPS = 60.0
-# Lens heights reachable with a 60 in tripod (low ones look up at the CELL tags).
-HEIGHTS_IN = (12.0, 18.0, 24.0, 30.0, 36.0, 48.0, 58.0)
+# Lens heights reachable with the 60 in tripod (UBeesize MT60: practical minimum 20 in).
+HEIGHTS_IN = (20.0, 24.0, 30.0, 36.0, 48.0, 58.0)
 ANGLES_DEG = tuple(range(0, 360, 10))
+MIN_TRI_DEG = 75.0               # hard constraint: mean triangulation angle of the pair
+# Robot occlusion: a box (length, width, height) centered on each sample launch point, grown
+# by ROBOT_EXTENSION_IN on every horizontal side (intake / arm); rays to the first
+# ROBOT_WINDOW_S of each flight, to the up-CELL opening center and to the tag row center must
+# be free for at least ROBOT_MIN_FREE of the samples.
+ROBOT_BOX_IN = (18.0, 18.0, 24.0)
+ROBOT_EXTENSION_IN = 3.0
+ROBOT_WINDOW_S = 0.3
+ROBOT_MIN_FREE = 0.9
 WALL_STEP_IN = 12                  # extra candidates every 12 in along the audience wall
 # Tag visibility: a camera "sees the tags" of the up CELL when the angle between the view ray
 # to the tag row and the sticker normal is under this, all four tags are inside the image
@@ -59,7 +68,8 @@ REF_MARGIN_PX = 60                 # calibration reference points must be this f
 # normal, inside the picture, with the shortest projected edge >= KIT_MIN_EDGE_PX (a margin
 # above bare detectability so compressed video still decodes them).
 KIT_MIN_TAGS = 3
-KIT_MIN_EDGE_PX = 28.0
+KIT_MIN_EDGE_PX = 20.0
+KIT_MAX_ANGLE_DEG = 62.0
 
 
 def candidate_positions(radius_in, heights_in, angles_deg):
@@ -225,7 +235,7 @@ def kit_view(cam: VirtualCamera, pos) -> dict:
         inimg = bool((cam.depth(c) > 1.0).all() and (u >= m).all() and (u < w - m).all()
                      and (v >= m).all() and (v < h - m).all())
         out[t.id] = {"angle_deg": ang, "min_edge_px": edge, "in_image": inimg,
-                     "ok": bool(ang < TAG_MAX_ANGLE_DEG and inimg and edge >= KIT_MIN_EDGE_PX)}
+                     "ok": bool(ang < KIT_MAX_ANGLE_DEG and inimg and edge >= KIT_MIN_EDGE_PX)}
     n_ok = sum(1 for d in out.values() if d["ok"])
     return {"tags": out, "n_ok": n_ok, "ok": n_ok >= KIT_MIN_TAGS}
 
@@ -297,43 +307,128 @@ def _aim_point(trajectories):
     return tuple(float(round(v)) for v in c)
 
 
+@functools.lru_cache(maxsize=1)
+def _robot_samples() -> dict:
+    """Targets whose view rays must not be blocked by the robot.
+
+    For every sample launch point a robot box (ROBOT_BOX_IN, plus ROBOT_EXTENSION_IN on each
+    horizontal side) is centered on the launch point (z from 0 to ROBOT_BOX_IN[2]; the launch
+    exit height 12 in is mid-height). Targets: the ball positions of the first ROBOT_WINDOW_S
+    of that shot (ball positions still inside the box are skipped: nobody can see them), the
+    up-CELL opening center and the CELL tag row center, each paired with the robot of that
+    launch point."""
+    st = field.HiveState("red", "audience")
+    cell, _ = field.cell_opening_plane("red", "audience", st)
+    tag_c = _up_tag_geometry()[1]
+    half = np.array([ROBOT_BOX_IN[0] / 2 + ROBOT_EXTENSION_IN,
+                     ROBOT_BOX_IN[1] / 2 + ROBOT_EXTENSION_IN])
+    tgt, lo, hi, kind, shot = [], [], [], [], []
+    for si, tr in enumerate(sample_trajectories()):
+        lx, ly = tr[0, 1], tr[0, 2]
+        blo = np.array([lx - half[0], ly - half[1], 0.0])
+        bhi = np.array([lx + half[0], ly + half[1], ROBOT_BOX_IN[2]])
+        for row in tr[tr[:, 0] <= ROBOT_WINDOW_S]:
+            p = row[1:4]
+            if (p >= blo).all() and (p <= bhi).all():
+                continue
+            tgt.append(p), lo.append(blo), hi.append(bhi), kind.append("ball"), shot.append(si)
+        for name, p in (("cell", cell), ("tag", tag_c)):
+            tgt.append(np.asarray(p, float)), lo.append(blo), hi.append(bhi)
+            kind.append(name), shot.append(si)
+    return {"targets": np.array(tgt), "lo": np.array(lo), "hi": np.array(hi),
+            "kind": np.array(kind), "shot": np.array(shot)}
+
+
+def robot_blocked(cam_pos, samples: dict | None = None) -> np.ndarray:
+    """Per robot sample: does the segment from the camera to the target pass through the
+    robot box of that sample's launch point? (slab test, vectorized)"""
+    s = samples or _robot_samples()
+    p0 = np.asarray(cam_pos, float)[None, :]
+    d = s["targets"] - p0
+    with np.errstate(divide="ignore", invalid="ignore"):
+        t1 = (s["lo"] - p0) / d
+        t2 = (s["hi"] - p0) / d
+    parallel = np.abs(d) < 1e-12
+    inside = (p0 >= s["lo"]) & (p0 <= s["hi"])
+    tmin_ax = np.where(parallel, np.where(inside, -np.inf, np.inf), np.minimum(t1, t2))
+    tmax_ax = np.where(parallel, np.where(inside, np.inf, -np.inf), np.maximum(t1, t2))
+    tmin = tmin_ax.max(axis=1)
+    tmax = tmax_ax.min(axis=1)
+    return (tmax >= np.maximum(tmin, 0.0)) & (tmin <= 1.0)
+
+
+def robot_view(cam_pos) -> dict:
+    """Robot-occlusion summary for a camera position: fraction of all samples with a free
+    ray (`free`), and separately for ball points (`ball_free`), the CELL opening center
+    (`cell_free`) and the tag row center (`tag_free`)."""
+    s = _robot_samples()
+    blocked = robot_blocked(cam_pos, s)
+    out = {"free": float(1.0 - blocked.mean())}
+    for k in ("ball", "cell", "tag"):
+        m = s["kind"] == k
+        out[f"{k}_free"] = float(1.0 - blocked[m].mean())
+    return out
+
+
 @functools.lru_cache(maxsize=4)
 def recommend(option: str = "gopro") -> dict:
-    """Grid-search the best A/B pair and a third (exit-speed) camera.
-    Result: {"option", "hfov_deg", "pair_score": {...},
-             "cameras": {"A": {...}, "B": {...}, "C": {...}}}, each camera
-    having pos (x,y,z), look_at, height_in, hfov_deg."""
+    """Best A/B camera pair under the hard constraints (see `_eval_pair`) and a third
+    (exit-speed) camera. Result: {"option", "hfov_deg", "pair_score", "tags", "tag_reader",
+    "robot", "cameras": {"A", "B", "C"}, "both_tags_alternative": {...}}; each camera has pos
+    (x,y,z), look_at, height_in, hfov_deg. "both_tags_alternative" is the best pair in which
+    BOTH cameras read the CELL tags (triangulation angle not constrained to 75 deg); it is
+    reported for comparison and is not the recommendation."""
     if option not in HFOV_DEG:
         raise ValueError("option must be 'gopro' or 'usb'")
+    main, alt = _joint_pairs()
+    out = _build(option, *main)
+    out["both_tags_alternative"] = _build(option, *alt, with_third=False)
+    return out
+
+
+def _build(option, pa0, pb0, with_third=True) -> dict:
     hfov = HFOV_DEG[option]
     trajs = sample_trajectories()
     pts = _stack(trajs)
     aim = _aim_point(trajs)
-    pa0, pb0 = _joint_pair()
-    best = _eval_pair(_entry(pa0, aim, hfov, pts), _entry(pb0, aim, hfov, pts), pts)
-    # Re-aim each camera to the middle of the aim range that keeps the tags and calibration
-    # points in view, so a few degrees of aiming error at the field do not lose them.
-    aims = {pa0: _center_aim(pa0, aim, hfov), pb0: _center_aim(pb0, aim, hfov)}
+    nominal = _eval_pair(_entry(pa0, aim, hfov, pts), _entry(pb0, aim, hfov, pts), pts)
+    # Re-aim each camera to the middle of the aim range that keeps the kit, the calibration
+    # points and (for a tag reader) the CELL tags in view, so a few degrees of aiming error at
+    # the field do not lose them.
+    ea, eb = nominal[2], nominal[3]
+    aims = {pa0: _center_aim(pa0, aim, hfov, ea[1]["sees"]),
+            pb0: _center_aim(pb0, aim, hfov, eb[1]["sees"])}
+    best = nominal
     cand = _eval_pair(_entry(pa0, aims[pa0], hfov, pts), _entry(pb0, aims[pb0], hfov, pts), pts)
-    if cand[0][0] >= best[0][0]:
+    if cand[0][0] >= nominal[0][0]:
         best = cand
     else:
         aims = {pa0: aim, pb0: aim}
-    key, sc, (pa, ta), (pb, tb) = best
-    # A is the camera on the -X side (left of the map), B on the +X side, for stable labels.
-    if pa[0] > pb[0]:
+    (tier, _), sc, (pa, ta), (pb, tb) = best[:4]
+    rob = {"A": robot_view(pa), "B": robot_view(pb)}
+    swap = pa[0] > pb[0]       # A is the camera on the -X side, B on the +X side
+    if swap:
         pa, pb, ta, tb = pb, pa, tb, ta
-    sc = dict(sc, tags_both=bool(ta["sees"] and tb["sees"]), kit_both=bool(key[0][1]),
-              refs_in_both=bool(key[0][3]), tier=key[0])
-    return {
+        rob = {"A": rob["B"], "B": rob["A"]}
+    reader = "both" if ta["sees"] and tb["sees"] else ("A" if ta["sees"] else
+                                                       ("B" if tb["sees"] else None))
+    both_wall = pa[1] == MIN_RADIUS_IN and pb[1] == MIN_RADIUS_IN
+    sc = dict(sc, tags_both=bool(ta["sees"] and tb["sees"]), tier=tier,
+              kit_both=bool(ta["kit"]["ok"] and tb["kit"]["ok"]),
+              both_on_audience_wall=bool(both_wall))
+    res = {
         "option": option, "hfov_deg": hfov, "resolution": RESOLUTION, "pair_score": sc,
-        "tags": {"A": ta, "B": tb},
+        "tags": {"A": ta, "B": tb}, "tag_reader": reader, "robot": rob,
         "cameras": {
-            "A": {"pos": pa, "look_at": aims[pa], "height_in": pa[2], "hfov_deg": hfov},
-            "B": {"pos": pb, "look_at": aims[pb], "height_in": pb[2], "hfov_deg": hfov},
-            "C": _recommend_third(hfov, trajs),
+            "A": {"pos": pa, "look_at": aims[pa], "height_in": pa[2],
+                  "hfov_deg": hfov},
+            "B": {"pos": pb, "look_at": aims[pb], "height_in": pb[2],
+                  "hfov_deg": hfov},
         },
     }
+    if with_third:
+        res["cameras"]["C"] = _recommend_third(hfov, trajs)
+    return res
 
 
 def _rotated_aim(pos, aim, dyaw_deg, dpitch_deg):
@@ -348,12 +443,16 @@ def _rotated_aim(pos, aim, dyaw_deg, dpitch_deg):
     return tuple(float(round(c)) for c in np.asarray(pos, float) + dist * v)
 
 
-def _aim_ok(pos, look, hfov) -> bool:
+def _aim_ok(pos, look, hfov, need_tags: bool = True) -> bool:
+    """Kit readable and the 8 reference points in view; the CELL tags too if `need_tags`
+    (the camera that is the tag reader)."""
     vc = _vcam(pos, look, hfov)
-    return bool(tag_view(vc, pos)["sees"] and kit_view(vc, pos)["ok"] and refs_in_view(vc))
+    if need_tags and not tag_view(vc, pos)["sees"]:
+        return False
+    return bool(kit_view(vc, pos)["ok"] and refs_in_view(vc))
 
 
-def _center_aim(pos, aim, hfov, span=8, step=1.0):
+def _center_aim(pos, aim, hfov, need_tags=True, span=8, step=1.0):
     """Aim point for the camera at `pos` in the middle of the (yaw, pitch) offsets within
     +-span deg for which `_aim_ok` holds (largest distance from the failing region); the
     nominal aim if even that fails."""
@@ -361,7 +460,7 @@ def _center_aim(pos, aim, hfov, span=8, step=1.0):
     ok = np.zeros((2 * n + 1, 2 * n + 1), np.uint8)
     for i in range(-n, n + 1):
         for j in range(-n, n + 1):
-            if _aim_ok(pos, _rotated_aim(pos, aim, i * step, j * step), hfov):
+            if _aim_ok(pos, _rotated_aim(pos, aim, i * step, j * step), hfov, need_tags):
                 ok[i + n, j + n] = 1
     if not ok[n, n]:
         return aim
@@ -371,44 +470,80 @@ def _center_aim(pos, aim, hfov, span=8, step=1.0):
 
 
 @functools.lru_cache(maxsize=1)
-def _joint_pair():
-    """Best (pos A, pos B) over ALL lens options at once, so one set of tape marks serves
-    Option A and Option B: tiers compare as the worse of the two options, value as the mean."""
+def _joint_pairs():
+    """((pos A, pos B) recommended, (pos A, pos B) best with both cameras reading the tags),
+    over ALL lens options at once so one set of tape marks serves Option A and B: tiers
+    compare as the worse of the options, values as the mean."""
     trajs = sample_trajectories()
     pts = _stack(trajs)
     aim = _aim_point(trajs)
     caches = [[_entry(p, aim, h, pts) for p in _candidates()] for h in HFOV_DEG.values()]
-    best = None
+    best = [None, None]
     for idx in itertools.combinations(range(len(caches[0])), 2):
         if math.dist(caches[0][idx[0]][0][:2], caches[0][idx[1]][0][:2]) < 24:
             continue
         evals = [_eval_pair(c[idx[0]], c[idx[1]], pts) for c in caches]
-        key = (min(e[0][0] for e in evals), sum(e[0][1] for e in evals) / len(evals))
-        if best is None or key[0] > best[0][0] or (
-                key[0] == best[0][0] and key[1] > best[0][1] + 1e-9):
-            best = (key, caches[0][idx[0]][0], caches[0][idx[1]][0])
-    return best[1], best[2]
+        for w in (0, 1):
+            key = (min(e[4 + w][0] for e in evals), sum(e[4 + w][1] for e in evals) / len(evals))
+            if best[w] is None or key[0] > best[w][0][0] or (
+                    key[0] == best[w][0][0] and key[1] > best[w][0][1] + 1e-9):
+                best[w] = (key, caches[0][idx[0]][0], caches[0][idx[1]][0])
+    return (best[0][1], best[0][2]), (best[1][1], best[1][2])
 
 
 def _entry(p, aim, hfov, pts):
-    """Per-candidate data: (pos, per-camera sample-point data, tag view incl. kit, refs ok)."""
+    """Per-candidate data: (pos, per-camera sample-point data, tag view incl. kit, refs ok,
+    robot view)."""
     vc = _vcam(p, aim, hfov)
     tv = tag_view(vc, p)
     tv["kit"] = kit_view(vc, p)
-    return (p, _per_camera(vc, p, pts), tv, refs_in_view(vc))
+    return (p, _per_camera(vc, p, pts), tv, refs_in_view(vc), robot_view(p))
+
+
+def _corner_factor(p) -> float:
+    """Prefer corners over the wall center for cameras on the audience wall (the drive team
+    stands there): 1.0 for |x| >= 48 in, down to 0.85 at the center."""
+    if p[1] != MIN_RADIUS_IN:
+        return 1.0
+    return 0.85 + 0.15 * min(1.0, abs(p[0]) / 48.0)
 
 
 def _eval_pair(ea, eb, pts):
-    """((tier, value), score dict, (pos A, tags A), (pos B, tags B)) for a candidate pair.
-    tier = (arc and triangulation ok, both cameras read the kit, both read the CELL tags,
-    all 8 reference points in view in both); tuples compare lexicographically."""
-    (pa, da, ta, ra), (pb, db, tb, rb) = ea, eb
+    """Evaluate a candidate pair. Returns
+    ((main tier, value), score, (pos A, tags A), (pos B, tags B), (main key), (alt key)).
+
+    Main (the recommendation), tier compared lexicographically:
+      1 arc coverage >= 90 % in both and mean triangulation angle 75..120 deg (hard)
+      2 robot-free rays >= 90 % of samples for each camera (hard)
+      3 at least one camera reads the CELL tags (angle < 55, in picture, size) with a free
+        tag ray from every launch point (hard)
+      4 the printed kit is readable in both (>= 3 of 4 tags)
+      5 all 8 calibration points in view in both
+      6 not both cameras on the audience wall (allowed only if nothing else satisfies 1-5)
+      7 both cameras read the tags (preferred, never traded against 1)
+    Value: pair score x tag quality x corner preference.
+    Alternative ("both read tags"): triangulation 60..120 instead of 75..120, tag reading
+    by BOTH cameras ranked first after the arc / robot / kit / calibration-point conditions."""
+    (pa, da, ta, ra, ba), (pb, db, tb, rb, bb) = ea, eb
     sc = _combine(pa, pb, da, db, pts)
-    arc_ok = sc["frac_in_both"] >= 0.9 and 60.0 <= sc["mean_angle_deg"] <= 120.0
-    tier = (arc_ok, ta["kit"]["ok"] and tb["kit"]["ok"], ta["sees"] and tb["sees"], ra and rb)
-    tq = 0.5 * (math.cos(math.radians(ta["angle_deg"])) + math.cos(math.radians(tb["angle_deg"])))
-    value = sc["score"] * (0.5 + 0.5 * max(tq, 0.0))
-    return ((tier, value), sc, (pa, ta), (pb, tb))
+    frac_ok = sc["frac_in_both"] >= 0.9
+    ang = sc["mean_angle_deg"]
+    arc_ok = frac_ok and MIN_TRI_DEG <= ang <= 120.0
+    occ_ok = ba["free"] >= ROBOT_MIN_FREE and bb["free"] >= ROBOT_MIN_FREE
+    read_a = ta["sees"] and ba["tag_free"] >= 1.0 - 1e-9
+    read_b = tb["sees"] and bb["tag_free"] >= 1.0 - 1e-9
+    kit_ok = ta["kit"]["ok"] and tb["kit"]["ok"]
+    refs_ok = ra and rb
+    both_wall = pa[1] == MIN_RADIUS_IN and pb[1] == MIN_RADIUS_IN
+    tier = (arc_ok, occ_ok, read_a or read_b, kit_ok, refs_ok, not both_wall, read_a and read_b)
+    best_cos = max(math.cos(math.radians(t["angle_deg"])) if r else 0.0
+                   for t, r in ((ta, read_a), (tb, read_b)))
+    corner = 0.5 * (_corner_factor(pa) + _corner_factor(pb))
+    value = sc["score"] * (0.5 + 0.5 * max(best_cos, 0.0)) * corner
+    alt_arc = frac_ok and 60.0 <= ang <= 120.0
+    alt_tier = (alt_arc, occ_ok, kit_ok, refs_ok, read_a and read_b)
+    alt_value = sc["score"] * corner * (0.5 + 0.5 * min(1.0, ang / 90.0))
+    return ((tier, value), sc, (pa, ta), (pb, tb), (tier, value), (alt_tier, alt_value))
 
 
 def _candidates():
