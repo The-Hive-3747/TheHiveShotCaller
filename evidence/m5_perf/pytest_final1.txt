@@ -1,0 +1,25 @@
+........................................................................ [ 61%]
+.........................F...................                            [100%]
+================================== FAILURES ===================================
+_____________________ test_setup_status_reports_tags_seen _____________________
+
+kit_rig = (<test_setup.Rig object at 0x00000269F7A05430>, <tests.test_app.Client object at 0x00000269F78B8C50>)
+
+    def test_setup_status_reports_tags_seen(kit_rig):
+        r, c = kit_rig
+        j = c.j("GET", "/api/setup/status")[1]
+        assert j["pipeline_running"] is True
+>       assert j["tags_seen"] == {"cam0": [100, 101, 102, 103], "cam1": [100, 101, 102, 103]}
+E       AssertionError: assert {'cam0': [100...01, 102, 103]} == {'cam0': [100...01, 102, 103]}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'cam0': [100, 102]} != {'cam0': [100, 101, 102, 103]}
+E         Use -v to get more diff
+
+tests\test_setup.py:254: AssertionError
+----------------------------- Captured log setup ------------------------------
+WARNING  hiveshot.pipeline:pipeline.py:448 no calibration for cam0/cam1; cannot reconstruct
+=========================== short test summary info ===========================
+FAILED tests/test_setup.py::test_setup_status_reports_tags_seen - AssertionEr...
+EXIT 1

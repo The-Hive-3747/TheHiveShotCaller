@@ -19,8 +19,11 @@ FRAME_WIDTH_X = 49.46                # VERIFY
 FRAME_DEPTH_Y = 38.95                # VERIFY
 PIVOT_HEIGHT = 43.95
 HIVE_CENTER_SPACING_X = 25.5         # red <-> blue, along X. VERIFY
-RED_HIVE_X = -HIVE_CENTER_SPACING_X / 2
-BLUE_HIVE_X = +HIVE_CENTER_SPACING_X / 2
+# Red is on the LEFT as seen from the audience (Manual 9.5). In this right-handed frame
+# (Z up, audience at +Y) the audience viewer's left is +X, so red sits at +X.
+# Confirmed against the official STEP CAD on 2026-10-10 (evidence/m1_field/step_extract.md).
+RED_HIVE_X = +HIVE_CENTER_SPACING_X / 2
+BLUE_HIVE_X = -HIVE_CENTER_SPACING_X / 2
 
 # Per-HIVE beam with a CELL at each end
 BEAM_HALF_LENGTH = 15.44             # pivot to CELL center along Y. VERIFY
@@ -31,12 +34,15 @@ CELL_EXTENT_Y = 12.04                # CELL depth along beam
 CELL_OPENING_WIDTH = 20.0            # along X
 CELL_OPENING_HEIGHT = 14.0           # in-plane height
 CELL_TILT_DEG = 30.0                 # beam tilt when settled (bi-stable)
-OPENING_PLANE_FROM_HORIZONTAL_DEG = 59.87
-OPENING_NORMAL_ABOVE_HORIZONTAL_DEG = 30.13
-UP_CELL_OPENING_CENTER_Z = 59.55     # settled state
-DOWN_CELL_OPENING_CENTER_Z = 31.55
+OPENING_PLANE_FROM_HORIZONTAL_DEG = 60.0   # CAD: exactly 30 deg tilt (was 59.87 from a fan rounding)
+OPENING_NORMAL_ABOVE_HORIZONTAL_DEG = 30.0
+UP_CELL_OPENING_CENTER_Z = 59.55     # settled state (official 53.5-65.6)
+UP_CELL_OPENING_CENTER_Y = 15.77     # CAD: opening plane 21.455 in along the beam from the pivot
+DOWN_CELL_OPENING_CENTER_Z = 38.09   # CAD-derived (fan value 31.55 was wrong)
 UP_CELL_OPENING_Z_RANGE = (53.5, 65.6)
-DOWN_CELL_OPENING_Z_RANGE = (25.5, 37.6)
+DOWN_CELL_OPENING_Z_RANGE = (32.03, 44.15)  # CAD-derived (fan value 25.5-37.6 was wrong)
+CELL_OPENING_ALONG_BEAM = 21.455     # CAD: pivot to opening plane along the beam
+GOAL_RIB_RIM_BELOW_OPENING = 1.64    # CAD: rim below the opening edge; lowest point 30.61
 GABLE_SHOULDER_HEIGHT = 7.61
 
 # Scoring elements
@@ -102,7 +108,7 @@ TAG_ROW_ABOVE_REF_HOLES = 2.75            # tag centerline is 2.75 in toward the
 TAG_ROW_FROM_CELL_FRONT = TAG_STICKER_REF_HOLE_FROM_FRONT - TAG_ROW_ABOVE_REF_HOLES  # 7.188 in
 TAG_REF_HOLE_HALF_SPACING = 7.0           # holes are 7.0 in either side of the cluster centerline
 TAG_REF_HOLE_DIAMETER = 0.5
-# Derived for the UP cell (audience-up, red): floor runs from the opening bottom edge
-# (y=27.76, z=53.5) into the cup along (0, -cos30, -sin30); tag row center at
-# y = 27.76 - 7.188*cos30 = 21.54, z = 53.5 - 7.188*sin30 = 49.9 (a team measured 50.2).
-# Sticker exterior normal (0, +sin30, -cos30): faces the tiles and the audience side.
+# CAD-confirmed for the UP cell (audience-up, red): tag row center (RED_HIVE_X, 13.10, 49.79),
+# sticker exterior normal (0, +sin30, -cos30): faces the tiles and the audience side.
+# (The earlier hand derivation gave y=21.54 because it assumed the opening at y=24.25.)
+HIVE_TAG_ROW_CENTER_UP = (13.10, 49.79)   # (y, z) for the audience-up cell; x = hive x

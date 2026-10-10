@@ -10,16 +10,14 @@ import cv2
 import numpy as np
 import pytest
 
-from hiveshot import calib, ingest, tagkit
+from hiveshot import calib, ingest
 from hiveshot import config as cfgmod
-from hiveshot import field_constants as fc
-from hiveshot import pipeline as pipemod
 from hiveshot.app import create_app
 from hiveshot.models import CameraIntrinsics
 from hiveshot.pipeline import Pipeline
 from hiveshot.store import Store
 from tests.test_app import _serve, _shutdown
-from tests.test_tagkit import _vcam, render_tags
+from tests.test_tagkit import _fixed_cams, _state, _vcam, render_tag_dict, render_tags
 
 W, H = 1920, 1080
 
@@ -43,42 +41,12 @@ def _wait(pred, timeout=30.0, step=0.1):
     return pred()
 
 
-def _quad(cx, y, cz, s=3.25 / 2):
-    return np.array([[cx + s, y, cz + s], [cx - s, y, cz + s],
-                     [cx - s, y, cz - s], [cx + s, y, cz - s]], float)
-
-
-def hive_quads(up):
-    """Four CELL-cluster tags (ids 34..37, red audience cluster) whose row height depends
-    on which CELL is up."""
-    z = 52.0 if up == "audience" else 36.0
-    return {tid: _quad(fc.RED_HIVE_X - 7.5 + 5.0 * k, 24.0, z)
-            for k, tid in enumerate((34, 35, 36, 37))}
-
-
-def render_quads(cam, quads):
-    img = np.full((H, W, 3), 110, np.uint8)
-    pad, n = 120, 400
-    tot = n + 2 * pad
-    for tid, c3 in quads.items():
-        src = np.full((tot, tot), 255, np.uint8)
-        src[pad:pad + n, pad:pad + n] = tagkit.render_marker(tid, n)
-        u, v = cam.project(c3)
-        s = np.float32([[pad, pad], [pad + n, pad], [pad + n, pad + n], [pad, pad + n]])
-        hm = cv2.getPerspectiveTransform(s, np.c_[u, v].astype(np.float32))
-        warped = cv2.warpPerspective(src, hm, (W, H), flags=cv2.INTER_AREA,
-                                     borderMode=cv2.BORDER_CONSTANT, borderValue=0)
-        m = cv2.warpPerspective(np.full((tot, tot), 255, np.uint8), hm, (W, H)) > 127
-        img[m] = warped[m][:, None]
-    return img
-
-
 class Rig:
     """An app serving two looping videos (one per virtual camera), calibrated or not."""
 
-    def __init__(self, tmp_path, frames, with_extrinsics=False, **cfg_kw):
+    def __init__(self, tmp_path, frames, with_extrinsics=False, cams=None, **cfg_kw):
         self.tmp = tmp_path
-        self.cams = {f"cam{i}": _vcam("gopro", k) for i, k in enumerate("AB")}
+        self.cams = cams or {f"cam{i}": _vcam("gopro", k) for i, k in enumerate("AB")}
         self.data = tmp_path / "data"
         self.data.mkdir(exist_ok=True)
         calib.save_calibration(
@@ -187,9 +155,9 @@ def test_auto_extrinsics_source_modes(kit_rig):
     s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto")           # default: both
     assert s == 200 and j["source"] == "both" and j["tags_used"] == [100, 101, 102, 103]
     assert j["warnings"] == []
-    # "hive" with no HIVE tag in view and none known: plain-language 422
+    # "hive" with no HIVE tag in view: plain-language 422
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
-    assert s == 422
+    assert s == 422 and "tag" in j["detail"]
 
 
 # ---------------------------------------------------------------- setup status
@@ -446,20 +414,7 @@ def test_learn_hive_tags_error_paths(client_plain):
     assert s == 422 and "0 HIVE tag" in j["detail"] and "need at least 2" in j["detail"]
     assert c.j("GET", "/api/calib/hive_tags")[1]["ready"] is False
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"use_hive_tags": True})
-    assert s == 422 and "learn them first" in j["detail"]
-
-
-def test_infer_hive_state_unit():
-    cam = _vcam("gopro", "A")
-    table = {f"red_{u}": {i: q for i, q in hive_quads(u).items()} for u in ("audience", "far")}
-    for up in ("audience", "far"):
-        dets = {i: np.asarray(cam.project(q), float).T for i, q in hive_quads(up).items()}
-        assert pipemod.infer_hive_state(dets, cam.intr, cam.extr, table, "red") == up
-    one = {34: np.asarray(cam.project(hive_quads("far")[34]), float).T}
-    assert pipemod.infer_hive_state(one, cam.intr, cam.extr, table, "red") is None   # < 2 tags
-    assert pipemod.infer_hive_state({}, cam.intr, cam.extr, {}, "red") is None
-    shifted = {i: np.asarray(cam.project(q), float).T + 40.0 for i, q in hive_quads("far").items()}
-    assert pipemod.infer_hive_state(shifted, cam.intr, cam.extr, table, "red") is None
+    assert s == 422                                           # no HIVE tags in the fixture
 
 
 def test_tag_vote_hysteresis(tmp_path):
@@ -489,31 +444,33 @@ def test_tag_vote_hysteresis(tmp_path):
     pl.store.close()
 
 
-def test_hive_tags_learn_infer_and_use_for_recalibration(tmp_path):
-    cams = {f"cam{i}": _vcam("gopro", k) for i, k in enumerate("AB")}
-    frames = {up: {cid: render_quads(cam, hive_quads(up)) for cid, cam in cams.items()}
-              for up in ("audience", "far")}
-    for up in frames:                                       # the render is detectable
-        for cid in cams:
-            assert sorted(d["id"] for d in calib.detect_apriltags(frames[up][cid])) == [34, 35, 36, 37]
-    rig = Rig(tmp_path, frames["audience"], with_extrinsics=True)
+def _world_cams(cams):
+    return {"cam0": cams["A"], "cam1": cams["B"]}
+
+
+def test_hive_tags_learn_and_follow_the_hive_state(tmp_path):
+    """Generic tag rows (tests/test_tagkit.py's world) in both HIVE states: learn each state,
+    then the pipeline follows the HIVE from the tags, logs the tip, and a manual override
+    holds until the tags confirm a state again."""
+    cams = _world_cams(_fixed_cams())
+    frames = {up: {cid: render_tag_dict(cam, _state(up == "audience"), seed=7)
+                   for cid, cam in cams.items()} for up in ("audience", "far")}
+    rig = Rig(tmp_path, frames["audience"], with_extrinsics=True, cams=cams)
     c = rig.serve()
     try:
         rig.start()
         s, j = c.j("POST", "/api/calib/hive_tags/learn",
                    {"state": {"alliance": "red", "up_cell": "audience"}})
         assert s == 200, j
-        assert j["learned_ids"] == [34, 35, 36, 37] and j["max_residual_in"] < 1.0
-        assert j["visible_per_camera"]["cam0"] == [34, 35, 36, 37]
-        assert sorted(j["missing_ids"]) == [30, 31, 32, 33]
-        assert c.j("GET", "/api/calib/hive_tags")[1]["ready"] is False          # one state only
-        # learned corners are where the tags were rendered
+        assert j["learned_ids"] == [30, 31, 32, 33, 34, 35, 36, 37] and j["missing_ids"] == []
+        assert j["max_residual_in"] < 1.0 and "up_cell_error_in" in j
+        assert j["visible_per_camera"]["cam0"] == [30, 31, 32, 33, 34, 35, 36, 37]
+        assert c.j("GET", "/api/calib/hive_tags")[1]["ready"] is False           # one state only
         got = np.array(json.loads((rig.data / "calibration.json").read_text())
                        ["hive_tags"]["red_audience"]["34"])
-        assert np.abs(got - hive_quads("audience")[34]).max() < 1.0
+        assert np.abs(got - _state(True)[34]).max() < 1.0
 
-        # second state: show the "far" renders, restart the pipeline
-        c.j("POST", "/api/pipeline/stop")
+        c.j("POST", "/api/pipeline/stop")                    # second state: far CELL up
         rig.set_frames(frames["far"], tag="far")
         assert c.j("PUT", "/api/config", json.loads(rig.cfg_path.read_text()))[0] == 200
         rig.start()
@@ -523,31 +480,78 @@ def test_hive_tags_learn_infer_and_use_for_recalibration(tmp_path):
         info = c.j("GET", "/api/calib/hive_tags")[1]
         assert info["ready"] is True and info["hive_state_source"] == "tags"
         assert set(info["states"]) == {"red_audience", "red_far"}
-        rows = {k: v["row_height_in"]["red_audience"] for k, v in info["states"].items()}
-        assert rows["red_audience"] == pytest.approx(52.0, abs=1.0)
-        assert rows["red_far"] == pytest.approx(36.0, abs=1.0)
-        assert c.j("GET", "/api/pipeline/status")[1]["hive_state_source"] == "tags"
+        rows = {k: v["row_height_in"] for k, v in info["states"].items()}
+        assert rows["red_audience"]["red_audience"] == pytest.approx(50.2, abs=1.0)
+        assert rows["red_far"]["red_audience"] == pytest.approx(35.0, abs=1.0)
 
-        # the pipeline follows the HIVE by itself: the "far" renders are showing now, the
-        # state started as "audience" -> tags correct it (and log a tip)
-        assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["hive_state"]["up_cell"] == "far", 30)
+        # the "far" renders are showing, the state started as "audience": tags correct it
+        assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["hive_state"]["up_cell"] == "far", 45)
         st = c.j("GET", "/api/pipeline/status")[1]
         assert st["hive_state_source"] == "tags"
         sid = st["session_id"]
         assert [t["new_up_cell"] for t in c.j("GET", f"/api/sessions/{sid}/tips")[1]] == ["far"]
-
-        # manual override flips the source until tags confirm again
+        # a manual change wins until the tags confirm a state again
         assert c.j("POST", "/api/hive/state", {"alliance": "red", "up_cell": "audience"})[0] == 200
         assert c.j("GET", "/api/pipeline/status")[1]["hive_state_source"] == "manual"
-        assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["hive_state_source"] == "tags", 30)
+        assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["hive_state_source"] == "tags", 45)
         assert c.j("GET", "/api/pipeline/status")[1]["hive_state"]["up_cell"] == "far"
-
-        # kit-free recalibration from the learned tags of the current (far) state
-        s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"use_hive_tags": True})
-        assert s == 200, j
-        assert j["hive_tags_used"] is True and j["tags_used"] == [34, 35, 36, 37]
-        assert j["reprojection_px"] < 2.0
         saved = json.loads((rig.data / "calibration.json").read_text())
-        assert set(saved["hive_tags"]) == {"red_audience", "red_far"}      # survive the save
+        assert set(saved["hive_tags"]) == {"red_audience", "red_far"}
+        # roll sign per cluster in the setup status: audience cluster upside down (far up)
+        roll = c.j("GET", "/api/setup/status")[1]["tags_roll"]["cam0"]
+        assert roll["red_audience"]["sign"] == -1 and roll["red_far"]["sign"] == 1
+    finally:
+        rig.close()
+
+
+def _computed_world():
+    """Two zoomed cameras that see the CAD-computed audience-up CELL tags (ids 34-37)."""
+    from hiveshot import field
+    from hiveshot import placement as pl
+    from hiveshot.synth import VirtualCamera
+    tags = field.hive_tag_corners("red", "audience", field.HiveState("red", "audience"))
+    ctr = np.mean([c.mean(axis=0) for c in tags.values()], axis=0)
+    cams = {}
+    for k, dx in (("cam0", -45.0), ("cam1", 45.0)):
+        cams[k] = VirtualCamera(*pl.camera_from_pose((ctr[0] + dx, 100.0, 60.0), tuple(ctr), 40.0,
+                                                    W, H, k))
+    return cams, tags
+
+
+def test_hive_tags_computed_positions_calibrate_without_the_kit(tmp_path):
+    cams, tags = _computed_world()
+    frames = {cid: render_tag_dict(cam, tags, seed=3) for cid, cam in cams.items()}
+    rig = Rig(tmp_path, frames, with_extrinsics=True, cams=cams)
+    c = rig.serve()
+    try:
+        rig.start()
+        # no learning needed: the computed up-CELL geometry confirms the manual state
+        assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["hive_state_source"] == "tags", 45)
+        assert c.j("GET", "/api/pipeline/status")[1]["hive_state"]["up_cell"] == "audience"
+        roll = c.j("GET", "/api/setup/status")[1]["tags_roll"]
+        assert roll["cam0"]["red_audience"]["sign"] == 1
+        # learning compares the triangulated up-CELL tags with the CAD ones
+        s, j = c.j("POST", "/api/calib/hive_tags/learn",
+                   {"state": {"alliance": "red", "up_cell": "audience"}})
+        assert s == 200 and j["learned_ids"] == [34, 35, 36, 37], j
+        assert j["up_cell_error_in"] is not None and j["up_cell_error_in"] < 1.0
+        # recalibrate from the HIVE tags alone (no printed kit)
+        s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
+        assert s == 200, j
+        assert j["tags_used"] == [34, 35, 36, 37] and j["hive_tags_used"] is True
+        assert j["reprojection_px"] < 2.0 and j["source"] == "hive"
+        assert j["warnings"] == ["calibrated from HIVE tags only: expect 2-3x lower accuracy "
+                                 "than the kit"]
+        s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto")             # default: both
+        assert s == 200 and j["source"] == "both" and j["tags_used"] == [34, 35, 36, 37]
+        assert j["warnings"] and "HIVE tags only" in j["warnings"][0]
+        s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+        assert s == 422                                                    # the kit is not in view
+        cal = c.j("GET", "/api/calib")[1]
+        for e in cal["extrinsics"]:
+            truth = cams[e["cam_id"]].extr
+            R1, R2 = (cv2.Rodrigues(np.array(v))[0] for v in (e["rvec"], truth.rvec))
+            d = np.linalg.norm(-R1.T @ np.array(e["tvec"]) + R2.T @ np.array(truth.tvec))
+            assert d < 1.0, (e["cam_id"], d)
     finally:
         rig.close()

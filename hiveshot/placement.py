@@ -52,8 +52,14 @@ WALL_STEP_IN = 12                  # extra candidates every 12 in along the audi
 # and the shortest projected tag edge is at least TAG_MIN_EDGE_PX.
 TAG_MAX_ANGLE_DEG = 55.0
 TAG_MIN_EDGE_PX = 14.0
-TAG_MARGIN_PX = 10
-REF_MARGIN_PX = 20                 # calibration reference points must be this far inside
+TAG_MARGIN_PX = 60                 # tags must be this far inside the picture
+REF_MARGIN_PX = 60                 # calibration reference points must be this far inside
+# Printed calibration kit (tagkit.KIT_TAGS, 4 in tags on the frame top corners, facing +Y): a
+# camera "reads the kit" when at least KIT_MIN_TAGS tags are under TAG_MAX_ANGLE_DEG off their
+# normal, inside the picture, with the shortest projected edge >= KIT_MIN_EDGE_PX (a margin
+# above bare detectability so compressed video still decodes them).
+KIT_MIN_TAGS = 3
+KIT_MIN_EDGE_PX = 28.0
 
 
 def candidate_positions(radius_in, heights_in, angles_deg):
@@ -163,9 +169,8 @@ def occluded(cam_pos, points, margin_in: float = 4.0):
 @functools.lru_cache(maxsize=1)
 def _up_tag_geometry():
     """(corners (4 tags, 4, 3), row center (3,), sticker normal (3,)) of the red audience
-    CELL's tags in the audience-up state, from tagkit.up_cell_tag_corners (which uses
-    field.hive_tag_corners when present, else the constants: row center (x_h, 21.54, 49.9),
-    normal (0, sin30, -cos30)). Imported lazily."""
+    CELL's tags in the audience-up state, from field.hive_tag_corners (CAD-pinned: row center
+    (x_red, 13.10, 49.79), normal (0, sin30, -cos30)). Imported lazily."""
     from . import tagkit
 
     tags = tagkit.up_cell_tag_corners("red", "audience")
@@ -197,6 +202,32 @@ def tag_view(cam: VirtualCamera, pos) -> dict:
     edge = float(edges.min())
     return {"angle_deg": ang, "in_image": inimg, "min_edge_px": edge,
             "sees": bool(ang < TAG_MAX_ANGLE_DEG and inimg and edge >= TAG_MIN_EDGE_PX)}
+
+
+def kit_view(cam: VirtualCamera, pos) -> dict:
+    """Readability of the printed kit tags from this camera: per-tag
+    {id: {"angle_deg", "min_edge_px", "in_image", "ok"}} and n_ok / ok (n_ok >= KIT_MIN_TAGS)."""
+    from . import tagkit
+
+    out = {}
+    w, h = cam.intr.width, cam.intr.height
+    m = TAG_MARGIN_PX
+    for t in tagkit.KIT_TAGS:
+        c = tagkit.tag_corners_xyz(t)
+        n = np.cross(c[1] - c[0], c[0] - c[3])
+        n /= np.linalg.norm(n)
+        ray = np.asarray(pos, float) - c.mean(axis=0)
+        ray /= np.linalg.norm(ray)
+        ang = math.degrees(math.acos(float(np.clip(ray @ n, -1, 1))))
+        u, v = cam.project(c)
+        uv = np.c_[u, v]
+        edge = float(np.linalg.norm(uv - np.roll(uv, -1, axis=0), axis=1).min())
+        inimg = bool((cam.depth(c) > 1.0).all() and (u >= m).all() and (u < w - m).all()
+                     and (v >= m).all() and (v < h - m).all())
+        out[t.id] = {"angle_deg": ang, "min_edge_px": edge, "in_image": inimg,
+                     "ok": bool(ang < TAG_MAX_ANGLE_DEG and inimg and edge >= KIT_MIN_EDGE_PX)}
+    n_ok = sum(1 for d in out.values() if d["ok"])
+    return {"tags": out, "n_ok": n_ok, "ok": n_ok >= KIT_MIN_TAGS}
 
 
 def refs_in_view(cam: VirtualCamera) -> bool:
@@ -278,39 +309,106 @@ def recommend(option: str = "gopro") -> dict:
     trajs = sample_trajectories()
     pts = _stack(trajs)
     aim = _aim_point(trajs)
-    cache = []
-    for p in _candidates():
-        vc = _vcam(p, aim, hfov)
-        cache.append((p, _per_camera(vc, p, pts), tag_view(vc, p), refs_in_view(vc)))
-    best = None
-    for (pa, da, ta, ra), (pb, db, tb, rb) in itertools.combinations(cache, 2):
-        if math.dist(pa[:2], pb[:2]) < 24:
-            continue
-        sc = _combine(pa, pb, da, db, pts)
-        arc_ok = sc["frac_in_both"] >= 0.9 and 60.0 <= sc["mean_angle_deg"] <= 120.0
-        both_tags = ta["sees"] and tb["sees"]
-        tier = (arc_ok, both_tags, ra and rb)
-        tq = 0.5 * (math.cos(math.radians(ta["angle_deg"])) + math.cos(math.radians(tb["angle_deg"])))
-        value = sc["score"] * (0.5 + 0.5 * max(tq, 0.0))
-        key = (tier, value)
-        if best is None or key[0] > best[0][0] or (
-                key[0] == best[0][0] and value > best[0][1] + 1e-9):
-            best = (key, sc, (pa, ta), (pb, tb))
+    pa0, pb0 = _joint_pair()
+    best = _eval_pair(_entry(pa0, aim, hfov, pts), _entry(pb0, aim, hfov, pts), pts)
+    # Re-aim each camera to the middle of the aim range that keeps the tags and calibration
+    # points in view, so a few degrees of aiming error at the field do not lose them.
+    aims = {pa0: _center_aim(pa0, aim, hfov), pb0: _center_aim(pb0, aim, hfov)}
+    cand = _eval_pair(_entry(pa0, aims[pa0], hfov, pts), _entry(pb0, aims[pb0], hfov, pts), pts)
+    if cand[0][0] >= best[0][0]:
+        best = cand
+    else:
+        aims = {pa0: aim, pb0: aim}
     key, sc, (pa, ta), (pb, tb) = best
     # A is the camera on the -X side (left of the map), B on the +X side, for stable labels.
     if pa[0] > pb[0]:
         pa, pb, ta, tb = pb, pa, tb, ta
-    sc = dict(sc, tags_both=bool(ta["sees"] and tb["sees"]), refs_in_both=bool(key[0][2]),
-              tier=key[0])
+    sc = dict(sc, tags_both=bool(ta["sees"] and tb["sees"]), kit_both=bool(key[0][1]),
+              refs_in_both=bool(key[0][3]), tier=key[0])
     return {
         "option": option, "hfov_deg": hfov, "resolution": RESOLUTION, "pair_score": sc,
         "tags": {"A": ta, "B": tb},
         "cameras": {
-            "A": {"pos": pa, "look_at": aim, "height_in": pa[2], "hfov_deg": hfov},
-            "B": {"pos": pb, "look_at": aim, "height_in": pb[2], "hfov_deg": hfov},
+            "A": {"pos": pa, "look_at": aims[pa], "height_in": pa[2], "hfov_deg": hfov},
+            "B": {"pos": pb, "look_at": aims[pb], "height_in": pb[2], "hfov_deg": hfov},
             "C": _recommend_third(hfov, trajs),
         },
     }
+
+
+def _rotated_aim(pos, aim, dyaw_deg, dpitch_deg):
+    """Aim point (whole inches) after turning the optical axis by dyaw / dpitch degrees."""
+    d = np.asarray(aim, float) - np.asarray(pos, float)
+    dist = float(np.linalg.norm(d))
+    yaw = math.degrees(math.atan2(d[1], d[0])) + dyaw_deg
+    pitch = math.degrees(math.atan2(d[2], math.hypot(d[0], d[1]))) + dpitch_deg
+    v = np.array([math.cos(math.radians(pitch)) * math.cos(math.radians(yaw)),
+                  math.cos(math.radians(pitch)) * math.sin(math.radians(yaw)),
+                  math.sin(math.radians(pitch))])
+    return tuple(float(round(c)) for c in np.asarray(pos, float) + dist * v)
+
+
+def _aim_ok(pos, look, hfov) -> bool:
+    vc = _vcam(pos, look, hfov)
+    return bool(tag_view(vc, pos)["sees"] and kit_view(vc, pos)["ok"] and refs_in_view(vc))
+
+
+def _center_aim(pos, aim, hfov, span=8, step=1.0):
+    """Aim point for the camera at `pos` in the middle of the (yaw, pitch) offsets within
+    +-span deg for which `_aim_ok` holds (largest distance from the failing region); the
+    nominal aim if even that fails."""
+    n = int(span / step)
+    ok = np.zeros((2 * n + 1, 2 * n + 1), np.uint8)
+    for i in range(-n, n + 1):
+        for j in range(-n, n + 1):
+            if _aim_ok(pos, _rotated_aim(pos, aim, i * step, j * step), hfov):
+                ok[i + n, j + n] = 1
+    if not ok[n, n]:
+        return aim
+    dist = cv2.distanceTransform(np.pad(ok, 1), cv2.DIST_L2, 3)[1:-1, 1:-1]
+    i, j = np.unravel_index(int(np.argmax(dist)), dist.shape)
+    return _rotated_aim(pos, aim, (i - n) * step, (j - n) * step)
+
+
+@functools.lru_cache(maxsize=1)
+def _joint_pair():
+    """Best (pos A, pos B) over ALL lens options at once, so one set of tape marks serves
+    Option A and Option B: tiers compare as the worse of the two options, value as the mean."""
+    trajs = sample_trajectories()
+    pts = _stack(trajs)
+    aim = _aim_point(trajs)
+    caches = [[_entry(p, aim, h, pts) for p in _candidates()] for h in HFOV_DEG.values()]
+    best = None
+    for idx in itertools.combinations(range(len(caches[0])), 2):
+        if math.dist(caches[0][idx[0]][0][:2], caches[0][idx[1]][0][:2]) < 24:
+            continue
+        evals = [_eval_pair(c[idx[0]], c[idx[1]], pts) for c in caches]
+        key = (min(e[0][0] for e in evals), sum(e[0][1] for e in evals) / len(evals))
+        if best is None or key[0] > best[0][0] or (
+                key[0] == best[0][0] and key[1] > best[0][1] + 1e-9):
+            best = (key, caches[0][idx[0]][0], caches[0][idx[1]][0])
+    return best[1], best[2]
+
+
+def _entry(p, aim, hfov, pts):
+    """Per-candidate data: (pos, per-camera sample-point data, tag view incl. kit, refs ok)."""
+    vc = _vcam(p, aim, hfov)
+    tv = tag_view(vc, p)
+    tv["kit"] = kit_view(vc, p)
+    return (p, _per_camera(vc, p, pts), tv, refs_in_view(vc))
+
+
+def _eval_pair(ea, eb, pts):
+    """((tier, value), score dict, (pos A, tags A), (pos B, tags B)) for a candidate pair.
+    tier = (arc and triangulation ok, both cameras read the kit, both read the CELL tags,
+    all 8 reference points in view in both); tuples compare lexicographically."""
+    (pa, da, ta, ra), (pb, db, tb, rb) = ea, eb
+    sc = _combine(pa, pb, da, db, pts)
+    arc_ok = sc["frac_in_both"] >= 0.9 and 60.0 <= sc["mean_angle_deg"] <= 120.0
+    tier = (arc_ok, ta["kit"]["ok"] and tb["kit"]["ok"], ta["sees"] and tb["sees"], ra and rb)
+    tq = 0.5 * (math.cos(math.radians(ta["angle_deg"])) + math.cos(math.radians(tb["angle_deg"])))
+    value = sc["score"] * (0.5 + 0.5 * max(tq, 0.0))
+    return ((tier, value), sc, (pa, ta), (pb, tb))
 
 
 def _candidates():

@@ -36,7 +36,6 @@ amount: tape-measure the real corner positions first.
 
 from __future__ import annotations
 
-import math
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
@@ -243,11 +242,10 @@ def learn_hive_tags(intr_a, ext_a, img_a, intr_b, ext_b, img_b,
     worst ray-to-ray distance over all learned corners (0.0 if none)}. Tags seen by only
     one camera are reported in visible_per_camera but not learned.
 
-    If `alliance` and `state` (a field.HiveState) are given, the learned corners of the UP
-    cell's tags are compared with the computed ones (`up_cell_tag_corners`) and
-    info["error_vs_computed_in"] = {id: worst corner error in inches} (verification of the
-    computed geometry on the real field; the DOWN cell has no computed geometry, so its tags
-    are only learned).
+    If `alliance` and `state` (a field.HiveState) are given, the learned corners are compared
+    with the computed ones (`hive_tag_corners_all`, both cells are CAD-pinned) and
+    info["error_vs_computed_in"] = {id: worst corner error in inches}: a verification of
+    the model on the real field, not an input to the solver.
     """
     da, db = _hive_detections(img_a), _hive_detections(img_b)
     learned: dict[int, np.ndarray] = {}
@@ -259,7 +257,7 @@ def learn_hive_tags(intr_a, ext_a, img_a, intr_b, ext_b, img_b,
     info = {"visible_per_camera": {intr_a.cam_id: sorted(da), intr_b.cam_id: sorted(db)},
             "ids_learned": sorted(learned), "max_residual_in": worst}
     if alliance is not None and state is not None:
-        comp = up_cell_tag_corners(alliance, state.up_cell)
+        comp = hive_tag_corners_all(alliance, state)
         info["error_vs_computed_in"] = {
             tid: float(np.linalg.norm(learned[tid] - comp[tid], axis=1).max())
             for tid in sorted(learned) if tid in comp}
@@ -313,62 +311,32 @@ def _observed_centers(detections_per_cam: dict, calib_per_cam: dict) -> dict[int
 
 
 # ---- computed geometry of the UP cell's tags --------------------------------------------
-STICKER_TILT_DEG = 30.0
-
-
-def _fallback_up_cell_tag_corners(alliance: str, which: str) -> dict[int, np.ndarray]:
-    """Up-cell tag geometry from the official figures (docs/research_apriltags.md), used when
-    `field.hive_tag_corners` is not available. The sticker lies on the CELL floor, its
-    tag row center 7.188 in behind the opening's bottom edge (TAG_ROW_FROM_CELL_FRONT)
-    along the floor, facing the tiles; the sticker's bottom edge is toward the field center.
-      row center = c_low + 7.188 * d_floor, d_floor = (0, -ys*cos30, -sin30)
-      sticker normal n = (0, ys*sin30, -cos30), sticker up u = (0, ys*cos30, sin30)
-      (ys = +1 audience cell, -1 far cell); a tag's right vector is (-n) x u (the viewer
-      looks along -n): -X for the audience cell, +X for the far cell. Tag k is centered at
-      row center + HIVE_TAG_ROW_OFFSETS_IN[k] * r (ids ascend toward image-right, the same
-      right-handed convention as field.hive_tag_corners; VERIFY the direction on the real
-      field with learn_hive_tags(alliance, state)). The sticker plane is 0.12 in outside the
-      floor (field.TAG_STICKER_BELOW_FLOOR). Corners in cv2.aruco order TL, TR, BR, BL of the upright sticker.
-    """
-    st = field.HiveState(alliance, which)
-    poly = field.cell_opening_polygon(alliance, which, st)
-    c_low = 0.5 * (poly[0] + poly[1])
-    ys = 1.0 if which == "audience" else -1.0
-    t = math.radians(STICKER_TILT_DEG)
-    d_floor = np.array([0.0, -ys * math.cos(t), -math.sin(t)])
-    n = np.array([0.0, ys * math.sin(t), -math.cos(t)])
-    u = np.array([0.0, ys * math.cos(t), math.sin(t)])
-    r = np.cross(-n, u)
-    ctr = c_low + fc.TAG_ROW_FROM_CELL_FRONT * d_floor + 0.12 * n
-    ids = fc.HIVE_TAG_CLUSTERS[f"{alliance}_{which}"]
-    h = fc.APRILTAG_SIZE / 2.0
-    out = {}
-    for tid, off in zip(ids, fc.HIVE_TAG_ROW_OFFSETS_IN, strict=True):
-        c = ctr + off * r
-        out[tid] = np.array([c + h * u - h * r, c + h * u + h * r,
-                             c - h * u + h * r, c - h * u - h * r])
+def hive_tag_corners_all(alliance: str = "red", state=None) -> dict[int, np.ndarray]:
+    """{id: (4,3)} computed (CAD-pinned) corners of the tags on BOTH cells of `alliance` in
+    `state` (a field.HiveState, default audience up): `field.hive_tag_corners` per cell."""
+    st = state or field.HiveState(alliance, "audience")
+    out: dict[int, np.ndarray] = {}
+    for which in field.CELLS:
+        for k, v in field.hive_tag_corners(alliance, which, st).items():
+            out[int(k)] = np.asarray(v, float).reshape(4, 3)
     return out
 
 
 def up_cell_tag_corners(alliance: str = "red", which: str = "audience") -> dict[int, np.ndarray]:
-    """{id: (4,3)} computed corners of the tags on the UP cell `which` of `alliance`.
-    Uses `field.hive_tag_corners(alliance, which, HiveState)` when it exists, otherwise the
-    fallback derived from the official constants."""
-    fn = getattr(field, "hive_tag_corners", None)
-    if fn is not None:
-        got = fn(alliance, which, field.HiveState(alliance, which))
-        return {int(k): np.asarray(v, float).reshape(4, 3) for k, v in got.items()}
-    return _fallback_up_cell_tag_corners(alliance, which)
+    """{id: (4,3)} computed corners of the tags on the UP cell `which` of `alliance`
+    (the state in which `which` is up): `field.hive_tag_corners(alliance, which, state)`."""
+    got = field.hive_tag_corners(alliance, which, field.HiveState(alliance, which))
+    return {int(k): np.asarray(v, float).reshape(4, 3) for k, v in got.items()}
 
 
 def hive_tag_defs(alliance: str = "red", state=None, learned: dict | None = None
                   ) -> dict[int, np.ndarray]:
-    """tag_defs for the HIVE tags: the computed tags of the UP cell of `alliance` (state is a
-    field.HiveState, default audience up), merged with any learned tags (e.g. the down
-    cell's), computed values winning on a clash."""
-    st = state or field.HiveState(alliance, "audience")
+    """tag_defs for the HIVE tags of `alliance` in `state` (a field.HiveState, default audience
+    up): the computed, CAD-pinned corners of BOTH cells (`field.hive_tag_corners`), plus any
+    `learned` tags of ids that have no computed position (e.g. the other alliance's); on a
+    clash the computed value wins (learning is a verification, not an input)."""
     out = hive_tag_defs_from_learned(learned or {})
-    out.update(up_cell_tag_corners(alliance, st.up_cell))
+    out.update(hive_tag_corners_all(alliance, state))
     return out
 
 

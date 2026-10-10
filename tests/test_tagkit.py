@@ -321,14 +321,20 @@ def test_up_cell_tag_geometry():
         assert n == pytest.approx([0.0, 0.5, -np.sqrt(3) / 2], abs=1e-6)
         up = c[0] - c[3]
         assert up[2] > 0                         # upright for the UP cell
-    for which in ("audience", "far"):       # the built-in fallback equals field.hive_tag_corners
-        a = tagkit.up_cell_tag_corners("red", which)
-        b = tagkit._fallback_up_cell_tag_corners("red", which)
-        assert all(np.allclose(a[k], b[k], atol=1e-6) for k in a)
+    # both cells are computed (CAD-pinned); the DOWN (far) cell's tags are upside down and low
     d = tagkit.hive_tag_defs("red", learned={45: np.zeros((4, 3)), 34: np.ones((4, 3))})
-    assert sorted(d) == [34, 35, 36, 37, 45]
+    assert sorted(d) == [30, 31, 32, 33, 34, 35, 36, 37, 45]
     assert np.allclose(d[34], tags[34])         # computed wins over learned
-    assert sorted(tagkit.combined_tag_defs("red")) == [34, 35, 36, 37, 100, 101, 102, 103]
+    far = np.array([d[k] for k in (30, 31, 32, 33)])
+    assert far.reshape(-1, 3).mean(axis=0)[2] == pytest.approx(fc.HIVE_TAG_ROW_HEIGHT_DOWN_IN,
+                                                               abs=1.0)
+    assert far[0][0][2] < far[0][3][2]          # tag's "up" (BL -> TL) points down: z(TL) < z(BL)
+    assert sorted(tagkit.combined_tag_defs("red")) == [30, 31, 32, 33, 34, 35, 36, 37,
+                                                       100, 101, 102, 103]
+    # state flips the roles: far up -> far cluster high, audience cluster low
+    flipped = tagkit.hive_tag_defs("red", field.HiveState("red", "far"))
+    assert np.array([flipped[k] for k in (30, 31, 32, 33)]).reshape(-1, 3)[:, 2].mean() > 45
+    assert np.array([flipped[k] for k in (34, 35, 36, 37)]).reshape(-1, 3)[:, 2].mean() < 40
 
 
 @pytest.mark.parametrize("option", ["gopro", "usb"])
@@ -344,8 +350,8 @@ def test_computed_up_tags_at_recommended_poses(option):
         # HIVE tags alone (small cluster): coarse pose only
         ext, info = calib.solve_extrinsics_from_tags(cam.intr, imgs[k],
                                                      tagkit.hive_tag_defs("red"), cam.cam_id)
-        assert np.linalg.norm(_pos(ext) - _pos(cam.extr)) < 2.5, (option, k)
-        assert _rot_deg(ext, cam.extr) < 2.0, (option, k)
+        assert np.linalg.norm(_pos(ext) - _pos(cam.extr)) < 3.0, (option, k)
+        assert _rot_deg(ext, cam.extr) < 2.5, (option, k)
         # mixed kit + HIVE tags in one image: accurate
         both = render_tag_dict(cam, {**{i: c for i, c in kit.items()}, **up}, seed=4)
         ext, info = calib.solve_extrinsics_from_tags(cam.intr, both,

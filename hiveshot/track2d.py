@@ -18,12 +18,16 @@ class Tracker2DConfig:
     # Pixel gates are in the same (full-resolution) coordinates as the detections.
     # The detector already rescales its output to full res, so no process_scale
     # factor is applied here; use `gate_scale` if detections live in another frame.
+    # Gates are for a frame interval of 1/ref_fps s and scale linearly with the
+    # actual interval between updates: gate = max(min_gate_px, base * dt * ref_fps).
     max_assoc_px: float = 40.0     # gate around the Kalman prediction (confirmed tracks)
     init_assoc_px: float = 120.0   # gate for a 1-hit track (velocity still unknown)
-    max_missed: int = 5
+    max_missed: int = 5            # coasting allowance, in 1/ref_fps-second frame times
     min_hits: int = 3
     gate_scale: float = 1.0
-    process_noise: float = 5.0      # px^2 per frame^4 (accel variance)
+    min_gate_px: float = 8.0       # floor of the time-scaled gate (high-fps cameras)
+    ref_fps: float = 60.0          # gates/velocities are expressed per 1/ref_fps seconds
+    process_noise: float = 5.0      # px^2 per ref-frame^4 (accel variance)
     meas_noise: float = 4.0        # px^2
 
 
@@ -31,7 +35,8 @@ class Tracker2DConfig:
 class ActiveTrack(Track2D):
     """Track2D plus bookkeeping. `detections` holds real detections only."""
     predicted: list[tuple[int, float, float]] = field(default_factory=list)  # (frame, u, v)
-    missed: int = 0
+    missed: int = 0                 # consecutive missed frames
+    missed_ref: float = 0.0         # same, in units of 1/ref_fps seconds
     closed: bool = False
 
     @property
@@ -100,6 +105,7 @@ class Tracker2D:
         self._closed: list[ActiveTrack] = []
         self._next_id = 0
         self._last_frame: Optional[int] = None
+        self._last_t: Optional[float] = None
 
     def _close(self, tr: ActiveTrack) -> None:
         tr.closed = True
@@ -107,11 +113,20 @@ class Tracker2D:
         if len(tr.detections) >= self.cfg.min_hits:
             self._closed.append(tr)
 
+    def _interval(self, frame_idx: int, t: float) -> float:
+        """Time since the previous update in units of 1/ref_fps seconds (falls back
+        to the frame-index difference if timestamps do not advance)."""
+        if self._last_frame is None:
+            return 1.0
+        if self._last_t is not None and t > self._last_t:
+            return (t - self._last_t) * self.cfg.ref_fps
+        return max(1.0, float(frame_idx - self._last_frame))
+
     def update(self, detections: list[Detection2D], frame_idx: int, t: float
                ) -> list[Track2D]:
         cfg = self.cfg
-        dt = 1.0 if self._last_frame is None else max(1.0, float(frame_idx - self._last_frame))
-        self._last_frame = frame_idx
+        dt = self._interval(frame_idx, t)
+        self._last_frame, self._last_t = frame_idx, t
         trs = self._tracks
         preds = [self._kfs[tr.track_id].predict(dt) for tr in trs]
 
@@ -120,8 +135,9 @@ class Tracker2D:
             big = 1e9
             cost = np.full((len(trs), len(detections)), big)
             for i, tr in enumerate(trs):
-                gate = (cfg.init_assoc_px if len(tr.detections) == 1
-                        else cfg.max_assoc_px * (1 + 0.5 * tr.missed)) * cfg.gate_scale
+                base = (cfg.init_assoc_px if len(tr.detections) == 1
+                        else cfg.max_assoc_px * (1 + 0.5 * tr.missed_ref))
+                gate = max(cfg.min_gate_px, base * dt) * cfg.gate_scale
                 for j, d in enumerate(detections):
                     dist = float(np.hypot(d.u - preds[i][0], d.v - preds[i][1]))
                     if dist <= gate:
@@ -140,20 +156,24 @@ class Tracker2D:
                 first_update = len(tr.detections) == 1
                 if first_update:
                     prev = tr.detections[-1]
-                    span = max(1.0, float(frame_idx - prev.frame_idx))
+                    span = (d.t - prev.t) * cfg.ref_fps
+                    if span <= 0:
+                        span = max(1.0, float(frame_idx - prev.frame_idx))
                     kf.init_state(d.u, d.v, (d.u - prev.u) / span, (d.v - prev.v) / span)
                 else:
                     kf.correct(d.u, d.v)
                 tr.detections.append(d)
                 tr.missed = 0
+                tr.missed_ref = 0.0
                 tr.predicted.append((frame_idx, preds[i][0], preds[i][1]))
                 survivors.append(tr)
             else:
                 kf.coast()
                 tr.missed += 1
+                tr.missed_ref += dt
                 tr.predicted.append((frame_idx, preds[i][0], preds[i][1]))
                 # tentative tracks die on the first miss; confirmed ones coast
-                if len(tr.detections) < cfg.min_hits or tr.missed > cfg.max_missed:
+                if len(tr.detections) < cfg.min_hits or tr.missed_ref > cfg.max_missed + 1e-9:
                     self._close(tr)
                 else:
                     survivors.append(tr)

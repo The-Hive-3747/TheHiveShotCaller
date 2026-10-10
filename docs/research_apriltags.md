@@ -10,11 +10,13 @@ Sources read directly: Competition Manual TU04 Section 9 (text and Figures 9-8, 
 - Match start (Field Setup Guide 11.1): red HIVE audience CELL up, blue HIVE scoring (far) CELL up, 3 NECTAR in each up CELL.
 - Tags move with the HIVE; the SDK reports the up CELL cluster with roll within ±90° and the down CELL outside; it is not a fixed landmark.
 
-## Derived (up CELL, audience-up state, red)
-- Floor direction into the cup: (0, -cos30°, -sin30°) from the opening bottom edge center (x_h, 27.76, 53.5).
-- Tag row center: (x_h, 21.54, 49.9); tags at x_h + {-6.5, -2.75, +2.75, +6.5} (ids ascend toward +X as seen from the audience side, VERIFY sign on the real field).
+## Derived and then CAD-confirmed (up CELL, audience-up state, red)
+- The official STEP CAD (tools/step_extract.py, evidence/m1_field/step_extract.md) places the opening plane 21.455 in along the beam from the pivot: up opening center (x_h, 15.77, 59.55), edges 53.49/65.61; down opening 32.03-44.15; lowest rim 30.61 (official 30.6).
+- Tag row center: (x_h, 13.10, 49.79) matched to the CAD sticker center within 0.01 in; tags at x_h + {+6.5, +2.75, -2.75, -6.5} for ids ascending (ids ascend toward -X as seen from the audience side, i.e. left to right from the audience; VERIFY on the real field).
+- Red is on the audience's left (Manual 9.5), which in this right-handed frame (Z up, audience +Y) is +X: RED_HIVE_X = +12.75.
+- The earlier hand derivation (y=21.54) assumed the fan-site opening position y=24.25 and is superseded.
 - Sticker normal: (0, +0.5, -0.866): faces down and toward the audience. In the far-up state the mirror applies (faces the far side).
-- The down CELL floor position is not pinned by the figures: fan-site values (opening 25.5-37.6 in) conflict with the official lowest point 30.6 in. The down CELL's tags are therefore learned by triangulation (or extracted from the STEP CAD), not assumed.
+- The down CELL is now pinned by the CAD (rigid beam model reproduces the official 30.6 in lowest point to 0.01 in), so both CELLs' tags are computable; learning remains as a verification step.
 
 ## Consequences for the design
 1. Calibration: the kit (tags at the frame top corners, 49 in apart) stays the default for accuracy; the up CELL's four known tags give a no-printer fallback and a continuous check.

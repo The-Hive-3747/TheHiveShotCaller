@@ -9,9 +9,9 @@ Both need the camera intrinsics first (section 2).
 
 **Targets (PLAN.md M1):** reprojection error under 2 px for every camera and every clicked point; a known point (the CELL opening center) triangulates within 1 in of its CAD value. See section 5 for what you can check without Python.
 
-**Cameras:** `cam0` is camera **A** and `cam1` is camera **B** of [camera_placement.md](camera_placement.md) (A is on the -X wall side, B on the +Y wall side). The Calibration tab shows one card per camera in that order. If you ever swap the cable or device index, the labels swap with it, so re-check which card shows which view.
+**Cameras:** `cam0` is camera **A** and `cam1` is camera **B** of [camera_placement.md](camera_placement.md) (both stand outside the audience (+Y) wall: A at x = -36 with the lens 30 in high, B at x = +36 with the lens 12 in high). The Calibration tab shows one card per camera in that order. If you ever swap the cable or device index, the labels swap with it, so re-check which card shows which view.
 
-**Field axes used below:** origin at field center, Z up, **+Y toward the audience** (the audience-side CELL), X along the red/blue axis. The red HIVE is at X = -12.75 (the -X half), blue at +12.75. Standing at the audience wall facing the field, -X (red) is on your right. The app assumes the red HIVE's audience-side CELL is the **up** CELL during calibration. Set the HIVE that way before you click anything (top bar, **Set HIVE state**).
+**Field axes used below:** origin at field center, Z up, **+Y toward the audience** (the audience-side CELL), X along the red/blue axis. The red HIVE is at X = +12.75 (the +X half), blue at -12.75. Standing at the audience wall facing the field, +X (red) is on your left. The app assumes the red HIVE's audience-side CELL is the **up** CELL during calibration. Set the HIVE that way before you click anything (top bar, **Set HIVE state**).
 
 ## 0. Before you start (do this once, 5 minutes, not part of the 10 minute budget)
 
@@ -51,10 +51,10 @@ The four tags mark the four top corners of the HIVE frame. All cameras that can 
 
 | Tag | Frame corner (field axes) | Where it is on the real HIVE |
 |---|---|---|
-| 100 | (-X, +Y) | audience-side top bar, **red** end (red HIVE is on the -X side) |
-| 101 | (+X, +Y) | audience-side top bar, **blue** end |
-| 102 | (-X, -Y) | far-side top bar, red end, on the face that looks toward the audience |
-| 103 | (+X, -Y) | far-side top bar, blue end, on the face that looks toward the audience |
+| 100 | (-X, +Y) | audience-side top bar, **blue** end (red HIVE is on the +X side) |
+| 101 | (+X, +Y) | audience-side top bar, **red** end |
+| 102 | (-X, -Y) | far-side top bar, blue end, on the face that looks toward the audience |
+| 103 | (+X, -Y) | far-side top bar, red end, on the face that looks toward the audience |
 
    Corner positions come from `GET /api/calib/tags` (tag ids, size, center and corner coordinates); the frame size and top height are CAD guesses (VERIFY), so tape-measure where the real frame corners are (section 0 step 3). A tag mounted 1 in off its corner moves the camera pose by about as much.
 2. **Keep the tags clean and flat.** No tape over the black-and-white pattern, no shadow across a tag, nobody standing in front. Lighting even; no glare on the paper.
@@ -63,6 +63,7 @@ The four tags mark the four top corners of the HIVE frame. All cameras that can 
 5. **Accept** if it uses **at least 3 tags** (all 4 is best) and the reprojection error is **under 2 px** (typically 0.3 to 1 px) and the RMSE is **under 0.25 in**. With only 2 tags the pose is weak (expect about 1 to 2 in of error): it still saves, but prefer to fix the missing tag and run again.
 6. If it says "only 1 tag visible: 100; need 2" (or "no known tags visible"): look at the picture, find which tags are hidden by the HIVE or too dark/blurred, move the tag a little onto a visible part of the same corner or fix the lighting, click **Refresh image**, and run again. If a camera cannot see 2 tags, use the click method (3B) for that camera.
 7. Calibration is saved automatically (`calibration.json` in the data folder). Press **Auto-calibrate all** (or run it on each camera) after every tripod move.
+8. **The HIVE's own tags help.** Every CELL carries four official AprilTags on its underside, just below the opening (red audience CELL: ids 34 to 37, red far CELL: 30 to 33, blue 38 to 41 and 42 to 45). Their positions are computed from the official CAD-based field model for both cells in the current HIVE state (`field.hive_tag_corners`), so they count as extra known tags: with `hive_tags` on, Auto-calibrate uses them together with the kit (simulated pose error under 0.1 in with all eight). On their own, without the printed kit, they give only a **coarse** pose (simulated 0.7 to 2.6 in and up to 2 deg, because the four tags sit in one small row): fine for a first check or if the kit is lost, not for final calibration. The cameras cannot see the down CELL's tags (they face up and away), so only the up CELL's tags are normally used. The learn step (`learn_hive_tags`, triangulating the tags from two calibrated cameras) is a **verification** of the model on the real field: it reports the error of every learned tag against its computed position. Tags are only valid while the HIVE is in the state they were computed for: do not calibrate from them while the HIVE is mid-tip.
 
 ## 3B. Extrinsics by clicking 8 points (fallback; per camera, after the final tripod placement; redo if a camera moves)
 
@@ -73,16 +74,16 @@ The picture is the live camera view. The 8 points are all **in the air on the HI
 
 | # | Name on the card | What it is | Where it is in the picture (GoPro / Arducam, percent from the left, percent from the top) |
 |---|---|---|---|
-| 1 | Red HIVE up-CELL opening, high-left corner | upper -X corner of the red up-CELL opening (the high edge is the one farther from the audience) | `cam0`: 66/43 or 64/44. `cam1`: 43/50 or 44/50 |
-| 2 | Red HIVE up-CELL opening, high-right corner | upper +X corner of the opening | `cam0`: 59/51 or 58/51. `cam1`: 37/45 or 39/46 |
-| 3 | Red HIVE up-CELL opening, low-right corner | lower +X corner (the low edge is the one nearest the audience) | `cam0`: 56/63 or 55/61. `cam1`: 40/57 or 41/56 |
-| 4 | Red HIVE up-CELL opening, low-left corner | lower -X corner | `cam0`: 63/58 or 61/57. `cam1`: 46/61 or 46/59 |
-| 5 | HIVE frame top corner (-X, +Y) | top of the frame, red side, audience side | `cam0`: 68/45 or 66/45. `cam1`: 43/52 or 44/52 |
-| 6 | HIVE frame top corner (+X, +Y) | top of the frame, blue side, audience side | `cam0`: 53/60 or 53/58. `cam1`: 21/36 or 26/38 |
-| 7 | HIVE frame top corner (-X, -Y) | top of the frame, red side, far side | `cam0`: 89/51 or 83/51. `cam1`: 29/56 or 32/55 |
-| 8 | HIVE frame top corner (+X, -Y) | top of the frame, blue side, far side | `cam0`: 68/62 or 66/60. `cam1`: 4/44 or 11/45 |
+| 1 | Red HIVE up-CELL opening, high-left corner | upper -X corner of the red up-CELL opening (the high edge is the one farther from the audience) | `cam0`: 63/42 or 63/46. `cam1`: 47/62 or 48/62 |
+| 2 | Red HIVE up-CELL opening, high-right corner | upper +X corner of the opening | `cam0`: 53/48 or 55/52. `cam1`: 36/55 or 38/56 |
+| 3 | Red HIVE up-CELL opening, low-right corner | lower +X corner (the low edge is the one nearest the audience) | `cam0`: 51/58 or 52/61. `cam1`: 36/62 or 38/63 |
+| 4 | Red HIVE up-CELL opening, low-left corner | lower -X corner | `cam0`: 61/53 or 61/56. `cam1`: 49/70 or 49/69 |
+| 5 | HIVE frame top corner (-X, +Y) | top of the frame, blue side, audience side | `cam0`: 81/26 or 79/33. `cam1`: 63/68 or 61/67 |
+| 6 | HIVE frame top corner (+X, +Y) | top of the frame, red side, audience side | `cam0`: 50/48 or 52/52. `cam1`: 36/51 or 38/53 |
+| 7 | HIVE frame top corner (-X, -Y) | top of the frame, blue side, far side | `cam0`: 90/45 or 87/48. `cam1`: 51/83 or 51/80 |
+| 8 | HIVE frame top corner (+X, -Y) | top of the frame, red side, far side | `cam0`: 63/56 or 63/59. `cam1`: 29/72 or 32/71 |
 
-   Picture description. From `cam0` (looking mostly along +X, slightly away from the audience): the up-CELL opening is a tilted rectangle near the middle of the picture (a little right of the middle in `cam0`, a little left of it in `cam1`), about 20 in wide and 14 in tall in its own plane; the -X (red) side of every object is on the **right** of the picture and the +X side on the left. The audience-side top bar of the frame (points 5 to 6) runs from the upper right down to the lower left at about 30 degrees; points 5 and 1 are only about 2 to 3 in apart in real life (about 40 px), so click the opening's own corner for 1 and the frame bar's end for 5. From `cam1` (looking mostly along -X, angled away from the audience), the -X (red) side is on the **right** again. The bar through 5 and 6 runs up to the left at about 23 degrees. Point 8 is close to the left edge for `cam1`.
+   Picture description. Both cameras stand outside the audience wall and look up across the field toward the HIVE (`cam0` from x = -36, 30 in high, toward +X and -Y; `cam1` from x = +36, 12 in high, toward -X and -Y). The up-CELL opening is a tilted rectangle in the middle area of the picture (right of the middle in `cam0`, left of it in `cam1`), about 20 in wide and 14 in tall in its own plane. In both cameras the +X (red) side of every object is on the **left** of the picture and the -X side on the right. The audience-side top bar of the frame (points 5 to 6) runs from the upper right down to the lower left at about 21 degrees in `cam0`, and from the lower right up to the upper left at about 20 degrees in `cam1`. Points 1 and 5 are about 8 in apart in real life (about 50 to 90 px), so click the opening's own corner for 1 and the frame bar's end for 5. Just below the opening you can see the CELL's AprilTag sticker (four small squares); it is not one of the 8 points. In `cam0` point 7 is the nearest to the right edge of the picture.
 
    "left" / "right" in the CELL names mean the **-X / +X side** of the field, not the side of the picture. From both recommended camera spots, "left" appears on the right of the picture.
 
@@ -111,5 +112,5 @@ Save a copy of `calibration.json` (data folder) after every good calibration.
 - The 8 points come from `hiveshot.calib_targets.field_reference_points()` (`reference_point_names()` lists their names). The four CELL corners are read from `hiveshot.field.cell_opening_polygon`; the frame corners are the top-bar ends of `hiveshot.field.hive_frame_wireframe()`. A test fails if either drifts from `field.py`.
 - `calib_targets.write_field_point_sheet("docs/field_points.md")` writes a printable table of the 8 points with coordinates.
 - `calib_targets.write_checkerboard_pdf(path)` is what the checkerboard route serves.
-- Tag kit: `hiveshot.tagkit` (`KIT_TAGS`, `tag_corners_xyz`, `tag_defs()`, `tags_json()`, `write_tag_sheet_pdf(path)`, `tag_sheet_pdf_bytes()`); solver `calib.solve_extrinsics_from_tags(intr, image, tag_defs, cam_id, min_tags=2)` returns `(extrinsics, {tags_used, tags_missing, reprojection_px, max_corner_px, rmse_in})`. Tag ids 100 to 103 are the frame top corners 5 to 8 of the click list. Orientation convention (vertical plane facing +Y, flush mount, cv2.aruco corner order) is documented at the top of `hiveshot/tagkit.py`. Simulated accuracy (`tests/test_tagkit.py`, recommended poses, synthetic images): 4 tags within 0.15 in / 0.07 deg, 3 tags within 0.3 in, 2 tags up to about 2 in / 1 deg.
+- Tag kit: `hiveshot.tagkit` (`KIT_TAGS`, `tag_corners_xyz`, `tag_defs()`, `tags_json()`, `write_tag_sheet_pdf(path)`, `tag_sheet_pdf_bytes()`); solver `calib.solve_extrinsics_from_tags(intr, image, tag_defs, cam_id, min_tags=2)` returns `(extrinsics, {tags_used, tags_missing, reprojection_px, max_corner_px, rmse_in})`. Tag ids 100 to 103 are the frame top corners 5 to 8 of the click list. HIVE tags: `tagkit.hive_tag_corners_all(alliance, state)` (both cells), `up_cell_tag_corners`, `hive_tag_defs(alliance, state, learned)` (computed tags of both cells; learned only fills ids without a computed position), `combined_tag_defs(...)` (kit + HIVE tags in one `tag_defs`), `learn_hive_tags(..., alliance=, state=)` (also reports `error_vs_computed_in` for the up cell), `up_cells_from_tags` and `infer_hive_state` (right-side-up cluster = up CELL, tag-up vector z > 0, the SDK's |roll| < 90 deg; cross-checked against the row height vs the 43.95 in pivot). Orientation convention (vertical plane facing +Y, flush mount, cv2.aruco corner order) is documented at the top of `hiveshot/tagkit.py`. Simulated accuracy (`tests/test_tagkit.py`, recommended poses, synthetic images): 4 tags within 0.15 in / 0.07 deg, 3 tags within 0.3 in, 2 tags up to about 2 in / 1 deg.
 - Optional: `detect_apriltags` + `solve_extrinsics_from_apriltags` once the real tag geometry is verified (the bundled layout is a placeholder).

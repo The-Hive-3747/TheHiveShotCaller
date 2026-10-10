@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import pytest
 
+from hiveshot import field_constants as fc
 from hiveshot import placement as pl
 from hiveshot.synth import VirtualCamera
 
@@ -53,11 +54,11 @@ def test_candidates_outside_wall():
 
 
 def test_occlusion_detects_frame():
-    # A ray running through the beam (x=-12.75, z=46 crosses it near y=1) is blocked;
+    # A ray running through the beam (x=RED_HIVE_X, z=46 crosses it near y=1) is blocked;
     # the same point seen from beside the launch area is clear.
-    pts = np.array([[-12.75, 10.0, 46.0]])
-    assert pl.occluded((-12.75, -78.0, 46.0), pts)[0]
-    assert not pl.occluded((-78.0, 65.0, 36.0), np.array([[-12.75, 60.0, 40.0]]))[0]
+    pts = np.array([[fc.RED_HIVE_X, 10.0, 46.0]])
+    assert pl.occluded((fc.RED_HIVE_X, -78.0, 46.0), pts)[0]
+    assert not pl.occluded((-78.0, 65.0, 36.0), np.array([[fc.RED_HIVE_X, 60.0, 40.0]]))[0]
 
 
 def test_map_files_exist_and_agree(tmp_path):
@@ -164,14 +165,17 @@ def test_placement_doc_matches_recommend():
 
 
 # ------------------------------------------------ tag visibility term
-OLD_POSES = {"A": (-78.0, 65.0, 36.0), "B": (65.0, 78.0, 36.0)}   # recommendation before the tag term
+# recommendation before the tag term (drawn for red at -X), mirrored in X for red at +X
+OLD_POSES = {"A": (78.0, 65.0, 36.0), "B": (-65.0, 78.0, 36.0)}
 
 
 @pytest.mark.parametrize("option", ["gopro", "usb"])
 def test_recommended_cameras_see_the_up_cell_tags(option):
     rec = pl.recommend(option)
     sc = rec["pair_score"]
-    assert sc["tier"] == (True, True, True)          # arc + triangulation, tags, reference points
+    # arc + triangulation, printed kit readable, CELL tags readable, 8 reference points
+    assert sc["tier"] == (True, True, True, True)
+    assert sc["kit_both"]
     assert sc["frac_in_both"] >= 0.9 and 60.0 <= sc["mean_angle_deg"] <= 120.0
     assert sc["tags_both"] and sc["refs_in_both"]
     _, centre, normal = pl._up_tag_geometry()
@@ -193,7 +197,7 @@ def test_old_recommendation_could_not_read_the_tags(option):
     hfov = pl.HFOV_DEG[option]
     angles = []
     for pos in OLD_POSES.values():
-        vc = pl._vcam(pos, (-13.0, 41.0, 61.0), hfov)
+        vc = pl._vcam(pos, (13.0, 41.0, 61.0), hfov)
         tv = pl.tag_view(vc, pos)
         angles.append(tv["angle_deg"])
         assert not tv["sees"] and tv["angle_deg"] > pl.TAG_MAX_ANGLE_DEG
@@ -217,6 +221,60 @@ def test_hive_tags_visible_in_both_recommended_images():
         rec = pl.recommend(option)
         for k in ("A", "B"):
             cam = _cam(rec["cameras"][k], k)
-            for tid, c in tags.items():
+            for c in tags.values():
                 u, v = cam.project(c)
                 assert (u >= 10).all() and (u <= 1910).all() and (v >= 10).all() and (v <= 1070).all()
+
+
+def test_calibration_doc_pixel_table_matches_recommend():
+    """The percent-of-image positions in calibration.md equal the recomputed projections."""
+    import re
+
+    from hiveshot import calib_targets
+
+    text = (DOCS / "calibration.md").read_text(encoding="utf-8")
+    pts = [p for _, p in calib_targets.field_reference_points()]
+    rows = {}
+    for ln in text.splitlines():
+        m = re.match(r"\| ([1-8]) \| .*`cam0`: (\d+)/(\d+) or (\d+)/(\d+)\. `cam1`: (\d+)/(\d+) or "
+                     r"(\d+)/(\d+) \|", ln)
+        if m:
+            rows[int(m.group(1))] = [int(g) for g in m.groups()[1:]]
+    assert sorted(rows) == list(range(1, 9))
+    for opt_i, option in enumerate(("gopro", "usb")):
+        rec = pl.recommend(option)
+        for cam_i, k in enumerate(("A", "B")):
+            cam = _cam(rec["cameras"][k], k)
+            u, v = cam.project(np.array(pts))
+            for n in range(1, 9):
+                got = rows[n][cam_i * 4 + opt_i * 2: cam_i * 4 + opt_i * 2 + 2]
+                assert abs(100 * u[n - 1] / 1920 - got[0]) <= 1.0, (option, k, n)
+                assert abs(100 * v[n - 1] / 1080 - got[1]) <= 1.0, (option, k, n)
+
+
+def test_recommended_aim_has_slack_and_same_spots_for_both_options():
+    """Each camera's aim sits inside the range that keeps the CELL tags, the printed kit and
+    the 8 reference points in view, with at least 3 deg to spare in yaw and pitch; both lens
+    options use the same tripod spots."""
+    for k in ("A", "B"):
+        assert pl.recommend("gopro")["cameras"][k]["pos"] == pl.recommend("usb")["cameras"][k]["pos"]
+    for option in ("gopro", "usb"):
+        rec = pl.recommend(option)
+        for k in ("A", "B"):
+            c = rec["cameras"][k]
+            assert pl._aim_ok(c["pos"], c["look_at"], c["hfov_deg"])
+            for dy, dp in ((3, 0), (-3, 0), (0, 3), (0, -3)):
+                look = pl._rotated_aim(c["pos"], c["look_at"], dy, dp)
+                assert pl._aim_ok(c["pos"], look, c["hfov_deg"]), (option, k, dy, dp)
+        assert rec["pair_score"]["kit_both"]
+
+
+def test_geometry_comes_from_field_py():
+    """The map and tag term use hiveshot.field, not copies of its numbers: no 24.25 / 21.54 /
+    -12.75 literals in placement.py."""
+    src = (Path(pl.__file__)).read_text(encoding="utf-8")
+    for lit in ("24.25", "21.54", "12.75", "49.9"):
+        assert lit not in src, lit
+    _, centre, _ = pl._up_tag_geometry()
+    assert centre[0] == pytest.approx(fc.RED_HIVE_X)
+    assert centre[1] == pytest.approx(13.10, abs=0.05) and centre[2] == pytest.approx(49.79, abs=0.05)
