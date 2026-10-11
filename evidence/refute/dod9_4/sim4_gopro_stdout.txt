@@ -1,0 +1,63 @@
+### gopro / exact (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 0.76 p90 0.91 max 1.03; <2px 30/30; pos err in med 0.57 p90 0.84 max 1.00; rot deg med 0.32 p90 0.47 max 0.56; tags used median 3
+    cam1: reproj px med 0.86 p90 1.08 max 1.21; <2px 30/30; pos err in med 0.25 p90 0.71 max 1.31; rot deg med 0.13 p90 0.36 max 0.64; tags used median 4
+    GATE reproj<2px both cameras: 30/30
+    opening_center err in: med 0.12 p90 0.19 max 0.27; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 30/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.55 p90 2.01 max 2.22; <2px 26/30; pos err in med 0.45 p90 0.78 max 2.06; rot deg med 0.29 p90 0.46 max 1.02
+    cam1: reproj px med 1.64 p90 2.16 max 2.94; <2px 26/30; pos err in med 0.71 p90 1.14 max 2.34; rot deg med 0.34 p90 0.64 max 0.82
+    GATE reproj<2px both cameras: 22/30
+    NEW GATE (RMSE<2 and no point>3 px, both cameras): 15/30
+    NEW GATE per camera: 43/60
+    NEW GATE both cams AND opening center<1in: 15/30
+    opening_center err in: med 0.18 p90 0.29 max 0.34; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 22/30
+- kit out-of-sample HIVE-tag check possible: 30/30
+    oos max HIVE-tag corner error in: med 0.21 p90 0.26 max 0.33; <1 in 30/30
+    in-sample kit-tag check vs MODEL: med 0.11 p90 0.14 max 0.18; <1in 30/30
+    kit tags decoded: cam0 3.00, cam1 3.70; HIVE tags decoded cam0 4.00, cam1 4.00
+elapsed 15
+### gopro / mount_0.25 (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 1.05 p90 1.43 max 1.84; <2px 30/30; pos err in med 2.16 p90 3.33 max 5.22; rot deg med 1.28 p90 1.89 max 2.97; tags used median 3
+    cam1: reproj px med 1.03 p90 1.48 max 1.87; <2px 30/30; pos err in med 1.31 p90 2.66 max 3.66; rot deg med 0.68 p90 1.33 max 1.70; tags used median 4
+    GATE reproj<2px both cameras: 30/30
+    opening_center err in: med 0.33 p90 0.54 max 0.74; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 30/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.79 p90 2.15 max 2.42; <2px 22/30; pos err in med 0.61 p90 0.96 max 1.16; rot deg med 0.35 p90 0.50 max 0.65
+    cam1: reproj px med 1.69 p90 2.41 max 2.97; <2px 24/30; pos err in med 0.73 p90 1.27 max 1.70; rot deg med 0.35 p90 0.54 max 0.86
+    GATE reproj<2px both cameras: 18/30
+    NEW GATE (RMSE<2 and no point>3 px, both cameras): 9/30
+    NEW GATE per camera: 35/60
+    NEW GATE both cams AND opening center<1in: 9/30
+    opening_center err in: med 0.20 p90 0.36 max 0.41; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 18/30
+- kit out-of-sample HIVE-tag check possible: 30/30
+    oos max HIVE-tag corner error in: med 0.43 p90 0.59 max 0.76; <1 in 30/30
+    in-sample kit-tag check vs MODEL: med 0.17 p90 0.25 max 0.28; <1in 30/30
+    kit tags decoded: cam0 3.00, cam1 3.60; HIVE tags decoded cam0 4.00, cam1 4.00
+elapsed 27
+### gopro / border_0.25 (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 1.10 p90 1.87 max 2.37; <2px 27/30; pos err in med 2.71 p90 5.24 max 7.39; rot deg med 1.43 p90 2.69 max 4.04; tags used median 3
+    cam1: reproj px med 1.15 p90 1.49 max 1.87; <2px 30/30; pos err in med 2.07 p90 3.28 max 4.82; rot deg med 0.82 p90 1.38 max 2.19; tags used median 4
+    GATE reproj<2px both cameras: 27/30
+    opening_center err in: med 0.70 p90 1.00 max 1.22; <1 in 27/30
+    BOTH gates (2px each cam AND opening center<1in): 27/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.65 p90 2.21 max 2.46; <2px 21/30; pos err in med 0.64 p90 1.11 max 1.25; rot deg med 0.37 p90 0.59 max 0.77
+    cam1: reproj px med 1.72 p90 2.16 max 2.97; <2px 25/30; pos err in med 0.75 p90 1.27 max 1.70; rot deg med 0.35 p90 0.57 max 0.86
+    GATE reproj<2px both cameras: 18/30
+    NEW GATE (RMSE<2 and no point>3 px, both cameras): 10/30
+    NEW GATE per camera: 37/60
+    NEW GATE both cams AND opening center<1in: 10/30
+    opening_center err in: med 0.20 p90 0.39 max 0.42; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 18/30
+- kit out-of-sample HIVE-tag check possible: 30/30
+    oos max HIVE-tag corner error in: med 0.73 p90 0.94 max 1.19; <1 in 27/30
+    in-sample kit-tag check vs MODEL: med 0.18 p90 0.30 max 0.33; <1in 30/30
+    kit tags decoded: cam0 3.00, cam1 3.80; HIVE tags decoded cam0 4.00, cam1 4.00
+elapsed 42

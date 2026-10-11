@@ -1,0 +1,9 @@
+RUN s8_240_99_rt_s1 idle-wait: cpu=12% after 30s
+[s8_240_99 rt stress] elapsed=12.8s recorded=7/8 matched=7 extra=0 made app/truth=6/6 rate app/truth=0.8571428571428571/0.750
+  makemiss agree 7/8=87.5% results={'made': 6, 'bounce_out': 0, 'miss': 1, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 0, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=False
+  speed n=7 max|err|=1.3200999228855315 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.17166371937943836 csv_rows=7
+  unmatched truth=[2] burst mismatch=[3, 4, 5, 6, 7] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 7}} wrong=[]
+  dropped={'cam0': 115, 'cam1': 105} max_dropped_seen={'cam0': 115, 'cam1': 105} warnings_final=['3 ball track(s) could not be paired between the cameras and were dropped: shots may be missing', 'camera cam0 dropped 115 frames (processing too slow)', 'camera cam1 dropped 105 frames (processing too slow)'] warnings_seen=['camera cam0 dropped 20 frames (processing too slow)', 'camera cam1 dropped 18 frames (processing too slow)', 'camera cam0 dropped 73 frames (processing too slow)', 'camera cam1 dropped 68 frames (processing too slow)', 'camera cam0 dropped 85 frames (processing too slow)', 'camera cam1 dropped 76 frames (processing too slow)', 'camera cam0 dropped 115 frames (processing too slow)', 'camera cam1 dropped 105 frames (processing too slow)', '3 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0
+  stress: mjpg_bytes=[1310720, 1179648] mjpg_err=[] stats_calls=90 stats_err=0 stats_max_ms=174
+  system CPU during run (whole machine, incl. server): mean=41% max=69% n=14
+  server_exit 1

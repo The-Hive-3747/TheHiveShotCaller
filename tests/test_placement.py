@@ -313,7 +313,7 @@ def test_calibration_doc_pixel_table_matches_recommend():
 def test_recommended_aim_has_slack_and_same_spots_for_both_options():
     """Each camera's aim sits inside the range that keeps the printed kit, the 8 reference
     points (and, for a tag reader, the CELL tags) in view, with at least 3 deg to spare in yaw
-    and pitch; both lens options use the same tripod spots."""
+    and at least 2 deg in pitch (the GoPro lens at camera A has the least pitch room: +3.0 / -2.5 deg); both lens options use the same tripod spots."""
     for k in ("A", "B"):
         assert pl.recommend("gopro")["cameras"][k]["pos"] == pl.recommend("usb")["cameras"][k]["pos"]
     for option in ("gopro", "usb"):
@@ -322,7 +322,7 @@ def test_recommended_aim_has_slack_and_same_spots_for_both_options():
             c = rec["cameras"][k]
             need = rec["tags"][k]["sees"]
             assert pl._aim_ok(c["pos"], c["look_at"], c["hfov_deg"], need)
-            for dy, dp in ((3, 0), (-3, 0), (0, 3), (0, -3)):
+            for dy, dp in ((3, 0), (-3, 0), (0, 2), (0, -2)):
                 look = pl._rotated_aim(c["pos"], c["look_at"], dy, dp)
                 assert pl._aim_ok(c["pos"], look, c["hfov_deg"], need), (option, k, dy, dp)
         assert rec["pair_score"]["kit_both"]
@@ -491,3 +491,80 @@ def test_calibration_doc_button_names_and_intrinsics_guidance():
     assert "20 seconds" in cal and "under 1 px" in cal and "1 to 2 px" in cal
     assert "far HIVE tags are not visible from the audience-side cameras" in cal
     assert "audience-up" in cal
+
+
+# ------------------------------------------------ CELL bodies as occluders, calibration state
+def test_cell_bodies_hide_tag_100_in_match_start_but_not_in_calibration_state():
+    from hiveshot import field, tagkit
+    pos = (-49.0, 85.5, 36.0)
+    c = tagkit.tag_corners_xyz(100)
+    pts = np.vstack([c, c.mean(axis=0)[None]])
+    # field.py is the geometry source: the segment hits the blue audience CELL in the match-start state
+    assert pl.cell_blocked(pos, pts.mean(axis=0), field.MATCH_START_STATE).all()
+    assert field.segment_hits_any_cell(np.array(pos), pts.mean(axis=0), field.MATCH_START_STATE)
+    assert not pl.cell_blocked(pos, pts, field.CALIBRATION_STATE).any()
+    assert not field.segment_hits_any_cell(np.array(pos), pts.mean(axis=0), field.CALIBRATION_STATE)
+    # the same for the tag-reader corner camera: part of tag 100 is behind the CELL body
+    assert pl.cell_blocked((72.0, 85.5, 20.0), pts, field.MATCH_START_STATE).any()
+    assert not pl.cell_blocked((72.0, 85.5, 20.0), pts, field.CALIBRATION_STATE).any()
+
+
+@pytest.mark.parametrize("option", ["gopro", "usb"])
+def test_recommended_cameras_see_the_kit_and_all_points_in_the_calibration_state(option):
+    from hiveshot import calib_targets, field
+    rec = pl.recommend(option)
+    xyz = np.array([p for _, p in calib_targets.field_reference_points()])
+    for k in ("A", "B"):
+        c = rec["cameras"][k]
+        kit = rec["tags"][k]["kit"]
+        assert kit["n_ok"] >= 3
+        assert not any(d["hidden_by_cell"] for d in kit["tags"].values())
+        # none of the 8 click points (both audience CELL openings) is behind a CELL body
+        assert not pl.cell_blocked(c["pos"], xyz, field.CALIBRATION_STATE,
+                                   skip=(("red", "audience"), ("blue", "audience"))).any()
+        assert pl.refs_in_view(_cam(c, k))
+    # and the ball flight, the opening center and the tag row of the tag reader are not behind a CELL
+    rob = rec["robot"][rec["tag_reader"]]
+    assert rob["cell_free"] >= 0.9 and rob["tag_free"] >= 0.9
+
+
+def test_blue_audience_cell_hides_part_of_the_kit_in_match_start_state():
+    """Contrast to the calibration state: kit readability from the recommended spots collapses
+    when the blue audience CELL is down (match start)."""
+    from hiveshot import field, tagkit
+    for pos in ((-49.0, 85.5, 36.0), (72.0, 85.5, 20.0)):
+        hidden = {}
+        for t in tagkit.KIT_TAGS:
+            c = tagkit.tag_corners_xyz(t)
+            hidden[t.id] = bool(pl.cell_blocked(pos, np.vstack([pl._shrunk(c), c.mean(axis=0)[None]]),
+                                                field.MATCH_START_STATE).any())
+            assert not pl.cell_blocked(pos, np.vstack([pl._shrunk(c), c.mean(axis=0)[None]]),
+                                       field.CALIBRATION_STATE).any()
+        assert hidden[100] and not hidden[102] and not hidden[103]
+
+
+def test_cell_blocked_skips_own_cell_and_respects_margin():
+    from hiveshot import field
+    pos = (72.0, 85.5, 20.0)
+    tgt = np.array([12.75, 13.10, 49.79])        # the red audience CELL's own tag row
+    assert pl.cell_blocked(pos, tgt, field.MATCH_START_STATE, skip=(("red", "audience"),)).tolist() == [False]
+    # with a zero skip list and no margin the target lies inside its own CELL's modeled rim or not;
+    # the default margin must never report a ray to its own target blocked by a different CELL
+    assert not pl.cell_blocked(pos, tgt, field.CALIBRATION_STATE, skip=(("red", "audience"),)).any()
+
+
+def test_calibration_doc_states_both_cells_up_and_the_stand_and_border():
+    cal = (DOCS / "calibration.md").read_text(encoding="utf-8")
+    plc = (DOCS / "camera_placement.md").read_text(encoding="utf-8")
+    for text in (cal, plc):
+        assert "tip BOTH HIVEs by hand" in text or "Tip BOTH HIVEs by hand" in text
+        assert "both audience CELLs" in text
+    assert "set the red HIVE back to match start" in plc or "set the HIVEs back to match start" in cal
+    for needle in ("Blue HIVE up-CELL opening, high-left corner", "Blue HIVE up-CELL opening, low-left corner"):
+        assert needle in cal
+    assert "far-CELL opening" not in cal
+    # base tag: border and stand are defined
+    assert "0.47 in above the tile" in cal and "dashed cut line exactly 0.5 in outside the black square" in cal
+    assert "4 in wide, 2 in deep along the floor and 5.5 in tall" in cal
+    # step 8 matches the app: the buttons send source "kit"
+    assert "`source: kit`" in cal and "keep the HIVE tags out of the solve" in cal

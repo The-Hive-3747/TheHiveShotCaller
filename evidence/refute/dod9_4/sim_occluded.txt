@@ -1,0 +1,2 @@
+usb: A kit solve fails (needs 2 tags, sees only 103): 30/30; B kit (101,102,103) reproj<2: 30/30; A click new gate: 24/30; opening center median 0.25 max 0.39, <1in 30/30; mixed route passes every gate on first try: 24/30
+gopro: A kit solve fails (needs 2 tags, sees only 103): 30/30; B kit (101,102,103) reproj<2: 30/30; A click new gate: 22/30; opening center median 0.21 max 0.42, <1in 30/30; mixed route passes every gate on first try: 22/30

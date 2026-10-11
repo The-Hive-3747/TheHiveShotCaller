@@ -1,0 +1,8 @@
+usb    placement error  sigma 1.0: per camera gate cam0 0.99 cam1 0.99 (RMSE<2: 1.00/1.00; all<3: 0.99/0.99); both cams pass gate 0.98; opening center <1in (any) 1.00 median 0.17 max 0.45
+usb    placement error  sigma 1.5: per camera gate cam0 0.67 cam1 0.71 (RMSE<2: 0.78/0.84; all<3: 0.71/0.73); both cams pass gate 0.48; opening center <1in (any) 1.00 median 0.26 max 0.69
+usb    nominal pose     sigma 1.0: per camera gate cam0 0.99 cam1 0.99 (RMSE<2: 1.00/1.00; all<3: 0.99/0.99); both cams pass gate 0.98; opening center <1in (any) 1.00 median 0.17 max 0.44
+usb    nominal pose     sigma 1.5: per camera gate cam0 0.67 cam1 0.71 (RMSE<2: 0.78/0.84; all<3: 0.71/0.73); both cams pass gate 0.48; opening center <1in (any) 1.00 median 0.26 max 0.70
+gopro  placement error  sigma 1.0: per camera gate cam0 0.99 cam1 0.99 (RMSE<2: 1.00/1.00; all<3: 0.99/0.99); both cams pass gate 0.98; opening center <1in (any) 1.00 median 0.13 max 0.37
+gopro  placement error  sigma 1.5: per camera gate cam0 0.67 cam1 0.71 (RMSE<2: 0.79/0.84; all<3: 0.71/0.73); both cams pass gate 0.48; opening center <1in (any) 1.00 median 0.20 max 0.55
+gopro  nominal pose     sigma 1.0: per camera gate cam0 0.99 cam1 0.99 (RMSE<2: 1.00/1.00; all<3: 0.99/0.99); both cams pass gate 0.98; opening center <1in (any) 1.00 median 0.14 max 0.36
+gopro  nominal pose     sigma 1.5: per camera gate cam0 0.66 cam1 0.71 (RMSE<2: 0.78/0.84; all<3: 0.70/0.73); both cams pass gate 0.48; opening center <1in (any) 1.00 median 0.21 max 0.56

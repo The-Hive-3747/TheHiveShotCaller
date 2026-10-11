@@ -1,0 +1,352 @@
+{
+ "fixture": "C:\\Users\\3747h\\AppData\\Local\\Temp\\claude\\C--Users-3747h-Documents-HiveShotTracker\\386da1de-9207-4304-8c4f-9284e5732d29\\scratchpad\\fx\\s8_240_7",
+ "mode": "rt",
+ "stress": true,
+ "cmd": [
+  "C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Scripts\\python.exe",
+  "-m",
+  "hiveshot",
+  "--data-dir",
+  "C:\\Users\\3747h\\AppData\\Local\\Temp\\r2app_me3q7ej9",
+  "--config",
+  "C:\\Users\\3747h\\AppData\\Local\\Temp\\r2app_me3q7ej9\\config.json",
+  "--port",
+  "8791"
+ ],
+ "elapsed_s": 21.81011390686035,
+ "video_len_s": null,
+ "stats": {
+  "session_id": "006bd2f4",
+  "shots": 2,
+  "made": 2,
+  "bounce_out": 0,
+  "miss": 0,
+  "unknown": 0,
+  "make_rate": 1.0,
+  "by_ball_type": {
+   "pollen": {
+    "made": 2,
+    "bounce_out": 0,
+    "miss": 0,
+    "unknown": 0,
+    "shots": 2
+   }
+  },
+  "failure_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "bounce_out_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "tips": 0,
+  "mean_exit_speed_ips": 230.26229033847892,
+  "mean_launch_angle_deg": 77.38411002780282
+ },
+ "shots": [
+  {
+   "shot_id": 1,
+   "t_launch": 0.008333333333333333,
+   "burst_id": 1,
+   "burst_index": 1,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 234.92153195482257,
+   "exit_speed_mps": 5.967006911652493,
+   "launch_angle_deg": 80.07691293972721,
+   "launch_azimuth_deg": -98.00518297927843,
+   "apex_z_in": 83.38210467296426,
+   "equation": "z = -0.1184 s^2 + 5.72 s + 14.4 (in)",
+   "clip_url": "/clips/1_cam0.mp4",
+   "dropped_during_flight": 0,
+   "t_launch_wall": "2026-10-10T22:17:41.445-06:00"
+  },
+  {
+   "shot_id": 2,
+   "t_launch": 0.3,
+   "burst_id": 1,
+   "burst_index": 2,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 225.6030487221353,
+   "exit_speed_mps": 5.7303174375422365,
+   "launch_angle_deg": 74.69130711587843,
+   "launch_azimuth_deg": -78.38764152941067,
+   "apex_z_in": 73.35231067111026,
+   "equation": "z = -0.0542 s^2 + 3.65 s + 11.7 (in)",
+   "clip_url": null,
+   "dropped_during_flight": 0,
+   "t_launch_wall": "2026-10-10T22:17:41.736-06:00"
+  }
+ ],
+ "final_status": {
+  "warnings": [],
+  "cameras": {
+   "cam0": {
+    "fps": 0.0,
+    "latency_estimate_s": 0.002704383353314673,
+    "finished": true,
+    "dropped": 0,
+    "frames_read": 782,
+    "is_alive": false,
+    "last_error": null,
+    "reconnects": 0,
+    "props": {
+     "width": 1280,
+     "height": 720,
+     "fps": 240.0,
+     "fps_reported": 240.0,
+     "backend": "ffmpeg"
+    },
+    "ended": true
+   },
+   "cam1": {
+    "fps": 0.0,
+    "latency_estimate_s": 0.0019288833563526472,
+    "finished": true,
+    "dropped": 0,
+    "frames_read": 782,
+    "is_alive": false,
+    "last_error": null,
+    "reconnects": 0,
+    "props": {
+     "width": 1280,
+     "height": 720,
+     "fps": 240.0,
+     "fps_reported": 240.0,
+     "backend": "ffmpeg"
+    },
+    "ended": true
+   }
+  },
+  "timing": {
+   "detect_ms": 5.735,
+   "track_ms": 0.724,
+   "preview_ms": 1327.544,
+   "ring_ms": 0.794,
+   "recon_ms": 199.973,
+   "offset_s": 0.0,
+   "offset_confidence": 0.903
+  },
+  "detector_fps": 0.0
+ },
+ "csv_rows": 2,
+ "stress_log": {
+  "mjpg_bytes": [
+   786432,
+   851968
+  ],
+  "mjpg_err": [],
+  "stats_calls": 75,
+  "stats_err": [],
+  "stats_max_ms": 3209.210000000894,
+  "status_samples": 14,
+  "max_dropped": {
+   "cam0": 0,
+   "cam1": 0
+  },
+  "warnings_seen": [],
+  "reader_errors": [],
+  "det_fps": [
+   378.9,
+   254.0,
+   76.2,
+   110.5,
+   118.7,
+   132.1,
+   129.8,
+   183.1,
+   218.2,
+   322.1,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "cpu_pct": [
+  66.3,
+  57.0,
+  43.8,
+  50.8,
+  82.0,
+  68.5,
+  54.1,
+  51.0,
+  33.9,
+  41.1,
+  53.8,
+  71.9,
+  78.2,
+  84.1,
+  81.8,
+  70.3,
+  69.3,
+  59.7,
+  52.5,
+  57.4,
+  42.0,
+  32.5,
+  35.7,
+  48.5,
+  59.4
+ ],
+ "server_exit": 1,
+ "cmp": {
+  "n_truth": 8,
+  "n_recorded": 2,
+  "n_matched": 2,
+  "extra": 0,
+  "truth_made": 6,
+  "app_made": 2,
+  "truth_rate": 0.75,
+  "app_rate": 1.0,
+  "makemiss_agree": 2,
+  "makemiss_agree_pct": 25.0,
+  "exp_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 1,
+   "4": 0,
+   "5": 1
+  },
+  "app_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "hist_exact": false,
+  "speed_n": 2,
+  "speed_max_abs_pct": 1.3326765276482577,
+  "speed_n_over_5": 0,
+  "speed_n_over_10": 0,
+  "speed_none": 0,
+  "no_equation": 0,
+  "angle_max_abs_err_deg": 0.15800778245041158,
+  "unmatched_truth": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "results": {
+   "made": 2,
+   "bounce_out": 0,
+   "miss": 0,
+   "unknown": 0
+  },
+  "burst_mismatch": [],
+  "by_ball_type": {
+   "pollen": {
+    "made": 2,
+    "bounce_out": 0,
+    "miss": 0,
+    "unknown": 0,
+    "shots": 2
+   }
+  },
+  "ball_type_wrong": [],
+  "dt_max_abs": 0.008333333333333333
+ },
+ "rows": [
+  {
+   "truth": 0,
+   "t_launch": 0.0,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.008333333333333333,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 238.09456230020425,
+   "speed": 234.92153195482257,
+   "speed_err_pct": -1.3326765276482577,
+   "angle_truth": 80.23492072217762,
+   "angle": 80.07691293972721,
+   "angle_err": -0.15800778245041158,
+   "equation": true,
+   "burst": [
+    1,
+    1
+   ],
+   "burst_truth": [
+    1,
+    1
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 1,
+   "t_launch": 0.3,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.0,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 225.59826855446647,
+   "speed": 225.6030487221353,
+   "speed_err_pct": 0.002118884909640961,
+   "angle_truth": 74.65941342242421,
+   "angle": 74.69130711587843,
+   "angle_err": 0.031893693454222216,
+   "equation": true,
+   "burst": [
+    1,
+    2
+   ],
+   "burst_truth": [
+    1,
+    2
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 2,
+   "t_launch": 0.6,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 3,
+   "t_launch": 0.8999999999999999,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 4,
+   "t_launch": 1.2,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 5,
+   "t_launch": 1.5,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 6,
+   "t_launch": 1.8,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 7,
+   "t_launch": 2.1,
+   "made_truth": true,
+   "matched": false
+  }
+ ]
+}

@@ -62,26 +62,26 @@
 <text x="738.5" y="765.0" font-size="22" font-weight="bold" text-anchor="middle">100</text>
 <rect x="843.1" y="773.0" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
 <text x="861.5" y="765.0" font-size="22" font-weight="bold" text-anchor="middle">101</text>
-<rect x="647.8" y="672.5" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
-<text x="666.3" y="664.5" font-size="22" font-weight="bold" text-anchor="middle">102</text>
-<rect x="915.3" y="672.5" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
-<text x="933.7" y="664.5" font-size="22" font-weight="bold" text-anchor="middle">103</text>
-<polygon points="498.5,273.8 561.5,886.0 1113.5,253.6" fill="#145ac8" fill-opacity="0.12" stroke="#145ac8" stroke-width="3" stroke-dasharray="10 6"/>
-<line x1="498.5" y1="273.8" x2="861.5" y2="590.8" stroke="#145ac8" stroke-width="4"/>
-<circle cx="861.5" cy="590.8" r="8" fill="#145ac8"/>
+<rect x="647.8" y="673.5" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
+<text x="666.3" y="665.5" font-size="22" font-weight="bold" text-anchor="middle">102</text>
+<rect x="915.3" y="673.5" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
+<text x="933.7" y="665.5" font-size="22" font-weight="bold" text-anchor="middle">103</text>
+<polygon points="498.5,273.8 533.7,888.2 1113.8,281.5" fill="#145ac8" fill-opacity="0.12" stroke="#145ac8" stroke-width="3" stroke-dasharray="10 6"/>
+<line x1="498.5" y1="273.8" x2="849.2" y2="609.2" stroke="#145ac8" stroke-width="4"/>
+<circle cx="849.2" cy="609.2" r="8" fill="#145ac8"/>
 <circle cx="498.5" cy="273.8" r="18" fill="#145ac8"/>
 <text x="470.5" y="281.8" font-size="28" font-weight="bold" fill="#145ac8" text-anchor="end">CAM A</text>
 <text x="30" y="1300" font-size="24" fill="#145ac8" font-weight="bold">CAM A - primary: x=-49 y=+86 in from center, lens height 36 in</text>
 <text x="30" y="1330" font-size="21" fill="#145ac8" font-weight="normal">13.5 in out from the +Y wall's INSIDE face (12.0 from the outside face), 23 in along the wall from corner (-72,+72)</text>
-<text x="30" y="1360" font-size="21" fill="#145ac8" font-weight="normal">aim yaw 319 deg (from +X toward +Y), pitch +0 deg; aim point (+10,+34,36); HIVE tags 60 deg off normal (NOT readable, limit 55)</text>
-<polygon points="1243.1,273.8 631.9,201.8 1128.5,878.5" fill="#1e8c1e" fill-opacity="0.12" stroke="#1e8c1e" stroke-width="3" stroke-dasharray="10 6"/>
-<line x1="1243.1" y1="273.8" x2="861.5" y2="553.8" stroke="#1e8c1e" stroke-width="4"/>
-<circle cx="861.5" cy="553.8" r="8" fill="#1e8c1e"/>
+<text x="30" y="1360" font-size="21" fill="#145ac8" font-weight="normal">aim yaw 316 deg (from +X toward +Y), pitch +1 deg; aim point (+8,+31,37); HIVE tags 60 deg off normal (NOT readable, limit 55)</text>
+<polygon points="1243.1,273.8 633.3,190.7 1117.6,876.3" fill="#1e8c1e" fill-opacity="0.12" stroke="#1e8c1e" stroke-width="3" stroke-dasharray="10 6"/>
+<line x1="1243.1" y1="273.8" x2="855.4" y2="547.7" stroke="#1e8c1e" stroke-width="4"/>
+<circle cx="855.4" cy="547.7" r="8" fill="#1e8c1e"/>
 <circle cx="1243.1" cy="273.8" r="18" fill="#1e8c1e"/>
 <text x="1271.1" y="281.8" font-size="28" font-weight="bold" fill="#1e8c1e" text-anchor="start">CAM B (tag reader)</text>
 <text x="30" y="1395" font-size="24" fill="#1e8c1e" font-weight="bold">CAM B - primary, TAG READER: x=+72 y=+86 in from center, lens height 20 in</text>
 <text x="30" y="1425" font-size="21" fill="#1e8c1e" font-weight="normal">13.5 in out from the +Y wall's INSIDE face (12.0 from the outside face), 0 in along the wall from corner (+72,+72)</text>
-<text x="30" y="1455" font-size="21" fill="#1e8c1e" font-weight="normal">aim yaw 216 deg (from +X toward +Y), pitch +12 deg; aim point (+10,+40,36); HIVE tags 51 deg off normal (readable, limit 55)</text>
+<text x="30" y="1455" font-size="21" fill="#1e8c1e" font-weight="normal">aim yaw 215 deg (from +X toward +Y), pitch +11 deg; aim point (+9,+41,35); HIVE tags 51 deg off normal (readable, limit 55)</text>
 <polygon points="880.0,273.8 457.1,720.9 1296.5,726.9" fill="#962896" fill-opacity="0.12" stroke="#962896" stroke-width="3" stroke-dasharray="10 6"/>
 <line x1="880.0" y1="273.8" x2="878.5" y2="492.3" stroke="#962896" stroke-width="4"/>
 <circle cx="878.5" cy="492.3" r="8" fill="#962896"/>

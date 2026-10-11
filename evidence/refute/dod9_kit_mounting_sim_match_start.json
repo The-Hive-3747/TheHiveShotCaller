@@ -1,0 +1,86 @@
+{
+ "usb": {
+  "0.0in_0.0deg": {
+   "runs": 30,
+   "solved": 30,
+   "pos_in_median": 0.9174694665737844,
+   "pos_in_max": 1.6775710045593315,
+   "rot_deg_median": 0.581729263467673,
+   "rot_deg_max": 1.0816570194051407,
+   "reproj_px_median": 0.6485662226347693,
+   "reproj_px_max": 0.7733656222023155,
+   "reproj_under_2px": 30,
+   "cell_err_in_median": 0.679960733917609,
+   "cell_err_in_max": 0.6887107070778229,
+   "tags_used_min": 2,
+   "both_gates_pass": 30
+  },
+  "0.25in_0.5deg": {
+   "runs": 30,
+   "solved": 21,
+   "pos_in_median": 1.1819316650185585,
+   "pos_in_max": 2.9204156804635013,
+   "rot_deg_median": 0.627854051798739,
+   "rot_deg_max": 1.9374506837843752,
+   "reproj_px_median": 0.6615859146792078,
+   "reproj_px_max": 0.950803816400851,
+   "reproj_under_2px": 21,
+   "cell_err_in_median": 0.3754768147305613,
+   "cell_err_in_max": 1.085058619894572,
+   "tags_used_min": 2,
+   "both_gates_pass": 20
+  },
+  "0.5in_1.0deg": {
+   "runs": 30,
+   "solved": 16,
+   "pos_in_median": 2.2438116932445853,
+   "pos_in_max": 5.322903464672519,
+   "rot_deg_median": 1.3290218639063784,
+   "rot_deg_max": 3.483150331434517,
+   "reproj_px_median": 0.9213985854400597,
+   "reproj_px_max": 1.2311891211746255,
+   "reproj_under_2px": 16,
+   "cell_err_in_median": 0.6874651540821325,
+   "cell_err_in_max": 1.324123453974757,
+   "tags_used_min": 2,
+   "both_gates_pass": 12
+  },
+  "1.0in_2.0deg": {
+   "runs": 30,
+   "solved": 17,
+   "pos_in_median": 4.694459907316427,
+   "pos_in_max": 11.145253928526905,
+   "rot_deg_median": 2.736030439062551,
+   "rot_deg_max": 5.685430905977589,
+   "reproj_px_median": 1.4110834321131551,
+   "reproj_px_max": 2.3691097590393624,
+   "reproj_under_2px": 13,
+   "cell_err_in_median": 1.6168105994747464,
+   "cell_err_in_max": 2.29761271568509,
+   "tags_used_min": 2,
+   "both_gates_pass": 1
+  }
+ },
+ "gopro": {
+  "0.0in_0.0deg": {
+   "runs": 30,
+   "solved": 0,
+   "both_gates_pass": 0
+  },
+  "0.25in_0.5deg": {
+   "runs": 30,
+   "solved": 0,
+   "both_gates_pass": 0
+  },
+  "0.5in_1.0deg": {
+   "runs": 30,
+   "solved": 0,
+   "both_gates_pass": 0
+  },
+  "1.0in_2.0deg": {
+   "runs": 30,
+   "solved": 0,
+   "both_gates_pass": 0
+  }
+ }
+}

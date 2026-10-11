@@ -130,7 +130,7 @@ def test_checkerboard_pdf_and_png(tmp_path):
 def test_field_point_sheet(tmp_path):
     p = calib_targets.write_field_point_sheet(tmp_path / "pts.md")
     text = p.read_text(encoding="utf-8")
-    assert "Blue HIVE far-CELL opening" in text and text.count("\n| ") >= 8
+    assert "Blue HIVE up-CELL opening" in text and "BOTH HIVE" in text and text.count("\n| ") >= 8
 
 
 def test_real_corner_detection_on_warped_board(tmp_path):
@@ -150,14 +150,14 @@ def test_real_corner_detection_on_warped_board(tmp_path):
 # ---------------------------------------------------------------- reference points (DoD 9)
 def test_cell_reference_points_equal_field_polygon():
     """The 8 click points are the corners of two physically real CELL openings, read from
-    hiveshot.field (single source of truth): the red audience CELL and the blue far CELL, both
-    up in the match-start state."""
+    hiveshot.field (single source of truth): the red and blue audience CELLs, both up in the
+    calibration state (field.CALIBRATION_STATE)."""
     from hiveshot import field
 
     pts = dict(calib_targets.field_reference_points())
     assert len(pts) == 8
     for prefix, (alliance, which) in (("Red HIVE up-CELL opening, ", ("red", "audience")),
-                                      ("Blue HIVE far-CELL opening, ", ("blue", "far"))):
+                                      ("Blue HIVE up-CELL opening, ", ("blue", "audience"))):
         st = field.HiveState(alliance, which)
         poly = field.cell_opening_polygon(alliance, which, st)
         cell = {n: p for n, p in pts.items() if n.startswith(prefix)}
@@ -175,9 +175,9 @@ def test_cell_reference_points_equal_field_polygon():
         # named corners: left = -X, high = larger z
         assert cell[prefix + "high-left corner"][0] < cell[prefix + "high-right corner"][0]
         assert cell[prefix + "high-left corner"][2] > cell[prefix + "low-left corner"][2]
-    # red opening on the +X / audience side, blue far opening on the -X / far side
+    # red opening on the +X side, blue on the -X side, both audience (+Y) CELLs
     assert all(p[0] > 0 and p[1] > 0 for n, p in pts.items() if n.startswith("Red"))
-    assert all(p[0] < 0 and p[1] < 0 for n, p in pts.items() if n.startswith("Blue"))
+    assert all(p[0] < 0 and p[1] > 0 for n, p in pts.items() if n.startswith("Blue"))
     # the old, non-existent frame "top corners" are gone
     assert not hasattr(calib_targets, "frame_top_corners")
     assert all("frame" not in n.lower() for n in pts)

@@ -85,6 +85,7 @@ def test_missing_file_raises(tmp_path):
         VideoSource(spec(tmp_path / "nope.mp4"))
 
 
+@pytest.mark.timing
 def test_slow_consumer_drops_oldest(vid):
     ct = CaptureThread(spec(vid), maxsize=4).start()
     deadline = time.time() + 5
@@ -105,6 +106,7 @@ def test_slow_consumer_drops_oldest(vid):
     assert not ct.stats()["is_alive"]
 
 
+@pytest.mark.timing
 def test_multicapture(tmp_path):
     a = make_video(tmp_path / "a.mp4")
     b = make_video(tmp_path / "b.mp4")
@@ -197,6 +199,7 @@ def test_rtmp_config_written(tmp_path):
         assert f"{proto}: no" in text
 
 
+@pytest.mark.timing
 def test_list_devices_returns_list():
     t0 = time.time()
     res = list_devices()
@@ -245,6 +248,7 @@ def test_live_rtmp_server_start_stop(tmp_path):
     assert not srv.is_running()
 
 
+@pytest.mark.timing
 def test_realtime_pacing(vid):
     sp = SourceSpec("rt", SourceKind.FILE, str(vid), realtime=True)
     ct = CaptureThread(sp, maxsize=64)
@@ -328,6 +332,7 @@ class _StubCap:
         return True, np.zeros((48, 64, 3), np.uint8)
 
 
+@pytest.mark.timing
 @pytest.mark.parametrize("bad", [1000.0, 0.0, -5.0, float("nan")])
 def test_props_fps_sanity_fallback(monkeypatch, bad):
     # F11b: insane reported fps -> hint/30 first, measured later; raw exposed.
@@ -388,6 +393,7 @@ def test_device_t_source_none_when_zero(monkeypatch):
     s.close()
 
 
+@pytest.mark.timing
 def test_latency_estimate_stats(monkeypatch):
     # F11a: diagnostic-only; buffered bursts (late arrivals vs nominal fps).
     class Cap(_StubCap):
@@ -411,6 +417,7 @@ def test_latency_estimate_stats(monkeypatch):
     assert st["props"]["fps"] == 100.0
 
 
+@pytest.mark.timing
 def test_list_devices_cold_first_index_and_cache(monkeypatch):
     # Index 0 is slow (cold MSMF init, 1.5 s) -> must not be dropped by the
     # 1 s default; second call is served from the 30 s cache.

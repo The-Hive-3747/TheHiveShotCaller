@@ -1,0 +1,2400 @@
+{
+ "mode": {
+  "real": false,
+  "trap": false
+ },
+ "tags_drawn": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "render_scene_s": 47.5,
+ "3_lens": {
+  "cam0": {
+   "stop": 200,
+   "stop_s": 2.86,
+   "out": {
+    "reprojection_rmse_px": 0.1897484710277373,
+    "frames_used": 40,
+    "intrinsics_source": "measured"
+   },
+   "warnings": [
+    "no calibration loaded: 3D reconstruction disabled",
+    "camera cam1 uses default lens intrinsics (fx 771): run the Lens step"
+   ],
+   "fx": {
+    "cam0": 880.0,
+    "cam1": 771.0
+   },
+   "isrc": {
+    "cam0": {
+     "cs": "none",
+     "isrc": "measured",
+     "frames": 787
+    },
+    "cam1": {
+     "cs": "default_intrinsics",
+     "isrc": "default",
+     "frames": 787
+    }
+   }
+  },
+  "cam1": {
+   "stop": 200,
+   "stop_s": 2.01,
+   "out": {
+    "reprojection_rmse_px": 0.16799267609576637,
+    "frames_used": 40,
+    "intrinsics_source": "measured"
+   },
+   "warnings": [
+    "no calibration loaded: 3D reconstruction disabled"
+   ],
+   "fx": {
+    "cam0": 880.0,
+    "cam1": 882.1
+   },
+   "isrc": {
+    "cam0": {
+     "cs": "none",
+     "isrc": "measured",
+     "frames": 762
+    },
+    "cam1": {
+     "cs": "none",
+     "isrc": "measured",
+     "frames": 762
+    }
+   }
+  }
+ },
+ "3_lens_total_wall_s": 51.9,
+ "3_after_lens_status": {
+  "running": true,
+  "calibration_loaded": false,
+  "calibration_source": "none",
+  "intrinsics_default": false,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "none",
+    "isrc": "measured",
+    "frames": 71
+   },
+   "cam1": {
+    "cs": "none",
+    "isrc": "measured",
+    "frames": 71
+   }
+  }
+ },
+ "4_kit_auto_all": {
+  "code": 200,
+  "s": 0.4,
+  "ok": true,
+  "max_error_in": 0.2248969961795834,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.045084784975094355,
+    "rmse_in": 0.045084784975094355,
+    "oos_error_in": 0.21376763477236985,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "tags_missing": [],
+    "reprojection_px": 0.46215557030150867,
+    "intrinsics_default": false,
+    "frame_size": null,
+    "intrinsics_size": null,
+    "warnings": []
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.08260027235114734,
+    "rmse_in": 0.08260027235114734,
+    "oos_error_in": 0.2264815648567817,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "tags_missing": [],
+    "reprojection_px": 0.7255407856969281,
+    "intrinsics_default": false,
+    "frame_size": null,
+    "intrinsics_size": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.2248969961795834,
+   "within_1_in": true,
+   "out_of_sample": true,
+   "held_out": "HIVE tags",
+   "warning": null,
+   "error": null
+  },
+  "calibration_source": null
+ },
+ "4_kit_status": {
+  "running": true,
+  "calibration_loaded": true,
+  "calibration_source": "kit",
+  "intrinsics_default": false,
+  "warnings": [],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "kit",
+    "isrc": "measured",
+    "frames": 83
+   },
+   "cam1": {
+    "cs": "kit",
+    "isrc": "measured",
+    "frames": 83
+   }
+  }
+ },
+ "4_kit_accuracy": {
+  "pos_err_in": {
+   "cam0": 0.22,
+   "cam1": 0.41
+  },
+  "rot_err_deg": {
+   "cam0": 0.1,
+   "cam1": 0.03
+  },
+  "fx": {
+   "cam0": [
+    880.0,
+    879.7
+   ],
+   "cam1": [
+    882.1,
+    879.7
+   ]
+  },
+  "traj_mean": 0.09,
+  "traj_p95": 0.13,
+  "traj_max": 0.19,
+  "cell_center_err": 0.04
+ },
+ "4_kit_crosscheck": {
+  "code": 200,
+  "s": 0.07,
+  "max_error_in": 0.2235135400434161,
+  "out_of_sample": true,
+  "held_out": "HIVE tags",
+  "warning": null,
+  "detail": null,
+  "n_points": 20
+ },
+ "4_finish": {
+  "code": 200,
+  "s": 0.07,
+  "body": {
+   "ok": true,
+   "calibration_source": "kit",
+   "intrinsics_default_cameras": [],
+   "max_error_in": 0.22406003572292632,
+   "out_of_sample": true
+  }
+ },
+ "5_learn": {
+  "far_first": {
+   "code": 200,
+   "s": 0.16,
+   "body": {
+    "learned": false,
+    "complete": false,
+    "learned_ids": [],
+    "missing_ids": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37
+    ],
+    "max_residual_in": null,
+    "up_cell_error_in": null,
+    "visible_per_camera": {
+     "cam0": [],
+     "cam1": []
+    },
+    "reason": "no HIVE tag of the far-up state is visible from these cameras (the far CELL's tags face away from the audience side); nothing to learn for this state",
+    "detail": null
+   }
+  },
+  "audience": {
+   "code": 200,
+   "s": 0.25,
+   "body": {
+    "learned": true,
+    "complete": true,
+    "learned_ids": [
+     30,
+     31,
+     34,
+     35,
+     36,
+     37
+    ],
+    "missing_ids": [
+     32,
+     33
+    ],
+    "max_residual_in": 0.13567221486792516,
+    "up_cell_error_in": 0.1016127791347713,
+    "visible_per_camera": {
+     "cam0": [
+      30,
+      31,
+      34,
+      35,
+      36,
+      37
+     ],
+     "cam1": [
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+     ]
+    },
+    "reason": null,
+    "detail": null
+   }
+  },
+  "far_after_audience": {
+   "code": 200,
+   "s": 0.08,
+   "body": {
+    "learned": false,
+    "complete": true,
+    "learned_ids": [],
+    "missing_ids": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37
+    ],
+    "max_residual_in": null,
+    "up_cell_error_in": null,
+    "visible_per_camera": {
+     "cam0": [],
+     "cam1": []
+    },
+    "reason": "no HIVE tag of the far-up state is visible from these cameras (the far CELL's tags face away from the audience side); nothing to learn for this state",
+    "detail": null
+   }
+  }
+ },
+ "5_finish_after_learn": {
+  "code": 200,
+  "body": {
+   "ok": true,
+   "calibration_source": "kit",
+   "intrinsics_default_cameras": [],
+   "max_error_in": 0.22093392582204374,
+   "out_of_sample": true
+  }
+ },
+ "6_gates": {
+  "g1_720p_cam1": {
+   "code": 200,
+   "s": 0.39,
+   "status": {
+    "running": true,
+    "calibration_loaded": true,
+    "calibration_source": "kit",
+    "intrinsics_default": false,
+    "warnings": [
+     "camera cam1 resolution mismatch (1920x1080 vs 1280x720)"
+    ],
+    "mismatch": {
+     "cam1": "1920x1080 vs 1280x720"
+    },
+    "cams": {
+     "cam0": {
+      "cs": "kit",
+      "isrc": "measured",
+      "frames": 102
+     },
+     "cam1": {
+      "cs": "kit",
+      "isrc": "measured",
+      "frames": 102
+     }
+    }
+   },
+   "res": {
+    "ok": false,
+    "max_error_in": null,
+    "per_cam": {
+     "cam0": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 35.5 in (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 0.12175733529684646,
+      "crosscheck_error_in": 35.539871699157636,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 0.45520811240127435,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     },
+     "cam1": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam1 not saved: reprojection error 6.4 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); the camera delivers 1280x720 but its intrinsics are for 1920x1080: redo the intrinsics or fix the camera resolution; a tag that was not used for the solve is 3.0 in off (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 2.9768176619674285,
+      "crosscheck_error_in": null,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 6.422460963479511,
+      "intrinsics_default": null,
+      "frame_size": [
+       1280,
+       720
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     }
+    },
+    "calibration_source": null
+   },
+   "cam0_changed": false,
+   "cam1_changed": false,
+   "finish": {
+    "code": 409,
+    "body": {
+     "ok": null,
+     "detail": "setup is not finished: the cross-check error is 35.63 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+     "max_error_in": 35.62971586301029,
+     "out_of_sample": true
+    }
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.23,
+      "cam1": 0.41
+     },
+     "rot_err_deg": {
+      "cam0": 0.12,
+      "cam1": 0.03
+     },
+     "fx": {
+      "cam0": [
+       880.0,
+       879.7
+      ],
+      "cam1": [
+       882.1,
+       879.7
+      ]
+     },
+     "traj_mean": 0.09,
+     "traj_p95": 0.14,
+     "traj_max": 0.2,
+     "cell_center_err": 0.04
+    }
+   }
+  },
+  "g2a_one_tag_2in_x": {
+   "code": 200,
+   "s": 0.12,
+   "res": {
+    "ok": false,
+    "max_error_in": null,
+    "per_cam": {
+     "cam0": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam0 not saved: reprojection error 5.4 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 1.5827481836402189,
+      "crosscheck_error_in": null,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 5.393509783377765,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     },
+     "cam1": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam1 not saved: reprojection error 4.9 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 1.32288760615165,
+      "crosscheck_error_in": null,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 4.886395386060916,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     }
+    },
+    "calibration_source": null
+   },
+   "cam0_changed": false,
+   "cam1_changed": false,
+   "acc_after": {
+    "pos_err_in": {
+     "cam0": 0.23,
+     "cam1": 0.41
+    },
+    "rot_err_deg": {
+     "cam0": 0.12,
+     "cam1": 0.03
+    },
+    "fx": {
+     "cam0": [
+      880.0,
+      879.7
+     ],
+     "cam1": [
+      882.1,
+      879.7
+     ]
+    },
+    "traj_mean": 0.09,
+    "traj_p95": 0.14,
+    "traj_max": 0.2,
+    "cell_center_err": 0.04
+   },
+   "finish": {
+    "code": 200,
+    "body": {
+     "ok": true,
+     "detail": null,
+     "max_error_in": 0.22688175678419004,
+     "out_of_sample": true,
+     "calibration_source": "kit"
+    }
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.22,
+      "cam1": 0.42
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.03
+     },
+     "fx": {
+      "cam0": [
+       880.0,
+       879.7
+      ],
+      "cam1": [
+       882.1,
+       879.7
+      ]
+     },
+     "traj_mean": 0.09,
+     "traj_p95": 0.14,
+     "traj_max": 0.2,
+     "cell_center_err": 0.05
+    }
+   }
+  },
+  "g2b_all_four_2in_mixed": {
+   "code": 200,
+   "s": 0.18,
+   "res": {
+    "ok": false,
+    "max_error_in": null,
+    "per_cam": {
+     "cam0": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam0 not saved: reprojection error 12.9 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); a tag that was not used for the solve is 2.9 in off (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 2.9163472348423953,
+      "crosscheck_error_in": null,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 12.931322322231301,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     },
+     "cam1": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam1 not saved: reprojection error 14.1 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); a tag that was not used for the solve is 3.0 in off (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 3.0229994380199776,
+      "crosscheck_error_in": null,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 14.084388527620098,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     }
+    },
+    "calibration_source": null
+   },
+   "cam0_changed": false,
+   "cam1_changed": false,
+   "acc_after": {
+    "pos_err_in": {
+     "cam0": 0.22,
+     "cam1": 0.42
+    },
+    "rot_err_deg": {
+     "cam0": 0.1,
+     "cam1": 0.03
+    },
+    "fx": {
+     "cam0": [
+      880.0,
+      879.7
+     ],
+     "cam1": [
+      882.1,
+      879.7
+     ]
+    },
+    "traj_mean": 0.09,
+    "traj_p95": 0.14,
+    "traj_max": 0.2,
+    "cell_center_err": 0.05
+   },
+   "finish": {
+    "code": 200,
+    "body": {
+     "ok": true,
+     "detail": null,
+     "max_error_in": 0.22566911632709327,
+     "out_of_sample": true,
+     "calibration_source": "kit"
+    }
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.22,
+      "cam1": 0.42
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.03
+     },
+     "fx": {
+      "cam0": [
+       880.0,
+       879.7
+      ],
+      "cam1": [
+       882.1,
+       879.7
+      ]
+     },
+     "traj_mean": 0.09,
+     "traj_p95": 0.14,
+     "traj_max": 0.2,
+     "cell_center_err": 0.05
+    }
+   }
+  },
+  "g2c_all_four_1in_low": {
+   "code": 200,
+   "s": 0.97,
+   "res": {
+    "ok": true,
+    "max_error_in": 1.1220367461249134,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.04584573420424581,
+      "rmse_in": 0.04584573420424581,
+      "oos_error_in": 1.122870884721893,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       103
+      ],
+      "tags_missing": [
+       102
+      ],
+      "reprojection_px": 0.4330292936921763,
+      "intrinsics_default": false,
+      "frame_size": null,
+      "intrinsics_size": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.11047139859478163,
+      "rmse_in": 0.11047139859478163,
+      "oos_error_in": 1.1192488781709282,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "tags_missing": [],
+      "reprojection_px": 0.9741941109778207,
+      "intrinsics_default": false,
+      "frame_size": null,
+      "intrinsics_size": null,
+      "warnings": []
+     }
+    },
+    "crosscheck": {
+     "max_error_in": 1.1220367461249134,
+     "within_1_in": false,
+     "out_of_sample": true,
+     "held_out": "HIVE tags",
+     "warning": null,
+     "error": null
+    },
+    "calibration_source": null
+   },
+   "cam0_changed": true,
+   "cam1_changed": true,
+   "acc_after": {
+    "pos_err_in": {
+     "cam0": 0.72,
+     "cam1": 0.84
+    },
+    "rot_err_deg": {
+     "cam0": 0.22,
+     "cam1": 0.19
+    },
+    "fx": {
+     "cam0": [
+      880.0,
+      879.7
+     ],
+     "cam1": [
+      882.1,
+      879.7
+     ]
+    },
+    "traj_mean": 0.93,
+    "traj_p95": 1.0,
+    "traj_max": 1.05,
+    "cell_center_err": 0.97
+   },
+   "finish": {
+    "code": 409,
+    "body": {
+     "ok": null,
+     "detail": "setup is not finished: the cross-check error is 1.11 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+     "max_error_in": 1.110654011047145,
+     "out_of_sample": true,
+     "calibration_source": "kit"
+    }
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.24,
+      "cam1": 0.39
+     },
+     "rot_err_deg": {
+      "cam0": 0.12,
+      "cam1": 0.03
+     },
+     "fx": {
+      "cam0": [
+       880.0,
+       879.7
+      ],
+      "cam1": [
+       882.1,
+       879.7
+      ]
+     },
+     "traj_mean": 0.08,
+     "traj_p95": 0.12,
+     "traj_max": 0.18,
+     "cell_center_err": 0.04
+    }
+   }
+  },
+  "g2d_one_base_1in_low": {
+   "code": 200,
+   "s": 0.35,
+   "res": {
+    "ok": true,
+    "max_error_in": 0.4882982733925347,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.05019869105178716,
+      "rmse_in": 0.05019869105178716,
+      "oos_error_in": 0.17721311903126166,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       103
+      ],
+      "tags_missing": [
+       102
+      ],
+      "reprojection_px": 0.4743508167152391,
+      "intrinsics_default": false,
+      "frame_size": null,
+      "intrinsics_size": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.22484551488716362,
+      "rmse_in": 0.22484551488716362,
+      "oos_error_in": 0.6844302075675048,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "tags_missing": [],
+      "reprojection_px": 2.004395737401022,
+      "intrinsics_default": false,
+      "frame_size": null,
+      "intrinsics_size": null,
+      "warnings": []
+     }
+    },
+    "crosscheck": {
+     "max_error_in": 0.4882982733925347,
+     "within_1_in": true,
+     "out_of_sample": true,
+     "held_out": "HIVE tags",
+     "warning": null,
+     "error": null
+    },
+    "calibration_source": null
+   },
+   "cam0_changed": true,
+   "cam1_changed": true,
+   "acc_after": {
+    "pos_err_in": {
+     "cam0": 0.19,
+     "cam1": 2.77
+    },
+    "rot_err_deg": {
+     "cam0": 0.13,
+     "cam1": 1.63
+    },
+    "fx": {
+     "cam0": [
+      880.0,
+      879.7
+     ],
+     "cam1": [
+      882.1,
+      879.7
+     ]
+    },
+    "traj_mean": 0.76,
+    "traj_p95": 1.23,
+    "traj_max": 2.08,
+    "cell_center_err": 0.49
+   },
+   "finish": {
+    "code": 200,
+    "body": {
+     "ok": true,
+     "detail": null,
+     "max_error_in": 0.48951964768202594,
+     "out_of_sample": true,
+     "calibration_source": "kit"
+    }
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.22,
+      "cam1": 0.41
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.03
+     },
+     "fx": {
+      "cam0": [
+       880.0,
+       879.7
+      ],
+      "cam1": [
+       882.1,
+       879.7
+      ]
+     },
+     "traj_mean": 0.09,
+     "traj_p95": 0.13,
+     "traj_max": 0.19,
+     "cell_center_err": 0.04
+    }
+   }
+  }
+ },
+ "7_swap_after_cal": {
+  "status": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "frames": 71
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "frames": 71
+    }
+   }
+  },
+  "crosscheck": {
+   "code": 200,
+   "max_error_in": 77.56540614027537,
+   "out_of_sample": true,
+   "detail": null,
+   "warning": null
+  },
+  "finish": {
+   "code": 409,
+   "body": {
+    "ok": null,
+    "detail": "setup is not finished: the cross-check error is 76.95 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+    "max_error_in": 76.94993374045671,
+    "out_of_sample": true
+   }
+  },
+  "auto_all_swapped": {
+   "code": 200,
+   "res": {
+    "ok": false,
+    "max_error_in": null,
+    "per_cam": {
+     "cam0": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 118.5 in (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 0.22908824919077184,
+      "crosscheck_error_in": 118.53450832148091,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 0.7234597282377013,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     },
+     "cam1": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 115.8 in (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 0.14764755770174132,
+      "crosscheck_error_in": 115.78596396861035,
+      "tags_used": null,
+      "tags_missing": null,
+      "reprojection_px": 0.46564908082159984,
+      "intrinsics_default": null,
+      "frame_size": [
+       1920,
+       1080
+      ],
+      "intrinsics_size": [
+       1920,
+       1080
+      ],
+      "warnings": null
+     }
+    },
+    "calibration_source": null
+   }
+  },
+  "finish_after_resolve": {
+   "code": 409,
+   "body": {
+    "ok": null,
+    "detail": "setup is not finished: the cross-check error is 76.95 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+    "max_error_in": 76.95211519413597,
+    "out_of_sample": true
+   }
+  }
+ },
+ "8_both_moved": {
+  "code": 200,
+  "s": 0.62,
+  "res": {
+   "ok": false,
+   "max_error_in": null,
+   "per_cam": {
+    "cam0": {
+     "ok": false,
+     "status": 409,
+     "refused": true,
+     "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 8.4 in (limit 2 in). The previous calibration is kept.",
+     "fit_residual_in": null,
+     "rmse_in": null,
+     "oos_error_in": 0.18174272318814258,
+     "crosscheck_error_in": 8.432210916018311,
+     "tags_used": null,
+     "tags_missing": null,
+     "reprojection_px": 0.33879738830113104,
+     "intrinsics_default": null,
+     "frame_size": [
+      1920,
+      1080
+     ],
+     "intrinsics_size": [
+      1920,
+      1080
+     ],
+     "warnings": null
+    },
+    "cam1": {
+     "ok": false,
+     "status": 409,
+     "refused": true,
+     "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 3.3 in (limit 2 in). The previous calibration is kept.",
+     "fit_residual_in": null,
+     "rmse_in": null,
+     "oos_error_in": 0.20431304872171877,
+     "crosscheck_error_in": 3.3206027595970666,
+     "tags_used": null,
+     "tags_missing": null,
+     "reprojection_px": 0.9959453930195977,
+     "intrinsics_default": null,
+     "frame_size": [
+      1920,
+      1080
+     ],
+     "intrinsics_size": [
+      1920,
+      1080
+     ],
+     "warnings": null
+    }
+   },
+   "calibration_source": null
+  },
+  "cam0_changed": false,
+  "cam1_changed": false,
+  "acc_vs_moved_truth": {
+   "pos_err_in": {
+    "cam0": 6.18,
+    "cam1": 5.95
+   },
+   "rot_err_deg": {
+    "cam0": 1.34,
+    "cam1": 1.41
+   },
+   "fx": {
+    "cam0": [
+     880.0,
+     879.7
+    ],
+    "cam1": [
+     882.1,
+     879.7
+    ]
+   },
+   "traj_mean": 7.18,
+   "traj_p95": 8.32,
+   "traj_max": 9.74,
+   "cell_center_err": 8.08
+  },
+  "finish": {
+   "code": 409,
+   "body": {
+    "ok": null,
+    "detail": "setup is not finished: the cross-check error is 10.47 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+    "max_error_in": 10.469992054181319,
+    "out_of_sample": true
+   }
+  },
+  "single_cam1": {
+   "code": 409,
+   "detail": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 3.6 in (limit 2 in). The previous calibration is kept.",
+   "refused": true,
+   "crosscheck_error_in": 3.604680933590694,
+   "oos": 0.2182027391909716
+  },
+  "single_cam0": {
+   "code": 409,
+   "detail": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 8.4 in (limit 2 in). The previous calibration is kept.",
+   "refused": true,
+   "crosscheck_error_in": 8.414399455547986,
+   "oos": 0.18387420351393494
+  }
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.0
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   1.18
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.02
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   2.86
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/start",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/stop",
+   200,
+   2.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.4
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.07
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.16
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.09
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.25
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.57
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.05
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.11
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.07
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   1.77
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   1.11
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.28
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.15
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.39
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   1.73
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.17
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.37
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   4.55
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.11
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.12
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.48
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   5.45
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   1.1
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.36
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.18
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.07
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.47
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.23
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.82
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.97
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.19
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.41
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.85
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   2.34
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.07
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.35
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.34
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.06
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.06
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.24
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   1.24
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   1.72
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.62
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.62
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.12
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.13
+  ],
+  [
+   "POST",
+   "/api/calib/extrinsics/cam1/auto",
+   409,
+   0.23
+  ],
+  [
+   "POST",
+   "/api/calib/extrinsics/cam0/auto",
+   409,
+   0.25
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.46
+  ]
+ ]
+}

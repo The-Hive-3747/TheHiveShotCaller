@@ -1,0 +1,9 @@
+RUN s8_240_7_rt_s4 idle-wait: cpu=49% after 60s
+[s8_240_7 rt stress] elapsed=26.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3326765276482577 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.15800778245041158 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=['1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] warnings_seen=['1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0
+  stress: mjpg_bytes=[720896, 851968] mjpg_err=[] stats_calls=145 stats_err=0 stats_max_ms=1057
+  system CPU during run (whole machine, incl. server): mean=58% max=74% n=31
+  server_exit 1

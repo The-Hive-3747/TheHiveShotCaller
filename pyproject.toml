@@ -27,5 +27,5 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["live: requires physical cameras or network; skipped unless HIVESHOT_LIVE=1", "build: requires a packaged build in dist/; skipped otherwise"]
+markers = ["live: requires physical cameras or network; skipped unless HIVESHOT_LIVE=1", "build: requires a packaged build in dist/; skipped otherwise", "timing: asserts wall-clock lag or zero dropped frames; the build gate runs these in a separate serialized pass"]
 addopts = "-q"

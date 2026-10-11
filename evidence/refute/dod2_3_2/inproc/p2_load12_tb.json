@@ -1,0 +1,49 @@
+{
+ "counters": {
+  "recon_cycles": 2
+ },
+ "closed_tracks": [],
+ "elapsed": 9.109478235244751,
+ "shots": 0,
+ "unpaired": 0,
+ "last_error": "cam1: Unknown C++ exception from OpenCV code",
+ "cams": {
+  "cam0": [
+   0,
+   0
+  ],
+  "cam1": [
+   0,
+   0
+  ]
+ },
+ "timing": {
+  "detect_ms": 0.0,
+  "track_ms": 0.0,
+  "preview_ms": 0.0,
+  "ring_ms": 0.0,
+  "recon_ms": 0.06,
+  "offset_s": null,
+  "offset_confidence": null
+ },
+ "warnings": [
+  "cam1: Unknown C++ exception from OpenCV code"
+ ],
+ "finalize_log_n": 0,
+ "log_counts": {
+  "INFO opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported": 1,
+  "INFO opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported": 1,
+  "ERROR camera loop failed for cam0\nTraceback (most recent call last):\n  File ": 1,
+  "ERROR camera loop failed for cam1\nTraceback (most recent call last):\n  File ": 1,
+  "ERROR HIVE tag scan failed\nTraceback (most recent call last):\n  File \"C:\\Use": 3
+ },
+ "log_head": [
+  "INFO hiveshot.ingest opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}",
+  "INFO hiveshot.ingest opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}",
+  "ERROR hiveshot.pipeline camera loop failed for cam0\nTraceback (most recent call last):\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 899, in _cam_loop\n    small = det.shrink(fr.image)\n            ^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 418, in shrink\n    cv2.resize(image, (w, h), dst=buf, interpolation=cv2.INTER_AREA)\ncv2.error: Unknown C++ exception from OpenCV code\n",
+  "ERROR hiveshot.pipeline camera loop failed for cam1\nTraceback (most recent call last):\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 899, in _cam_loop\n    small = det.shrink(fr.image)\n            ^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 418, in shrink\n    cv2.resize(image, (w, h), dst=buf, interpolation=cv2.INTER_AREA)\ncv2.error: Unknown C++ exception from OpenCV code\n",
+  "ERROR hiveshot.pipeline HIVE tag scan failed\nTraceback (most recent call last):\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1123, in _tag_loop\n    self._tag_tick()\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1146, in _tag_tick\n    if HIVE_IDS & set(self.scan_tags(c, f.image, TAG_SCAN_PERIOD_S))}\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1046, in scan_tags\n    small = image if k >= 1.0 else cv2.resize(image, None, fx=k, fy=k,\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ncv2.error: Unknown C++ exception from OpenCV code\n",
+  "ERROR hiveshot.pipeline HIVE tag scan failed\nTraceback (most recent call last):\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1123, in _tag_loop\n    self._tag_tick()\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1146, in _tag_tick\n    if HIVE_IDS & set(self.scan_tags(c, f.image, TAG_SCAN_PERIOD_S))}\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1046, in scan_tags\n    small = image if k >= 1.0 else cv2.resize(image, None, fx=k, fy=k,\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ncv2.error: Unknown C++ exception from OpenCV code\n",
+  "ERROR hiveshot.pipeline HIVE tag scan failed\nTraceback (most recent call last):\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1123, in _tag_loop\n    self._tag_tick()\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1146, in _tag_tick\n    if HIVE_IDS & set(self.scan_tags(c, f.image, TAG_SCAN_PERIOD_S))}\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/snap_phase2\\hiveshot\\pipeline.py\", line 1046, in scan_tags\n    small = image if k >= 1.0 else cv2.resize(image, None, fx=k, fy=k,\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ncv2.error: Unknown C++ exception from OpenCV code\n"
+ ]
+}

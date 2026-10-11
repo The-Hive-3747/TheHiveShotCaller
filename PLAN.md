@@ -157,6 +157,8 @@ Confirmed by owner (2026-10-10, second round):
 - Budget: no fixed cap. Prefer speed; use parallel workers where the work is independent; avoid waste.
 - CLAUDE.md project-specific configuration: populate during M0 once the stack is installed and commands exist.
 
+- Calibration state (lead decision 2026-10-10 after refuter dod9_4): calibration is done with BOTH audience CELLs tipped up (field.CALIBRATION_STATE) so no CELL body hides the kit tags; ball tracking and tag reading assume the match-start state. Click points 5-8 are the blue audience up-CELL corners.
+
 ## 9. Hardware recommendation
 
 **Primary cameras (two):** GoPro HERO13 Black, each with the GoPro Media Mod (for micro-HDMI out) and an Elgato Cam Link 4K capture card. Live HDMI output is 1080p60 when not recording, 1080p30 while recording. Turn HyperSmooth off for low latency. Wireless RTMP goes through the GoPro Quik app at 1080p30 and is supported as the fallback mode. Record 1080p240 to the SD card in parallel for the post-match high-speed analysis mode.
@@ -178,3 +180,18 @@ After each Definition of Done item is claimed complete, the lead launches an ind
 
 ## 12. Risk register update (2026-10-10 evening)
 - REAL-TIME HEADROOM: RESOLVED 2026-10-10 20:00 (evidence/m5_perf/round2.md, idle_realtime_headroom_after.txt). Root causes were GIL-holding bursts at shot finalization (drag fit 150-280 ms, clip copy under the capture lock), the 15.6 ms Windows timer tick batching frames, and per-frame color work. After the fix: zero dropped frames at 1080p60, 720p60 and 720p240 on a cool start with all shots correct; detect 1.6-4 ms/frame; recon cycles 35-200 ms. Remaining caveat: back-to-back 240 fps runs on this laptop drop 17-20 percent from thermal/power limits (not a pipeline wait). Verified independently by the lead.
+
+## 13. Definition of Done status (2026-10-10 23:45, synthetic data only; real cameras arrive Oct 11-20)
+
+| DoD | Status | Latest refuter report | Open |
+|---|---|---|---|
+| 1 one command, USB + RTMP | NOT REFUTED (round 1) | evidence/refute/dod1_dod6_1.md | real cameras |
+| 2 20-shot session stats | NOT REFUTED (round 2) | dod2_3_2.md | fast low-arc shots > 490 in/s (hardening in progress) |
+| 3 accuracy targets | NOT REFUTED on synthetic (round 2) | dod2_3_2.md | real labeled footage |
+| 4 3D replay | NOT REFUTED | dod4_5_1.md | - |
+| 5 persistence, CSV | NOT REFUTED | dod4_5_1.md | - |
+| 6 recalibration < 10 min | REFUTED narrow (round 3) | dod6_10_3.md | pair-gate lock-out, poor-lens acceptance, in-sample finish (fixes in progress) |
+| 7 tests + live E2E evidence | REFUTED | dod2_3_7_1.md | live-camera run (hardware) |
+| 8 clean-machine smoke | REFUTED | dod8_9_1.md | owner runs docs/clean_machine_test.md |
+| 9 placement -> calibration target | REFUTED narrow (round 4) | dod9_4.md | calibration state + CELL occluders done; round 5 pending |
+| 10 wizard-only setup < 15 min | REFUTED on time (round 3) | dod6_10_3.md | 18-26 min with Lens step; QUESTIONS.md #9 |

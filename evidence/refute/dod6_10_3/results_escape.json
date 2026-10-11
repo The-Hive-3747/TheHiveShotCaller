@@ -1,0 +1,161 @@
+{
+ "start_state": {
+  "warnings": [
+   "extrinsics for cam0 are stale (intrinsics were recalibrated)",
+   "extrinsics for cam1 are stale (intrinsics were recalibrated)"
+  ],
+  "cs": "kit"
+ },
+ "start_acc_pos_in": {
+  "cam0": 12.53,
+  "cam1": 12.56
+ },
+ "1_auto_all_kit": {
+  "cam0": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 5.1 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 5.1146638337757935,
+   "oos_error_in": 0.5458662604849367,
+   "tags_used": null,
+   "reprojection_px": 0.8235166313479618
+  },
+  "cam1": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 5.5 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 5.48057945634237,
+   "oos_error_in": 0.41217477918630774,
+   "tags_used": null,
+   "reprojection_px": 0.8948980840041197
+  }
+ },
+ "2_auto_all_default": {
+  "cam0": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 5.1 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 5.110599831842284,
+   "oos_error_in": 0.6269643186796713,
+   "tags_used": null,
+   "reprojection_px": 0.8320344180000657
+  },
+  "cam1": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 5.5 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 5.48245468563113,
+   "oos_error_in": 0.367399549527768,
+   "tags_used": null,
+   "reprojection_px": 0.9108200152515306
+  }
+ },
+ "3_click_cam0": {
+  "code": 409,
+  "detail": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 4.5 in (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": 4.479322317665945,
+  "oos_error_in": 1.878005451601563,
+  "tags_used": null,
+  "reprojection_px": 1.430399276974306,
+  "source": null,
+  "warnings": null
+ },
+ "3_click_cam1": {
+  "code": 409,
+  "detail": "extrinsics of cam1 not saved: a tag that was not used for the solve is 2.5 in off (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": null,
+  "oos_error_in": 2.5106740708301682,
+  "tags_used": null,
+  "reprojection_px": 0.5879757327315462,
+  "source": null,
+  "warnings": null
+ },
+ "4_hive_cam0": {
+  "code": 409,
+  "detail": "extrinsics of cam0 not saved: a tag that was not used for the solve is 4.8 in off (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": null,
+  "oos_error_in": 4.794873565575054,
+  "tags_used": null,
+  "reprojection_px": 0.5038257436469945,
+  "source": null,
+  "warnings": null
+ },
+ "4_kit_cam1_after": {
+  "code": 409,
+  "detail": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 5.4 in (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": 5.436912254929629,
+  "oos_error_in": 0.41116389847284507,
+  "tags_used": null,
+  "reprojection_px": 0.9042698420265204,
+  "source": null,
+  "warnings": null
+ },
+ "4_kit_cam0_after": {
+  "code": 409,
+  "detail": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 5.1 in (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": 5.113827896272607,
+  "oos_error_in": 0.5481302750806104,
+  "tags_used": null,
+  "reprojection_px": 0.8320164496367931,
+  "source": null,
+  "warnings": null
+ },
+ "end_acc_pos_in": {
+  "cam0": 12.53,
+  "cam1": 12.56
+ },
+ "end_finish": {
+  "code": 409,
+  "detail": "setup is not finished: the cross-check error is 8.02 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+  "max_error_in": 8.022121851199346
+ },
+ "5_auto_all_hive": {
+  "cam0": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam0 not saved: a tag that was not used for the solve is 4.8 in off (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": null,
+   "oos_error_in": 4.811714637906672,
+   "tags_used": null,
+   "reprojection_px": 0.5242773868604099
+  },
+  "cam1": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam1 not saved: reprojection error 11.8 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); a tag that was not used for the solve is 11.5 in off (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": null,
+   "oos_error_in": 11.521902521770555,
+   "tags_used": null,
+   "reprojection_px": 11.841928724958589
+  }
+ },
+ "6_auto_all_kit_after_hive": {
+  "cam0": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 5.1 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 5.110116609254868,
+   "oos_error_in": 0.5435636972400533,
+   "tags_used": null,
+   "reprojection_px": 0.8303210717928999
+  },
+  "cam1": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 5.5 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 5.4809011492823085,
+   "oos_error_in": 0.4152134090452347,
+   "tags_used": null,
+   "reprojection_px": 0.8921185948964206
+  }
+ },
+ "final_acc_pos_in": {
+  "cam0": 12.53,
+  "cam1": 12.56
+ }
+}

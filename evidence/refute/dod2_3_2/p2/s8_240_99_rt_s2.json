@@ -1,0 +1,566 @@
+{
+ "fixture": "C:\\Users\\3747h\\AppData\\Local\\Temp\\claude\\C--Users-3747h-Documents-HiveShotTracker\\386da1de-9207-4304-8c4f-9284e5732d29\\scratchpad\\fx\\s8_240_99",
+ "mode": "rt",
+ "stress": true,
+ "cmd": [
+  "C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Scripts\\python.exe",
+  "-m",
+  "hiveshot",
+  "--data-dir",
+  "C:\\Users\\3747h\\AppData\\Local\\Temp\\r2app_76z9uyt_",
+  "--config",
+  "C:\\Users\\3747h\\AppData\\Local\\Temp\\r2app_76z9uyt_\\config.json",
+  "--port",
+  "8791"
+ ],
+ "elapsed_s": 16.032026529312134,
+ "video_len_s": null,
+ "stats": {
+  "session_id": "a2a6be19",
+  "shots": 8,
+  "made": 6,
+  "bounce_out": 0,
+  "miss": 2,
+  "unknown": 0,
+  "make_rate": 0.75,
+  "by_ball_type": {
+   "pollen": {
+    "made": 6,
+    "bounce_out": 0,
+    "miss": 2,
+    "unknown": 0,
+    "shots": 8
+   }
+  },
+  "failure_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 1,
+   "4": 0,
+   "5": 1
+  },
+  "bounce_out_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "tips": 0,
+  "mean_exit_speed_ips": 234.6573159573452,
+  "mean_launch_angle_deg": 76.38743454419516
+ },
+ "shots": [
+  {
+   "shot_id": 1,
+   "t_launch": 0.008333333333333333,
+   "burst_id": 1,
+   "burst_index": 1,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 234.21506453831898,
+   "exit_speed_mps": 5.949062639273302,
+   "launch_angle_deg": 76.81455969840698,
+   "launch_azimuth_deg": -72.81868395008186,
+   "apex_z_in": 81.31797449241569,
+   "equation": "z = -0.0676 s^2 + 4.27 s + 14.0 (in)",
+   "clip_url": "/clips/1_cam0.mp4",
+   "dropped_during_flight": 9,
+   "t_launch_wall": "2026-10-10T22:43:31.758-06:00"
+  },
+  {
+   "shot_id": 2,
+   "t_launch": 0.3,
+   "burst_id": 1,
+   "burst_index": 2,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 236.78296809181205,
+   "exit_speed_mps": 6.014287389532026,
+   "launch_angle_deg": 77.81125526543687,
+   "launch_azimuth_deg": -103.29078218286757,
+   "apex_z_in": 81.45967718003796,
+   "equation": "z = -0.0774 s^2 + 4.63 s + 12.2 (in)",
+   "clip_url": "/clips/2_cam0.mp4",
+   "dropped_during_flight": 29,
+   "t_launch_wall": "2026-10-10T22:43:32.050-06:00"
+  },
+  {
+   "shot_id": 3,
+   "t_launch": 0.6,
+   "burst_id": 1,
+   "burst_index": 3,
+   "ball_type": "pollen",
+   "result": "miss",
+   "exit_speed_ips": 240.05713189602932,
+   "exit_speed_mps": 6.097451150159144,
+   "launch_angle_deg": 77.20889408144505,
+   "launch_azimuth_deg": -76.63511649177303,
+   "apex_z_in": 83.01767044398471,
+   "equation": "z = -0.0683 s^2 + 4.40 s + 12.0 (in)",
+   "clip_url": "/clips/3_cam0.mp4",
+   "dropped_during_flight": 29,
+   "t_launch_wall": "2026-10-10T22:43:32.350-06:00"
+  },
+  {
+   "shot_id": 4,
+   "t_launch": 0.9041666666666667,
+   "burst_id": 1,
+   "burst_index": 4,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 231.65196845198795,
+   "exit_speed_mps": 5.883959998680494,
+   "launch_angle_deg": 73.28034664384133,
+   "launch_azimuth_deg": -48.948004109920355,
+   "apex_z_in": 76.71675556450532,
+   "equation": "z = -0.0434 s^2 + 3.33 s + 12.9 (in)",
+   "clip_url": "/clips/4_cam0.mp4",
+   "dropped_during_flight": 27,
+   "t_launch_wall": "2026-10-10T22:43:32.654-06:00"
+  },
+  {
+   "shot_id": 5,
+   "t_launch": 1.2041666666666666,
+   "burst_id": 1,
+   "burst_index": 5,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 239.98639212498983,
+   "exit_speed_mps": 6.095654359974741,
+   "launch_angle_deg": 77.00826171400314,
+   "launch_azimuth_deg": -79.04745190400602,
+   "apex_z_in": 83.82784136504931,
+   "equation": "z = -0.0660 s^2 + 4.33 s + 12.7 (in)",
+   "clip_url": "/clips/5_cam0.mp4",
+   "dropped_during_flight": 4,
+   "t_launch_wall": "2026-10-10T22:43:32.954-06:00"
+  },
+  {
+   "shot_id": 6,
+   "t_launch": 1.5,
+   "burst_id": 1,
+   "burst_index": 6,
+   "ball_type": "pollen",
+   "result": "miss",
+   "exit_speed_ips": 234.11771523160678,
+   "exit_speed_mps": 5.946589966882812,
+   "launch_angle_deg": 77.39326498515955,
+   "launch_azimuth_deg": -108.37227257126528,
+   "apex_z_in": 79.66395977363447,
+   "equation": "z = -0.0741 s^2 + 4.47 s + 12.2 (in)",
+   "clip_url": "/clips/6_cam0.mp4",
+   "dropped_during_flight": 0,
+   "t_launch_wall": "2026-10-10T22:43:33.250-06:00"
+  },
+  {
+   "shot_id": 7,
+   "t_launch": 1.8,
+   "burst_id": 1,
+   "burst_index": 7,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 229.38307084408575,
+   "exit_speed_mps": 5.8263299994397775,
+   "launch_angle_deg": 74.4748900486109,
+   "launch_azimuth_deg": -99.5085172930533,
+   "apex_z_in": 75.31688512119337,
+   "equation": "z = -0.0511 s^2 + 3.60 s + 11.9 (in)",
+   "clip_url": "/clips/7_cam0.mp4",
+   "dropped_during_flight": 0,
+   "t_launch_wall": "2026-10-10T22:43:33.550-06:00"
+  },
+  {
+   "shot_id": 8,
+   "t_launch": 2.1,
+   "burst_id": 1,
+   "burst_index": 8,
+   "ball_type": "pollen",
+   "result": "made",
+   "exit_speed_ips": 231.06421647993088,
+   "exit_speed_mps": 5.869031098590244,
+   "launch_angle_deg": 77.1080039166575,
+   "launch_azimuth_deg": -27.0588001772206,
+   "apex_z_in": 77.7883116432994,
+   "equation": "z = -0.0733 s^2 + 4.37 s + 12.6 (in)",
+   "clip_url": "/clips/8_cam0.mp4",
+   "dropped_during_flight": 0,
+   "t_launch_wall": "2026-10-10T22:43:33.850-06:00"
+  }
+ ],
+ "final_status": {
+  "warnings": [
+   "camera cam0 dropped 29 frames (processing too slow)"
+  ],
+  "cameras": {
+   "cam0": {
+    "fps": 0.0,
+    "latency_estimate_s": 0.0011195333344706645,
+    "finished": true,
+    "dropped": 29,
+    "frames_read": 767,
+    "is_alive": false,
+    "last_error": null,
+    "reconnects": 0,
+    "props": {
+     "width": 1280,
+     "height": 720,
+     "fps": 240.0,
+     "fps_reported": 240.0,
+     "backend": "ffmpeg"
+    },
+    "ended": true
+   },
+   "cam1": {
+    "fps": 0.0,
+    "latency_estimate_s": 0.0017201333384340009,
+    "finished": true,
+    "dropped": 0,
+    "frames_read": 767,
+    "is_alive": false,
+    "last_error": null,
+    "reconnects": 0,
+    "props": {
+     "width": 1280,
+     "height": 720,
+     "fps": 240.0,
+     "fps_reported": 240.0,
+     "backend": "ffmpeg"
+    },
+    "ended": true
+   }
+  },
+  "timing": {
+   "detect_ms": 3.868,
+   "track_ms": 0.386,
+   "preview_ms": 39.526,
+   "ring_ms": 0.852,
+   "recon_ms": 787.288,
+   "offset_s": 0.0,
+   "offset_confidence": 0.864
+  },
+  "detector_fps": 0.0
+ },
+ "csv_rows": 8,
+ "stress_log": {
+  "mjpg_bytes": [
+   1310720,
+   1114112
+  ],
+  "mjpg_err": [],
+  "stats_calls": 111,
+  "stats_err": [],
+  "stats_max_ms": 131.4890999929048,
+  "status_samples": 15,
+  "max_dropped": {
+   "cam0": 29,
+   "cam1": 0
+  },
+  "warnings_seen": [
+   "camera cam0 dropped 21 frames (processing too slow)",
+   "camera cam0 dropped 29 frames (processing too slow)"
+  ],
+  "reader_errors": [],
+  "det_fps": [
+   475.8,
+   319.1,
+   193.1,
+   182.3,
+   215.6,
+   196.8,
+   225.9,
+   303.8,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "cpu_pct": [
+  32.1,
+  35.8,
+  34.0,
+  76.3,
+  75.3,
+  65.3,
+  55.9,
+  56.5,
+  69.2,
+  69.5,
+  52.5,
+  48.1,
+  46.1,
+  50.4,
+  44.8,
+  40.1,
+  31.3,
+  34.5
+ ],
+ "server_exit": 1,
+ "cmp": {
+  "n_truth": 8,
+  "n_recorded": 8,
+  "n_matched": 8,
+  "extra": 0,
+  "truth_made": 6,
+  "app_made": 6,
+  "truth_rate": 0.75,
+  "app_rate": 0.75,
+  "makemiss_agree": 8,
+  "makemiss_agree_pct": 100.0,
+  "exp_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 1,
+   "4": 0,
+   "5": 1
+  },
+  "app_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 1,
+   "4": 0,
+   "5": 1
+  },
+  "hist_exact": true,
+  "speed_n": 8,
+  "speed_max_abs_pct": 1.3191915068121451,
+  "speed_n_over_5": 0,
+  "speed_n_over_10": 0,
+  "speed_none": 0,
+  "no_equation": 0,
+  "angle_max_abs_err_deg": 0.1653869186255008,
+  "unmatched_truth": [],
+  "results": {
+   "made": 6,
+   "bounce_out": 0,
+   "miss": 2,
+   "unknown": 0
+  },
+  "burst_mismatch": [],
+  "by_ball_type": {
+   "pollen": {
+    "made": 6,
+    "bounce_out": 0,
+    "miss": 2,
+    "unknown": 0,
+    "shots": 8
+   }
+  },
+  "ball_type_wrong": [],
+  "dt_max_abs": 0.008333333333333333
+ },
+ "rows": [
+  {
+   "truth": 0,
+   "t_launch": 0.0,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.008333333333333333,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 237.34611432017942,
+   "speed": 234.21506453831898,
+   "speed_err_pct": -1.3191915068121451,
+   "angle_truth": 76.97994661703248,
+   "angle": 76.81455969840698,
+   "angle_err": -0.1653869186255008,
+   "equation": true,
+   "burst": [
+    1,
+    1
+   ],
+   "burst_truth": [
+    1,
+    1
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 1,
+   "t_launch": 0.3,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.0,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 236.79897556035402,
+   "speed": 236.78296809181205,
+   "speed_err_pct": -0.006759939946565652,
+   "angle_truth": 77.83787212971959,
+   "angle": 77.81125526543687,
+   "angle_err": -0.02661686428271537,
+   "equation": true,
+   "burst": [
+    1,
+    2
+   ],
+   "burst_truth": [
+    1,
+    2
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 2,
+   "t_launch": 0.6,
+   "made_truth": false,
+   "matched": true,
+   "dt": 0.0,
+   "result": "miss",
+   "agree": true,
+   "speed_truth": 240.0481180907356,
+   "speed": 240.05713189602932,
+   "speed_err_pct": 0.003754999358207556,
+   "angle_truth": 77.1942294124976,
+   "angle": 77.20889408144505,
+   "angle_err": 0.014664668947446557,
+   "equation": true,
+   "burst": [
+    1,
+    3
+   ],
+   "burst_truth": [
+    1,
+    3
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 3,
+   "t_launch": 0.8999999999999999,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.004166666666666763,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 233.1905678593744,
+   "speed": 231.65196845198795,
+   "speed_err_pct": -0.6598034481027137,
+   "angle_truth": 73.38771001478392,
+   "angle": 73.28034664384133,
+   "angle_err": -0.1073633709425934,
+   "equation": true,
+   "burst": [
+    1,
+    4
+   ],
+   "burst_truth": [
+    1,
+    4
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 4,
+   "t_launch": 1.2,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.004166666666666652,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 241.55490414496145,
+   "speed": 239.98639212498983,
+   "speed_err_pct": -0.6493397538434253,
+   "angle_truth": 77.06098231136379,
+   "angle": 77.00826171400314,
+   "angle_err": -0.05272059736064705,
+   "equation": true,
+   "burst": [
+    1,
+    5
+   ],
+   "burst_truth": [
+    1,
+    5
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 5,
+   "t_launch": 1.5,
+   "made_truth": false,
+   "matched": true,
+   "dt": 0.0,
+   "result": "miss",
+   "agree": true,
+   "speed_truth": 234.07297067253432,
+   "speed": 234.11771523160678,
+   "speed_err_pct": 0.019115645409173432,
+   "angle_truth": 77.41512866033078,
+   "angle": 77.39326498515955,
+   "angle_err": -0.021863675171232444,
+   "equation": true,
+   "burst": [
+    1,
+    6
+   ],
+   "burst_truth": [
+    1,
+    6
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 6,
+   "t_launch": 1.8,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.0,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 229.3551292440007,
+   "speed": 229.38307084408575,
+   "speed_err_pct": 0.012182679400796204,
+   "angle_truth": 74.44868478438403,
+   "angle": 74.4748900486109,
+   "angle_err": 0.026205264226874192,
+   "equation": true,
+   "burst": [
+    1,
+    7
+   ],
+   "burst_truth": [
+    1,
+    7
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  },
+  {
+   "truth": 7,
+   "t_launch": 2.1,
+   "made_truth": true,
+   "matched": true,
+   "dt": 0.0,
+   "result": "made",
+   "agree": true,
+   "speed_truth": 231.0778055189871,
+   "speed": 231.06421647993088,
+   "speed_err_pct": -0.005880720143458529,
+   "angle_truth": 77.1712953073964,
+   "angle": 77.1080039166575,
+   "angle_err": -0.06329139073891099,
+   "equation": true,
+   "burst": [
+    1,
+    8
+   ],
+   "burst_truth": [
+    1,
+    8
+   ],
+   "ball_type": "pollen",
+   "ball_type_truth": "pollen"
+  }
+ ]
+}

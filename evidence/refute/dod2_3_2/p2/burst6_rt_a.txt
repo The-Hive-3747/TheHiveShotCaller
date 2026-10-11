@@ -1,0 +1,8 @@
+RUN burst6_rt_a idle-wait: cpu=11% after 40s
+[burst6 rt] elapsed=14.0s recorded=9/9 matched=9 extra=0 made app/truth=6/6 rate app/truth=0.6666666666666666/0.667
+  makemiss agree 9/9=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 3, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 2, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 2, '4': 0, '5': 1} exact=True
+  speed n=9 max|err|=0.025710143774415606 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.07581631241576758 csv_rows=9
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 3, 'unknown': 0, 'shots': 9}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=38% max=62% n=16
+  server_exit 1

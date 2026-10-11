@@ -22,7 +22,9 @@ function Step($name, [scriptblock]$b, [string]$log) {
 if (-not $SkipChecks) {
 # Pre-build gate: lint + every test except the packaged-build smoke tests, which need the NEW dist.
 Step "ruff" { & $py -m ruff check hiveshot tests } "$evid\ruff.txt"
-Step "pytest (not build)" { & $py -m pytest tests -q -m "not build" } "$evid\pytest_prebuild.txt"
+Step "pytest (not build, not timing)" { & $py -m pytest tests -q -m "not build and not timing" } "$evid\pytest_prebuild.txt"
+# Wall-clock-sensitive tests: run alone, with nothing else running on the machine.
+Step "pytest (timing)" { & $py -m pytest tests -q -m timing } "$evid\pytest_timing.txt"
 }
 $version = (& $py -c "import hiveshot; print(hiveshot.__version__)").Trim()
 Step "pyinstaller" { & $py -m PyInstaller hiveshot.spec --noconfirm --clean --distpath dist --workpath build/work }

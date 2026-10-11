@@ -72,7 +72,9 @@ ROUTES = {
                              {"index": 1, "width": 1920, "height": 1080, "fps": 90}],
         "sources_configured": False, "calibration_loaded": False,
         "tags_seen": {"cam0": [100, 101], "cam1": []}, "pipeline_running": False,
-        "recommendations": ["Plug both cameras into USB 3 ports.", "Tape the tags down flat."]},
+        "recommendations": ["Plug both cameras into USB 3 ports.", "Tape the tags down flat.",
+                            "Stub: tip both HIVEs so both audience-side CELLs are up before calibrating."],
+        "calibration_state": "stub: both HIVEs audience-up, 4 of 4 kit tags visible"},
     # STUB ONLY: generic tag placeholders (the numbers mean nothing geometrically)
     "/api/calib/tags": [{"id": 100 + i, "size_in": 4.0, "name": f"tag {i + 1}",
                          "xyz_center": [1.0 * i, 2.0 * i, 3.0 * i], "normal": [0.0, 0.8, 0.6],
@@ -80,7 +82,7 @@ ROUTES = {
     "/api/devices": [{"index": 0, "width": 1280, "height": 720, "fps": 30}],
     "/api/pipeline/status": {"running": False, "detector_fps": 0, "last_shot_id": None,
                              "cameras": {"cam0": {"fps": 60.0, "dropped": 3, "is_alive": True, "ended": False}},
-                             "session_id": "s1", "calibration_mismatch": {},
+                             "session_id": "s1", "calibration_mismatch": {}, "pair_stale": ["cam1"],
                              "hive_state_source": "tags",
                              "warnings": ["stub warning: cam1 has no frames yet"], "calibration_loaded": False,
                              "rtmp": {"available": True, "running": True,
@@ -89,7 +91,7 @@ ROUTES = {
                              "hive_state": {"alliance": "red", "up_cell": "audience"}},
     # STUB ONLY: per-camera provenance as the UI looks for it (cam0 still on default intrinsics)
     "/api/calib": {"intrinsics": [{"cam_id": "cam0", "intrinsics_source": "default"},
-                                  {"cam_id": "cam1", "intrinsics_source": "measured"}],
+                                  {"cam_id": "cam1", "intrinsics_source": "measured_poor"}],
                    "extrinsics": [{"cam_id": "cam0", "calibration_source": "kit"},
                                   {"cam_id": "cam1", "calibration_source": "click"}]},
     "/api/field/geometry": {"field_size": 144.0, "bounds": {"min": [-72, -72, 0], "max": [72, 72, 100]},
@@ -119,7 +121,12 @@ def demo_now() -> bool:
 FAR_LEARN_RESPONSE = {"learned_ids": [], "missing_ids": [], "visible_per_camera": {"cam0": 0, "cam1": 0},
                       "max_residual_in": None, "up_cell_error_in": None, "complete": True}
 # set "block" to make POST /api/setup/finish answer 409 with reasons to fix
-FINISH_STATE = {"block": False}
+FINISH_STATE = {"block": False, "warn": False}
+FINISH_WARN = {"ok": True, "max_error_in": 0.139, "out_of_sample": False,
+               "warning": "in-sample: these are the points the extrinsics were solved from, not an independent check",
+               "warnings": ["camera cam0 still uses default lens intrinsics"]}
+# per-camera auto for cam1 is refused (409) unless the body carries force_single
+CAM1_409 = {"detail": "Pair cross-check failed (12.0 in): the other camera moved. Recalibrate both cameras, or force this camera only."}
 FINISH_409 = {"detail": ["cam0 still uses default intrinsics: measure the lens (step 2).",
                          "No extrinsics solved for cam1: run Auto-calibrate."]}
 POST_ROUTES = {
@@ -133,6 +140,7 @@ POST_ROUTES = {
                             "warning": "Stub: using the HIVE's own tags is less accurate than the printed sheet."},
     "/api/detector/sample": {"ball_type": "pollen", "sampled_hsv": [20, 150, 150],
                              "range": [[12, 90, 90], [40, 255, 255]]},
+    "/api/calib/reset": {"ok": True},
     "/api/setup/finish": {"ok": True},
     "/api/calib/intrinsics/cam0/start": {"ok": True},
     "/api/calib/intrinsics/cam1/start": {"ok": True},
@@ -141,7 +149,8 @@ POST_ROUTES = {
     "/api/calib/extrinsics/cam0/auto": {"rmse_in": 0.3, "oos_error_in": 0.5, "tags_used": [100, 101],
                                         "reprojection_px": 0.7},
     "/api/calib/extrinsics/cam1/auto": {"rmse_in": 0.4, "oos_error_in": 1.4, "tags_used": [102, 103],
-                                        "reprojection_px": 0.9},
+                                        "reprojection_px": 0.9,
+                                        "warnings": ["camera cam1 solved alone; the pair was not re-checked"]},
     "/api/calib/hive_tags/learn": {"learned_ids": [30, 31, 32, 33, 34, 35], "missing_ids": [36, 37],
                                    "visible_per_camera": {"cam0": 8, "cam1": 7}, "max_residual_in": 0.35,
                                    "up_cell_error_in": 0.7, "complete": False},
@@ -173,6 +182,12 @@ class Handler(SimpleHTTPRequestHandler):
             req = {}
         if path == "/api/setup/finish" and FINISH_STATE["block"]:
             self._json(409, FINISH_409)
+            return
+        if path == "/api/setup/finish" and FINISH_STATE["warn"]:
+            self._json(200, FINISH_WARN)
+            return
+        if path == "/api/calib/extrinsics/cam1/auto" and not req.get("force_single"):
+            self._json(409, CAM1_409)
             return
         if path == "/api/calib/hive_tags/learn" and (req.get("state") or {}).get("up_cell") == "far":
             self._json(200, FAR_LEARN_RESPONSE)

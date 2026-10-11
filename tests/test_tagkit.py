@@ -103,7 +103,8 @@ def test_kit_definition():
     for tid, sx in ((102, -1), (103, 1)):
         c = tagkit.tag_corners_xyz(tid)
         corner = feats["Frame base corner (+X, +Y)" if sx > 0 else "Frame base corner (-X, +Y)"]
-        assert c[:, 2].min() == pytest.approx(0.0, abs=1e-9)  # bottom edge on the tiles
+        # the card rests on the tile; its black square starts CARD_BORDER_IN (the white border) up the slope
+        assert c[:, 2].min() == pytest.approx(tagkit.CARD_BORDER_IN * np.cos(t20), abs=1e-9)
         assert np.allclose(tagkit.tag_normal_xyz(tid), [0, np.cos(t20), np.sin(t20)])
         assert abs(c[:, 0]).max() == pytest.approx(abs(corner[0]))   # outer edge flush with the foot bar
         # the plane touches the top edge of the foot bar end (y = 19.47, z = 2.15)
@@ -153,7 +154,7 @@ def test_kit_size_is_a_parameter(tmp_path):
         assert four[tid][:, 2].max() == pytest.approx(six[tid][:, 2].max())
     for tid in (102, 103):
         assert abs(four[tid][:, 0]).max() == pytest.approx(abs(six[tid][:, 0]).max())
-        assert four[tid][:, 2].min() == pytest.approx(0.0, abs=1e-9)
+        assert four[tid][:, 2].min() == pytest.approx(tagkit.CARD_BORDER_IN * np.cos(np.radians(20.0)), abs=1e-9)
     assert tagkit.tags_json(4.0)[0]["size_in"] == 4.0
     p = tagkit.write_tag_sheet_pdf(tmp_path / "big.pdf", size_in=7.5)
     assert p.read_bytes().count(b"/Type /Page ") == 4
@@ -516,3 +517,66 @@ def test_kit_pose_error_vs_tag_mounting_error(mag, ang, max_pos, max_cell, min_r
         cell_err.append(float(np.linalg.norm(np.asarray(xyz).reshape(-1)[:3] - truth)))
     assert max(pos_err) < max_pos and max(cell_err) < max_cell
     assert float(np.median(reproj)) >= min_reproj_med
+
+
+# ------------------------------------------------------------------ HIVE state, card border, stand
+def test_calibration_hive_state_is_both_audience_cells_up():
+    assert tagkit.CALIBRATION_HIVE_STATES == (("red", "audience"), ("blue", "audience"))
+    assert {a: st.up_cell for a, st in field.CALIBRATION_STATE.items()} == dict(
+        tagkit.CALIBRATION_HIVE_STATES)
+    from hiveshot import calib_targets
+    assert calib_targets.CALIB_HIVE_STATES == tagkit.CALIBRATION_HIVE_STATES
+
+
+def test_base_tag_card_border_and_stand():
+    """The card (black square + 0.5 in border) stands on its bottom edge on the tile; the black
+    square starts one border up the slope; the foam wedge has the 20 deg slope."""
+    t20 = np.radians(tagkit.BASE_TILT_DEG)
+    assert tagkit.CARD_BORDER_IN == 0.5
+    c = tagkit.tag_corners_xyz(103)
+    bottom = c[2:, :]                       # BR, BL = the black square's bottom edge
+    assert bottom[:, 2] == pytest.approx(tagkit.CARD_BORDER_IN * np.cos(t20))          # 0.47 in high
+    # the card's own bottom edge (one border further down the slope) lies on the tile at y = 20.25
+    down = np.array([0.0, np.sin(t20), -np.cos(t20)])
+    card_bottom = bottom[0] + tagkit.CARD_BORDER_IN * down
+    assert card_bottom[2] == pytest.approx(0.0, abs=1e-9)
+    assert card_bottom[1] == pytest.approx(19.47 + fc.FRAME_BASE_HEIGHT * np.tan(t20), abs=0.01)
+    # the stand: 4 in wide, 2 in deep, 5.5 in tall: 2 / 5.5 = tan 20 deg
+    w, d, h = tagkit.STAND_WEDGE_IN
+    assert (w, d, h) == (4.0, 2.0, 5.5) and d / h == pytest.approx(np.tan(t20), abs=0.002)
+
+
+def test_tag_page_cut_line_is_one_border_outside_the_black_square():
+    pages = tagkit.render_tag_pages()
+    img = pages[0]
+    bw = int(round(tagkit.CARD_BORDER_IN * tagkit.DPI))
+    dets = calib.detect_apriltags(img)
+    c = dets[0]["corners"]
+    x0, x1 = int(round(c[:, 0].min())), int(round(c[:, 0].max()))
+    y0 = int(round(c[:, 1].min()))
+    row = img[y0 - bw - 1: y0 - bw + 2, x0 - bw: x1 + bw + 1].min(axis=0)
+    dark = int((row < 128).sum())
+    # a dashed line: dark about half of the 2100 px, not solid and not absent
+    assert 0.3 * (x1 - x0 + 2 * bw) < dark < 0.7 * (x1 - x0 + 2 * bw)
+    side = img[y0: y0 + 1800, x0 - bw - 1: x0 - bw + 2].min(axis=1)
+    assert 0.3 * 1800 < int((side < 128).sum()) < 0.7 * 1800
+
+
+def test_kit_tag_positions_figure_exists_and_regenerates_identically(tmp_path):
+    from pathlib import Path
+
+    from hiveshot import kit_figure
+
+    docs = Path(__file__).resolve().parent.parent / "docs"
+    png, svg = docs / "kit_tag_positions.png", docs / "kit_tag_positions.svg"
+    assert png.is_file() and svg.is_file()
+    kit_figure.write_kit_figure(tmp_path / "k.png", tmp_path / "k.svg")
+    assert (tmp_path / "k.png").read_bytes() == png.read_bytes()
+    assert (tmp_path / "k.svg").read_text(encoding="utf-8") == svg.read_text(encoding="utf-8")
+    text = svg.read_text(encoding="utf-8")
+    for needle in ("0.47 in", "4 wide x 2 deep x 5.5 tall", "103 (+X base corner)", "37.28"):
+        assert needle in text
+    img = cv2.imread(str(png))
+    assert img.shape[1] > 3000 and img.shape[0] > 1000
+    assert "![Kit tag positions on the HIVE frame](kit_tag_positions.png)" in (
+        docs / "calibration.md").read_text(encoding="utf-8")

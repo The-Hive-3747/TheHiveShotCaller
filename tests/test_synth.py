@@ -110,7 +110,7 @@ def test_in_image_fraction_helper():
     assert synth.in_image_fraction({"intrinsics": truth["intrinsics"], "frames": []}) == 0.0
 
 
-@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst", "synth_20", "synth_240"])
+@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst", "synth_20", "synth_240", "synth_lowarc"])
 @pytest.mark.parametrize("cam_id", ["cam0", "cam1"])
 def test_fixture_in_image_fraction(fixture, cam_id):
     from pathlib import Path
@@ -172,7 +172,7 @@ def test_hive_tags_drawn_count():
     assert {34, 35, 36, 37} <= set(ids)
 
 
-@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst", "synth_20", "synth_240"])
+@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst", "synth_20", "synth_240", "synth_lowarc"])
 def test_fixture_shots_json_matches_truth(fixture):
     """shots.json and the per-camera truth were written by the same run: every shot's
     launch point equals the first truth position of its ball, and t_launch its first frame."""
@@ -188,7 +188,12 @@ def test_fixture_shots_json_matches_truth(fixture):
         assert len(first) == len(shots)
         for s in shots:
             t0, xyz = first[s["shot"]]
-            assert np.linalg.norm(np.array(xyz) - np.array(s["launch_point"])) < 0.5, \
-                (fixture, cam_id, s["shot"])
-            assert t0 == pytest.approx(s["t_launch"], abs=1.0 / truth["fps"] + 1e-9)
+            dt = t0 - s["t_launch"]
+            assert -1e-9 <= dt < 1.0 / truth["fps"] + 1e-9        # first frame at/after launch
+            # the first truth position is the launch point advanced by dt along the ballistic arc
+            expect = (np.array(s["launch_point"]) + np.array(s["v0"]) * dt
+                      - np.array([0.0, 0.0, 0.5 * GRAVITY_IPS2 * dt * dt]))
+            assert np.linalg.norm(np.array(xyz) - expect) < 0.5, (fixture, cam_id, s["shot"])
+            if dt == 0.0 or dt < 1e-9:
+                assert np.linalg.norm(np.array(xyz) - np.array(s["launch_point"])) < 0.5
             assert truth["t_offsets"][s["shot"]] == pytest.approx(s["t_launch"])

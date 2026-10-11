@@ -1,0 +1,7 @@
+A. Phase-2 snapshot, lockstep: runs=11 fully-correct=10; incorrect: [('p2/lowarc_lockstep_a.json', 'rec 6/6', 'agree 3/6', 'SILENT')]
+B. Phase-2 snapshot, realtime, no preview/stats clients: runs=11 fully-correct=10; incorrect: [('p2/lowarc_rt_a.json', 'rec 6/6', 'agree 3/6', 'SILENT')]
+C. Phase-2 snapshot, realtime + 2 MJPEG + stats polling: runs=13 fully-correct=10; incorrect: [('p2/s8_240_7_rt_s1.json', 'rec 2/8', 'agree 2/8', 'SILENT'), ('p2/s8_240_99_rt_s1.json', 'rec 7/8', 'agree 7/8', 'flagged'), ('p2/s8_240_99_rt_s3.json', 'rec 7/8', 'agree 7/8', 'flagged')]
+D. working tree (earlier), lockstep: runs=12 fully-correct=11; incorrect: [('lowarc_lockstep_a.json', 'rec 6/6', 'agree 3/6', 'SILENT')]
+E. working tree, realtime: runs=19 fully-correct=17; incorrect: [('lowarc_rt_a.json', 'rec 6/6', 'agree 3/6', 'SILENT'), ('s20_2718_rt.json', 'rec 2/20', 'agree 2/20', 'SILENT')]
+F. working tree, realtime + stress: runs=8 fully-correct=7; incorrect: [('s8_240_99_rt_s1.json', 'rec 7/8', 'agree 7/8', 'flagged')]
+G. CPU saturation (12 busy loops): runs=5 fully-correct=0; incorrect: [('p2load/s20_2718_lockstep_load12_1418280329.json', 'rec 0/20', 'agree 0/20', 'flagged'), ('p2load/s20_2718_lockstep_load12_904372655.json', 'rec 0/20', 'agree 0/20', 'SILENT'), ('p2load/s20_2718_rt_load12_1900515679.json', 'rec 0/20', 'agree 0/20', 'flagged'), ('p2load/s20_2718_rt_load12_2084663360.json', 'rec 0/20', 'agree 0/20', 'flagged'), ('s20_2718_rt_x_load12.json', 'rec 0/20', 'agree 0/20', 'SILENT')]

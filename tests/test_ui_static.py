@@ -123,13 +123,9 @@ def test_element_ids_exist_in_html():
 def test_api_paths_in_contract():
     doc = (ROOT / "docs" / "api.md").read_text(encoding="utf-8")
     js = (UI / "app.js").read_text(encoding="utf-8")
-    # Endpoints the backend is adding whose docs/api.md entry has not landed yet.
-    # TODO: remove "crosscheck" / "finish" once docs/api.md documents POST /api/calib/crosscheck and /api/setup/finish.
-    pending_docs = {"crosscheck", "finish"}
     for m in re.finditer(r"['`](/api/[^'`]*)", js):
         path = re.sub(r"\$\{[^}]*\}", "{x}", m.group(1))
         segs = [s for s in path.split("?")[0].replace("{x}", "").split("/") if s]
-        segs = [s for s in segs if s not in pending_docs or s in doc]
         assert all(s.strip(".") .split(".")[0] in doc for s in segs), f"{path} not in api.md"
 
 
@@ -381,7 +377,8 @@ def test_round6_setup_wizard_wired():
     assert 'data-tab="setup"' in html and 'id="tab-setup"' in html
     for step in ("cameras", "lens", "tags", "hivetags", "colors", "done"):
         assert 'class="card setupstep' in html and f'data-step="{step}"' in html, step
-    assert html.count('class="hints"') == 6
+    setup_html = html[html.index('id="tab-setup"'):html.index('id="tab-dashboard"')]
+    assert setup_html.count('class="hints"') == 6
     assert ".setupstep" in css and ".thumb" in css
     # shown automatically on first run
     assert "'/api/setup/status'" in js and "sources_configured === false" in js
@@ -606,18 +603,18 @@ def test_round13_refuter_fixes_wired():
     assert 'data-act="auto">Auto-calibrate</button>' in js
     assert "/api/calib/extrinsics/${encodeURIComponent(id)}/auto" in js and "'POST', '/api/calib/auto_all'" in js
     assert "intrinsics_source" in js and "calibration_source" in js
-    assert "info.intrinsics_source === 'default'" in js  # red chip
+    assert "badIntrinsics(info.intrinsics_source)" in js  # red chip for default / measured_poor
     # (2) Lens step before Tags, required unless measured/profile
     order = [html.index(f'data-step="{k}"') for k in ("cameras", "lens", "tags", "hivetags", "colors", "done")]
     assert order == sorted(order)
     assert 'href="/api/calib/checkerboard.pdf"' in html and "1.5 to 3 ft" in html and "20 seconds" in html
     assert "Start recording" in js and "Stop recording" in js and "/api/calib/intrinsics/${encodeURIComponent(cam)}/" in js
     assert "LENS_OK_PX = 1.0" in js and "LENS_WARN_PX = 2.0" in js and "xc-amber" in js and ".xc-amber" in css
-    assert "src === 'measured' || src === 'profile'" in js
+    assert "src === 'measured' || src === 'profile'" in js and "src === 'measured_poor'" in js
     assert "lensBlockingCams()" in js and js.index("lensBlockingCams()") < js.index("'Calibrating...'")
     # (3) column names
     assert "Fit residual (in)" in js and "Out-of-sample error (in)" in js and "oos_error_in" in js
-    assert "Pose error" not in js
+    assert "Pose error" not in js and "RMSE <b>" not in js
     # (4) Done step goes through /api/setup/finish and stops on a refusal
     assert "'POST', '/api/setup/finish'" in js and "reasonLines(e)" in js
     fin = js[js.index("$('btnFinish').onclick"):]
@@ -655,7 +652,8 @@ def test_stub_round13_payloads():
                 return e.code, json.load(e)
 
         _, calib = call("/api/calib")
-        assert {i["cam_id"]: i["intrinsics_source"] for i in calib["intrinsics"]} == {"cam0": "default", "cam1": "measured"}
+        assert {i["cam_id"]: i["intrinsics_source"] for i in calib["intrinsics"]} == {
+            "cam0": "default", "cam1": "measured_poor"}
         assert all("calibration_source" in e for e in calib["extrinsics"])
         _, tags = call("/api/calib/tags")
         assert all(len(t["xyz_center"]) == 3 and len(t["normal"]) == 3 for t in tags)
@@ -680,5 +678,92 @@ def test_stub_round13_payloads():
         ui_stub_server.FINISH_STATE["block"] = False
         ui_stub_server.CONFIG.clear()
         ui_stub_server.CONFIG.update(saved)
+        srv.shutdown()
+        srv.server_close()
+
+
+NOTE = ("Before calibrating, tip BOTH HIVEs by hand so both audience-side CELLs are up "
+        "(the CELLs otherwise hide the tags). Put the red HIVE back to match start afterwards.")
+
+
+def test_round14_tip_both_hives_note_and_calibration_state():
+    html = (UI / "index.html").read_text(encoding="utf-8")
+    js = (UI / "app.js").read_text(encoding="utf-8")
+    setup_html = html[html.index('id="tab-setup"'):html.index('id="tab-dashboard"')]
+    calib_html = html[html.index('id="tab-calibration"'):html.index('id="tab-settings"')]
+    tags_step = setup_html[setup_html.index('setupstep" data-step="tags"'):
+                           setup_html.index('setupstep" data-step="hivetags"')]
+    assert NOTE in tags_step and NOTE in calib_html
+    assert 'class="calstate' in tags_step and 'class="calstate' in calib_html
+    assert 'id="calHints"' in calib_html and "$('calHints')" in js
+    assert "st.calibration_state" in js and "'Calibration state: '" in js
+    # shown from the wizard poll and when the Calibration tab opens
+    assert js.count("renderCalState(st)") >= 2
+
+
+def test_stub_round14_setup_status_fields():
+    srv, _ = ui_stub_server.start(0)
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        with urllib.request.urlopen(base + "/api/setup/status", timeout=10) as r:
+            st = json.load(r)
+        assert st["calibration_state"] and any("audience-side CELLs" in x for x in st["recommendations"])
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_round15_recalibrate_stale_poor_lens_finish_warnings():
+    html = (UI / "index.html").read_text(encoding="utf-8")
+    js = (UI / "app.js").read_text(encoding="utf-8")
+    # (1) buttons; docs name "Auto-calibrate all" stays; reset asks first
+    for i in ("btnAutoAll", "btnRecalBoth", "btnCalReset"):
+        assert f'id="{i}"' in html and f"$('{i}')" in js, i
+    assert ">Auto-calibrate all<" in html and ">Recalibrate both<" in html and ">Reset calibration<" in html
+    reset = js[js.index("$('btnCalReset').onclick"):]
+    assert reset.index("window.confirm(") < reset.index("'POST', '/api/calib/reset'")
+    # per-camera 409: hint plus both follow-up actions; force_single only on request
+    assert "force_single: true" in js and "Force this camera only" in js and 'data-act="recalboth"' in js
+    assert "/ 409 /.test(" in js and "reasonLines(e).join(' ')" in js
+    # (2) pair_stale amber chip on the stale camera
+    assert "pairStaleCams(" in js and "st.pair_stale" in js and 'class="pill warn"' in js and "pair stale" in js
+    # (3) measured_poor is not done and tells the operator what to do
+    assert "if (src === 'measured_poor') return false" in js and "re-run closer, 1.5-3 ft" in js
+    # (4) finish warnings are displayed and gate on an acknowledgement when in-sample
+    for i in ("finishWarnings", "ackRow", "chkVerified"):
+        assert f'id="{i}"' in html and f"$('{i}')" in js, i
+    assert "I verified by clicking" in html
+    fin = js[js.index("$('btnFinish').onclick"):]
+    assert fin.index("warningsOf(fin)") < fin.index("$('ackRow').style.display") < fin.index("/api/sessions")
+    assert "$('btnFinish').disabled = true" in js and "$('btnFinish').disabled = !e.target.checked" in js
+    assert "/in-sample/i.test(w)" in js and "fin.out_of_sample === false" in js
+    # (5) naming and per-camera warnings
+    assert "Fit residual (in) <b>" in js and "warningsHtml(r)" in js and "warningsOf(v)" in js
+
+
+def test_stub_round15_payloads():
+    srv, _ = ui_stub_server.start(0)
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        def call(path, method="GET", body=None):
+            data = json.dumps(body).encode() if body is not None else (b"" if method != "GET" else None)
+            req = urllib.request.Request(base + path, data=data, method=method)
+            try:
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return r.status, json.load(r)
+            except urllib.error.HTTPError as e:
+                return e.code, json.load(e)
+
+        assert call("/api/pipeline/status")[1]["pair_stale"] == ["cam1"]
+        assert call("/api/calib/reset", "POST", {"cam_id": "all"})[1]["ok"] is True
+        code, body = call("/api/calib/extrinsics/cam1/auto", "POST", {"source": "kit"})
+        assert code == 409 and "force" in body["detail"]
+        code, body = call("/api/calib/extrinsics/cam1/auto", "POST", {"source": "kit", "force_single": True})
+        assert code == 200 and body["warnings"]
+        ui_stub_server.FINISH_STATE["warn"] = True
+        code, body = call("/api/setup/finish", "POST", {})
+        assert code == 200 and body["out_of_sample"] is False and "in-sample" in body["warning"] and body["warnings"]
+    finally:
+        ui_stub_server.FINISH_STATE["warn"] = False
         srv.shutdown()
         srv.server_close()

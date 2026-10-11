@@ -1,0 +1,9 @@
+RUN s8_240_555_rt_s2 idle-wait: cpu=23% after 60s
+[s8_240_555 rt stress] elapsed=13.7s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3702612325929509 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.24660686165071866 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 11, 'cam1': 22} max_dropped_seen={'cam0': 11, 'cam1': 22} warnings_final=['camera cam0 dropped 11 frames (processing too slow)', 'camera cam1 dropped 22 frames (processing too slow)'] warnings_seen=['camera cam0 dropped 6 frames (processing too slow)', 'camera cam1 dropped 18 frames (processing too slow)', 'camera cam0 dropped 11 frames (processing too slow)', 'camera cam1 dropped 22 frames (processing too slow)'] offset=0.0
+  stress: mjpg_bytes=[1572864, 1572864] mjpg_err=[] stats_calls=97 stats_err=0 stats_max_ms=78
+  system CPU during run (whole machine, incl. server): mean=40% max=72% n=16
+  server_exit 1

@@ -10,6 +10,7 @@ import numpy as np
 
 from hiveshot import field
 from hiveshot import field_constants as fc
+from hiveshot.tagkit import CALIBRATION_HIVE_STATES
 
 DPI = 300
 LETTER_LANDSCAPE_IN = (11.0, 8.5)
@@ -111,11 +112,13 @@ CELL_CORNER_NAMES = ("high-left", "high-right", "low-right", "low-left")
 # "high" = the upper edge of the tilted opening (z 65.6 in), "low" = the lower edge (53.5 in).
 # (Seen from the recommended tripod spots the -X side appears on the image RIGHT.)
 RED_CELL_PREFIX = "Red HIVE up-CELL opening, "
-BLUE_CELL_PREFIX = "Blue HIVE far-CELL opening, "
+BLUE_CELL_PREFIX = "Blue HIVE up-CELL opening, "
 CELL_NAME_PREFIX = RED_CELL_PREFIX         # kept for callers of the old name
-# Match-start state (Field Setup Guide 11.1): red HIVE audience CELL up, blue HIVE far CELL up.
-# The 8 click points are the corners of these two physically real openings.
-CALIB_HIVE_STATES = (("red", "audience"), ("blue", "far"))
+# Calibration state (tagkit.CALIBRATION_HIVE_STATES, field.CALIBRATION_STATE): BOTH audience
+# CELLs up, tipped by hand before calibrating. In the match-start state the blue audience CELL is
+# down and its body hides kit tag 100 (and click points of the far CELL) from the cameras. The 8
+# click points are the corners of the two audience up-CELL openings.
+CALIB_HIVE_STATES = CALIBRATION_HIVE_STATES
 # polygon order in field.cell_opening_polygon is low-left, low-right, high-right, high-left
 _POLY_INDEX = {"high-left": 3, "high-right": 2, "low-right": 1, "low-left": 0}
 
@@ -134,9 +137,9 @@ def up_cell_opening_corners(alliance: str = "red", which: str = "audience"
 
 def field_reference_points() -> list[tuple[str, tuple[float, float, float]]]:
     """The 8 points to click, in click order: the four corners of the red HIVE's audience
-    CELL opening (up at match start) and the four corners of the blue HIVE's far CELL opening
-    (also up at match start). All are physical corners of the CELL openings, in the air on
-    the HIVE (from the recommended tripod spots the floor is out of frame)."""
+    CELL opening and the four corners of the blue HIVE's audience CELL opening, both up in the
+    calibration state (both audience CELLs up). All are physical corners of the CELL openings,
+    in the air on the HIVE (from the recommended tripod spots the floor is out of frame)."""
     pts: list[tuple[str, tuple[float, float, float]]] = []
     for prefix, (alliance, which) in zip((RED_CELL_PREFIX, BLUE_CELL_PREFIX), CALIB_HIVE_STATES,
                                          strict=True):
@@ -164,29 +167,30 @@ def write_field_point_sheet(path: str | Path) -> Path:
 All coordinates are inches in the field frame: origin at field center on the tile
 surface, Z up, **+Y toward the audience side (the audience-side CELL)**, X along the
 red/blue axis (red HIVE at X = {fc.RED_HIVE_X}, blue HIVE at X = {fc.BLUE_HIVE_X}).
-Click the same physical point in each camera, in this order. Set the HIVE to the match-start
-state first: red HIVE audience CELL up, blue HIVE far CELL up.
+Click the same physical point in each camera, in this order. **Tip BOTH HIVEs by hand first so
+that both audience CELLs are up** (the calibration state); in the match-start state the blue
+audience CELL is down and its body hides part of the blue far CELL and kit tag 100 from the cameras.
 
 | # | Point | X | Y | Z |
 |---|-------|---|---|---|
 {rows}
 
 "left" / "right" in the names mean the -X / +X side of the opening. "high" is the upper edge
-of the tilted opening, "low" the lower edge (for the far CELL the high edge is the one nearer
-the pivot).
+of the tilted opening (the one farther from the audience), "low" the lower edge (nearest the
+audience).
 
 ## Derivation
 
 - Points 1-4: the corners of the red HIVE's audience-CELL opening, points 5-8: the corners
-  of the blue HIVE's far-CELL opening, both taken directly from
+  of the blue HIVE's audience-CELL opening (both up in the calibration state), taken directly from
   `hiveshot.field.cell_opening_polygon(alliance, which, HiveState(alliance, which))` (the model
   used for scoring and the 3-D viewer, which follows the official CAD). Each opening is
   {fc.CELL_OPENING_WIDTH} in wide (X) by {fc.CELL_OPENING_HEIGHT} in tall in its own plane,
   plane {fc.OPENING_PLANE_FROM_HORIZONTAL_DEG} deg from horizontal, spanning z
   {fc.UP_CELL_OPENING_Z_RANGE[0]} to {fc.UP_CELL_OPENING_Z_RANGE[1]} in (official figure 9-9).
-- The openings of the blue far CELL face away from the audience: from the camera spots you see
-  its rim from behind. Click the corners of the opening rim (the corners of the 20 x 14 in
-  opening, where the CELL walls end), not the corners of the CELL body behind it.
+- Both openings face the audience and up, so from the camera spots you look into them: click the
+  corners of the opening rim (the corners of the 20 x 14 in opening, where the CELL walls end),
+  not the corners of the CELL body behind it.
 - Points are real physical corners; the earlier frame "top corners" do not exist on the CAD A-frame
   and are no longer used. Floor features (tile seams, frame base corners) are not used either:
   from the recommended camera poses the floor is outside the image.

@@ -1,0 +1,201 @@
+{
+ "start_state": {
+  "warnings": [],
+  "cs": "kit"
+ },
+ "start_acc_pos_in": {
+  "cam0": 6.17,
+  "cam1": 5.94
+ },
+ "1_auto_all_kit": {
+  "cam0": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 8.5 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 8.488543911428168,
+   "oos_error_in": 0.18219992598408077,
+   "tags_used": null,
+   "reprojection_px": 0.34118629114712606
+  },
+  "cam1": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 3.4 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 3.3680795122849307,
+   "oos_error_in": 0.20657916131874568,
+   "tags_used": null,
+   "reprojection_px": 0.9703613364940908
+  }
+ },
+ "2_auto_all_default": {
+  "cam0": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 8.5 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 8.489424750823785,
+   "oos_error_in": 0.1818289626899423,
+   "tags_used": null,
+   "reprojection_px": 0.34553672158932996
+  },
+  "cam1": {
+   "ok": false,
+   "status": 409,
+   "error": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 3.6 in (limit 2 in). The previous calibration is kept.",
+   "crosscheck_error_in": 3.5867390910955277,
+   "oos_error_in": 0.21200032803065352,
+   "tags_used": null,
+   "reprojection_px": 0.6161227351361456
+  }
+ },
+ "3_click_cam0": {
+  "code": 409,
+  "detail": "extrinsics of cam0 not saved: the out-of-sample cross-check with cam1 would be 8.6 in (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": 8.59644359417262,
+  "oos_error_in": 0.16666293941305746,
+  "tags_used": null,
+  "reprojection_px": 0.9835770258132663,
+  "source": null,
+  "warnings": null
+ },
+ "3_click_cam1": {
+  "code": 409,
+  "detail": "extrinsics of cam1 not saved: the out-of-sample cross-check with cam0 would be 3.5 in (limit 2 in). The previous calibration is kept.",
+  "refused": true,
+  "crosscheck_error_in": 3.5390032786501364,
+  "oos_error_in": 0.46861616227731184,
+  "tags_used": null,
+  "reprojection_px": 0.5871514876599008,
+  "source": null,
+  "warnings": null
+ },
+ "4_hive_cam0": {
+  "code": 200,
+  "detail": null,
+  "refused": null,
+  "crosscheck_error_in": null,
+  "oos_error_in": 0.14435199575535015,
+  "tags_used": [
+   30,
+   31,
+   34,
+   35,
+   36,
+   37
+  ],
+  "reprojection_px": 0.9730349873347544,
+  "source": "hive",
+  "warnings": [
+   "calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit"
+  ]
+ },
+ "4_kit_cam1_after": {
+  "code": 200,
+  "detail": null,
+  "refused": null,
+  "crosscheck_error_in": null,
+  "oos_error_in": 0.2107073437124489,
+  "tags_used": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "reprojection_px": 0.523819202791463,
+  "source": "kit",
+  "warnings": []
+ },
+ "4_kit_cam0_after": {
+  "code": 200,
+  "detail": null,
+  "refused": null,
+  "crosscheck_error_in": null,
+  "oos_error_in": 0.18384978840366983,
+  "tags_used": [
+   100,
+   101,
+   103
+  ],
+  "reprojection_px": 0.3467285681472123,
+  "source": "kit",
+  "warnings": []
+ },
+ "end_acc_pos_in": {
+  "cam0": 0.15,
+  "cam1": 0.27
+ },
+ "end_finish": {
+  "code": 200,
+  "detail": null,
+  "max_error_in": 0.2656609563350033
+ },
+ "5_auto_all_hive": {
+  "cam0": {
+   "ok": true,
+   "status": null,
+   "error": null,
+   "crosscheck_error_in": null,
+   "oos_error_in": 0.07779489336606443,
+   "tags_used": [
+    30,
+    31,
+    34,
+    35,
+    36,
+    37
+   ],
+   "reprojection_px": 0.9490174968397657
+  },
+  "cam1": {
+   "ok": true,
+   "status": null,
+   "error": null,
+   "crosscheck_error_in": null,
+   "oos_error_in": 0.1868122362614589,
+   "tags_used": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37
+   ],
+   "reprojection_px": 0.7179314325982
+  }
+ },
+ "6_auto_all_kit_after_hive": {
+  "cam0": {
+   "ok": true,
+   "status": null,
+   "error": null,
+   "crosscheck_error_in": null,
+   "oos_error_in": 0.18624433000227994,
+   "tags_used": [
+    100,
+    101,
+    103
+   ],
+   "reprojection_px": 0.34010644856478983
+  },
+  "cam1": {
+   "ok": true,
+   "status": null,
+   "error": null,
+   "crosscheck_error_in": null,
+   "oos_error_in": 0.21411056075186805,
+   "tags_used": [
+    100,
+    101,
+    102,
+    103
+   ],
+   "reprojection_px": 0.6278623826745283
+  }
+ },
+ "final_acc_pos_in": {
+  "cam0": 0.13,
+  "cam1": 0.44
+ }
+}

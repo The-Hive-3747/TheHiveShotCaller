@@ -1,0 +1,20 @@
+red-audience: up=True  x 2.8..22.8 y 1.8..19.3 z 47.5..65.6
+red-far: up=False  x 2.8..22.8 y -24.9..-7.5 z 32.0..50.2
+blue-audience: up=False  x -22.8..-2.8 y 7.5..24.9 z 32.0..50.2
+blue-far: up=True  x -22.8..-2.8 y -19.3..-1.8 z 47.5..65.6
+usb cam A tag 100: grid points behind a CELL box 49/49 ['blue-audience']
+usb cam A tag 101: grid points behind a CELL box 23/49 ['blue-audience']
+usb cam A tag 102: grid points behind a CELL box 0/49 []
+usb cam A tag 103: grid points behind a CELL box 0/49 []
+usb cam B tag 100: grid points behind a CELL box 14/49 ['blue-audience']
+usb cam B tag 101: grid points behind a CELL box 0/49 []
+usb cam B tag 102: grid points behind a CELL box 0/49 []
+usb cam B tag 103: grid points behind a CELL box 0/49 []
+gopro cam A tag 100: grid points behind a CELL box 49/49 ['blue-audience']
+gopro cam A tag 101: grid points behind a CELL box 23/49 ['blue-audience']
+gopro cam A tag 102: grid points behind a CELL box 0/49 []
+gopro cam A tag 103: grid points behind a CELL box 0/49 []
+gopro cam B tag 100: grid points behind a CELL box 14/49 ['blue-audience']
+gopro cam B tag 101: grid points behind a CELL box 0/49 []
+gopro cam B tag 102: grid points behind a CELL box 0/49 []
+gopro cam B tag 103: grid points behind a CELL box 0/49 []

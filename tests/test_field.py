@@ -322,3 +322,43 @@ def test_flower_positions_match_step():
         assert (sx > sy) == (abs(f["xy"][1]) > abs(f["xy"][0]))
     j = field.to_json()
     assert len(j["flowers"]) == 4 and set(j["logo_panels"]) == {"audience", "far"}
+
+
+# ---- CELL bodies (occlusion)
+def test_cell_body_corners_match_step_extents():
+    # blue audience CELL is DOWN at match start; STEP extents quoted by the DoD 9 refuter
+    blue = field.MATCH_START_STATE["blue"]
+    b = field.cell_body_corners("blue", "audience", blue)
+    assert b.shape == (10, 3)
+    lo, hi = b.min(axis=0), b.max(axis=0)
+    assert np.abs(lo - [-23.0, 6.7, 30.65]).max() <= 1.5
+    assert np.abs(hi - [-2.0, 25.0, 50.5]).max() <= 1.5
+    up = field.cell_body_corners("red", "audience", field.MATCH_START_STATE["red"])
+    assert up[:, 2].max() == pytest.approx(65.93, abs=1.0)        # CAD rib top 65.93
+
+
+def test_segment_intersects_cell_basic():
+    st = field.HiveState("red", "audience")
+    c, n = field.cell_opening_plane("red", "audience", st)
+    far = c + 40 * n
+    assert field.segment_intersects_cell(far, c - 5 * n, "red", "audience", st)         # through the opening
+    assert field.segment_intersects_cell(c - 3 * n, c - 6 * n, "red", "audience", st)   # fully inside
+    assert not field.segment_intersects_cell(far, far + np.array([0, 0, 5.0]), "red", "audience", st)
+    assert not field.segment_intersects_cell(far + [30, 0, 0], c + [30, 0, 0] - 5 * n,
+                                             "red", "audience", st)                       # 30 in to the side
+    # grazing the outside of the body (through a side face)
+    side = c + np.array([-30.0, 0, 0]) - 6 * n
+    assert field.segment_intersects_cell(side, side + [40.0, 0, 0], "red", "audience", st)
+    assert not field.segment_intersects_cell(side + [0, 0, 20], side + [40.0, 0, 20], "red", "audience", st)
+
+
+def test_blue_audience_cell_blocks_kit_tag_100_only_at_match_start():
+    from hiveshot import tagkit
+    tag100 = tagkit.tag_corners_xyz(tagkit.KIT_TAGS[0]).mean(axis=0)
+    cam = np.array([-49.0, 85.5, 36.0])
+    assert field.segment_intersects_cell(cam, tag100, "blue", "audience", field.MATCH_START_STATE["blue"])
+    assert field.segment_hits_any_cell(cam, tag100, field.MATCH_START_STATE)
+    assert not field.segment_intersects_cell(cam, tag100, "blue", "audience", field.CALIBRATION_STATE["blue"])
+    assert not field.segment_hits_any_cell(cam, tag100, field.CALIBRATION_STATE)
+    assert len(field.all_cell_bodies(field.MATCH_START_STATE)) == 4
+    assert field.MATCH_START_STATE["blue"].up_cell == "far" and field.CALIBRATION_STATE["blue"].up_cell == "audience"

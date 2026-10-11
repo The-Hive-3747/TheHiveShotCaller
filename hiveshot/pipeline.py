@@ -105,7 +105,15 @@ OFFSET_CONFIDENT = 0.3
 OFFSET_LAG_DEVICE_S = 0.1
 OFFSET_LAG_FILE_S = 0.5
 OFFSET_LAG_NETWORK_S = 2.0
-UNPAIRED_MIN_DETECTIONS = 12   # a 2D track this long that finds no partner is a lost shot
+UNPAIRED_MIN_HITS = 3           # a 2D track with this many detections ...
+UNPAIRED_MIN_SPAN_S = 0.3       # ... over this long that finds no partner may be a lost shot
+UNPAIRED_OVERLAP_S = 0.1        # ... unless a reconstructed shot covers its time (+- this)
+LENS_POOR_RMSE_PX = 2.0          # lens calibration above this is "measured_poor"
+LENS_OK_RMSE_PX = 1.0            # ... and between this and the above passes with a warning
+MAX_LOOP_RESTARTS = 3           # camera loop restarts per minute before giving up
+WATCHDOG_PERIOD_S = 2.0         # pipeline health check interval
+DETECT_STALL_S = 3.0            # frames arrive but the detector has not run for this long
+RECON_STALL_S = 10.0            # tracks are pending but no reconstruction cycle completed
 # 3D fragment stitching (config stitch_gap_s / finalize_delay_s): a ball that leaves the
 # cameras' view and re-enters is reconstructed as separate fragments; join them when a
 # ballistic extrapolation of the earlier part lands on the start of the later part.
@@ -118,6 +126,7 @@ FRAG_TOL_PER_S_IN = 15.0
 EXTEND_PLANE_IN = 6.0
 EXTEND_MAX_S = 0.15
 EXTEND_STEP_S = 1.0 / 60.0
+EXTEND_STEP_IN = 1.5          # ... but at most this far along the path per step
 # Moving average of the per-stage timers exposed in status()["timing"].
 TIMING_ALPHA = 0.02
 TIMING_STAGES = ("detect_ms", "track_ms", "preview_ms", "ring_ms")
@@ -311,6 +320,31 @@ def _source_of_solve(rec: Optional[dict]) -> str:
     if rec.get("source") == "clicks" or not ids:
         return "click"
     return "kit" if any(100 <= t <= 103 for t in ids) else "hive"
+
+
+def calibration_state() -> dict[str, str]:
+    """{alliance: up cell} the cameras are calibrated against: `field.CALIBRATION_STATE`
+    (both audience CELLs up), whatever the pipeline's current HIVE state is."""
+    from . import field
+    cs = getattr(field, "CALIBRATION_STATE", None) or {}
+    out = {al: "audience" for al in field.ALLIANCES}
+    for al, hs in dict(cs).items():
+        out[str(al)] = str(getattr(hs, "up_cell", hs))
+    return out
+
+
+def calibration_hive_defs() -> dict[int, np.ndarray]:
+    """Computed corners {id: (4,3)} of the HIVE tags of BOTH alliances in the calibration
+    state (`tagkit.hive_tag_defs` per alliance), independent of the pipeline's HIVE state."""
+    from . import field, tagkit
+    out: dict[int, np.ndarray] = {}
+    for al, up in calibration_state().items():
+        try:
+            for i, c in tagkit.hive_tag_defs(al, field.HiveState(al, up)).items():
+                out[int(i)] = np.asarray(c, float).reshape(4, 3)
+        except Exception:  # noqa: BLE001
+            log.debug("calibration HIVE tags of %s unavailable", al, exc_info=True)
+    return out
 
 
 def computed_hive_defs(alliance: str, up_cell: str, up_only: bool = False
@@ -532,6 +566,8 @@ class Pipeline:
         self._offset_conf: Optional[float] = None
         self._unpaired = 0
         self._warned: set[str] = set()
+        self._pair_stale: set[str] = set()      # solved alone after a failed pair check
+        self._reset_health()
         self._chains: list[_Chain] = []
         self._closed_at: dict[int, float] = {}
         self._cam_t: dict[str, float] = {}
@@ -692,6 +728,37 @@ class Pipeline:
                 return False
         return bool(self._rcfg.sources)
 
+    def _reset_health(self) -> None:
+        """Per-run bookkeeping of processing errors, loop restarts and watchdog state."""
+        self._errors: dict[str, int] = {}
+        self._err_last: dict[str, str] = {}
+        self._err_logged: set[tuple] = set()
+        self._loop_restarts: dict[str, collections.deque] = {}
+        self._restart_total: dict[str, int] = {}
+        self._gen: dict[str, int] = {}
+        self._recon_gen = 0
+        self._recon_busy = threading.Lock()
+        self._detect_mark: dict[str, tuple[float, int]] = {}   # cam -> (monotonic, frames_read)
+        self._recon_wall = time.monotonic()
+        self._stalls: dict[str, str] = {}
+        self._shot_spans: list[tuple[float, float]] = []       # reconstructed flights (cam A time)
+        self._trackers: dict[str, Any] = {}
+
+    def _frame_error(self, cam: str, stage: str, exc: BaseException) -> None:
+        """A step of the per-frame work failed: count it, log the first occurrence of each
+        kind with a traceback, and let the loop go on with the next frame."""
+        with self._lock:
+            self._errors[cam] = self._errors.get(cam, 0) + 1
+            self._err_last[cam] = f"{stage}: {exc}"
+            key = (cam, stage, type(exc).__name__)
+            first = key not in self._err_logged
+            self._err_logged.add(key)
+        if first:
+            log.error("camera %s: %s failed (%s); counting further errors without a traceback",
+                      cam, stage, exc, exc_info=(type(exc), exc, exc.__traceback__))
+        else:
+            log.debug("camera %s: %s failed again: %s", cam, stage, exc)
+
     def reload_calibration(self) -> None:
         intr: dict[str, CameraIntrinsics] = {}
         ext: dict[str, CameraExtrinsics] = {}
@@ -752,7 +819,7 @@ class Pipeline:
             slot_name, slot = next(iter(self._rcfg.default_intrinsics.items()))
         for sc in self._rcfg.sources:
             keep = intr_src.get(sc.cam_id)
-            if sc.cam_id in intr and keep in (None, "measured"):
+            if sc.cam_id in intr and keep in (None, "measured", "measured_poor"):
                 continue
             if slot is None:
                 continue
@@ -776,6 +843,17 @@ class Pipeline:
             self._check_calib(cam)
         self._offset = None
         self._offset_wall = 0.0
+
+    def set_pair_stale(self, cam: str, flag: bool) -> None:
+        """Mark a camera whose pose may disagree with the other camera's (the pair check
+        failed when the other one was solved alone) until it is re-solved."""
+        if flag:
+            self._pair_stale.add(cam)
+        else:
+            self._pair_stale.discard(cam)
+
+    def pair_stale(self) -> set[str]:
+        return set(self._pair_stale)
 
     def intrinsics_sources(self) -> dict[str, str]:
         """{cam_id: "measured" | "profile" | "default"} of the intrinsics in use."""
@@ -814,13 +892,14 @@ class Pipeline:
             return self.status()
 
     def _start_locked(self) -> None:
-        from .detect import DetectorConfig  # lazy
+        from .detect import DetectorConfig  # noqa: F401  (fail early if missing)
         from .recon import StereoReconstructor  # noqa: F401  (fail early if missing)
-        from .track2d import Tracker2D  # lazy
+        from .track2d import Tracker2D  # noqa: F401  (fail early if missing)
 
         with self._lock:
             self._rcfg = cfg = self._desired          # config snapshot for this run
             self._detectors = {}
+            self._reset_health()
             self._tags_cache = {}
             self._hive_source = "manual"
             self._activity_wall = time.monotonic()
@@ -883,16 +962,12 @@ class Pipeline:
                 if th_cap is not None and getattr(th_cap, "native_id", None):
                     _thread_priority(CAM_PRIORITY, th_cap.native_id)
             for cam in self._readers:
-                det = ScaledDetector(DetectorConfig.from_dict(cfg.detector.model_dump()),
-                                    cfg.detector.motion_scale)
-                trk = Tracker2D(cam)
-                self._detectors[cam] = det
-                th = threading.Thread(target=self._cam_loop, args=(cam, det, trk),
-                                      name=f"cam-{cam}", daemon=True)
-                self._threads.append(th)
-            self._threads.append(threading.Thread(target=self._recon_loop, name="recon",
-                                                  daemon=True))
+                self._threads.append(self._new_cam_thread(cam))
+            self._threads.append(threading.Thread(target=self._recon_loop, args=(0,),
+                                                  name="recon", daemon=True))
             self._threads.append(threading.Thread(target=self._tag_loop, name="tags",
+                                                  daemon=True))
+            self._threads.append(threading.Thread(target=self._watchdog_loop, name="watchdog",
                                                   daemon=True))
             self._tag_last = {}
             self._vote = None
@@ -946,12 +1021,56 @@ class Pipeline:
                 self.rtmp.stop()
 
     # ----------------------------------------------------------- per-camera loop
-    def _cam_loop(self, cam: str, det, trk) -> None:
+    def _new_cam_thread(self, cam: str) -> threading.Thread:
+        """Fresh detector + tracker + camera-loop thread (not started) for `cam`; the
+        generation number retires any older loop of the same camera."""
+        from .detect import DetectorConfig
+        from .track2d import Tracker2D
+        cfg = self._rcfg
+        det = ScaledDetector(DetectorConfig.from_dict(cfg.detector.model_dump()),
+                             cfg.detector.motion_scale)
+        trk = Tracker2D(cam)
+        gen = self._gen.get(cam, -1) + 1
+        self._gen[cam] = gen
+        self._detectors[cam] = det
+        self._trackers[cam] = trk
+        return threading.Thread(target=self._cam_loop, args=(cam, det, trk, gen),
+                                name=f"cam-{cam}", daemon=True)
+
+    def _cam_loop(self, cam: str, det, trk, gen: int = 0) -> None:
+        """Supervisor of one camera: runs the loop and restarts it (at most
+        MAX_LOOP_RESTARTS times a minute) if it dies from an unexpected exception."""
+        while not self._stop.is_set() and self._gen.get(cam) == gen:
+            try:
+                self._cam_loop_once(cam, det, trk, gen)
+            except Exception as e:  # noqa: BLE001
+                now = time.monotonic()
+                dq = self._loop_restarts.setdefault(cam, collections.deque())
+                while dq and now - dq[0] > 60.0:
+                    dq.popleft()
+                self._frame_error(cam, "camera loop", e)
+                if len(dq) >= MAX_LOOP_RESTARTS:
+                    self.last_error = (f"camera {cam}: processing loop failed {len(dq) + 1} "
+                                       f"times in a minute and was stopped ({e})")
+                    log.error("camera loop for %s keeps failing; giving up", cam)
+                    break
+                dq.append(now)
+                self._restart_total[cam] = self._restart_total.get(cam, 0) + 1
+                log.warning("camera loop for %s died (%s); restarting (%d/%d this minute)",
+                            cam, e, len(dq), MAX_LOOP_RESTARTS)
+                time.sleep(0.05)
+                continue
+            break
+        if self._gen.get(cam) == gen:
+            self._done[cam] = True
+
+    def _cam_loop_once(self, cam: str, det, trk, gen: int) -> None:
         _thread_priority(CAM_PRIORITY)
         reader = self._readers[cam]
         prev_idx: Optional[int] = None
         prev_t = 0.0
         sized = False
+        self._detect_mark[cam] = (time.monotonic(), int(getattr(reader, "frames_read", 0)))
         # preview JPEG encoding runs in a helper thread per camera (cv2 releases the GIL), off
         # the detect budget; the cheap clip-ring copy stays on this thread
         aux_q: queue.Queue = queue.Queue(maxsize=AUX_QUEUE_MAX)
@@ -959,7 +1078,7 @@ class Pipeline:
                                name=f"aux-{cam}")
         aux.start()
         try:
-            while not self._stop.is_set():
+            while not self._stop.is_set() and self._gen.get(cam) == gen:
                 fr = reader.get(timeout=0.1)
                 if fr is None:
                     if reader.finished:
@@ -976,11 +1095,23 @@ class Pipeline:
                         self._drops[cam].append((prev_t, t, fr.frame_idx - prev_idx - 1))
                 prev_idx, prev_t = fr.frame_idx, t
                 t0 = time.perf_counter()
-                small = det.shrink(fr.image)
-                dets = det.detect(small, fr.frame_idx, t, cam)
+                small, dets = None, []
+                try:
+                    small = det.shrink(fr.image)
+                    dets = det.detect(small, fr.frame_idx, t, cam)
+                except Exception as e:  # noqa: BLE001  (seen: OpenCV C++ exceptions under load)
+                    self._frame_error(cam, "detection", e)
+                    small, dets = None, []
+                if self._gen.get(cam) != gen:
+                    return                    # a restart replaced this loop while it was stuck
+                self._detect_mark[cam] = (time.monotonic(), getattr(reader, "frames_read", 0))
                 t1 = time.perf_counter()
-                trk.update(dets, fr.frame_idx, t)
-                closed = trk.closed()
+                closed = []
+                try:
+                    trk.update(dets, fr.frame_idx, t)
+                    closed = trk.closed()
+                except Exception as e:  # noqa: BLE001
+                    self._frame_error(cam, "tracking", e)
                 t2 = time.perf_counter()
                 self._tick(cam, "detect_ms", (t1 - t0) * 1000.0)
                 self._tick(cam, "track_ms", (t2 - t1) * 1000.0)
@@ -991,26 +1122,72 @@ class Pipeline:
                     self._proc_times[cam].append(time.perf_counter())
                     if closed:
                         self._add_closed(cam, closed, t)
-                if self.save_clips:
-                    self._ring_frame(cam, fr.image, t, small)
-                if self._preview_due(cam):
-                    try:
-                        aux_q.put_nowait((fr, dets, small.copy()))
-                    except queue.Full:
-                        pass                 # previews are best effort
-            # end of stream or stop: flush open 2D tracks so in-flight shots are not lost
-            with self._lock:
-                self._add_closed(cam, trk.finish(), self._last_t)
-        except Exception as e:  # noqa: BLE001
-            self.last_error = f"{cam}: {e}"
-            log.exception("camera loop failed for %s", cam)
+                try:
+                    if small is not None:
+                        if self.save_clips:
+                            self._ring_frame(cam, fr.image, t, small)
+                        if self._preview_due(cam):
+                            try:
+                                aux_q.put_nowait((fr, dets, small.copy()))
+                            except queue.Full:
+                                pass             # previews are best effort
+                except Exception as e:  # noqa: BLE001
+                    self._frame_error(cam, "clip ring / preview", e)
+            if self._gen.get(cam) == gen:
+                # end of stream or stop: flush open 2D tracks so in-flight shots are not lost
+                with self._lock:
+                    self._add_closed(cam, trk.finish(), self._last_t)
         finally:
             try:
                 aux_q.put(None, timeout=1.0)
                 aux.join(2.0)                # the clip ring is complete before 'done'
             except queue.Full:
                 pass
-            self._done[cam] = True
+
+    # ---------------------------------------------------------------- watchdog
+    def _watchdog_loop(self) -> None:
+        while not self._stop.wait(WATCHDOG_PERIOD_S):
+            try:
+                self._watchdog_tick()
+            except Exception:  # noqa: BLE001
+                log.exception("watchdog check failed")
+
+    def _watchdog_tick(self) -> None:
+        """Health check: a detector that stopped running while frames keep arriving, or a
+        reconstruction that completes no cycle while tracks wait, is flagged in the status
+        warnings ("pipeline stalled: <component>") and its thread is replaced."""
+        if self._stop.is_set() or not self._running:
+            return
+        now = time.monotonic()
+        for cam, r in list(self._readers.items()):
+            if self._done.get(cam) or getattr(r, "finished", False):
+                continue
+            mark = self._detect_mark.get(cam)
+            if mark is None:
+                continue
+            ran_at, frames_then = mark
+            frames_now = int(getattr(r, "frames_read", 0))
+            if frames_now > frames_then and now - ran_at > DETECT_STALL_S:
+                name = f"detector {cam}"
+                self._stalls[name] = f"pipeline stalled: {name}"
+                log.error("pipeline stalled: %s (no frame processed for %.1f s while %d "
+                          "arrived); restarting it", name, now - ran_at, frames_now - frames_then)
+                th = self._new_cam_thread(cam)
+                self._detect_mark[cam] = (now, frames_now)
+                self._threads.append(th)
+                th.start()
+        pending = any(self._pending.values()) or bool(self._chains)
+        if pending and not self._finished.is_set() and now - self._recon_wall > RECON_STALL_S:
+            self._stalls["recon"] = "pipeline stalled: reconstruction"
+            log.error("pipeline stalled: reconstruction (no cycle completed for %.1f s with "
+                      "tracks pending); restarting it", now - self._recon_wall)
+            self._recon_gen += 1
+            self._recon_busy = threading.Lock()    # the stuck loop may never release its own
+            self._recon_wall = now
+            th = threading.Thread(target=self._recon_loop, args=(self._recon_gen,),
+                                  name="recon", daemon=True)
+            self._threads.append(th)
+            th.start()
 
     def _aux_loop(self, cam: str, det, q: "queue.Queue") -> None:
         _thread_priority(-1)
@@ -1361,14 +1538,14 @@ class Pipeline:
                   and now - self._cam_wall.get(c, now) <= STALL_AFTER_S]
             return min(ts) if ts else self._last_t
 
-    def _recon_loop(self) -> None:
+    def _recon_loop(self, gen: int = 0) -> None:
         _thread_priority(-1)
         # Cycles are paced in *source* time (RECON_PERIOD_S), so file runs faster than
         # real time behave like live ones.
         last_cycle_t = -1e9
-        while not self._stop.is_set():
+        while not self._stop.is_set() and self._recon_gen == gen:
             self._stop.wait(0.05)
-            if self._stop.is_set():
+            if self._stop.is_set() or self._recon_gen != gen:
                 break
             self._check_idle()
             all_done = bool(self._done) and all(self._done.values())
@@ -1376,11 +1553,19 @@ class Pipeline:
             if not all_done and now_t - last_cycle_t < RECON_PERIOD_S:
                 continue
             last_cycle_t = now_t
+            busy = self._recon_busy
+            if not busy.acquire(blocking=False):
+                continue                       # another (replaced, still unwinding) loop is mid-cycle
             try:
                 self._recon_cycle(final=all_done)
             except Exception as e:  # noqa: BLE001
                 self.last_error = f"recon: {e}"
                 log.exception("recon cycle failed")
+            finally:
+                busy.release()
+            if self._recon_gen != gen:
+                break                          # replaced by the watchdog while it was stuck
+            self._recon_wall = time.monotonic()
             if all_done:
                 self._finished.set()
                 break
@@ -1474,11 +1659,16 @@ class Pipeline:
                     keep = [t for t in self._pending[c] if t.detections
                             and t_now - t.detections[-1].t <= PENDING_MAX_AGE_S]
                     gone = [t for t in self._pending[c] if id(t) not in {id(k) for k in keep}]
-                n_lost = sum(1 for t in gone if len(t.detections) >= UNPAIRED_MIN_DETECTIONS)
+                n_lost = 0
+                for t in gone:
+                    if not self._is_lost_shot(c, t, cams):
+                        continue
+                    n_lost += 1
                 if n_lost:
                     self._unpaired += n_lost
                     log.warning("%d ball track(s) from %s found no partner in the other "
-                                "camera and were dropped (a shot may be missing)", n_lost, c)
+                                "camera and no shot covers their time: a shot is missing",
+                                n_lost, c)
                 self._pending[c] = keep
             live = {id(t) for c in (a, b) for t in self._pending[c]}
             self._closed_at = {k: v for k, v in self._closed_at.items() if k in live}
@@ -1488,22 +1678,28 @@ class Pipeline:
             else self._recon_ms + 0.1 * (ms - self._recon_ms)
 
     @staticmethod
-    def _extrapolate(points: list[Point3D], t: float) -> np.ndarray:
-        """Ballistic (gravity only) extrapolation from the tail of a fragment."""
+    def _ballistic(points: list[Point3D]):
+        """Function t -> xyz: gravity-only extrapolation fitted to the tail of a fragment."""
         tail = points[-12:]
         t0 = tail[-1].t
         dt = np.array([p.t - t0 for p in tail])
-        out = []
+        ks = []
         for axis in "xyz":
             v = np.array([getattr(p, axis) for p in tail])
             if axis == "z":
                 v = v + 0.5 * GRAVITY_IPS2 * dt ** 2
-            k = np.polyfit(dt, v, 1) if len(tail) >= 2 else (0.0, v[0])
-            val = k[1] + k[0] * (t - t0)
-            if axis == "z":
-                val -= 0.5 * GRAVITY_IPS2 * (t - t0) ** 2
-            out.append(val)
-        return np.array(out)
+            ks.append(np.polyfit(dt, v, 1) if len(tail) >= 2 else (0.0, v[0]))
+
+        def at(t: float) -> np.ndarray:
+            d = t - t0
+            return np.array([ks[0][1] + ks[0][0] * d, ks[1][1] + ks[1][0] * d,
+                             ks[2][1] + ks[2][0] * d - 0.5 * GRAVITY_IPS2 * d * d])
+        return at
+
+    @classmethod
+    def _extrapolate(cls, points: list[Point3D], t: float) -> np.ndarray:
+        """Ballistic (gravity only) extrapolation from the tail of a fragment."""
+        return cls._ballistic(points)(t)
 
     def _opening_distance(self, p: Point3D, h: Optional[HiveState] = None) -> float:
         """Signed distance of p from the up-CELL opening plane (positive = outside)."""
@@ -1523,8 +1719,31 @@ class Pipeline:
         h = self._state_at(ch.track.points[0].t)
         return not 0.0 < self._opening_distance(last, h) <= EXTEND_PLANE_IN
 
+    def _is_lost_shot(self, cam: str, track, cams: list) -> bool:
+        """An unpaired 2D track means a lost shot only if it is a real ball track (enough hits
+        over a long enough time) and no reconstructed shot covers its time span; a stray
+        fragment of a flight that was reconstructed from the other pieces is just debug noise."""
+        dets = track.detections
+        if len(dets) < UNPAIRED_MIN_HITS:
+            return False
+        t0, t1 = dets[0].t, dets[-1].t
+        if t1 - t0 < UNPAIRED_MIN_SPAN_S:
+            log.debug("unpaired short track on %s (%.2f s, %d hits)", cam, t1 - t0, len(dets))
+            return False
+        off = (self._offset or 0.0) if len(cams) > 1 and cam == cams[1] else 0.0
+        a, b = t0 + off - UNPAIRED_OVERLAP_S, t1 + off + UNPAIRED_OVERLAP_S
+        with self._lock:
+            covered = any(s0 <= b and s1 >= a for s0, s1 in self._shot_spans)
+        if covered:
+            log.debug("unpaired track on %s overlaps a reconstructed shot; not a lost shot", cam)
+            return False
+        return True
+
     def _ingest_fragment(self, frag: Track3D, closed_t: float) -> None:
         first = frag.points[0]
+        with self._lock:
+            self._shot_spans.append((first.t, frag.points[-1].t))
+            del self._shot_spans[:-2000]
         gap_max = self._rcfg.stitch_gap_s
         best, best_err = None, None
         for ch in self._chains if gap_max > 0 else []:
@@ -1566,15 +1785,20 @@ class Pipeline:
         last = pts[-1]
         if not 0.0 < self._opening_distance(last, state) <= EXTEND_PLANE_IN:
             return
+        at = self._ballistic(pts)
+        # step in space, not only in time: a 500 in/s ball moves 8 in per 60 fps frame, so a
+        # whole-frame step lands the appended points beyond the 12 in deep CELL (and its
+        # profile) and the shot would read as leaving through a wall
+        speed = float(np.linalg.norm((at(last.t + 0.01) - at(last.t)) / 0.01))
+        step = min(EXTEND_STEP_S, EXTEND_STEP_IN / max(speed, 1.0))
         prev = np.array([last.x, last.y, last.z])
-        n_steps = int(EXTEND_MAX_S / EXTEND_STEP_S)
-        for k in range(1, n_steps + 1):
-            t = last.t + k * EXTEND_STEP_S
-            cur = self._extrapolate(pts, t)
+        for k in range(1, int(EXTEND_MAX_S / step) + 1):
+            t = last.t + k * step
+            cur = at(t)
             if crosses(tuple(prev), tuple(cur), radius) is not None:
-                nxt = self._extrapolate(pts, t + EXTEND_STEP_S)
+                nxt = at(t + step)
                 tr3.points.append(Point3D(t, *map(float, cur), 0.0))
-                tr3.points.append(Point3D(t + EXTEND_STEP_S, *map(float, nxt), 0.0))
+                tr3.points.append(Point3D(t + step, *map(float, nxt), 0.0))
                 self._ext_note = "track extrapolated into the up-CELL opening (ball hidden)"
                 return
             prev = cur
@@ -1802,6 +2026,19 @@ class Pipeline:
             fx = intr_now[cam].fx if cam in intr_now else 0.0
             out.append(f"camera {cam} uses default lens intrinsics (fx {fx:.0f}): "
                        "run the Lens step")
+        for cam in sorted(self._intr_src):
+            src, i = self._intr_src[cam], intr_now.get(cam)
+            r = float(getattr(i, "reprojection_rmse_px", 0.0) or 0.0)
+            if src == "measured_poor":
+                out.append(f"camera {cam}: the lens calibration is poor (RMSE {r:.1f} px): "
+                           "re-run the Lens step closer, 1.5-3 ft from the camera")
+            elif src == "measured" and LENS_OK_RMSE_PX <= r <= LENS_POOR_RMSE_PX:
+                out.append(f"camera {cam}: the lens calibration RMSE is {r:.1f} px (under 1 px "
+                           "is good): consider re-running the Lens step closer, 1.5-3 ft")
+        for cam in sorted(self._pair_stale):
+            out.append(f"camera {cam}: its pose was not checked against the other camera "
+                       "(the pair check failed when the other one was solved alone); "
+                       "re-solve both with Auto-calibrate all")
         if self._unpaired:
             out.append(f"{self._unpaired} ball track(s) could not be paired between the "
                        "cameras and were dropped: shots may be missing")
@@ -1814,6 +2051,14 @@ class Pipeline:
                 out.append(f"camera {cid}: connected but no frames received yet")
             if st.get("dropped"):
                 out.append(f"camera {cid} dropped {st['dropped']} frames (processing too slow)")
+        for cid in sorted(self._errors):
+            if self._errors[cid]:
+                out.append(f"camera {cid}: {self._errors[cid]} frame processing error(s), "
+                           f"last: {self._err_last.get(cid, '')}")
+        for cid in sorted(self._restart_total):
+            out.append(f"camera {cid}: processing loop restarted {self._restart_total[cid]} "
+                       "time(s) after an error")
+        out.extend(self._stalls.values())
         if self.last_error:
             out.append(self.last_error)
         return out
@@ -1846,6 +2091,9 @@ class Pipeline:
             cams[cid] = st
         csrc, isrc = self.calibration_sources(), self._intr_src
         for cid, d in cams.items():
+            d["pair_stale"] = cid in self._pair_stale
+            d["errors"] = int(self._errors.get(cid, 0))
+            d["loop_restarts"] = int(self._restart_total.get(cid, 0))
             d["calibration_source"] = csrc.get(cid, "none")
             d["intrinsics_source"] = isrc.get(cid, "default")
         now = time.perf_counter()

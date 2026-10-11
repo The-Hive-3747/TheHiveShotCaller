@@ -1,0 +1,47 @@
+{
+ "counters": {
+  "recon_cycles": 3
+ },
+ "closed_tracks": [],
+ "elapsed": 1.715467929840088,
+ "shots": 0,
+ "unpaired": 0,
+ "last_error": "cam1: Unknown C++ exception from OpenCV code",
+ "cams": {
+  "cam0": [
+   0,
+   0
+  ],
+  "cam1": [
+   0,
+   0
+  ]
+ },
+ "timing": {
+  "detect_ms": 0.0,
+  "track_ms": 0.0,
+  "preview_ms": 0.0,
+  "ring_ms": 0.0,
+  "recon_ms": 0.058,
+  "offset_s": null,
+  "offset_confidence": null
+ },
+ "warnings": [
+  "cam1: Unknown C++ exception from OpenCV code"
+ ],
+ "finalize_log_n": 0,
+ "log_counts": {
+  "INFO opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported": 1,
+  "INFO opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported": 1,
+  "ERROR camera loop failed for cam0": 1,
+  "ERROR camera loop failed for cam1": 1,
+  "ERROR HIVE tag scan failed": 1
+ },
+ "log_head": [
+  "INFO hiveshot.ingest opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}",
+  "INFO hiveshot.ingest opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}",
+  "ERROR hiveshot.pipeline camera loop failed for cam0",
+  "ERROR hiveshot.pipeline camera loop failed for cam1",
+  "ERROR hiveshot.pipeline HIVE tag scan failed"
+ ]
+}

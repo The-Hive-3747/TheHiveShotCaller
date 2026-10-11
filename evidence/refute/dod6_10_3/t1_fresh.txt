@@ -1,0 +1,80 @@
+{
+ "default_fixture": {
+  "calibration_loaded": false,
+  "calibration_source": "fixture",
+  "intrinsics_default": false,
+  "warnings": [],
+  "cams": {
+   "cam0": [
+    "fixture",
+    "measured"
+   ],
+   "cam1": [
+    "fixture",
+    "measured"
+   ]
+  },
+  "calib_intr_n": 2,
+  "calib_extr_n": 2,
+  "calib_fx": [
+   900.0,
+   900.0
+  ]
+ },
+ "put_device": 200,
+ "sources_device": {
+  "calibration_loaded": false,
+  "calibration_source": "default_intrinsics",
+  "intrinsics_default": true,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default lens intrinsics (fx 771): run the Lens step",
+   "camera cam1 uses default lens intrinsics (fx 771): run the Lens step"
+  ],
+  "cams": {
+   "cam0": [
+    "default_intrinsics",
+    "default"
+   ],
+   "cam1": [
+    "default_intrinsics",
+    "default"
+   ]
+  },
+  "calib_intr_n": 2,
+  "calib_extr_n": 0,
+  "calib_fx": [
+   771.0,
+   771.0
+  ],
+  "wizard_opens": true
+ },
+ "put_rtmp": 200,
+ "sources_rtmp": {
+  "calibration_loaded": false,
+  "calibration_source": "default_intrinsics",
+  "intrinsics_default": true,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default lens intrinsics (fx 771): run the Lens step",
+   "camera cam1 uses default lens intrinsics (fx 771): run the Lens step"
+  ],
+  "cams": {
+   "cam0": [
+    "default_intrinsics",
+    "default"
+   ],
+   "cam1": [
+    "default_intrinsics",
+    "default"
+   ]
+  },
+  "calib_intr_n": 2,
+  "calib_extr_n": 0,
+  "calib_fx": [
+   771.0,
+   771.0
+  ],
+  "wizard_opens": true
+ }
+}

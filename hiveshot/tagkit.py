@@ -10,7 +10,13 @@ joined by a 24 in crossbar along X at height 41.45 in, with a logo panel on the 
 the far face of the crossbar region. The kit uses features that exist on that structure.
 
 Size: the default tag size is DEFAULT_TAG_SIZE_IN = 6.0 in (the black square), one tag per
-letter page. Every function takes `size_in` to override it (up to 8 in fits a page).
+letter page. Every function takes `size_in` to override it (up to 7.5 in fits a page with its
+white border, and the panel tags fit only up to 6.4 in).
+
+HIVE state: calibrate with BOTH HIVEs tipped by hand so that both audience CELLs are up
+(`CALIBRATION_HIVE_STATES`, `field.CALIBRATION_STATE`). In the match-start state (red audience CELL
+up, blue far CELL up) the blue audience CELL is DOWN and its solid body stands between the
+audience-side cameras and tag 100 (and half of tag 101 from camera A), see `placement.kit_view`.
 
 Tags (field frame, inches; +Y toward the audience, Z up; positions from
 `field.frame_reference_points()` and the CAD frame constants)
@@ -29,10 +35,13 @@ Tags (field frame, inches; +Y toward the audience, Z up; positions from
   the quad and are not used.
 * 102 and 103, "base tags": 102 at the (-X, +Y) and 103 at the (+X, +Y) audience-side outer base
   corner of the frame (foot bar outer corner (+-24.73, 19.47, 0) on the tiles). The tag **stands on
-  the tile leaning back by BASE_TILT_DEG = 20 deg**: its bottom edge lies on the tile at
-  y = 19.47 + 2.15 tan(20 deg) = 20.25 in (so the tag rests against the top edge of the foot bar
-  end, 2.15 in high), its outer edge is flush with the foot bar's outer face (x = +-24.73), and its
-  top leans toward the frame (-Y). The face normal is (0, cos 20, sin 20): facing the audience and
+  the tile leaning back by BASE_TILT_DEG = 20 deg**. The CARD (the black square plus its white
+  border, cut exactly CARD_BORDER_IN = 0.5 in outside the black square) stands on its bottom edge,
+  which lies on the tile at y = 19.47 + 2.15 tan(20 deg) = 20.25 in (so the card rests against the
+  top edge of the foot bar end, 2.15 in high); **the black square's bottom edge is CARD_BORDER_IN
+  up the slope from the tile** (0.47 in high, 0.17 in toward the frame), its outer edge is flush
+  with the foot bar's outer face (x = +-24.73, the border hangs outside), and the top leans toward
+  the frame (-Y). A foam wedge holds the card: see `STAND_WEDGE_IN`. The face normal is (0, cos 20, sin 20): facing the audience and
   tilted up so that cameras at 20 to 30 in lens height look at it nearly square.
 * "Label up" means the tag's upright direction (bottom edge to top edge) points up: up the
   slope (0, -0.407, 0.914) for 100 and 101, (0, -sin 20, cos 20) for 102 and 103. A person standing on the audience side looking at the
@@ -46,8 +55,9 @@ Tags (field frame, inches; +Y toward the audience, Z up; positions from
   (at least QUIET_IN = 0.5 in) when cutting; the detector needs the white quiet zone.
 
 Tolerance: the solved pose is only as good as the tape placement. Measure each tag's position with
-a tape measure to within 0.25 in (and its tilt to 1 deg) before calibrating; see docs/calibration.md
-for the pose error to expect from 0.5 in / 1 deg and 1 in / 2 deg mounting errors.
+a tape measure to within 0.25 in (and its tilt to 0.5 deg) before calibrating; see
+docs/calibration.md for the pose error to expect from 0.5 in / 1 deg and 1 in / 2 deg mounting
+errors.
 """
 
 from __future__ import annotations
@@ -68,6 +78,15 @@ DEFAULT_TAG_SIZE_IN = 6.0
 TAG_SIZE_IN = DEFAULT_TAG_SIZE_IN
 BASE_TILT_DEG = 20.0             # base tags lean back this far from vertical
 PANEL_EDGE_MARGIN_IN = 0.22      # panel tags stay this far inside the panel's top corners
+CARD_BORDER_IN = 0.5             # white border of the printed card, cut exactly on this line
+# Calibrate with both audience CELLs up (tip both HIVEs by hand); match start has the blue far
+# CELL up, which puts the blue audience CELL's body in front of tag 100 for both cameras.
+CALIBRATION_HIVE_STATES = (("red", "audience"), ("blue", "audience"))
+# Foam-core wedge behind the card of a base tag: (width along X, depth along Y at the tile, height).
+# Its vertical face is toward the frame, its slanted face (20 deg from vertical, tan 20 = 2.0 / 5.5)
+# lies under the back of the card; it fills only the 4 in of the card inboard of the foot bar
+# (x = 22.75 to 18.73), the outer 2 in of the card rest on the foot bar end.
+STAND_WEDGE_IN = (4.0, 2.0, 5.5)
 DPI = 300
 PAGE_IN = (8.5, 11.0)            # letter, portrait; one tag per page
 QUIET_IN = 0.5                   # white margin kept around each printed tag
@@ -136,8 +155,8 @@ def _pose(tag: KitTag) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         u = np.array([0.0, -math.sin(t), math.cos(t)])
         n = np.array([0.0, math.cos(t), math.sin(t)])
         y_b = a[1] + fc.FRAME_BASE_HEIGHT * math.tan(t)           # leans on the foot bar end
-        bottom = np.array([a[0] - math.copysign(h, a[0]), y_b, 0.0])
-        c = bottom + h * u
+        card_bottom = np.array([a[0] - math.copysign(h, a[0]), y_b, 0.0])
+        c = card_bottom + (CARD_BORDER_IN + h) * u                # black square starts above the border
     return c, u, n
 
 
@@ -180,6 +199,15 @@ def render_marker(tag_id: int, px: int) -> np.ndarray:
     return cv2.aruco.generateImageMarker(dic, int(tag_id), int(px), borderBits=1)
 
 
+def _dashed_rect(img: np.ndarray, xa: int, ya: int, xb: int, yb: int, dash: int = 24) -> None:
+    for x in range(xa, xb, 2 * dash):
+        cv2.line(img, (x, ya), (min(x + dash, xb), ya), 0, 3)
+        cv2.line(img, (x, yb), (min(x + dash, xb), yb), 0, 3)
+    for y in range(ya, yb, 2 * dash):
+        cv2.line(img, (xa, y), (xa, min(y + dash, yb)), 0, 3)
+        cv2.line(img, (xb, y), (xb, min(y + dash, yb)), 0, 3)
+
+
 def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int) -> None:
     cv2.arrowedLine(img, (x, y_bot), (x, y_top), 0, 6, cv2.LINE_AA, tipLength=0.12)
 
@@ -187,8 +215,8 @@ def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int) -> None:
 _HOW = {
     "panel": ("Lay it flat on the SLANTED audience logo panel, top edge flush with the top of the",
               "panel, outer edge 0.2 in inside the panel's top corner (center 10.0 in from the middle)."),
-    "base": ("Stand it on the tile at the audience-side base corner, outer edge flush with the",
-             "foot bar's outer face, leaning back 20 deg against the end of the foot bar."),
+    "base": ("Cut ON the dashed line (0.5 in border). Stand the card on the tile at the base corner,",
+             "black square flush with the foot bar's outer face, leaning back 20 deg on its foam wedge."),
 }
 
 
@@ -205,28 +233,30 @@ def render_tag_pages(size_in: float | None = None) -> list[np.ndarray]:
     W, H = int(PAGE_IN[0] * DPI), int(PAGE_IN[1] * DPI)
     font = cv2.FONT_HERSHEY_SIMPLEX
     px = int(round(size * DPI))
+    bw = int(round(CARD_BORDER_IN * DPI))
     pages = []
     for t in tags:
         img = np.full((H, W), 255, np.uint8)
         x0, y0 = (W - px) // 2, int(2.1 * DPI)
         img[y0:y0 + px, x0:x0 + px] = render_marker(t.id, px)
+        _dashed_rect(img, x0 - bw, y0 - bw, x0 + px + bw, y0 + px + bw)   # cut line, CARD_BORDER_IN out
         cv2.putText(img, f"TAG {t.id}   ({size:g} in)", (x0, int(0.8 * DPI)), font, 1.8, 0, 4,
                     cv2.LINE_AA)
         cv2.putText(img, t.point_name, (x0, int(1.3 * DPI)), font, 0.8, 0, 2, cv2.LINE_AA)
         cv2.putText(img, "Label up: the arrow points to the top edge.", (x0, int(1.75 * DPI)),
                     font, 0.75, 0, 2, cv2.LINE_AA)
-        ax = max(int(0.35 * DPI), x0 - int(0.45 * DPI))
+        ax = max(int(0.35 * DPI), x0 - bw - int(0.2 * DPI))
         _arrow_up(img, ax, y0 + int(0.2 * DPI), y0 + px // 2)
         cv2.putText(img, "THIS", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.3 * DPI)),
                     font, 0.6, 0, 2, cv2.LINE_AA)
         cv2.putText(img, "EDGE UP", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.5 * DPI)),
                     font, 0.6, 0, 2, cv2.LINE_AA)
         for i, line in enumerate(_HOW[t.kind]):
-            cv2.putText(img, line, (x0, y0 + px + int((0.45 + 0.3 * i) * DPI)), font, 0.62, 0, 2,
+            cv2.putText(img, line, (x0, y0 + px + int((0.85 + 0.3 * i) * DPI)), font, 0.62, 0, 2,
                         cv2.LINE_AA)
-        cv2.putText(img, f"Cut leaving the white border ({QUIET_IN:g} in or more). Measure the "
-                    "placement with a tape to 0.25 in.", (x0, y0 + px + int(1.1 * DPI)), font, 0.62,
-                    0, 2, cv2.LINE_AA)
+        cv2.putText(img, f"Cut exactly on the dashed line ({CARD_BORDER_IN:g} in white border). "
+                    "Measure the placement with a tape to 0.25 in.", (x0, y0 + px + int(1.5 * DPI)),
+                    font, 0.62, 0, 2, cv2.LINE_AA)
         # print-scale check: a line as long as the tag, with end ticks
         ly = H - int(1.0 * DPI)
         cv2.line(img, (x0, ly), (x0 + px, ly), 0, 5)

@@ -7,7 +7,12 @@ blur), detected with calib.detect_apriltags, and solved with the NOMINAL tag cor
 (calib.solve_extrinsics_from_tags). Reported: camera position error (in), rotation error (deg),
 reprojection RMSE the app would show (px), and the error of the triangulated up-CELL opening center
 (in) from the two solved cameras.
-Run: PYTHONPATH=. .venv\Scripts\python.exe -I evidence\refute\dod9_kit_mounting_sim.py [seeds]
+CELL occlusion: a tag is not rendered (so not detected) if a CELL body hides any of its corners (pulled
+in 10 %) or its center from the camera, judged on the PERTURBED tag positions with
+placement.cell_blocked in the HIVE state under study: "calibration" (both audience CELLs up, the
+documented state) or "match_start" (red audience up, blue far up: the blue audience CELL is down and
+hides tag 100, and half of tag 101 from camera A).
+Run: PYTHONPATH=. .venv\Scripts\python.exe evidence\refute\dod9_kit_mounting_sim.py [seeds] [calibration|match_start]
 """
 import json
 import sys
@@ -19,6 +24,7 @@ sys.path.insert(0, "tests")
 import test_tagkit as T  # noqa: E402
 
 from hiveshot import calib, field, tagkit  # noqa: E402
+from hiveshot import placement as pl  # noqa: E402
 
 CASES = [(0.0, 0.0), (0.25, 0.5), (0.5, 1.0), (1.0, 2.0)]
 
@@ -33,7 +39,19 @@ def perturb(corners, mag, ang_deg, rng):
     return (corners - c) @ R.T + c + d
 
 
-def run(option, seeds):
+def visible_tags(cam, tags, states):
+    """Drop the tags a CELL body hides from this camera (any corner pulled in 10 % or the center)."""
+    pos = pl._pos_key(pl._cam_pos(cam))
+    keep = {}
+    for t, c in tags.items():
+        pts = np.vstack([pl._shrunk(c), c.mean(axis=0)[None]])
+        if not pl.cell_blocked(pos, pts, states).any():
+            keep[t] = c
+    return keep
+
+
+def run(option, seeds, state="calibration"):
+    states = field.CALIBRATION_STATE if state == "calibration" else field.MATCH_START_STATE
     cams = {k: T._vcam(option, k) for k in "AB"}
     defs = tagkit.tag_defs()
     truth, _ = field.cell_opening_plane("red", "audience", field.HiveState("red", "audience"))
@@ -45,7 +63,7 @@ def run(option, seeds):
             true_tags = {t: perturb(c, mag, ang, rng) if mag else c for t, c in defs.items()}
             ests, ok, rec = {}, True, {}
             for k, cam in cams.items():
-                img = T.render_tag_dict(cam, true_tags, seed=sd)
+                img = T.render_tag_dict(cam, visible_tags(cam, true_tags, states), seed=sd)
                 try:
                     e, info = calib.solve_extrinsics_from_tags(cam.intr, img, defs, cam.cam_id)
                 except ValueError:
@@ -63,6 +81,9 @@ def run(option, seeds):
             rows.append({"A": rec["A"], "B": rec["B"],
                          "cell_err": float(np.linalg.norm(np.asarray(xyz).reshape(-1)[:3] - truth))})
         good = [r for r in rows if r]
+        if not good:                       # no run solved both cameras (e.g. camera A sees < 2 tags)
+            out[f"{mag}in_{ang}deg"] = {"runs": len(rows), "solved": 0, "both_gates_pass": 0}
+            continue
         pos = [r[k][0] for r in good for k in "AB"]
         rot = [r[k][1] for r in good for k in "AB"]
         rp = [r[k][2] for r in good for k in "AB"]
@@ -85,5 +106,6 @@ def run(option, seeds):
 
 if __name__ == "__main__":
     seeds = int(sys.argv[1]) if len(sys.argv) > 1 else 30
-    res = {opt: run(opt, seeds) for opt in ("usb", "gopro")}
+    state = sys.argv[2] if len(sys.argv) > 2 else "calibration"
+    res = {opt: run(opt, seeds, state) for opt in ("usb", "gopro")}
     print(json.dumps(res, indent=1))

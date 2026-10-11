@@ -1,0 +1,11 @@
+
+gopro A ['60/19', '52/24', '49/34', '58/31', '76/106', '48/86', '73/47', '59/47'] blocked [False, False, False, False, False, False, False, False]
+gopro B ['40/27', '31/19', '33/30', '42/36', '51/86', '30/96', '41/52', '31/49'] blocked [False, False, False, False, False, False, False, False]
+usb A ['61/23', '54/28', '51/36', '59/34', '75/99', '51/81', '72/47', '60/48'] blocked [False, False, False, False, False, False, False, False]
+usb B ['43/32', '36/26', '38/35', '45/40', '53/83', '35/91', '44/54', '36/51'] blocked [False, False, False, False, False, False, False, False]
+gopro 1.0 gate 195/200 refused 0 center med 0.06 max 0.12
+gopro 1.5 gate 137/200 refused 0 center med 0.09 max 0.20
+gopro 2.0 gate 45/200 refused 0 center med 0.13 max 0.26
+usb 1.0 gate 195/200 refused 0 center med 0.07 max 0.14
+usb 1.5 gate 138/200 refused 0 center med 0.10 max 0.23
+usb 2.0 gate 45/200 refused 0 center med 0.15 max 0.31

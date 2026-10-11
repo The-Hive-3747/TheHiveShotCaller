@@ -294,6 +294,7 @@ function renderStatus() {
   state.demo = st.demo === true;
   applyDemoUi();
   demoSettled(st);
+  renderCalSources();   // pair_stale chips follow the live status
   const hiveSrc = st.hive_state_source === 'tags' ? 'tags' : 'manual';
   $('hiveSrc').textContent = hiveSrc === 'tags' ? 'auto (tags)' : 'HIVE: manual';
   $('hiveSrc').className = 'pill' + (hiveSrc === 'tags' ? ' ok' : '');
@@ -499,20 +500,15 @@ $('calibCams').addEventListener('click', (ev) => {
     else if (act === 'solve') {
       if (!calibPoints.length || calibClicks[id].length !== calibPoints.length) { toast(`Need ${calibPoints.length} points (have ${calibClicks[id].length})`); return; }
       const r = await api('POST', `/api/calib/extrinsics/${encodeURIComponent(id)}`, { points: calibClicks[id] });
-      out.innerHTML = `RMSE <b>${fmt(r.rmse_in, 3)} in</b><br>` +
+      out.innerHTML = `Fit residual <b>${fmt(r.rmse_in, 3)} in</b><br>` +
         (r.per_point || []).map((p) => `${esc(p.name)}: ${fmt(p.err_px, 2)} px`).join('<br>');
       loadCalibration();
     } else if (act === 'auto') {
-      out.textContent = 'Auto-calibrating...';
-      try {
-        const r = await api('POST', `/api/calib/extrinsics/${encodeURIComponent(id)}/auto`, { source: 'kit' });
-        const oos = r.oos_error_in;
-        out.innerHTML = `Fit residual <b>${fmt(r.rmse_in, 2)} in</b>` +
-          (oos != null ? `, out-of-sample <b class="${Number(oos) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(oos, 2)} in</b>` : '') +
-          `, reprojection ${fmt(r.reprojection_px, 2)} px, tags ${esc((r.tags_used || []).join(', ') || '-')}` +
-          (r.warning ? `<div class="warnbox card">${esc(r.warning)}</div>` : '');
-      } catch (e) { out.innerHTML = `<span class="xc-bad">${esc(plainError(e))}</span>`; }
-      loadCalibration();
+      await runCamAuto(id, out, false);
+    } else if (act === 'force') {
+      await runCamAuto(id, out, true);
+    } else if (act === 'recalboth') {
+      await recalibrateBoth(out);
     } else if (act === 'istart') {
       await api('POST', `/api/calib/intrinsics/${encodeURIComponent(id)}/start`); out.textContent = 'Recording intrinsics frames...';
     } else if (act === 'istop') {
@@ -572,25 +568,85 @@ function camCalibInfo(cam) {
   const get = (k) => { for (const o of objs) if (o[k] != null) return o[k]; return null; };
   return { intrinsics_source: get('intrinsics_source'), calibration_source: get('calibration_source') };
 }
+// status.pair_stale: which camera's pose no longer agrees with the other one (e.g. a bumped tripod).
+// Accepts a list of camera ids, a {cam_id: bool} map, or a per-camera `pair_stale` flag in status.cameras.
+function pairStaleCams(st) {
+  const out = new Set();
+  const ps = st && st.pair_stale;
+  if (Array.isArray(ps)) ps.forEach((c) => out.add(String(c)));
+  else if (ps && typeof ps === 'object') Object.entries(ps).forEach(([c, v]) => { if (v) out.add(c); });
+  Object.entries((st && st.cameras) || {}).forEach(([c, v]) => { if (v && v.pair_stale) out.add(c); });
+  return out;
+}
+const badIntrinsics = (src) => src === 'default' || src === 'measured_poor';
 function renderCalSources() {
+  const stale = pairStaleCams(state.status);
   document.querySelectorAll('.calibcam').forEach((el) => {
-    const info = camCalibInfo(el.dataset.cam);
+    const cam = el.dataset.cam;
+    const info = camCalibInfo(cam);
     const chip = (label, v, bad) => `<span class="pill ${v == null ? '' : bad ? 'bad' : 'ok'}" title="${esc(label)}">${esc(label)}: ${esc(v ?? 'unknown')}</span>`;
     el.querySelector('.calsrc').innerHTML =
-      chip('intrinsics', info.intrinsics_source, info.intrinsics_source === 'default') + ' ' +
-      chip('calibration', info.calibration_source, false);
+      chip('intrinsics', info.intrinsics_source, badIntrinsics(info.intrinsics_source)) + ' ' +
+      chip('calibration', info.calibration_source, false) +
+      (stale.has(cam) ? ' <span class="pill warn" title="This camera no longer agrees with the other one. Use Recalibrate both.">pair stale: recalibrate both</span>' : '');
   });
 }
-$('btnAutoAll').onclick = async () => {
-  const out = $('crosscheckOut');
+// Every warning the backend returns is shown (single `warning` string and/or `warnings` list).
+function warningsOf(r) {
+  return r ? [].concat(r.warning ?? [], r.warnings ?? []).filter((w) => w).map((w) => (typeof w === 'string' ? w : JSON.stringify(w))) : [];
+}
+const warningsHtml = (r) => warningsOf(r).map((w) => `<div class="warnbox card">${esc(w)}</div>`).join('');
+// One camera. A 409 means the solve was refused (e.g. it disagrees with the other camera): show the
+// backend's hint and offer to recalibrate both, or to force this camera alone (force_single).
+async function runCamAuto(id, out, force) {
+  out.textContent = force ? 'Calibrating this camera only...' : 'Auto-calibrating...';
+  try {
+    const r = await api('POST', `/api/calib/extrinsics/${encodeURIComponent(id)}/auto`, force ? { source: 'kit', force_single: true } : { source: 'kit' });
+    const oos = r.oos_error_in;
+    out.innerHTML = `Fit residual (in) <b>${fmt(r.rmse_in, 2)}</b>` +
+      (oos != null ? `, out-of-sample error (in) <b class="${Number(oos) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(oos, 2)}</b>` : '') +
+      `, reprojection ${fmt(r.reprojection_px, 2)} px, tags ${esc((r.tags_used || []).join(', ') || '-')}` +
+      warningsHtml(r);
+  } catch (e) {
+    const refused = / 409 /.test(String((e && e.message) || ''));
+    if (!refused) { out.innerHTML = `<span class="xc-bad">${esc(plainError(e))}</span>`; }
+    else {
+      out.innerHTML = `<div class="xc-bad">This camera's solve was refused: ${esc(reasonLines(e).join(' '))}</div>
+        <div style="margin-top:6px"><button data-act="recalboth">Recalibrate both</button>
+          ${force ? '' : '<button data-act="force">Force this camera only</button>'}</div>`;
+    }
+  }
+  loadCalibration();
+}
+async function recalibrateBoth(out) {
   out.textContent = 'Auto-calibrating all cameras...';
   try {
     renderAutoCal(await api('POST', '/api/calib/auto_all', { source: 'kit' }), out);
     loadCalibration();
   } catch (e) { out.innerHTML = `<div class="xc-bad">${esc(plainError(e))}</div>`; }
-};
+}
+// "Auto-calibrate all" and "Recalibrate both" (the bumped-tripod case) are the same action.
+$('btnAutoAll').onclick = () => recalibrateBoth($('crosscheckOut'));
+$('btnRecalBoth').onclick = () => recalibrateBoth($('crosscheckOut'));
+// Reset wipes the saved calibration, so it asks first.
+$('btnCalReset').onclick = () => guarded(async () => {
+  if (!window.confirm('Reset calibration for ALL cameras? The saved intrinsics and poses are removed and you will need to calibrate again.')) return;
+  await api('POST', '/api/calib/reset', { cam_id: 'all' });
+  for (const k of Object.keys(calibClicks)) calibClicks[k] = [];
+  state.calib = null;
+  toast('Calibration reset');
+  await loadCalibration();
+  document.querySelectorAll('.calibcam').forEach((el) => paintCalib(el.dataset.cam));
+});
 async function loadCalibration() {
   await loadCalibPoints();
+  // calibration_state and the recommendation hints come from the setup status; not awaited because that
+  // endpoint can take seconds (device probing) and must not delay the rest of this tab
+  api('GET', '/api/setup/status').then((st) => {
+    const recs = Array.isArray(st.recommendations) ? st.recommendations : [];
+    $('calHints').innerHTML = recs.map((r) => `<div>${esc(r)}</div>`).join('');
+    renderCalState(st);
+  }).catch((e) => console.error(e));
   await guarded(async () => {
     const c = await api('GET', '/api/calib');
     state.calib = c; renderCalSources();
@@ -773,11 +829,23 @@ function showStep(name) {
   renderSetupStatus();
 }
 $('setupStepBtns').addEventListener('click', (ev) => { if (ev.target.dataset && ev.target.dataset.step) showStep(ev.target.dataset.step); });
+// setup/status.calibration_state (shown in the Tags step and the Calibration tab when the backend sends it):
+// a string, or an object of key/value pairs.
+function renderCalState(st) {
+  const cs = st && st.calibration_state;
+  let txt = '';
+  if (typeof cs === 'string' && cs) txt = cs;
+  else if (cs && typeof cs === 'object') {
+    txt = Object.entries(cs).map(([k, v]) => `${k}: ${v && typeof v === 'object' ? JSON.stringify(v) : v}`).join('; ');
+  }
+  document.querySelectorAll('.calstate').forEach((el) => { el.textContent = txt ? 'Calibration state: ' + txt : ''; });
+}
 function renderSetupStatus() {
   const st = setup.status; if (!st) return;
   const recs = Array.isArray(st.recommendations) ? st.recommendations : [];
   const html = recs.map((r) => `<div>${esc(r)}</div>`).join('');
   document.querySelectorAll('#tab-setup .hints').forEach((h) => { h.innerHTML = html; });
+  renderCalState(st);
   if (!setup.previews.length) {
     const devs = st.cameras_detected || [];
     $('setupCamMsg').textContent = devs.length
@@ -919,7 +987,8 @@ function renderAutoCal(r, target = $('autoCalOut')) {
     const oos = v ? v.oos_error_in : null;
     const oosCell = oos == null ? '<td class="muted">-</td>' : `<td class="${Number(oos) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(oos, 2)}</td>`;
     return `<tr><td>${esc(cam)}</td><td class="${fitOk ? 'xc-ok' : 'xc-bad'}">${fmt(v && v.rmse_in, 2)}</td>${oosCell}
-      <td>${fmt(v && v.reprojection_px, 2)} px</td><td>${esc(((v && v.tags_used) || []).join(', ') || '-')}</td></tr>`;
+      <td>${fmt(v && v.reprojection_px, 2)} px</td><td>${esc(((v && v.tags_used) || []).join(', ') || '-')}</td></tr>` +
+      warningsOf(v).map((w) => `<tr><td></td><td colspan="4" class="xc-amber">${esc(cam)}: ${esc(w)}</td></tr>`).join('');
   }).join('');
   const max = r ? r.max_error_in : null;
   const warnList = r ? [].concat(r.warning ?? [], r.warnings ?? []).filter((w) => w) : [];
@@ -946,6 +1015,7 @@ setup.lens = {};   // cam_id -> {recording, rmse, frames, error}
 const lensClass = (px) => (px == null ? '' : Number(px) < LENS_OK_PX ? 'xc-ok' : Number(px) < LENS_WARN_PX ? 'xc-amber' : 'xc-bad');
 function lensSatisfied(cam) {
   const src = camCalibInfo(cam).intrinsics_source;
+  if (src === 'measured_poor') return false;   // measured, but too poorly: must be redone closer
   if (src === 'measured' || src === 'profile') return true;
   const l = setup.lens[cam];
   return !!(l && l.rmse != null && Number(l.rmse) < LENS_WARN_PX);
@@ -964,8 +1034,8 @@ async function renderLensCams() {
       : l.recording ? '<span class="muted">Recording... move the board, then press Stop recording.</span>'
         : l.rmse != null ? `<span class="${lensClass(l.rmse)}">Reprojection RMSE ${fmt(l.rmse, 2)} px (${esc(l.frames ?? '?')} frames)${Number(l.rmse) >= LENS_WARN_PX ? ': too high, record again' : ''}</span>` : '';
     return `<div class="card lenscam" data-cam="${esc(id)}"><b>${esc(id)}</b>
-      <span class="pill ${src == null ? '' : src === 'default' ? 'bad' : 'ok'}">intrinsics: ${esc(src ?? 'unknown')}</span>
-      <span class="muted">${need}</span>
+      <span class="pill ${src == null ? '' : badIntrinsics(src) ? 'bad' : 'ok'}">intrinsics: ${esc(src ?? 'unknown')}</span>
+      <span class="muted">${need}</span>${src === 'measured_poor' ? ' <span class="xc-bad">The measurement was poor: re-run closer, 1.5-3 ft.</span>' : ''}
       <div style="margin-top:6px"><button data-act="lstart"${l.recording ? ' disabled' : ''}>Start recording</button>
         <button data-act="lstop"${l.recording ? '' : ' disabled'}>Stop recording</button> ${res}</div></div>`;
   }).join('') : '<div class="muted">No cameras configured yet (step 1).</div>';
@@ -1110,16 +1180,34 @@ function reasonLines(e) {
   const flat = (v) => (Array.isArray(v) ? v.flatMap(flat) : v && typeof v === 'object' ? Object.values(v).flatMap(flat) : [String(v)]);
   return flat(d);
 }
+$('chkVerified').onchange = (e) => {
+  $('btnFinish').disabled = !e.target.checked;
+  $('btnFinish').textContent = e.target.checked ? 'Start pipeline and session' : 'Finish (tick the box first)';
+};
 $('btnFinish').onclick = () => guarded(async () => {
   const msg = $('finishMsg');
   msg.className = 'muted'; msg.textContent = 'Checking setup...';
+  let fin;
   try {
-    await api('POST', '/api/setup/finish');
+    fin = await api('POST', '/api/setup/finish');
   } catch (e) {
     const lines = reasonLines(e);
     msg.className = 'xc-bad';
     msg.innerHTML = `<div>Setup is not finished yet. Fix this first:</div><ul>${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>`;
     return;   // blocked: do not start a session
+  }
+  // Never discard the warnings of a successful finish: show every one, prominently, and keep them visible.
+  const warns = warningsOf(fin);
+  $('finishWarnings').innerHTML = warns.map((w) => `<div class="warnbox card"><b>Warning:</b> ${esc(w)}</div>`).join('');
+  const inSample = (fin && fin.out_of_sample === false) || warns.some((w) => /in-sample/i.test(w));
+  if (inSample && !$('chkVerified').checked) {
+    // the accuracy check only re-measured the points the cameras were solved from: require an explicit acknowledgement
+    $('ackRow').style.display = '';
+    $('btnFinish').disabled = true;
+    $('btnFinish').textContent = 'Finish (tick the box first)';
+    msg.className = 'xc-amber';
+    msg.textContent = 'The accuracy check was in-sample, so it cannot catch every mistake. Click a few known points in the Calibration tab (Cross-check), then tick the box.';
+    return;
   }
   msg.textContent = '';
   const st = await api('GET', '/api/pipeline/status');

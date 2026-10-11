@@ -55,6 +55,8 @@ TAG_STICKER_BELOW_FLOOR = 0.12  # CAD: sticker plane sits 0.12 in outside the op
 # must agree with the CAD-recorded constant
 OPENING_CENTER_ABS_Y = BEAM_A_OPEN * _C - B_CENTER * _S
 assert abs(OPENING_CENTER_ABS_Y - C.UP_CELL_OPENING_CENTER_Y) < 0.01
+RIB_SIDE_RIM = 0.5   # CAD: Goal Rib half width 10.5 vs opening half width 10
+RIB_TOP_RIM = 0.39   # CAD: rib peak 0.39 in above the opening top (local y 1.45 vs 1.06)
 FIELD_MAX_Z = 120.0  # assumed ceiling for bounds/viewer
 
 
@@ -68,6 +70,10 @@ class HiveState:
             raise ValueError(f"alliance must be one of {ALLIANCES}")
         if self.up_cell not in CELLS:
             raise ValueError(f"up_cell must be one of {CELLS}")
+
+
+CALIBRATION_STATE = {"red": HiveState("red", "audience"), "blue": HiveState("blue", "audience")}
+MATCH_START_STATE = {"red": HiveState("red", "audience"), "blue": HiveState("blue", "far")}
 
 
 def hive_x(alliance: str) -> float:
@@ -216,6 +222,78 @@ def point_inside_cell(p, alliance: str, which: str, state: HiveState,
     if not (-C.CELL_EXTENT_Y <= depth <= 0.0):
         return False
     return _inset_contains(_profile(gabled), float(rel[0]), float(np.dot(rel, w)), 0.0)
+
+
+def _body_profile() -> np.ndarray:
+    """Convex CCW pentagon (a, b) of the CELL outer body (gabled Goal Rib outline including the
+    CAD rim: 1.64 below, 0.5 each side, 0.39 above the opening)."""
+    hw = C.CELL_OPENING_WIDTH / 2.0 + RIB_SIDE_RIM
+    hh = C.CELL_OPENING_HEIGHT / 2.0
+    sh = -hh + C.GABLE_SHOULDER_HEIGHT
+    return np.array([[-hw, -hh - RIB_BOTTOM_RIM], [hw, -hh - RIB_BOTTOM_RIM], [hw, sh],
+                     [0.0, hh + RIB_TOP_RIM], [-hw, sh]])
+
+
+def cell_body_corners(alliance: str, which_cell: str, state: HiveState) -> np.ndarray:
+    """(10,3) corners of the CELL body: the gabled opening pentagon (with the CAD rim) at the
+    opening plane and the same pentagon CELL_EXTENT_Y deep into the cup. Convex; 5 front
+    corners then the 5 back corners (an 8-corner box would drop the gable)."""
+    c, n, w = _frame(alliance, which_cell, state)
+    prof = _body_profile()
+    front = np.array([c + a * np.array([1.0, 0, 0]) + b * w for a, b in prof])
+    return np.vstack([front, front - C.CELL_EXTENT_Y * n])
+
+
+def segment_intersects_cell(p0, p1, alliance: str, which_cell: str, state: HiveState) -> bool:
+    """True if the segment p0-p1 touches the convex CELL body (any face, or lies inside)."""
+    p0 = np.asarray(p0, float)
+    d = np.asarray(p1, float) - p0
+    c, n, w = _frame(alliance, which_cell, state)
+    x = np.array([1.0, 0.0, 0.0])
+    # constraints g(t) = g0 + t*g1 >= 0, in (x, w, n) coordinates relative to the opening center
+    r0 = p0 - c
+    local0 = np.array([r0 @ x, r0 @ w, r0 @ n])
+    local1 = np.array([d @ x, d @ w, d @ n])
+    t0, t1 = 0.0, 1.0
+
+    def clip(g0: float, g1: float) -> bool:
+        nonlocal t0, t1
+        if abs(g1) < 1e-12:
+            return g0 >= 0.0
+        t = -g0 / g1
+        if g1 > 0:
+            t0 = max(t0, t)
+        else:
+            t1 = min(t1, t)
+        return t0 <= t1
+
+    if not clip(-local0[2], -local1[2]):              # depth <= 0 (behind the opening plane)
+        return False
+    if not clip(local0[2] + C.CELL_EXTENT_Y, local1[2]):   # depth >= -CELL_EXTENT_Y
+        return False
+    prof = _body_profile()
+    for i in range(len(prof)):
+        pa, pb = prof[i], prof[(i + 1) % len(prof)]
+        e = pb - pa
+        ln = math.hypot(e[0], e[1])
+        # inward distance for a CCW polygon: (e x (q - pa)) / |e|
+        g0 = (e[0] * (local0[1] - pa[1]) - e[1] * (local0[0] - pa[0])) / ln
+        g1 = (e[0] * local1[1] - e[1] * local1[0]) / ln
+        if not clip(g0, g1):
+            return False
+    return True
+
+
+def all_cell_bodies(hive_states: dict) -> list:
+    """[(alliance, which, corners (10,3))] for all four CELLs given {alliance: HiveState}."""
+    return [(al, which, cell_body_corners(al, which, hive_states[al]))
+            for al in ALLIANCES for which in CELLS]
+
+
+def segment_hits_any_cell(p0, p1, hive_states: dict) -> bool:
+    """True if the segment touches any CELL body in the given states."""
+    return any(segment_intersects_cell(p0, p1, al, which, hive_states[al])
+               for al in ALLIANCES for which in CELLS)
 
 
 def _frame_segments():

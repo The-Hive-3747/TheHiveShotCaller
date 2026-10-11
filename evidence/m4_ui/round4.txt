@@ -216,3 +216,53 @@ All checks passed!
 --- ruff
 All checks passed!
 (round13 browser smoke vs stub on 8766, WS now derived from page host so it points at the stub and stays 'reconnecting': lens record -> amber 1.40 px; tags text with positions/normal; auto result columns; far-up expected + step done mark; colors reset/undo; finish blocked with reasons (stub in 409 mode); Calibration chips default=red, per-camera and all auto buttons; stub stopped)
+=== round14: tip-both-HIVEs note (Tags step + Calibration tab), calibration_state, recommendations on Calibration tab
+================================== FAILURES ===================================
+___________ test_round14_tip_both_hives_note_and_calibration_state ____________
+
+    def test_round14_tip_both_hives_note_and_calibration_state():
+        html = (UI / "index.html").read_text(encoding="utf-8")
+        js = (UI / "app.js").read_text(encoding="utf-8")
+        setup_html = html[html.index('id="tab-setup"'):html.index('id="tab-dashboard"')]
+        calib_html = html[html.index('id="tab-calibration"'):html.index('id="tab-settings"')]
+        tags_step = setup_html[setup_html.index('data-step="tags"'):setup_html.index('data-step="hivetags"')]
+>       assert NOTE in tags_step and NOTE in calib_html
+E       assert ('Before calibrating, tip BOTH HIVEs by hand so both audience-side CELLs are up (the CELLs otherwise hide the tags). Put the red HIVE back to match start afterwards.' in 'data-step="tags">3. Tags</button>\n        <button ')
+
+tests\test_ui_static.py:698: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_ui_static.py::test_round14_tip_both_hives_note_and_calibration_state
+--- ruff
+All checks passed!
+=== round14 rerun
+....................................                                     [100%]
+--- ruff
+All checks passed!
+=== round15: dod6_10_3 UI fixes (Recalibrate both / Reset calibration / 409 hint + force_single, pair_stale chip, measured_poor lens, finish warnings + acknowledgement, Fit residual naming)
+_________________________ test_api_paths_in_contract __________________________
+
+    def test_api_paths_in_contract():
+        doc = (ROOT / "docs" / "api.md").read_text(encoding="utf-8")
+        js = (UI / "app.js").read_text(encoding="utf-8")
+        # Endpoints the backend is adding whose docs/api.md entry has not landed yet.
+        # TODO: remove "crosscheck" / "finish" once docs/api.md documents POST /api/calib/crosscheck and /api/setup/finish.
+        pending_docs = {"crosscheck", "finish"}
+        for m in re.finditer(r"['`](/api/[^'`]*)", js):
+            path = re.sub(r"\$\{[^}]*\}", "{x}", m.group(1))
+            segs = [s for s in path.split("?")[0].replace("{x}", "").split("/") if s]
+            segs = [s for s in segs if s not in pending_docs or s in doc]
+>           assert all(s.strip(".") .split(".")[0] in doc for s in segs), f"{path} not in api.md"
+E           AssertionError: /api/calib/reset not in api.md
+E           assert False
+E            +  where False = all(<generator object test_api_paths_in_contract.<locals>.<genexpr> at 0x000002741C039C40>)
+
+tests\test_ui_static.py:133: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_ui_static.py::test_api_paths_in_contract - AssertionError: ...
+--- ruff
+All checks passed!
+=== round15 rerun
+......................................                                   [100%]
+--- ruff
+All checks passed!
+(round15 browser smoke vs stub on 8766 (finish in warn mode): chips measured_poor red + pair stale amber on cam1; cam1 auto 409 -> hint + Recalibrate both / Force this camera only; force shows warnings; Reset calibration confirm -> toast; Lens measured_poor required + re-run closer text; finish shows both warnings, ack box, button disabled until ticked, then proceeds to Dashboard with warnings kept; stub stopped)

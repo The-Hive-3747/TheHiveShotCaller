@@ -131,3 +131,13 @@ def test_demo_cli_mode_runs_in_a_demo_subfolder(tmp_path, fast_demo):
     assert not (data / "hiveshot.db").exists()                 # the user's database untouched
     assert _sha(user_cfg) == before
     assert not (data / "demo" / "config.json").exists()
+
+
+def test_browser_opens_by_default_only_for_the_packaged_exe():
+    parse = build_parser().parse_args
+    assert appmod.wants_browser(parse([]), frozen=False) is False
+    assert appmod.wants_browser(parse([]), frozen=True) is True
+    assert appmod.wants_browser(parse(["--open-browser"]), frozen=False) is True
+    assert appmod.wants_browser(parse(["--demo"]), frozen=False) is True
+    assert appmod.wants_browser(parse(["--no-browser"]), frozen=True) is False
+    assert appmod.wants_browser(parse(["--demo", "--no-browser"]), frozen=False) is False

@@ -304,11 +304,14 @@ def _flight_visible(tr: np.ndarray, cams) -> bool:
     return True
 
 
-def build_shots(offsets, seed: int = 1, max_apex: float = 84.0, cams=None):
+def build_shots(offsets, seed: int = 1, max_apex: float = 84.0, cams=None,
+                speed_range: tuple = (220.0, 340.0), arc: str = "high"):
     """One shot per t_launch in offsets. Launch points are 60-110 in (3D) from the
     up CELL center (inside the field), apex <= max_apex, whole flight inside every
     camera in `cams` (default pair). Every third shot is aimed off-azimuth so
     it misses. Flights end at the field wall or on entering the opening.
+    `speed_range` (in/s) and `arc` ("high" lob, or "low": the flat solution, launch elevation
+    20-50 deg, no apex limit) widen the envelope, e.g. the fast low-arc regression fixture.
     Returns (trajectories, shot_info)."""
     cams = make_default_pair() if cams is None else cams
     rng = np.random.default_rng(seed)
@@ -322,13 +325,16 @@ def build_shots(offsets, seed: int = 1, max_apex: float = 84.0, cams=None):
             lp = np.array([rng.uniform(-66, 66), rng.uniform(25, 68), 12.0])
             if not 60.0 <= np.linalg.norm(lp - center) <= 110.0:  # 3D distance to the cell
                 continue
-            speed = float(rng.uniform(220, 340))
+            speed = float(rng.uniform(*speed_range))
             try:
-                v0 = aim_for_cell(lp, "red", "audience", st, speed,
-                                  arc="high")
+                v0 = aim_for_cell(lp, "red", "audience", st, speed, arc=arc)
             except ValueError:
                 continue
-            if not 66.0 <= lp[2] + v0[2] ** 2 / (2 * GRAVITY_IPS2) <= max_apex:
+            if arc == "low":
+                el = math.degrees(math.atan2(v0[2], math.hypot(v0[0], v0[1])))
+                if not 20.0 <= el <= 50.0:
+                    continue
+            elif not 66.0 <= lp[2] + v0[2] ** 2 / (2 * GRAVITY_IPS2) <= max_apex:
                 continue
             if i % 3 == 2:  # deliberate miss
                 a_ = math.radians(rng.choice([-1, 1]) * rng.uniform(12, 20))
@@ -381,10 +387,15 @@ def main(argv=None) -> int:
     ap.add_argument("--width", type=int, default=1920)
     ap.add_argument("--height", type=int, default=1080)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--speed-range", default="220,340",
+                    help="launch speed range in/s as LO,HI (default 220,340)")
+    ap.add_argument("--arc", choices=("high", "low"), default="high",
+                    help="'low' = flat fast shots (launch elevation 20-50 deg)")
     a = ap.parse_args(argv)
     offs = _parse_bursts(a.bursts or str(a.shots), a.spacing, a.gap)
     cams = make_default_pair(a.width, a.height)
-    trajs, info = build_shots(offs, a.seed, cams=cams)
+    lo, hi = (float(x) for x in a.speed_range.split(","))
+    trajs, info = build_shots(offs, a.seed, cams=cams, speed_range=(lo, hi), arc=a.arc)
     paths = render_sequence(trajs, cams, a.fps, a.out)
     Path(a.out, "shots.json").write_text(json.dumps(info, indent=1))
     print(f"cameras: {paths}")

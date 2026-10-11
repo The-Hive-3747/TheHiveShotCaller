@@ -156,11 +156,12 @@ def test_auto_extrinsics_source_modes(kit_rig):
     r, c = kit_rig
     assert c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "bogus"})[0] == 422
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
-    assert s == 200 and j["source"] == "kit" and j["warnings"] == [] and not j["hive_tags_used"]
+    assert s == 200 and j["source"] == "kit" and not j["hive_tags_used"]
+    assert j["warnings"] == ["no tag outside this solve is visible to this camera: the result is not independently checked"]        # a kit-only picture has no spare tag
     s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto")           # default: both
     assert s == 200 and j["source"] == "both"
     assert 2 <= len(j["tags_used"]) and set(j["tags_used"]) <= {100, 101, 102, 103}
-    assert j["warnings"] == []
+    assert j["warnings"] == ["no tag outside this solve is visible to this camera: the result is not independently checked"]
     # "hive" with no HIVE tag in view: plain-language 422
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
     assert s == 422 and "tag" in j["detail"]
@@ -173,7 +174,7 @@ def test_setup_status_recommendations(client_plain, monkeypatch):
     s, j = c.j("GET", "/api/setup/status")
     assert s == 200
     assert set(j) == {"cameras_detected", "sources_configured", "calibration_loaded",
-                      "calibration_source", "intrinsics_default",
+                      "calibration_source", "intrinsics_default", "calibration_state",
                       "tags_seen", "tags_roll", "pipeline_running", "recommendations"}
     assert j["pipeline_running"] is False and j["cameras_detected"] == []
     assert j["calibration_loaded"] is False and j["calibration_source"] == "fixture"
@@ -571,8 +572,8 @@ def test_hive_tags_computed_positions_calibrate_without_the_kit(tmp_path):
         assert s == 200, j
         assert j["tags_used"] == [34, 35, 36, 37] and j["hive_tags_used"] is True
         assert j["reprojection_px"] < 2.0 and j["source"] == "hive"
-        assert j["warnings"] == ["calibrated from HIVE tags only: expect 2-3x lower accuracy "
-                                 "than the kit"]
+        assert j["warnings"][0] == ("calibrated from HIVE tags only: expect 2-3x lower accuracy "
+                                    "than the kit")
         s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto")             # default: both
         assert s == 200 and j["source"] == "both" and j["tags_used"] == [34, 35, 36, 37]
         assert j["warnings"] and "HIVE tags only" in j["warnings"][0]
@@ -607,9 +608,12 @@ def test_hive_tags_with_a_single_tag_reading_camera(tmp_path):
         assert s == 200 and j["tags_used"] == [34, 35, 36, 37], j
         s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
         assert s == 422 and "HIVE tag" in j["detail"], j
+        # only cam1 reads the tags: nothing to triangulate, but a PnP check against the CAD
         s, j = c.j("POST", "/api/calib/hive_tags/learn",
                    {"state": {"alliance": "red", "up_cell": "audience"}})
-        assert s == 422                                      # learning needs both cameras
+        assert s == 200 and j["single_camera"] is True and j["camera"] == "cam1", j
+        assert j["learned"] is False and set(j["pnp_error_in"]) == {"34", "35", "36", "37"}
+        assert j["up_cell_error_in"] < 1.0 and j["complete"] is True
         s, j = c.j("POST", "/api/calib/auto_all", {"source": "hive"})
         assert s == 200 and j["ok"] is False
         assert j["results"]["cam1"]["ok"] is True and j["results"]["cam0"]["status"] == 422
@@ -667,23 +671,40 @@ def test_setup_status_lists_free_devices_and_flags_dropped_frames_while_running(
 
 
 # ------------------------------------------------- out-of-sample crosscheck (held-out tags)
-@pytest.fixture()
-def kit_and_hive_rig(tmp_path):
+_REC_POS = ((-30.0, 100.0, 60.0), (30.0, 100.0, 60.0))
+
+
+def _kit_hive_rig(tmp_path, red="audience", blue=None, hive_shift=(0.0, 0.0, 0.0),
+                  positions=_REC_POS, hive_cams=("cam0", "cam1")):
     """Two cameras on the audience side that both see kit tags (100 plus 103 / 102) and the
-    computed HIVE tags of the current state (audience CELL up)."""
+    computed HIVE tags of the given states (`red` / `blue` = the up cell; blue None = the blue
+    HIVE's tags are not in the picture). Returns (rig, client)."""
     from hiveshot import placement as pl
     from hiveshot import tagkit
     from hiveshot.field import HiveState
     from hiveshot.synth import VirtualCamera
-    hive = tagkit.hive_tag_defs("red", HiveState("red", "audience"))
+    hive = tagkit.hive_tag_defs("red", HiveState("red", red))
+    if blue is not None:
+        hive.update(tagkit.hive_tag_defs("blue", HiveState("blue", blue)))
+    hive = {i: np.asarray(c) + np.asarray(hive_shift) for i, c in hive.items()}
+    tmp_path.mkdir(parents=True, exist_ok=True)
     cams = {f"cam{i}": VirtualCamera(*pl.camera_from_pose(pos, (0.0, 10.0, 30.0), 60.0, W, H,
                                                           f"cam{i}"))
-            for i, pos in enumerate(((-30.0, 100.0, 60.0), (30.0, 100.0, 60.0)))}
-    frames = {cid: render_tag_dict(cam, {**tagkit.tag_defs(), **hive}, seed=5)
+            for i, pos in enumerate(positions)}
+    frames = {cid: render_tag_dict(cam, {**tagkit.tag_defs(), **(hive if cid in hive_cams else {})},
+                                   seed=5)
               for cid, cam in cams.items()}
     rig = Rig(tmp_path, frames, cams=cams)
+    rig.hive_defs = hive
     c = rig.serve()
     rig.start()
+    return rig, c
+
+
+@pytest.fixture()
+def kit_and_hive_rig(tmp_path):
+    """Kit tags + the red HIVE with its audience CELL up (the calibration state)."""
+    rig, c = _kit_hive_rig(tmp_path)
     yield rig, c
     rig.close()
 
@@ -816,16 +837,17 @@ def test_save_gate_refuses_a_high_reprojection_error(kit_and_hive_rig, monkeypat
     assert c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})[0] == 200
 
 
-def test_save_gate_refuses_a_big_out_of_sample_error(kit_and_hive_rig):
-    """The HIVE state is set the wrong way round, so the held-out HIVE tags are ~15 in away
-    from where the model says they are: the kit solve is right, the check says otherwise."""
-    r, c = kit_and_hive_rig
-    assert c.j("POST", "/api/hive/state", {"alliance": "red", "up_cell": "far"})[0] == 200
-    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
-    assert s == 409 and j["oos_error_in"] > 2.0 and "not used for the solve" in j["detail"]
-    assert c.j("GET", "/api/calib")[1]["extrinsics"] == []
-    assert c.j("POST", "/api/hive/state", {"alliance": "red", "up_cell": "audience"})[0] == 200
-    assert c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})[0] == 200
+def test_save_gate_refuses_a_big_out_of_sample_error(tmp_path):
+    """The HIVE tags physically sit 10 in higher than the model says (a wrong calibration
+    state, a tipped HIVE): the held-out tags are far off, so a kit solve that is itself right
+    is refused."""
+    rig, c = _kit_hive_rig(tmp_path, hive_shift=(0.0, 0.0, 10.0))
+    try:
+        s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+        assert s == 409 and j["oos_error_in"] > 2.0 and "not used for the solve" in j["detail"]
+        assert c.j("GET", "/api/calib")[1]["extrinsics"] == []
+    finally:
+        rig.close()
 
 
 def test_setup_finish_gate(kit_and_hive_rig):
@@ -852,5 +874,239 @@ def test_learn_with_nothing_visible_finishes_when_the_audience_state_is_known(tm
         assert s == 200 and j["learned"] is False and j["learned_ids"] == []
         assert j["complete"] is True and "not visible" in j["reason"] or "no HIVE tag" in j["reason"]
         assert j["missing_ids"] and j["visible_per_camera"] == {"cam0": [], "cam1": []}
+    finally:
+        rig.close()
+
+
+# ------------------------------------------- calibration state (both audience CELLs up)
+def test_calibration_state_in_calib_and_setup_status(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    want = {"red": "audience", "blue": "audience"}
+    assert c.j("GET", "/api/calib")[1]["calibration_state"] == want
+    assert c.j("GET", "/api/setup/status")[1]["calibration_state"] == want
+
+
+def test_calibration_ignores_the_pipelines_current_hive_state(kit_and_hive_rig):
+    """The match-start state (or any manual HIVE state) is for shot classification; auto,
+    crosscheck and the Done gate use the calibration state and still pass."""
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/hive/state", {"alliance": "blue", "up_cell": "far"})[0] == 200
+    s, j = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and j["ok"] is True, j
+    assert j["crosscheck"]["out_of_sample"] is True and j["crosscheck"]["held_out"] == "HIVE tags"
+    assert j["crosscheck"]["max_error_in"] < 1.5
+    # the lens is measured in this rig; the match-start state does not block finishing
+    assert c.j("GET", "/api/pipeline/status")[1]["hive_state"] == {"alliance": "blue", "up_cell": "far"}
+    c.j("POST", "/api/calib/auto_all")
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 200 and j["ok"] is True and j["max_error_in"] <= 1.0
+
+
+def test_calibration_uses_both_alliances_hive_tags(tmp_path):
+    rig, c = _kit_hive_rig(tmp_path, red="audience", blue="audience")
+    try:
+        s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
+        assert s == 200, j
+        assert any(38 <= t <= 41 for t in j["tags_used"]) and any(34 <= t <= 37 for t in j["tags_used"])
+        s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto", {"source": "hive"})
+        assert s == 200, j
+        s, j = c.j("POST", "/api/calib/hive_tags/learn")                # no state: calibration state
+        assert s == 200 and j["learned"] is True and j["complete"] is True, j
+        assert set(j["states"]) == {"red_audience", "blue_audience"}
+        assert any(34 <= i <= 37 for i in j["learned_ids"]) and any(38 <= i <= 41 for i in j["learned_ids"])
+    finally:
+        rig.close()
+
+
+def _advice(c):
+    # tags_roll comes from the scan cache: ask for the tags first
+    c.j("GET", "/api/setup/status")
+    time.sleep(0.2)
+    return [x for x in c.j("GET", "/api/setup/status")[1]["recommendations"] if "Tip both HIVEs" in x]
+
+
+def test_advice_to_tip_both_hives_when_the_tags_say_otherwise(tmp_path):
+    # red tipped the wrong way: its audience tags read upside down
+    rig, c = _kit_hive_rig(tmp_path, red="far", blue="audience")
+    try:
+        advice = _advice(c)
+        assert len(advice) == 1
+        assert "so both audience CELLs are up before calibrating" in advice[0]
+        assert "red" in advice[0]
+    finally:
+        rig.close()
+    # blue's tags are not in the picture at all while red's are
+    rig, c = _kit_hive_rig(tmp_path / "b", red="audience", blue=None)
+    try:
+        advice = _advice(c)
+        assert len(advice) == 1 and "no blue audience CELL tag is visible" in advice[0]
+    finally:
+        rig.close()
+
+
+def test_no_advice_when_both_audience_cells_are_up(tmp_path):
+    rig, c = _kit_hive_rig(tmp_path, red="audience", blue="audience")
+    try:
+        assert _advice(c) == []
+    finally:
+        rig.close()
+
+
+# ----------------------------------- pair gate, reset, lens quality, finish warnings, learn
+def _move_cameras(rig, c, positions, tag="moved"):
+    """Re-render the same tags from new tripod positions and restart the pipeline on them."""
+    from hiveshot import placement as pl
+    from hiveshot import tagkit
+    from hiveshot.synth import VirtualCamera
+    cams = {f"cam{i}": VirtualCamera(*pl.camera_from_pose(pos, (0.0, 10.0, 30.0), 60.0, W, H,
+                                                          f"cam{i}"))
+            for i, pos in enumerate(positions)}
+    frames = {cid: render_tag_dict(cam, {**tagkit.tag_defs(), **rig.hive_defs}, seed=6)
+              for cid, cam in cams.items()}
+    c.j("POST", "/api/pipeline/stop")
+    rig.set_frames(frames, tag=tag)
+    assert c.j("PUT", "/api/config", json.loads(rig.cfg_path.read_text()))[0] == 200
+    rig.start()
+    return cams
+
+
+MOVED = ((-14.0, 112.0, 48.0), (46.0, 88.0, 74.0))
+
+
+def _poses(c):
+    return {e["cam_id"]: (e["rvec"], e["tvec"]) for e in c.j("GET", "/api/calib")[1]["extrinsics"]}
+
+
+def test_both_cameras_moved_auto_all_is_not_locked_out_by_the_old_poses(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    before = _poses(c)
+    _move_cameras(r, c, MOVED)
+    # one camera alone is checked against the other camera's OLD pose: refused, with a way out
+    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+    assert s == 409 and j["pair_check_failed"] is True, j
+    assert j["hint"] == "if both cameras moved, use Auto-calibrate all (or Recalibrate both)"
+    assert _poses(c) == before
+    # both together: the old poses are not consulted, the new pair is checked and saved
+    s, j = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and j["ok"] is True and j["rolled_back"] is False, j
+    assert j["crosscheck"]["out_of_sample"] is True and j["max_error_in"] < 1.0
+    after = _poses(c)
+    assert after["cam0"] != before["cam0"] and after["cam1"] != before["cam1"]
+
+
+def test_force_single_skips_only_the_pair_check_and_marks_the_other_camera(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    _move_cameras(r, c, MOVED)
+    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit", "force_single": True})
+    assert s == 200, j
+    assert any("cam1 is marked pair_stale" in w for w in j["warnings"])
+    st = c.j("GET", "/api/pipeline/status")[1]
+    assert st["cameras"]["cam1"]["pair_stale"] is True and st["cameras"]["cam0"]["pair_stale"] is False
+    assert any("camera cam1" in w and "other camera" in w for w in st["warnings"])
+    assert c.j("POST", "/api/setup/finish")[0] == 409            # not finished while pair_stale
+    # re-solving the stale camera clears the flag (its pair check now passes)
+    s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto", {"source": "kit"})
+    assert s == 200, j
+    st = c.j("GET", "/api/pipeline/status")[1]
+    assert st["cameras"]["cam1"]["pair_stale"] is False
+
+
+def test_auto_all_rolls_both_cameras_back_when_one_fails(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    before = _poses(c)
+    # cam1 now sees nothing at all (a blank picture)
+    from tests.test_tagkit import render_tag_dict as _r
+    frames = {"cam0": _r(r.cams["cam0"], {**__import__("hiveshot.tagkit", fromlist=["x"]).tag_defs(),
+                                          **r.hive_defs}, seed=7),
+              "cam1": np.full((H, W, 3), 110, np.uint8)}
+    c.j("POST", "/api/pipeline/stop")
+    r.set_frames(frames, tag="blank")
+    assert c.j("PUT", "/api/config", json.loads(r.cfg_path.read_text()))[0] == 200
+    r.start()
+    s, j = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and j["ok"] is False and j["rolled_back"] is True
+    assert j["results"]["cam1"]["ok"] is False
+    assert _poses(c) == before                                   # both old poses are back
+    assert any("both old poses were restored" in w for w in j["warnings"])
+
+
+def test_reset_deletes_poses_and_keeps_intrinsics(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    s, j = c.j("POST", "/api/calib/reset", {"cam_id": "cam0"})
+    assert s == 200 and j["reset"] == ["cam0"] and j["kept"] == "intrinsics"
+    assert [e["cam_id"] for e in j["rollback"]["extrinsics"]] == ["cam0"]
+    cal = c.j("GET", "/api/calib")[1]
+    assert [e["cam_id"] for e in cal["extrinsics"]] == ["cam1"] and len(cal["intrinsics"]) == 2
+    s, j = c.j("POST", "/api/calib/reset", {"cameras": "all"})
+    assert s == 200 and j["reset"] == ["cam1"]
+    cal = c.j("GET", "/api/calib")[1]
+    assert cal["extrinsics"] == [] and len(cal["intrinsics"]) == 2
+    assert c.j("POST", "/api/calib/reset", {"cam_id": "nope"})[0] == 404
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True      # and a fresh solve works
+
+
+@pytest.mark.parametrize("rmse,source,warns", [(2.6, "measured_poor", True),
+                                              (1.5, "measured", True), (0.4, "measured", False)])
+def test_lens_quality_is_graded(kit_and_hive_rig, monkeypatch, rmse, source, warns):
+    r, c = kit_and_hive_rig
+    real = calib.calibrate_intrinsics
+    k = r.cams["cam0"].intr
+
+    def fake(frames, pattern, square, cam_id):
+        return CameraIntrinsics(cam_id, k.width, k.height, k.fx, k.fy, k.cx, k.cy, tuple(k.dist),
+                                rmse)
+    monkeypatch.setattr(calib, "calibrate_intrinsics", fake)
+    assert c.j("POST", "/api/calib/intrinsics/cam0/start")[0] == 200
+    time.sleep(0.5)
+    s, j = c.j("POST", "/api/calib/intrinsics/cam0/stop")
+    monkeypatch.setattr(calib, "calibrate_intrinsics", real)
+    assert s == 200 and j["intrinsics_source"] == source and ("warning" in j) is warns, j
+    st = c.j("GET", "/api/pipeline/status")[1]
+    assert st["cameras"]["cam0"]["intrinsics_source"] == source
+    lens_w = [w for w in st["warnings"] if "lens calibration" in w and "cam0" in w]
+    assert bool(lens_w) is warns
+    if source == "measured_poor":
+        assert "re-run the Lens step closer, 1.5-3 ft" in lens_w[0]
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    s, j = c.j("POST", "/api/setup/finish")
+    if source == "measured_poor":
+        assert s == 409 and j["intrinsics_poor_cameras"] == ["cam0"]
+        assert "re-run the Lens step closer, 1.5-3 ft" in j["detail"]
+    else:
+        assert s == 200, j
+
+
+def test_finish_never_passes_an_in_sample_check_silently(kit_rig):
+    r, c = kit_rig                       # kit tags only: no spare tag for any camera
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 200 and j["ok"] is True and j["out_of_sample"] is False
+    assert len(j["warnings"]) == 2
+    for cam, w in zip(("cam0", "cam1"), j["warnings"], strict=True):
+        assert w == (f"camera {cam} cross-check is in-sample: tape errors, resolution mismatch "
+                     "or a camera swap would not be detected; verify by clicking the 8 corners")
+
+
+def test_per_camera_auto_returns_warnings_like_auto_all(kit_rig):
+    r, c = kit_rig
+    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+    assert s == 200 and isinstance(j["warnings"], list)
+    assert any("not independently checked" in w for w in j["warnings"])
+    s, a = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and any("cam0: " in w for w in a["warnings"])        # aggregated, per camera
+
+
+def test_learn_with_one_tag_reading_camera_in_the_kit_world(tmp_path):
+    rig, c = _kit_hive_rig(tmp_path, hive_cams=("cam1",))
+    try:
+        assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+        s, j = c.j("POST", "/api/calib/hive_tags/learn",
+                   {"state": {"alliance": "red", "up_cell": "audience"}})
+        assert s == 200 and j["single_camera"] is True and j["camera"] == "cam1", j
+        assert j["pnp_error_in"] and all(v < 3.0 for v in j["pnp_error_in"].values())
     finally:
         rig.close()

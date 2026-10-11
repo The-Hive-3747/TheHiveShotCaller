@@ -82,6 +82,8 @@
       <div class="card setupstep" data-step="tags">
         <h3>3. Tags and auto-calibration</h3>
         <div class="hints"></div>
+        <div class="card warnbox tipnote"><b>Before calibrating, tip BOTH HIVEs by hand so both audience-side CELLs are up (the CELLs otherwise hide the tags). Put the red HIVE back to match start afterwards.</b></div>
+        <div class="calstate muted"></div>
         <div id="tagSource">
           <label><input type="radio" name="tagSource" value="kit" checked> I printed the tag sheet (recommended)</label><br>
           <label><input type="radio" name="tagSource" value="hive"> No printer: use the HIVE's own tags</label>
@@ -122,7 +124,10 @@
         <h3>6. Done</h3>
         <div class="hints"></div>
         <p>Starts the pipeline (if stopped) and creates a session using the name in the top bar.</p>
-        <button id="btnFinish">Start pipeline and session</button>
+        <div id="finishWarnings"></div>
+        <label id="ackRow" style="display:none"><input id="chkVerified" type="checkbox"> I verified by clicking
+          <span class="muted">(I clicked known points and checked them with Cross-check in the Calibration tab)</span></label>
+        <div><button id="btnFinish">Start pipeline and session</button></div>
         <div id="finishMsg" class="muted" style="margin-top:6px"></div>
       </div>
     </section>
@@ -165,9 +170,14 @@
       </div>
     </section>
     <section id="tab-calibration" class="tab">
-      <div class="card"><a id="lnkCheckerboard" class="btnlink" href="/api/calib/checkerboard.pdf" download>Download checkerboard PDF</a>
+      <div class="card"><div id="calHints" class="hints"></div>
+        <div class="card warnbox tipnote"><b>Before calibrating, tip BOTH HIVEs by hand so both audience-side CELLs are up (the CELLs otherwise hide the tags). Put the red HIVE back to match start afterwards.</b></div>
+        <div class="calstate muted"></div>
+        <a id="lnkCheckerboard" class="btnlink" href="/api/calib/checkerboard.pdf" download>Download checkerboard PDF</a>
         <span class="muted"> Print at 100% / Actual size (1.00 in squares).</span>
         <div style="margin-top:8px"><button id="btnAutoAll">Auto-calibrate all</button>
+          <button id="btnRecalBoth" title="Use this after a tripod was bumped or moved: recalibrates both cameras together">Recalibrate both</button>
+          <button id="btnCalReset" title="Remove the saved calibration for all cameras (asks first)">Reset calibration</button>
           <button id="btnCrosscheck">Cross-check</button>
           <span class="muted"> Compares triangulated reference points with the field model.</span></div>
         <div id="crosscheckOut" style="margin-top:6px"></div></div>

@@ -9,6 +9,7 @@ import contextlib
 import json
 import logging
 import os
+import sys
 import tempfile
 import threading
 import time
@@ -25,7 +26,15 @@ from pydantic import ValidationError
 
 from . import calib, calib_targets, field, ingest
 from . import config as cfgmod
-from .pipeline import ConfigConflict, Pipeline, computed_hive_defs
+from .pipeline import (
+    LENS_OK_RMSE_PX,
+    LENS_POOR_RMSE_PX,
+    ConfigConflict,
+    Pipeline,
+    calibration_hive_defs,
+    calibration_state,
+    computed_hive_defs,
+)
 from .resources import resource_path
 from .shots import annotate, summarize
 from .stats import compute_stats, shots_to_csv, stats_to_dict
@@ -37,6 +46,7 @@ DEMO_REALTIME = True            # tests may set False so the demo footage runs f
 DEMO_SESSION_TEMPLATE = "Demo {date} {time}"
 MAX_SAVE_RMSE_PX = 4.0     # an extrinsics solve above this reprojection error is not saved
 MAX_SAVE_OOS_IN = 2.0      # ... nor one whose held-out tags are further off than this
+PAIR_HINT = "if both cameras moved, use Auto-calibrate all (or Recalibrate both)"
 MAX_FINISH_OOS_IN = 1.0    # the wizard may finish only at or below this cross-check error
 DROP_WINDOW_S = 60.0
 DEVICE_PROBE_MAX = 6
@@ -279,7 +289,7 @@ class AppState:
     def calib_dict(self) -> dict:
         intr, ext = self.pipeline.calibration()
         stale = self.pipeline.stale_extrinsics()
-        return {"version": 1,
+        return {"version": 1, "calibration_state": calibration_state(),
                 "intrinsics": [{**i.__dict__, "dist": list(i.dist)} for i in intr.values()],
                 "extrinsics": [{**e.__dict__, "rvec": list(e.rvec), "tvec": list(e.tvec),
                                 "stale": e.cam_id in stale} for e in ext.values()]}
@@ -307,7 +317,7 @@ class AppState:
         # where each camera's lens intrinsics came from; "default" keeps its warning alive
         src = {c: v for c, v in self.pipeline.intrinsics_sources().items() if c in intr}
         for c in (measured or ()):
-            src[c] = "measured"
+            src[c] = measured[c] if isinstance(measured, dict) else "measured"
         data["intrinsics_source"] = {c: src.get(c, "measured") for c in intr}
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
         self.pipeline.reload_calibration()
@@ -601,8 +611,7 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 expected[int(tid)] = (np.asarray(c4, float).reshape(4, 3), "kit")
         except ImportError:
             pass
-        hs = st.pipeline.hive_state()
-        for tid, c4 in computed_hive_defs(hs.alliance, hs.up_cell).items():
+        for tid, c4 in calibration_hive_defs().items():
             expected[int(tid)] = (c4, "hive")
         return expected
 
@@ -663,11 +672,13 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         return worst
 
     def _gate_extrinsics(cam_id: str, intr_c, ext_new, rmse_px: Optional[float],
-                         record: dict, image: Optional[np.ndarray]) -> Optional[float]:
+                         record: dict, image: Optional[np.ndarray],
+                         force_single: bool = False) -> tuple[Optional[float], Optional[str]]:
         """Refuse (409 with the numbers) to save an extrinsics solve that is clearly wrong:
         reprojection RMSE over MAX_SAVE_RMSE_PX, a frame whose size is not the intrinsics'
         size, or an out-of-sample error (this camera's, and the pair's when both cameras are
-        calibrated) over MAX_SAVE_OOS_IN. Returns the camera's out-of-sample error."""
+        calibrated) over MAX_SAVE_OOS_IN. `force_single` skips only the pair check. Returns
+        (this camera's out-of-sample error, the other camera to mark pair-stale or None)."""
         numbers: dict = {"cam_id": cam_id, "reprojection_px": rmse_px}
         reasons = []
         if rmse_px is not None and rmse_px > MAX_SAVE_RMSE_PX:
@@ -682,6 +693,8 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                                f"{intr_c.width}x{intr_c.height}: redo the intrinsics or fix the "
                                "camera resolution")
         oos = None
+        stale_other: Optional[str] = None
+        pair_failed = False
         if image is not None:
             oos = _oos_camera_error(intr_c, ext_new, image, set(record.get("tags_used", [])))
             numbers["oos_error_in"] = oos
@@ -700,12 +713,20 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                         worst = max(p["error_in"] for p in pts)
                         numbers["crosscheck_error_in"] = worst
                         if worst > MAX_SAVE_OOS_IN:
-                            reasons.append(f"the out-of-sample cross-check with {other} would be "
-                                           f"{worst:.1f} in (limit {MAX_SAVE_OOS_IN:.0f} in)")
+                            if force_single:
+                                stale_other = other        # accepted alone; flagged below
+                            else:
+                                pair_failed = True
+                                reasons.append(f"the out-of-sample cross-check with {other} would "
+                                               f"be {worst:.1f} in (limit {MAX_SAVE_OOS_IN:.0f} in)")
         if reasons:
+            if pair_failed:
+                numbers["hint"] = PAIR_HINT
+                numbers["pair_check_failed"] = True
             raise Refusal(f"extrinsics of {cam_id} not saved: " + "; ".join(reasons)
-                          + ". The previous calibration is kept.", numbers)
-        return oos
+                          + ". The previous calibration is kept."
+                          + (" Hint: " + PAIR_HINT + "." if pair_failed else ""), numbers)
+        return oos, stale_other
 
     def _crosscheck(in_sample: bool = False) -> dict:
         cams = [s.cam_id for s in st.cfg.sources][:2]
@@ -788,11 +809,12 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         if source in ("kit", "both"):
             defs.update(tk.tag_defs())
         if source in ("hive", "both"):
-            hs = st.pipeline.hive_state()
-            # the up CELL's tags have computed positions; learned ones (this state) win
-            defs.update(computed_hive_defs(hs.alliance, hs.up_cell))
-            defs.update({int(i): np.asarray(c, float)
-                         for i, c in (st.hive_tags.get(f"{hs.alliance}_{hs.up_cell}") or {}).items()})
+            # both alliances' tags in the calibration state (both audience CELLs up), not the
+            # pipeline's current HIVE state; learned positions of that state win
+            defs.update(calibration_hive_defs())
+            for al, up in calibration_state().items():
+                defs.update({int(i): np.asarray(c, float)
+                             for i, c in (st.hive_tags.get(f"{al}_{up}") or {}).items()})
         if source == "hive" and not defs:
             raise HTTPException(422, "no HIVE tag positions are known for the current state; "
                                 "learn them first (POST /api/calib/hive_tags/learn)")
@@ -810,8 +832,9 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         hive_used = [t for t in info["tags_used"] if t not in kit_ids]
         record = {"source": source, "tags_used": [int(t) for t in info["tags_used"]]}
         was_default = st.pipeline.intrinsics_sources().get(cam_id) == "default"
-        oos = _gate_extrinsics(cam_id, old_i[cam_id], ext, info["reprojection_px"], record,
-                               fr.image)
+        oos, stale_other = _gate_extrinsics(cam_id, old_i[cam_id], ext, info["reprojection_px"],
+                                            record, fr.image,
+                                            force_single=bool(body.get("force_single")))
         if kit_ids:
             corners = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fr.image)}
             st.clicks[cam_id] = [
@@ -826,6 +849,15 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                             "the kit")
         st.save_calib(old_i, {**old_e, cam_id: ext},
                       st.pipeline.stale_extrinsics() - {cam_id})
+        st.pipeline.set_pair_stale(cam_id, False)
+        if stale_other:
+            st.pipeline.set_pair_stale(stale_other, True)
+            warnings.append(f"the pair check with {stale_other} failed and was skipped "
+                            f"(force_single): {stale_other} is marked pair_stale until it is "
+                            "re-solved; use Auto-calibrate all")
+        if oos is None:
+            warnings.append("no tag outside this solve is visible to this camera: the result "
+                            "is not independently checked")
         if was_default:
             warnings.append("this camera still uses default lens intrinsics: run the Lens step")
         return {"rmse_in": ext.rmse_in, "fit_residual_in": ext.rmse_in, "oos_error_in": oos,
@@ -847,6 +879,13 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         if not st.pipeline.running:
             raise HTTPException(409, "start the pipeline first (frames come from the cameras)")
         cams = [s.cam_id for s in st.cfg.sources]
+        pair = cams[:2]
+        # Both cameras are re-solved together: drop their old poses first (kept for rollback),
+        # so neither solve is checked against the other camera's OLD pose, and the pair check
+        # of the second solve runs against the NEW first pose.
+        snapshot = _snapshot_poses(pair)
+        if snapshot["ext"]:
+            _drop_poses(pair)
         results: dict[str, dict] = {}
         for cam in cams:
             try:
@@ -876,23 +915,155 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 check = _crosscheck()
             except HTTPException as e:
                 check = {"error": e.detail}
-        return {"results": results, "crosscheck": check,
+        ok = all(r["ok"] for r in results.values())
+        rolled_back = False
+        if ok and check and check.get("out_of_sample") and check["max_error_in"] > MAX_SAVE_OOS_IN:
+            ok = False
+            results[pair[1]] = {**results[pair[1]], "ok": False, "status": 409, "refused": True,
+                                "error": (f"the out-of-sample cross-check of the new pair is "
+                                          f"{check['max_error_in']:.1f} in (limit "
+                                          f"{MAX_SAVE_OOS_IN:.0f} in)")}
+        if not ok:
+            # all or nothing: put both old poses back (or none, on a first calibration)
+            _restore_poses(pair, snapshot)
+            rolled_back = True
+        else:
+            for c in pair:
+                st.pipeline.set_pair_stale(c, False)
+        warnings: list[str] = []
+        for c, r in results.items():
+            warnings += [f"{c}: {w}" for w in r.get("warnings", [])]
+        if rolled_back:
+            warnings.append("not saved: one camera failed, so both old poses were restored"
+                            if snapshot["ext"] else "not saved: one camera failed")
+        if check and check.get("warning"):
+            warnings.append(check["warning"])
+        return {"results": results, "crosscheck": check, "warnings": warnings,
                 "max_error_in": None if not check else check.get("max_error_in"),
-                "ok": all(r["ok"] for r in results.values())}
+                "rolled_back": rolled_back, "ok": ok}
+
+    def _snapshot_poses(cams: list) -> dict:
+        _intr, ext = st.pipeline.calibration()
+        return {"ext": {c: ext[c] for c in cams if c in ext},
+                "clicks": {c: [dict(p) for p in st.clicks[c]] for c in cams if c in st.clicks},
+                "solve": {c: dict(st.solve_tags[c]) for c in cams if c in st.solve_tags},
+                "stale": set(st.pipeline.stale_extrinsics()) & set(cams)}
+
+    def _drop_poses(cams: list) -> None:
+        intr, ext = st.pipeline.calibration()
+        keep = {c: e for c, e in ext.items() if c not in cams}
+        st.save_calib(intr, keep, st.pipeline.stale_extrinsics() - set(cams))
+
+    def _restore_poses(cams: list, snap: dict) -> None:
+        intr, ext = st.pipeline.calibration()
+        for c in cams:
+            st.clicks.pop(c, None)
+            st.solve_tags.pop(c, None)
+        st.clicks.update(snap["clicks"])
+        st.solve_tags.update(snap["solve"])
+        keep = {c: e for c, e in ext.items() if c not in cams}
+        keep.update(snap["ext"])
+        st.save_calib(intr, keep, (st.pipeline.stale_extrinsics() - set(cams)) | snap["stale"])
+
+    @app.post("/api/calib/reset")
+    def calib_reset(body: dict = _OPT):
+        """Delete extrinsics (poses) and keep the intrinsics: `{"cam_id": "all"|"cam0"}` or
+        `{"cameras": [...]|"all"}`. Returns what was removed so it can be put back."""
+        want = body.get("cameras", body.get("cam_id", "all"))
+        all_cams = [s.cam_id for s in st.cfg.sources]
+        if want in ("all", None):
+            targets = list(all_cams)
+        else:
+            targets = [want] if isinstance(want, str) else [str(c) for c in want]
+        for c in targets:
+            _known_cam(c)
+        snap = _snapshot_poses(targets)
+        if snap["ext"]:
+            _drop_poses(targets)
+        for c in targets:
+            st.pipeline.set_pair_stale(c, False)
+        return {"ok": True, "reset": sorted(snap["ext"]), "cameras": targets,
+                "kept": "intrinsics",
+                "rollback": {
+                    "extrinsics": [{**e.__dict__, "rvec": list(e.rvec), "tvec": list(e.tvec)}
+                                   for e in snap["ext"].values()],
+                    "solve_tags": snap["solve"], "clicks": snap["clicks"]}}
 
     def _hive_ids() -> list[int]:
         from .field_constants import APRILTAG_IDS
         return sorted({i for ids in APRILTAG_IDS.values() for i in ids})
 
     @app.post("/api/calib/hive_tags/learn")
-    def hive_tags_learn(body: dict = _REQ):
+    def hive_tags_learn(body: dict = _OPT):
         """With the HIVE settled in `state`, triangulate every HIVE tag corner seen by both
-        cameras and store it as that state's reference."""
-        s = body.get("state") or {}
+        cameras and store it as that state's reference. Without a `state` the calibration
+        state (both audience CELLs up) is learned for each alliance."""
+        s = body.get("state")
+        if not s:
+            return _learn_calibration_state()
         try:
             hs = field.HiveState(str(s.get("alliance", "")), str(s.get("up_cell", "")))
         except ValueError as e:
             raise HTTPException(422, f"state needs a valid alliance and up_cell: {e}") from e
+        return _learn_state(hs)
+
+    def _learn_calibration_state() -> dict:
+        """Learn every alliance's calibration-state tags that the cameras can see; an
+        alliance whose tags are out of view is reported, not an error."""
+        results: dict[str, dict] = {}
+        errors: dict[str, str] = {}
+        for al, up in calibration_state().items():
+            try:
+                results[f"{al}_{up}"] = _learn_state(field.HiveState(al, up), only_alliance=al)
+            except HTTPException as e:
+                if e.status_code == 409:
+                    raise
+                errors[f"{al}_{up}"] = str(e.detail)
+        if not results:
+            raise HTTPException(422, "; ".join(errors.values()))
+        learned_any = [r for r in results.values() if r["learned"]]
+        out = {"state": "calibration", "states": results, "errors": errors,
+               "learned": bool(learned_any),
+               "learned_ids": sorted({i for r in learned_any for i in r["learned_ids"]}),
+               "missing_ids": sorted({i for r in results.values() for i in r["missing_ids"]}),
+               "max_residual_in": max((r["max_residual_in"] for r in learned_any), default=None),
+               "visible_per_camera": next(iter(results.values()))["visible_per_camera"]
+               if results else {},
+               "up_cell_error_in": None,
+               # done once an audience-up state is known (an alliance whose HIVE is out of
+               # the cameras' view cannot be learned)
+               "complete": any(f"{al}_audience" in st.hive_tags for al in calibration_state())}
+        errs = [r["up_cell_error_in"] for r in learned_any if r["up_cell_error_in"] is not None]
+        if errs:
+            out["up_cell_error_in"] = float(np.mean(errs))
+        return out
+
+    def _learn_single_camera(hs, cam: str, tags: dict, visible: dict, intr: dict, ext: dict,
+                             want: set, audience_key: str) -> dict:
+        """Only one calibrated camera reads the HIVE tags (the other cannot see them): nothing
+        can be triangulated, so check each visible tag's single-camera PnP position against
+        the computed (CAD) one instead."""
+        from . import tagkit
+        centers = tagkit._observed_centers(
+            {cam: [{"id": i, "corners": c} for i, c in tags.items()]}, {cam: (intr[cam], ext[cam])})
+        expected = computed_hive_defs(hs.alliance, hs.up_cell)
+        err = {int(i): float(np.linalg.norm(centers[i] - expected[i].mean(axis=0)))
+               for i in centers if i in expected}
+        from .field_constants import APRILTAG_IDS as _AI
+        up_ids = set(_AI[(hs.alliance, hs.up_cell)])
+        up_errs = [e for i, e in err.items() if i in up_ids]
+        up_err = float(np.mean(up_errs)) if up_errs else None
+        complete = audience_key in st.hive_tags or (
+            hs.up_cell == "audience" and up_err is not None and up_err < 1.0)
+        return {"state": f"{hs.alliance}_{hs.up_cell}", "single_camera": True, "camera": cam,
+                "learned": False, "learned_ids": [], "missing_ids": sorted(want - set(visible[cam])),
+                "max_residual_in": None, "visible_per_camera": visible,
+                "pnp_error_in": {str(i): e for i, e in sorted(err.items())},
+                "up_cell_error_in": up_err, "complete": bool(complete),
+                "reason": f"only {cam} sees HIVE tags: nothing can be triangulated, the tags were "
+                          "checked against the computed positions (single-camera PnP)"}
+
+    def _learn_state(hs, only_alliance: Optional[str] = None) -> dict:
         cams = [c.cam_id for c in st.cfg.sources][:2]
         intr, ext = st.pipeline.calibration()
         if len(cams) < 2 or not all(c in intr and c in ext for c in cams):
@@ -901,6 +1072,9 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         if any(f is None for f in frames.values()):
             raise HTTPException(409, "start the pipeline first (frames come from the cameras)")
         ids_ok = set(_hive_ids())
+        if only_alliance is not None:
+            from .field_constants import APRILTAG_IDS as _AI
+            ids_ok &= {i for (al, _c), ids in _AI.items() if al == only_alliance for i in ids}
         dets = {c: {int(d["id"]): d["corners"] for d in calib.detect_apriltags(frames[c].image)
                     if int(d["id"]) in ids_ok} for c in cams}
         visible = {c: sorted(dets[c]) for c in cams}
@@ -919,6 +1093,10 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                               "cameras (the far CELL's tags face away from the audience side); "
                               "nothing to learn for this state",
                     "complete": audience_key in st.hive_tags}
+        readers = [c for c in cams if visible[c]]
+        if len(common) < 2 and len(readers) == 1 and len(visible[readers[0]]) >= 2:
+            return _learn_single_camera(hs, readers[0], dets[readers[0]], visible, intr, ext,
+                                        want, audience_key)
         if len(common) < 2:
             raise HTTPException(
                 422, f"only {len(common)} HIVE tag(s) seen by both cameras (cam0 sees "
@@ -968,6 +1146,33 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         ready = st.pipeline.hive_tags_ready()
         return {"alliance": al, "states": states, "ready": ready,
                 "hive_state_source": st.pipeline.hive_state_source()}
+
+    def _hive_state_advice(roll: dict, tags: dict) -> list[str]:
+        """Calibration needs both audience CELLs up (field.CALIBRATION_STATE): say so when the
+        visible HIVE tags suggest another state."""
+        from .field_constants import APRILTAG_IDS as _AI
+        up = calibration_state()
+        why: list[str] = []
+        clusters: dict[str, set] = {}          # cluster -> signs seen over the cameras
+        for per_cam in roll.values():
+            for name, v in per_cam.items():
+                clusters.setdefault(name, set()).add(int(v.get("sign", 0)))
+        for al, cell in up.items():
+            wrong = "far" if cell == "audience" else "audience"
+            if clusters.get(f"{al}_{cell}") == {-1}:
+                why.append(f"the {al} {cell} CELL tags are upside down")
+            elif clusters.get(f"{al}_{wrong}") == {1}:
+                why.append(f"the {al} {wrong} CELL is up")
+        seen = {int(i) for ids in tags.values() for i in ids}
+        for al, cell in up.items():
+            ids = set(_AI[(al, cell)])
+            others_up = [a for a in up if a != al and set(_AI[(a, up[a])]) & seen]
+            if others_up and not (ids & seen) and not any(al in w for w in why):
+                why.append(f"no {al} {cell} CELL tag is visible while {others_up[0]}'s are")
+        if not why:
+            return []
+        return ["Tip both HIVEs so both audience CELLs are up before calibrating ("
+                + "; ".join(why) + ")."]
 
     @app.get("/api/setup/status")
     def setup_status():
@@ -1023,6 +1228,8 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 if d["height"] >= 1080 and 0 < d["fps"] < 59.0:
                     rec.append(f"camera {d['index']} is at {d['fps']:.0f} fps at 1080p; move "
                                "it to its own USB port, not a shared hub.")
+        if running:
+            rec += _hive_state_advice(roll, tags)
         if not loaded:
             rec.append("No calibration yet: print the tag sheet (Calibration tab) and press "
                        "Auto-calibrate.")
@@ -1037,18 +1244,23 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         return {"cameras_detected": detected, "sources_configured": len(sources) >= 2,
                 "calibration_loaded": loaded,
                 "calibration_source": status["calibration_source"],
-                "intrinsics_default": status["intrinsics_default"], "tags_seen": tags, "tags_roll": roll,
+                "intrinsics_default": status["intrinsics_default"],
+                "calibration_state": calibration_state(), "tags_seen": tags, "tags_roll": roll,
                 "pipeline_running": running, "recommendations": rec}
 
     @app.post("/api/setup/finish")
     def setup_finish(body: dict = _OPT):
         """The wizard's Done gate: runs the cross-check and refuses (409, plain-language
-        reason plus the numbers) while a camera still has default lens intrinsics or the
-        cross-check error is over MAX_FINISH_OOS_IN."""
+        reason plus the numbers) while a camera has default or poor lens intrinsics, a pose
+        that was not checked against the other camera, or the cross-check error is over
+        MAX_FINISH_OOS_IN. A cross-check that is in-sample for a camera never passes silently:
+        the 200 carries a warning for it."""
         status = st.pipeline.status()
         if status["demo"]:
-            return {"ok": True, "demo": True, "calibration_source": status["calibration_source"]}
+            return {"ok": True, "demo": True, "warnings": [],
+                    "calibration_source": status["calibration_source"]}
         reasons: list[str] = []
+        warnings: list[str] = []
         numbers: dict = {"calibration_source": status["calibration_source"]}
         default_cams = sorted(c for c, v in status["cameras"].items()
                               if v.get("intrinsics_source") == "default")
@@ -1056,6 +1268,19 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         if default_cams:
             reasons.append("camera " + ", ".join(default_cams) + " still uses default lens "
                            "intrinsics: run the Lens step (checkerboard) first")
+        intr_now, ext_now = st.pipeline.calibration()
+        poor = sorted(c for c, v in status["cameras"].items()
+                      if v.get("intrinsics_source") == "measured_poor")
+        numbers["intrinsics_poor_cameras"] = poor
+        for c in poor:
+            r = intr_now[c].reprojection_rmse_px if c in intr_now else 0.0
+            reasons.append(f"camera {c} lens calibration is poor (RMSE {r:.1f} px): re-run the "
+                           "Lens step closer, 1.5-3 ft")
+        stale = sorted(c for c, v in status["cameras"].items() if v.get("pair_stale"))
+        numbers["pair_stale_cameras"] = stale
+        for c in stale:
+            reasons.append(f"camera {c} was solved alone after the pair check failed: press "
+                           "Auto-calibrate all")
         xc = None
         try:
             xc = _crosscheck()
@@ -1067,12 +1292,29 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 reasons.append(f"the cross-check error is {xc['max_error_in']:.2f} in "
                                f"(limit {MAX_FINISH_OOS_IN:.0f} in): re-measure the tags and "
                                "press Auto-calibrate again")
+            # which cameras have an independent check at all?
+            per_cam: dict[str, Optional[float]] = {}
+            for c in [s.cam_id for s in st.cfg.sources][:2]:
+                fr = st.pipeline.latest_frame(c)
+                used = set((st.solve_tags.get(c) or {}).get("tags_used", []))
+                per_cam[c] = None if fr is None or c not in ext_now else _oos_camera_error(
+                    intr_now[c], ext_now[c], fr.image, used)
+            numbers["oos_error_in_per_camera"] = per_cam
+            for c, v in per_cam.items():
+                if v is None:
+                    warnings.append(
+                        f"camera {c} cross-check is in-sample: tape errors, resolution mismatch "
+                        "or a camera swap would not be detected; verify by clicking the 8 corners")
+                elif v > MAX_FINISH_OOS_IN:
+                    reasons.append(f"camera {c}: a tag that was not used for its solve is "
+                                   f"{v:.2f} in off (limit {MAX_FINISH_OOS_IN:.0f} in)")
         if reasons:
             numbers["reasons"] = reasons
+            numbers["warnings"] = warnings
             raise Refusal("setup is not finished: " + "; ".join(reasons), numbers)
-        out = {"ok": True, **numbers}
-        if xc is not None and not xc["out_of_sample"]:
-            out["warning"] = xc.get("warning")
+        out = {"ok": True, **numbers, "warnings": warnings}
+        if warnings:
+            out["warning"] = warnings[0]
         return out
 
     @app.post("/api/detector/sample")
@@ -1153,9 +1395,18 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         new_i = {**old_i, cam_id: intr}
         # extrinsics solved with the old intrinsics no longer match: flag them stale
         stale = st.pipeline.stale_extrinsics() | ({cam_id} if cam_id in old_e else set())
-        st.save_calib(new_i, old_e, stale, measured={cam_id})
-        return {"reprojection_rmse_px": intr.reprojection_rmse_px, "frames_used": used,
-                "intrinsics_source": "measured"}
+        rmse = float(intr.reprojection_rmse_px)
+        source = "measured_poor" if rmse > LENS_POOR_RMSE_PX else "measured"
+        st.save_calib(new_i, old_e, stale, measured={cam_id: source})
+        out = {"reprojection_rmse_px": rmse, "frames_used": used, "intrinsics_source": source}
+        if source == "measured_poor":
+            out["warning"] = (f"lens RMSE {rmse:.1f} px is over {LENS_POOR_RMSE_PX:.0f} px: "
+                              "saved as poor; re-run the Lens step closer, 1.5-3 ft from the "
+                              "camera (setup cannot finish until you do)")
+        elif rmse >= LENS_OK_RMSE_PX:
+            out["warning"] = (f"lens RMSE {rmse:.1f} px is mediocre (under 1 px is good): "
+                              "consider re-running the Lens step closer, 1.5-3 ft")
+        return out
 
     @app.post("/api/calib/extrinsics/{cam_id}")
     def extr_solve(cam_id: str, body: dict = _REQ):
@@ -1190,14 +1441,19 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         record = {"source": "clicks", "tags_used": []}
         was_default = st.pipeline.intrinsics_sources().get(cam_id) == "default"
         fr = st.pipeline.latest_frame(cam_id)
-        oos = _gate_extrinsics(cam_id, old_i[cam_id], ext, rms_px, record,
-                               None if fr is None else fr.image)
+        oos, stale_other = _gate_extrinsics(
+            cam_id, old_i[cam_id], ext, rms_px, record, None if fr is None else fr.image,
+            force_single=bool(body.get("force_single")))
         st.clicks[cam_id] = [{"name": n, "u": float(u), "v": float(v)}
                              for n, (u, v) in zip(names, img, strict=True)]
         st.solve_tags[cam_id] = record
         st.save_calib(old_i, {**old_e, cam_id: ext},
                       st.pipeline.stale_extrinsics() - {cam_id})
+        st.pipeline.set_pair_stale(cam_id, False)
+        if stale_other:
+            st.pipeline.set_pair_stale(stale_other, True)
         return {"rmse_in": ext.rmse_in, "fit_residual_in": ext.rmse_in, "oos_error_in": oos,
+                "pair_stale": [stale_other] if stale_other else [],
                 "reprojection_px": rms_px, "intrinsics_default": was_default,
                 "per_point": [{"name": n, "err_px": e}
                               for n, e in zip(names, rep["per_point_px"], strict=True)]}
@@ -1261,11 +1517,21 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--source", action="append", default=[], metavar="CAM_ID=PATH",
                    help="override sources with video files (repeatable)")
     p.add_argument("--autostart", action="store_true", help="start the pipeline on launch")
-    p.add_argument("--open-browser", action="store_true")
+    p.add_argument("--open-browser", action="store_true",
+                   help="open the dashboard in the browser at start (default on for the "
+                        "packaged exe)")
+    p.add_argument("--no-browser", action="store_true",
+                   help="do not open the browser (also for the packaged exe)")
     p.add_argument("--demo", action="store_true",
                    help="run the bundled demo footage in <data-dir>/demo (nothing external, "
                         "your config and sessions are not touched)")
     return p
+
+
+def wants_browser(a: argparse.Namespace, frozen: bool) -> bool:
+    """Open the dashboard at start: on for --open-browser, --demo and the packaged exe;
+    --no-browser always wins."""
+    return (a.open_browser or a.demo or frozen) and not a.no_browser
 
 
 def main(argv: Optional[list[str]] = None) -> None:
@@ -1284,7 +1550,7 @@ def main(argv: Optional[list[str]] = None) -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
     app = create_app(a.config, a.data_dir, overrides=overrides, autostart=a.autostart,
                      demo=a.demo)
-    if a.open_browser or a.demo:
+    if wants_browser(a, bool(getattr(sys, "frozen", False))):
         threading.Timer(1.5, lambda: webbrowser.open(f"http://{a.host}:{a.port}/")).start()
     uvicorn.run(app, host=a.host, port=a.port, log_level="info")
 

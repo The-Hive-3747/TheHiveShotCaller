@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3500" height="1500" viewBox="0 0 3500 1500" font-family="Arial, sans-serif">
+<rect width="3500" height="1500" fill="#ffffff"/>
+<text x="40.0" y="60.0" font-size="23" fill="#202020" font-weight="bold">Kit tag positions on the HIVE frame (calibration state: both audience CELLs up). Inches, field frame: origin field center on the tiles, Z up, +Y toward the audience.</text>
+<text x="40.0" y="120.0" font-size="28" fill="#202020" font-weight="bold">SIDE VIEW (looking along +X; the audience, +Y, is on the LEFT)</text>
+<line x1="1064.0" y1="1270.0" x2="1064.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1050.0" y="1296.0" font-size="16" fill="#808080">-36</text>
+<line x1="896.0" y1="1270.0" x2="896.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="882.0" y="1296.0" font-size="16" fill="#808080">-24</text>
+<line x1="728.0" y1="1270.0" x2="728.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="714.0" y="1296.0" font-size="16" fill="#808080">-12</text>
+<line x1="560.0" y1="1270.0" x2="560.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="546.0" y="1296.0" font-size="16" fill="#808080">0</text>
+<line x1="392.0" y1="1270.0" x2="392.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="378.0" y="1296.0" font-size="16" fill="#808080">12</text>
+<line x1="224.0" y1="1270.0" x2="224.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="210.0" y="1296.0" font-size="16" fill="#808080">24</text>
+<line x1="56.0" y1="1270.0" x2="56.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="42.0" y="1296.0" font-size="16" fill="#808080">36</text>
+<line x1="56.0" y1="1270.0" x2="1064.0" y2="1270.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="1275.0" font-size="16" fill="#808080">z 0</text>
+<line x1="56.0" y1="1102.0" x2="1064.0" y2="1102.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="1107.0" font-size="16" fill="#808080">z 12</text>
+<line x1="56.0" y1="934.0" x2="1064.0" y2="934.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="939.0" font-size="16" fill="#808080">z 24</text>
+<line x1="56.0" y1="766.0" x2="1064.0" y2="766.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="771.0" font-size="16" fill="#808080">z 36</text>
+<line x1="56.0" y1="598.0" x2="1064.0" y2="598.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="603.0" font-size="16" fill="#808080">z 48</text>
+<line x1="56.0" y1="430.0" x2="1064.0" y2="430.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="435.0" font-size="16" fill="#808080">z 60</text>
+<line x1="56.0" y1="262.0" x2="1064.0" y2="262.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1072.0" y="267.0" font-size="16" fill="#808080">z 72</text>
+<line x1="1064.0" y1="1270.0" x2="56.0" y2="1270.0" stroke="#202020" stroke-width="4" stroke-linecap="round"/>
+<text x="500.0" y="1326.0" font-size="17" fill="#808080">tiles, y (in)</text>
+<polygon points="832.6,1270.0 287.4,1270.0 287.4,1239.9 832.6,1239.9" fill="#b0b0b0" stroke="#707070" stroke-width="2" stroke-linejoin="round"/>
+<line x1="567.3" y1="695.3" x2="819.8" y2="1262.6" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="689.7" x2="567.3" y2="695.3" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="552.7" y1="695.3" x2="300.2" y2="1262.6" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="689.7" x2="552.7" y2="695.3" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="650.2" x2="560.0" y2="688.0" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="567.3" y1="695.3" x2="819.8" y2="1262.6" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="689.7" x2="567.3" y2="695.3" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="552.7" y1="695.3" x2="300.2" y2="1262.6" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="689.7" x2="552.7" y2="695.3" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="650.2" x2="560.0" y2="688.0" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="560.0" y1="689.7" x2="560.0" y2="689.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="499.9" y1="792.2" x2="499.9" y2="792.2" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="499.9" y1="792.2" x2="536.7" y2="709.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="536.7" y1="709.7" x2="536.7" y2="709.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="536.7" y1="709.7" x2="499.9" y2="792.2" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="620.1" y1="792.2" x2="620.1" y2="792.2" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="620.1" y1="792.2" x2="583.3" y2="709.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="583.3" y1="709.7" x2="583.3" y2="709.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="583.3" y1="709.7" x2="620.1" y2="792.2" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<polygon points="499.9,792.2 499.9,792.2 536.7,709.7 536.7,709.7" fill="#c8d6e8" stroke="#4060a0" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="620.1,792.2 620.1,792.2 583.3,709.7 583.3,709.7" fill="none" stroke="#4060a0" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<polygon points="537.0,431.0 489.5,513.2 424.8,625.3 278.8,541.1 391.0,346.7" fill="none" stroke="#d02020" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="911.2,647.1 863.8,729.3 799.0,841.4 653.1,757.1 717.8,645.0 765.3,562.8" fill="none" stroke="#d02020" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<polygon points="537.0,431.0 489.5,513.2 424.8,625.3 278.8,541.1 391.0,346.7" fill="none" stroke="#2040d0" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="911.2,647.1 863.8,729.3 799.0,841.4 653.1,757.1 717.8,645.0 765.3,562.8" fill="none" stroke="#2040d0" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<line x1="536.7" y1="709.7" x2="502.5" y2="786.4" stroke="#101010" stroke-width="8" stroke-linecap="round"/>
+<line x1="536.7" y1="709.7" x2="502.5" y2="786.4" stroke="#101010" stroke-width="8" stroke-linecap="round"/>
+<line x1="307.6" y1="1184.5" x2="278.9" y2="1263.4" stroke="#101010" stroke-width="8" stroke-linecap="round"/>
+<line x1="307.6" y1="1184.5" x2="278.9" y2="1263.4" stroke="#101010" stroke-width="8" stroke-linecap="round"/>
+<text x="640.0" y="170.0" font-size="18" fill="#202020" font-weight="bold">tags 100 + 101: flat on the logo panel (edge-on here)</text>
+<text x="640.0" y="194.0" font-size="16" fill="#202020">centers (x -10 / +10, y 2.89, z 37.28)</text>
+<text x="640.0" y="218.0" font-size="16" fill="#202020">top edge flush with the panel top (y 1.67, z 40.02)</text>
+<line x1="515.6" y1="742.0" x2="636.0" y2="164.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
+<text x="40.0" y="190.0" font-size="18" fill="#202020" font-weight="bold">audience up-CELLs (red x +12.75, blue x -12.75)</text>
+<text x="40.0" y="214.0" font-size="16" fill="#202020">opening center (+-12.75, 15.77, 59.55), tag rows z 49.8</text>
+<line x1="333.3" y1="430.3" x2="150.0" y2="214.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
+<text x="720.0" y="500.0" font-size="16" fill="#606060">far CELLs (down, dashed)</text>
+<polygon points="196.0,1144.0 343.0,1144.0 343.0,1291.0 196.0,1291.0" fill="none" stroke="#a02080" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<text x="200.0" y="1132.0" font-size="17" fill="#a02080" font-weight="bold">base tag 102 / 103: detail at right</text>
+<text x="40.0" y="1440.0" font-size="16" fill="#404040">Frame: foot bar (gray) y -19.47..+19.47, 2.15 in high; legs to the 24 in crossbar (z 41.45); the logo panel</text>
+<text x="40.0" y="1466.0" font-size="16" fill="#404040">leans 24 deg (blue line). Red and blue HIVEs overlap in this view.</text>
+<text x="1180.0" y="120.0" font-size="28" fill="#202020" font-weight="bold">FRONT VIEW (from the audience, looking along -Y; +X, red, is on the LEFT)</text>
+<line x1="2464.0" y1="1270.0" x2="2464.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2450.0" y="1296.0" font-size="16" fill="#808080">-48</text>
+<line x1="2308.0" y1="1270.0" x2="2308.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2294.0" y="1296.0" font-size="16" fill="#808080">-36</text>
+<line x1="2152.0" y1="1270.0" x2="2152.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2138.0" y="1296.0" font-size="16" fill="#808080">-24</text>
+<line x1="1996.0" y1="1270.0" x2="1996.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1982.0" y="1296.0" font-size="16" fill="#808080">-12</text>
+<line x1="1840.0" y1="1270.0" x2="1840.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1826.0" y="1296.0" font-size="16" fill="#808080">0</text>
+<line x1="1684.0" y1="1270.0" x2="1684.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1670.0" y="1296.0" font-size="16" fill="#808080">12</text>
+<line x1="1528.0" y1="1270.0" x2="1528.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1514.0" y="1296.0" font-size="16" fill="#808080">24</text>
+<line x1="1372.0" y1="1270.0" x2="1372.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1358.0" y="1296.0" font-size="16" fill="#808080">36</text>
+<line x1="1216.0" y1="1270.0" x2="1216.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="1202.0" y="1296.0" font-size="16" fill="#808080">48</text>
+<line x1="1216.0" y1="1270.0" x2="2464.0" y2="1270.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="1275.0" font-size="16" fill="#808080">z 0</text>
+<line x1="1216.0" y1="1114.0" x2="2464.0" y2="1114.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="1119.0" font-size="16" fill="#808080">z 12</text>
+<line x1="1216.0" y1="958.0" x2="2464.0" y2="958.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="963.0" font-size="16" fill="#808080">z 24</text>
+<line x1="1216.0" y1="802.0" x2="2464.0" y2="802.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="807.0" font-size="16" fill="#808080">z 36</text>
+<line x1="1216.0" y1="646.0" x2="2464.0" y2="646.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="651.0" font-size="16" fill="#808080">z 48</text>
+<line x1="1216.0" y1="490.0" x2="2464.0" y2="490.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="495.0" font-size="16" fill="#808080">z 60</text>
+<line x1="1216.0" y1="334.0" x2="2464.0" y2="334.0" stroke="#d8d8d8" stroke-width="1" stroke-linecap="round"/>
+<text x="2472.0" y="339.0" font-size="16" fill="#808080">z 72</text>
+<line x1="2464.0" y1="1270.0" x2="1216.0" y2="1270.0" stroke="#202020" stroke-width="4" stroke-linecap="round"/>
+<text x="1780.0" y="1326.0" font-size="17" fill="#808080">tiles, x (in)</text>
+<polygon points="2135.8,1270.0 2161.5,1270.0 2161.5,1242.0 2135.8,1242.0" fill="#b0b0b0" stroke="#707070" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1544.2,1270.0 1518.5,1270.0 1518.5,1242.0 1544.2,1242.0" fill="#b0b0b0" stroke="#707070" stroke-width="2" stroke-linejoin="round"/>
+<line x1="2003.8" y1="736.4" x2="2149.5" y2="1263.1" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1996.0" y1="731.1" x2="2003.8" y2="736.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="2003.8" y1="736.4" x2="2149.5" y2="1263.1" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1996.0" y1="731.1" x2="2003.8" y2="736.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1996.0" y1="694.5" x2="1985.0" y2="729.6" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1676.2" y1="736.4" x2="1530.5" y2="1263.1" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1684.0" y1="731.1" x2="1676.2" y2="736.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1676.2" y1="736.4" x2="1530.5" y2="1263.1" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1684.0" y1="731.1" x2="1676.2" y2="736.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1684.0" y1="694.5" x2="1695.0" y2="729.6" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1996.0" y1="731.1" x2="1684.0" y2="731.1" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1650.5" y1="826.4" x2="2029.5" y2="826.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="2029.5" y1="826.4" x2="2011.9" y2="749.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="2011.9" y1="749.7" x2="1668.1" y2="749.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1668.1" y1="749.7" x2="1650.5" y2="826.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="2029.5" y1="826.4" x2="1650.5" y2="826.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1650.5" y1="826.4" x2="1668.1" y2="749.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="1668.1" y1="749.7" x2="2011.9" y2="749.7" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<line x1="2011.9" y1="749.7" x2="2029.5" y2="826.4" stroke="#707070" stroke-width="3" stroke-linecap="round"/>
+<polygon points="1650.5,826.4 2029.5,826.4 2011.9,749.7 1668.1,749.7" fill="#c8d6e8" stroke="#4060a0" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="2029.5,826.4 1650.5,826.4 1668.1,749.7 2011.9,749.7" fill="none" stroke="#4060a0" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<polygon points="1537.8,489.0 1674.2,412.7 1810.8,489.0 1810.8,671.4 1537.8,671.4" fill="none" stroke="#d02020" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1810.8,872.0 1537.8,872.0 1537.8,689.6 1674.2,613.3 1810.8,689.6" fill="none" stroke="#d02020" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<polygon points="1869.2,489.0 2005.8,412.7 2142.2,489.0 2142.2,671.4 1869.2,671.4" fill="none" stroke="#2040d0" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="2142.2,872.0 1869.2,872.0 1869.2,689.6 2005.8,613.3 2142.2,689.6" fill="none" stroke="#2040d0" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 8"/>
+<polygon points="1931.0,749.7 2009.0,749.7 2009.0,820.9 1931.0,820.9" fill="#303030" stroke="#101010" stroke-width="2" stroke-linejoin="round"/>
+<text x="1954.0" y="793.3" font-size="26" fill="#ffffff" font-weight="bold">100</text>
+<polygon points="1671.0,749.7 1749.0,749.7 1749.0,820.9 1671.0,820.9" fill="#303030" stroke="#101010" stroke-width="2" stroke-linejoin="round"/>
+<text x="1694.0" y="793.3" font-size="26" fill="#ffffff" font-weight="bold">101</text>
+<polygon points="2083.5,1190.6 2161.5,1190.6 2161.5,1263.9 2083.5,1263.9" fill="#303030" stroke="#101010" stroke-width="2" stroke-linejoin="round"/>
+<text x="2106.5" y="1235.2" font-size="26" fill="#ffffff" font-weight="bold">102</text>
+<polygon points="1518.5,1190.6 1596.5,1190.6 1596.5,1263.9 1518.5,1263.9" fill="#303030" stroke="#101010" stroke-width="2" stroke-linejoin="round"/>
+<text x="1541.5" y="1235.2" font-size="26" fill="#ffffff" font-weight="bold">103</text>
+<text x="1230.0" y="175.0" font-size="18" fill="#d02020" font-weight="bold">red up-CELL (x 2.75..22.75)</text>
+<text x="2170.0" y="175.0" font-size="18" fill="#2040d0" font-weight="bold">blue up-CELL (x -22.75..-2.75)</text>
+<text x="1740.0" y="175.0" font-size="18" fill="#202020" font-weight="bold">tags 100 / 101: 6 in squares on the panel</text>
+<text x="1740.0" y="199.0" font-size="16" fill="#202020">centers x -/+10.0, z 37.28 (on the slope),</text>
+<text x="1740.0" y="223.0" font-size="16" fill="#202020">outer edge 0.22 in inside the panel corner</text>
+<text x="1190.0" y="1355.0" font-size="18" fill="#202020" font-weight="bold">103 (+X base corner)</text>
+<text x="1190.0" y="1379.0" font-size="16" fill="#202020">center (21.73, 19.06, 3.29)</text>
+<text x="1190.0" y="1403.0" font-size="16" fill="#202020">black square x 18.73..24.73 (flush with the</text>
+<text x="1190.0" y="1427.0" font-size="16" fill="#202020">foot bar outer face), z 0.47..6.11</text>
+<line x1="1557.5" y1="1257.2" x2="1557.5" y2="1340.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
+<text x="2060.0" y="1355.0" font-size="18" fill="#202020" font-weight="bold">102 (-X base corner)</text>
+<text x="2060.0" y="1379.0" font-size="16" fill="#202020">center (-21.73, 19.06, 3.29)</text>
+<text x="2060.0" y="1403.0" font-size="16" fill="#202020">black square x -24.73..-18.73, z 0.47..6.11</text>
+<line x1="2122.5" y1="1257.2" x2="2122.5" y2="1340.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
+<text x="1180.0" y="1466.0" font-size="16" fill="#404040">Both audience CELLs are up (calibration state): tip BOTH HIVEs by hand before calibrating. Black squares are the kit tags (to scale); dashed outlines are the CELLs that point away.</text>
+<text x="2560.0" y="120.0" font-size="28" fill="#202020" font-weight="bold">BASE TAG DETAIL (side view, tag 102 / 103)</text>
+<line x1="3112.0" y1="800.0" x2="2600.0" y2="800.0" stroke="#202020" stroke-width="4" stroke-linecap="round"/>
+<text x="3036.0" y="826.0" font-size="16" fill="#808080">17</text>
+<text x="2876.0" y="826.0" font-size="16" fill="#808080">19</text>
+<text x="2716.0" y="826.0" font-size="16" fill="#808080">21</text>
+<polygon points="3112.0,800.0 2850.4,800.0 2850.4,628.0 3112.0,628.0" fill="#b0b0b0" stroke="#707070" stroke-width="2" stroke-linejoin="round"/>
+<text x="2968.0" y="616.0" font-size="14" fill="#404040">foot bar end (2.15 in high)</text>
+<polygon points="2787.8,800.0 2947.8,800.0 2947.8,360.0" fill="#f0e0b0" stroke="#a07030" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="2787.8,800.0 2979.3,273.8 2965.8,268.8 2774.3,795.1" fill="#ffffff" stroke="#404040" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="2801.5,762.4 2965.6,311.4 2952.1,306.4 2787.9,757.5" fill="#101010" stroke="#101010" stroke-width="2" stroke-linejoin="round"/>
+<line x1="2568.0" y1="762.4" x2="2787.9" y2="757.5" stroke="#a02080" stroke-width="1" stroke-linecap="round" stroke-dasharray="10 8"/>
+<line x1="2568.0" y1="800.0" x2="2763.8" y2="800.0" stroke="#a02080" stroke-width="1" stroke-linecap="round" stroke-dasharray="10 8"/>
+<line x1="2568.0" y1="800.0" x2="2568.0" y2="762.4" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<line x1="2575.0" y1="800.0" x2="2561.0" y2="800.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<line x1="2575.0" y1="762.4" x2="2561.0" y2="762.4" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<text x="2568.0" y="781.2" font-size="17" fill="#a02080"></text>
+<text x="2582.0" y="790.0" font-size="17" fill="#a02080" font-weight="bold">0.47 in</text>
+<text x="2538.0" y="756.0" font-size="14" fill="#a02080">black-square bottom</text>
+<line x1="2787.8" y1="848.0" x2="2850.4" y2="848.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<line x1="2787.8" y1="855.0" x2="2787.8" y2="841.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<line x1="2850.4" y1="855.0" x2="2850.4" y2="841.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<text x="2819.1" y="848.0" font-size="17" fill="#a02080"></text>
+<text x="2783.8" y="874.0" font-size="16" fill="#a02080">0.78 in</text>
+<line x1="2787.8" y1="912.0" x2="2947.8" y2="912.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<line x1="2787.8" y1="919.0" x2="2787.8" y2="905.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<line x1="2947.8" y1="919.0" x2="2947.8" y2="905.0" stroke="#a02080" stroke-width="2" stroke-linecap="round"/>
+<text x="2867.8" y="912.0" font-size="17" fill="#a02080"></text>
+<text x="2969.8" y="920.0" font-size="16" fill="#805010">2 in deep</text>
+<text x="2560.0" y="190.0" font-size="16" fill="#202020">black square top edge: y 18.03, z 6.11</text>
+<text x="2560.0" y="214.0" font-size="16" fill="#202020">(tag leans back 20 deg from vertical)</text>
+<line x1="2965.6" y1="305.4" x2="2900.0" y2="218.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
+<text x="2987.8" y="350.0" font-size="18" fill="#805010" font-weight="bold">foam wedge 4 wide x 2 deep x 5.5 tall</text>
+<text x="2987.8" y="372.0" font-size="16" fill="#805010">(2 / 5.5 = tan 20 deg)</text>
+<line x1="2951.8" y1="360.0" x2="2983.8" y2="346.0" stroke="#805010" stroke-width="1" stroke-linecap="round"/>
+<text x="2560.0" y="1090.0" font-size="16" fill="#202020">Card = 6.00 in black square + 0.5 in white border (cut on the dashed line).</text>
+<text x="2560.0" y="1116.0" font-size="16" fill="#202020">Card bottom edge on the tile at y = 19.47 + 2.15 tan 20 deg = 20.25</text>
+<text x="2560.0" y="1142.0" font-size="16" fill="#202020">(0.78 in beyond the foot bar end); the card rests on the foot bar end's top edge.</text>
+<text x="2560.0" y="1168.0" font-size="16" fill="#202020">Black-square bottom edge height = 0.5 x cos 20 deg = 0.47 in; top edge z 6.11.</text>
+<text x="2560.0" y="1194.0" font-size="16" fill="#202020">Black square outer edge flush with the foot bar's outer face (x = +-24.73).</text>
+<text x="2560.0" y="1220.0" font-size="16" fill="#202020">The wedge may be notched where it crosses the foot bar end; only the card position counts.</text>
+</svg>

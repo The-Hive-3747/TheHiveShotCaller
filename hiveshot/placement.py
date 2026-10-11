@@ -237,10 +237,76 @@ def _up_tag_geometry():
     return corners, center, n
 
 
+CELL_RAY_MARGIN_IN = 0.4     # rays to points ON a CELL stop this far short of the point
+
+
+def _pos_key(pos) -> tuple:
+    return tuple(round(float(x), 3) for x in pos)
+
+
+def cell_blocked(cam_pos, points, states, margin_in: float = CELL_RAY_MARGIN_IN,
+                 skip=()) -> np.ndarray:
+    """Per point: does the segment camera -> point (stopped margin_in short of the point, which
+    may sit on a CELL surface) touch the solid body of any of the four CELLs in `states`
+    ({alliance: HiveState}, e.g. field.CALIBRATION_STATE or field.MATCH_START_STATE)? Uses
+    `field.segment_intersects_cell` (as `field.segment_hits_any_cell` does). `skip` lists
+    (alliance, which) CELLs to ignore: the CELL a target belongs to, whose own rim/body
+    surrounds the point (the sticker lies 0.12 in outside the floor, inside the modeled rim)."""
+    p0 = np.asarray(cam_pos, float)
+    pts = np.asarray(points, float).reshape(-1, 3)
+    out = np.zeros(len(pts), bool)
+    for i, p in enumerate(pts):
+        d = p - p0
+        length = float(np.linalg.norm(d))
+        end = p0 + d * max(0.0, (length - margin_in) / length) if length > 0 else p
+        out[i] = any(field.segment_intersects_cell(p0, end, al, which, states[al])
+                     for al in field.ALLIANCES for which in field.CELLS
+                     if (al, which) not in skip)
+    return out
+
+
+def _shrunk(corners, f: float = 0.9):
+    """Corners of a tag pulled toward its center (rays to the very edge may graze a rim)."""
+    c = corners.mean(axis=0)
+    return c + (corners - c) * f
+
+
+@functools.lru_cache(maxsize=None)
+def _kit_hidden(pos: tuple) -> dict:
+    """{kit tag id: True if a CELL body (CALIBRATION_STATE: both audience CELLs up) hides any of
+    the tag's 4 corners (pulled in 10 %) or its center from the camera at `pos`}."""
+    from . import tagkit
+
+    out = {}
+    for t in tagkit.KIT_TAGS:
+        c = tagkit.tag_corners_xyz(t)
+        pts = np.vstack([_shrunk(c), c.mean(axis=0)[None]])
+        out[t.id] = bool(cell_blocked(pos, pts, field.CALIBRATION_STATE).any())
+    return out
+
+
+@functools.lru_cache(maxsize=None)
+def _refs_hidden(pos: tuple) -> bool:
+    """True if a CELL body (CALIBRATION_STATE) hides any of the 8 click points."""
+    from . import calib_targets
+
+    xyz = np.array([p for _, p in calib_targets.field_reference_points()])
+    return bool(cell_blocked(pos, xyz, field.CALIBRATION_STATE).any())
+
+
+@functools.lru_cache(maxsize=None)
+def _sticker_hidden(pos: tuple) -> bool:
+    """True if a CELL body (MATCH_START_STATE) hides any of the up-CELL sticker's 4 tags."""
+    corners = _up_tag_geometry()[0]
+    pts = np.vstack([np.vstack([_shrunk(c), c.mean(axis=0)[None]]) for c in corners])
+    return bool(cell_blocked(pos, pts, field.MATCH_START_STATE, skip=(("red", "audience"),)).any())
+
+
 def tag_view(cam: VirtualCamera, pos) -> dict:
     """Can this camera read the up CELL's tags? angle_deg between the ray tag-row-center ->
     camera and the sticker normal, in_image (all 4 tags' corners inside with a margin),
-    min_edge_px (shortest projected tag edge) and sees (all three criteria)."""
+    min_edge_px (shortest projected tag edge), hidden_by_cell (a CELL body in the match-start
+    state is in the way) and sees (all criteria)."""
     corners, center, n = _up_tag_geometry()
     ray = np.asarray(pos, float) - center
     ray /= np.linalg.norm(ray)
@@ -255,18 +321,23 @@ def tag_view(cam: VirtualCamera, pos) -> dict:
     uv = np.c_[u, v].reshape(len(corners), 4, 2)
     edges = np.linalg.norm(uv - np.roll(uv, -1, axis=1), axis=2)
     edge = float(edges.min())
-    return {"angle_deg": ang, "in_image": inimg, "min_edge_px": edge,
-            "sees": bool(ang < TAG_MAX_ANGLE_DEG and inimg and edge >= TAG_MIN_EDGE_PX)}
+    hidden = _sticker_hidden(_pos_key(pos))
+    return {"angle_deg": ang, "in_image": inimg, "min_edge_px": edge, "hidden_by_cell": hidden,
+            "sees": bool(ang < TAG_MAX_ANGLE_DEG and inimg and edge >= TAG_MIN_EDGE_PX
+                         and not hidden)}
 
 
 def kit_view(cam: VirtualCamera, pos) -> dict:
     """Readability of the printed kit tags from this camera: per-tag
-    {id: {"angle_deg", "min_edge_px", "in_image", "ok"}} and n_ok / ok (n_ok >= KIT_MIN_TAGS)."""
+    {id: {"angle_deg", "min_edge_px", "in_image", "overlaps_sticker", "hidden_by_cell", "ok"}} and
+    n_ok / ok (n_ok >= KIT_MIN_TAGS). Judged in the calibration state (both audience CELLs up):
+    a tag behind a CELL body is not readable."""
     from . import tagkit
 
     out = {}
     w, h = cam.intr.width, cam.intr.height
     m = TAG_MARGIN_PX
+    hidden_ids = _kit_hidden(_pos_key(pos))
     st_u, st_v = cam.project(_up_tag_geometry()[0].reshape(-1, 3))
     sticker = (float(st_u.min()), float(st_v.min()), float(st_u.max()), float(st_v.max()))
     for t in tagkit.KIT_TAGS:
@@ -284,15 +355,16 @@ def kit_view(cam: VirtualCamera, pos) -> dict:
         overlap = not (u.max() + gap < sticker[0] or u.min() - gap > sticker[2]
                        or v.max() + gap < sticker[1] or v.min() - gap > sticker[3])
         out[t.id] = {"angle_deg": ang, "min_edge_px": edge, "in_image": inimg,
-                     "overlaps_sticker": bool(overlap),
+                     "overlaps_sticker": bool(overlap), "hidden_by_cell": hidden_ids[t.id],
                      "ok": bool(ang < KIT_MAX_ANGLE_DEG and inimg and edge >= KIT_MIN_EDGE_PX
-                                and not overlap)}
+                                and not overlap and not hidden_ids[t.id])}
     n_ok = sum(1 for d in out.values() if d["ok"])
     return {"tags": out, "n_ok": n_ok, "ok": n_ok >= KIT_MIN_TAGS}
 
 
 def refs_in_view(cam: VirtualCamera) -> bool:
-    """All 8 calibration reference points (calib_targets) project inside the image."""
+    """All 8 calibration reference points (calib_targets) project inside the image and no CELL
+    body (calibration state) hides one."""
     from . import calib_targets
 
     xyz = np.array([p for _, p in calib_targets.field_reference_points()])
@@ -300,7 +372,8 @@ def refs_in_view(cam: VirtualCamera) -> bool:
     u, v = cam.project(xyz)
     m = REF_MARGIN_PX
     return bool((depth > 1.0).all() and (u >= m).all() and (u <= cam.intr.width - m).all()
-                and (v >= m).all() and (v <= cam.intr.height - m).all())
+                and (v >= m).all() and (v <= cam.intr.height - m).all()
+                and not _refs_hidden(_pos_key(_cam_pos(cam))))
 
 
 def _cam_pos(cam: VirtualCamera):
@@ -313,7 +386,9 @@ def _per_camera(cam: VirtualCamera, pos, pts):
     inimg = ((depth > 1.0) & (u >= 0) & (u < cam.intr.width)
              & (v >= 0) & (v < cam.intr.height))
     rpx = cam.intr.fx * (C.POLLEN_DIAMETER / 2) / np.maximum(depth, 1.0)
-    return {"in": inimg, "r": rpx, "occ": occluded(pos, pts) | flower_blocked(pos, pts)}
+    occ = (occluded(pos, pts) | flower_blocked(pos, pts)
+           | cell_blocked(pos, pts, field.MATCH_START_STATE, margin_in=4.0))
+    return {"in": inimg, "r": rpx, "occ": occ}
 
 
 def _angle_deg(pa, pb, pts):
@@ -411,7 +486,17 @@ def robot_blocked(cam_pos, samples: dict | None = None) -> np.ndarray:
     tmax_ax = np.where(parallel, np.where(inside, np.inf, -np.inf), np.maximum(t1, t2))
     tmin = tmin_ax.max(axis=1)
     tmax = tmax_ax.min(axis=1)
-    return ((tmax >= np.maximum(tmin, 0.0)) & (tmin <= 1.0)) | flower_blocked(cam_pos, s["targets"])
+    box = (tmax >= np.maximum(tmin, 0.0)) & (tmin <= 1.0)
+    # CELL bodies in the match-start state; the opening center and the tag row lie on the red
+    # audience CELL itself, so that CELL is skipped for those two targets
+    own = np.asarray(s["kind"]) != "ball"
+    cells = np.zeros(len(own), bool)
+    if (~own).any():
+        cells[~own] = cell_blocked(cam_pos, s["targets"][~own], field.MATCH_START_STATE)
+    if own.any():
+        cells[own] = cell_blocked(cam_pos, s["targets"][own], field.MATCH_START_STATE,
+                                  skip=(("red", "audience"),))
+    return box | flower_blocked(cam_pos, s["targets"]) | cells
 
 
 def robot_view(cam_pos) -> dict:

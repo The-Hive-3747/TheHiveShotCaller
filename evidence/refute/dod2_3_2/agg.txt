@@ -1,0 +1,5 @@
+P2 all non-saturated runs excluding lowarc: runs=34 shots truth=418 recorded=410 make/miss agree=410 (98.1%)
+P2 all non-saturated runs lowarc only: runs=2 shots truth=12 recorded=12 make/miss agree=6 (50.0%)
+  speed |err| 60 fps: n=302 max=0.84% median=0.011% >5%=0 >10%=0
+  speed |err| 240 fps: n=120 max=4.60% median=0.626% >5%=0 >10%=0
+  launch-angle |err| max=0.68 deg n=422

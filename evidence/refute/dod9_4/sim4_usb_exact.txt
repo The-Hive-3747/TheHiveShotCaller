@@ -1,0 +1,20 @@
+### usb / exact (seeds=2)
+- kit: both cameras solved 2/2
+    cam0: reproj px med 0.84 p90 0.91 max 0.92; <2px 2/2; pos err in med 0.47 p90 0.48 max 0.48; rot deg med 0.29 p90 0.29 max 0.29; tags used median 3
+    cam1: reproj px med 0.98 p90 1.04 max 1.06; <2px 2/2; pos err in med 0.20 p90 0.23 max 0.23; rot deg med 0.10 p90 0.10 max 0.10; tags used median 4
+    GATE reproj<2px both cameras: 2/2
+    opening_center err in: med 0.08 p90 0.12 max 0.14; <1 in 2/2
+    BOTH gates (2px each cam AND opening center<1in): 2/2
+- click8: both cameras solved 2/2
+    cam0: reproj px med 1.64 p90 1.78 max 1.82; <2px 2/2; pos err in med 1.40 p90 1.47 max 1.48; rot deg med 0.81 p90 0.86 max 0.88
+    cam1: reproj px med 1.50 p90 1.56 max 1.58; <2px 2/2; pos err in med 1.13 p90 1.25 max 1.28; rot deg med 0.42 p90 0.45 max 0.45
+    GATE reproj<2px both cameras: 2/2
+    NEW GATE (RMSE<2 and no point>3 px, both cameras): 2/2
+    NEW GATE per camera: 4/4
+    NEW GATE both cams AND opening center<1in: 2/2
+    opening_center err in: med 0.30 p90 0.32 max 0.32; <1 in 2/2
+    BOTH gates (2px each cam AND opening center<1in): 2/2
+- kit out-of-sample HIVE-tag check possible: 2/2
+    oos max HIVE-tag corner error in: med 0.19 p90 0.20 max 0.20; <1 in 2/2
+    in-sample kit-tag check vs MODEL: med 0.20 p90 0.21 max 0.21; <1in 2/2
+    kit tags decoded: cam0 3.00, cam1 4.00; HIVE tags decoded cam0 4.00, cam1 4.00

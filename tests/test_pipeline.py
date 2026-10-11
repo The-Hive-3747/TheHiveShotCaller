@@ -121,6 +121,7 @@ def test_pipeline_on_burst_fixture(tmp_path):
         store.close()
 
 
+@pytest.mark.timing
 @pytest.mark.xfail(not HAVE_MODULES, reason="detect/track2d/recon not present yet", strict=False)
 def test_stitching_disabled_gives_same_shots(tmp_path):
     # real-time playback: "promptly" is about source time, which a lockstep run (as fast as
@@ -544,6 +545,7 @@ def test_dropped_frames_are_flagged_on_shots_in_flight(tmp_path, monkeypatch):
         store.close()
 
 
+@pytest.mark.timing
 @pytest.mark.xfail(not HAVE_MODULES, reason="detect/track2d/recon not present yet", strict=False)
 def test_no_drops_means_no_note_and_status_reports_timing(tmp_path):
     store, sid, pl = _run_fixture("synth_basic", tmp_path)
@@ -734,5 +736,180 @@ def test_shots_are_stored_with_their_burst_already_assigned(tmp_path, monkeypatc
         assert [(s.burst_id, s.burst_index) for s in sorted(
             store.list_shots(sid), key=lambda s: s.t_launch)] == [
             (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2)]
+    finally:
+        store.close()
+
+
+# ------------------------------------------------ resilience: errors, restarts, watchdog
+class _Boom(RuntimeError):
+    pass
+
+
+def _run_synth20(tmp_path, timeout=240.0):
+    return _run_long_fixture("synth_20", tmp_path, timeout)
+
+
+def _all_shots_correct(store, sid, n=20, made=14):
+    shots = store.list_shots(sid)
+    return len(shots) == n and sum(s.result.value == "made" for s in shots) == made
+
+
+def test_detector_exceptions_are_counted_logged_once_and_the_run_goes_on(tmp_path, monkeypatch,
+                                                                         caplog):
+    """An exception from the detector (seen in the field: 'Unknown C++ exception from OpenCV'
+    in cv2.resize under CPU saturation) on 5 frames: the frames are skipped, the loop lives,
+    every shot is still stored, status shows the count and a warning."""
+    real = pipemod.ScaledDetector.detect
+
+    def flaky(self, small, frame_idx, t, cam_id):
+        if cam_id == "cam0" and 130 <= frame_idx < 135:          # idle gap between bursts
+            raise _Boom("Unknown C++ exception from OpenCV code")
+        return real(self, small, frame_idx, t, cam_id)
+    monkeypatch.setattr(pipemod.ScaledDetector, "detect", flaky)
+    with caplog.at_level(logging.DEBUG, logger="hiveshot.pipeline"):
+        store, sid, pl = _run_synth20(tmp_path)
+    try:
+        st = pl.status()
+        assert _all_shots_correct(store, sid)
+        assert st["cameras"]["cam0"]["errors"] == 5 and st["cameras"]["cam1"]["errors"] == 0
+        assert st["cameras"]["cam0"]["loop_restarts"] == 0
+        assert any("camera cam0: 5 frame processing error(s)" in w and "Unknown C++" in w
+                   for w in st["warnings"]), st["warnings"]
+        tracebacks = [r for r in caplog.records
+                      if r.levelno == logging.ERROR and r.exc_info and "detection" in r.getMessage()]
+        assert len(tracebacks) == 1                     # logged once with a traceback
+    finally:
+        store.close()
+
+
+def test_a_dying_camera_loop_is_restarted_and_a_failing_one_gives_up(tmp_path, monkeypatch):
+    calls = {"n": 0}
+    real = pipemod.Pipeline._note_frame
+
+    def die_once(self, cam, fr):
+        if cam == "cam0" and fr.frame_idx == 130:
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise _Boom("loop crash outside the guarded steps")
+        return real(self, cam, fr)
+    monkeypatch.setattr(pipemod.Pipeline, "_note_frame", die_once)
+    store, sid, pl = _run_synth20(tmp_path)
+    try:
+        st = pl.status()
+        assert _all_shots_correct(store, sid)
+        assert st["cameras"]["cam0"]["loop_restarts"] == 1
+        assert any("cam0: processing loop restarted 1 time(s)" in w for w in st["warnings"])
+    finally:
+        store.close()
+
+    # a loop that dies on every frame: restarted MAX_LOOP_RESTARTS times, then given up on;
+    # the run still ends (the camera is marked done) and says why
+    def always(self, cam, fr):
+        if cam == "cam0":
+            raise _Boom("always")
+        return real(self, cam, fr)
+    monkeypatch.setattr(pipemod.Pipeline, "_note_frame", always)
+    store, sid, pl = _run_fixture("synth_basic", tmp_path / "g")
+    try:
+        st = pl.status()
+        assert st["cameras"]["cam0"]["loop_restarts"] == pipemod.MAX_LOOP_RESTARTS
+        assert any("stopped" in w for w in st["warnings"]), st["warnings"]
+    finally:
+        store.close()
+
+
+@pytest.mark.timing
+def test_watchdog_replaces_a_stuck_detector(tmp_path, monkeypatch):
+    release = threading.Event()
+    hung = {"n": 0}
+    real = pipemod.ScaledDetector.detect
+
+    def hang_once(self, small, frame_idx, t, cam_id):
+        if cam_id == "cam0" and frame_idx == 130 and hung["n"] == 0:
+            hung["n"] = 1
+            release.wait(60)
+        return real(self, small, frame_idx, t, cam_id)
+    monkeypatch.setattr(pipemod.ScaledDetector, "detect", hang_once)
+    monkeypatch.setattr(pipemod, "WATCHDOG_PERIOD_S", 0.3)
+    monkeypatch.setattr(pipemod, "DETECT_STALL_S", 0.8)
+    try:
+        store, sid, pl = _run_synth20(tmp_path)
+        st = pl.status()
+        assert "pipeline stalled: detector cam0" in st["warnings"], st["warnings"]
+        assert _all_shots_correct(store, sid)
+        store.close()
+    finally:
+        release.set()
+
+
+@pytest.mark.timing
+def test_watchdog_replaces_a_stuck_reconstruction(tmp_path, monkeypatch):
+    release = threading.Event()
+    hung = {"n": 0}
+    real = pipemod.Pipeline._recon_cycle
+
+    def hang_once(self, final=False):
+        if not final and hung["n"] == 0 and (self._pending["cam0"] or self._pending["cam1"]):
+            hung["n"] = 1
+            release.wait(60)
+        return real(self, final)
+    monkeypatch.setattr(pipemod.Pipeline, "_recon_cycle", hang_once)
+    monkeypatch.setattr(pipemod, "WATCHDOG_PERIOD_S", 0.5)
+    monkeypatch.setattr(pipemod, "RECON_STALL_S", 3.0)
+    try:
+        store, sid, pl = _run_synth20(tmp_path)
+        st = pl.status()
+        assert "pipeline stalled: reconstruction" in st["warnings"], st["warnings"]
+        assert len(store.list_shots(sid)) == 20
+        store.close()
+    finally:
+        release.set()
+
+
+def _fake_track(t0, t1, n):
+    from types import SimpleNamespace
+    ts = [t0 + (t1 - t0) * i / max(1, n - 1) for i in range(n)]
+    return SimpleNamespace(detections=[SimpleNamespace(t=t) for t in ts])
+
+
+def test_unpaired_warning_only_for_a_real_track_no_shot_covers(tmp_path):
+    pl = Pipeline(_file_cfg(), Store(tmp_path / "u.db"), tmp_path, save_clips=False)
+    cams = ["cam0", "cam1"]
+    try:
+        assert not pl._is_lost_shot("cam0", _fake_track(1.0, 1.5, 2), cams)      # too few hits
+        assert not pl._is_lost_shot("cam0", _fake_track(1.0, 1.2, 12), cams)     # under 0.3 s
+        assert pl._is_lost_shot("cam0", _fake_track(1.0, 1.5, 12), cams)         # real, uncovered
+        pl._shot_spans.append((0.9, 1.6))                                        # a shot covers it
+        assert not pl._is_lost_shot("cam0", _fake_track(1.0, 1.5, 12), cams)
+        pl._offset = 0.5                                                         # cam B clock shift
+        assert pl._is_lost_shot("cam1", _fake_track(1.7, 2.1, 12), cams)         # 2.2-2.6: uncovered
+        assert not pl._is_lost_shot("cam1", _fake_track(0.6, 1.0, 12), cams)     # 1.1-1.5: covered
+    finally:
+        pl.store.close()
+
+
+def test_no_false_unpaired_warning_on_the_240fps_fixture(tmp_path):
+    store, sid, pl = _run_long_fixture("synth_240", tmp_path)
+    try:
+        assert len(store.list_shots(sid)) == 8
+        assert not any("could not be paired" in w for w in pl.status()["warnings"])
+    finally:
+        store.close()
+
+
+def test_fast_low_arc_fixture_classifies_500_ips_shots(tmp_path):
+    """Flat 45 degree shots at 486-590 in/s (7 to 9 frames in flight at 60 fps) read as UNKNOWN:
+    the ballistic extension appended a whole frame (8 in) beyond the opening crossing, which
+    lies outside the CELL profile, so the shot looked like it left through a wall."""
+    fx = FIX.parent / "synth_lowarc"
+    truth = sorted(json.loads((fx / "shots.json").read_text()), key=lambda t: t["t_launch"])
+    assert max(t["speed_ips"] for t in truth) > 550 and min(t["speed_ips"] for t in truth) > 480
+    store, sid, pl = _run_fixture("synth_lowarc", tmp_path)
+    try:
+        shots = sorted(store.list_shots(sid), key=lambda s: s.t_launch)
+        assert len(shots) == len(truth)
+        for s, t in zip(shots, truth, strict=True):
+            assert s.result.value == ("made" if _made(t) else "miss"), (t["shot"], s.result.value)
+            assert s.exit_speed_ips == pytest.approx(t["speed_ips"], rel=0.03)
     finally:
         store.close()
