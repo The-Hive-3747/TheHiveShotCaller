@@ -353,7 +353,7 @@ def test_put_config_accepts_every_valid_kind(client):
 
 
 # ------------------------------------------------------------- calibration cross-check
-def _click_both_cameras(c, noise=None, swap=None):
+def _click_both_cameras(c, noise=None, swap=None, expect=200):
     """Solve both cameras' extrinsics from reference points projected with the (embedded
     fixture) truth calibration; returns the projected clicks."""
     from hiveshot import calib
@@ -375,7 +375,7 @@ def _click_both_cameras(c, noise=None, swap=None):
             pts[0]["u"], pts[0]["v"], pts[1]["u"], pts[1]["v"] = (
                 pts[1]["u"], pts[1]["v"], pts[0]["u"], pts[0]["v"])
         s, j = c.j("POST", f"/api/calib/extrinsics/{cam}", {"points": pts})
-        assert s == 200, j
+        assert s == expect, j
         out[cam] = pts
     return out
 
@@ -408,10 +408,37 @@ def test_crosscheck_reports_small_error_for_clean_clicks_and_persists_them(clien
 
 
 def test_crosscheck_flags_a_mis_clicked_point(client):
-    _click_both_cameras(client, swap=True)
+    def off(cam):                       # one click 11 px off per camera: RMSE 3.9 px, still saved
+        d = np.zeros((8, 2))
+        d[0 if cam == "cam0" else 3] = (11.0, 0.0)
+        return d
+    _click_both_cameras(client, noise=off)
     s, j = client.j("POST", "/api/calib/crosscheck")
     assert s == 200
-    assert j["max_error_in"] > 1.0 and j["within_1_in"] is False
+    assert j["max_error_in"] > 0.5            # a clean click set measures below 0.5 in
+
+
+def test_swapped_clicks_are_refused_not_saved(client):
+    before = client.j("GET", "/api/calib")[1]
+    s, j = client.j("POST", "/api/calib/extrinsics/cam1", {"points": _swapped_points(client)})
+    assert s == 409 and j["refused"] is True and j["reprojection_px"] > 4.0
+    assert "not saved" in j["detail"] and "previous calibration is kept" in j["detail"]
+    assert client.j("GET", "/api/calib")[1]["extrinsics"] == before["extrinsics"]
+
+
+def _swapped_points(c):
+    from hiveshot import calib
+    from hiveshot.models import CameraExtrinsics, CameraIntrinsics
+    cal = c.j("GET", "/api/calib")[1]
+    intr = {i["cam_id"]: CameraIntrinsics(**{**i, "dist": tuple(i["dist"])}) for i in cal["intrinsics"]}
+    ext = {e["cam_id"]: CameraExtrinsics(**{k: (tuple(v) if k in ("rvec", "tvec") else v)
+                                            for k, v in e.items() if k != "stale"})
+           for e in cal["extrinsics"]}
+    ref = calib_targets.field_reference_points()
+    uv = calib.project(intr["cam1"], ext["cam1"], np.array([p for _, p in ref]))
+    pts = [{"name": n, "u": float(u), "v": float(v)} for (n, _), (u, v) in zip(ref, uv, strict=True)]
+    pts[0]["u"], pts[0]["v"], pts[1]["u"], pts[1]["v"] = pts[1]["u"], pts[1]["v"], pts[0]["u"], pts[0]["v"]
+    return pts
 
 
 def test_clicks_survive_a_later_calibration_save(client, tmp_path):
@@ -441,8 +468,12 @@ def test_status_reports_calibration_loaded_and_warnings(tmp_path):
 
 
 def test_status_with_embedded_fixture_calibration_has_no_calibration_warning(client):
+    """The bundled fixture videos carry a calibration so they reconstruct, but it is not an
+    operator calibration: not "loaded" (the wizard opens), source "fixture", no warning."""
     st = client.j("GET", "/api/pipeline/status")[1]
-    assert st["calibration_loaded"] is True and st["warnings"] == []
+    assert st["calibration_loaded"] is False and st["calibration_source"] == "fixture"
+    assert st["warnings"] == []
+    assert {c["calibration_source"] for c in st["cameras"].values()} == {"fixture"}
 
 
 def test_field_size_in_config_and_geometry(client):
@@ -457,3 +488,90 @@ def test_field_size_in_config_and_geometry(client):
     assert geo["bounds"]["min"][:2] == [-70.75, -70.75] and geo["bounds"]["max"][:2] == [70.75, 70.75]
     assert client.j("PUT", "/api/config", {"field_size_in": 10})[0] == 422     # not a field
     assert client.j("GET", "/api/config")[1]["field_size_in"] == 141.5
+
+
+# ----------------------------------------------------- calibration provenance and save gates
+def _device_app(tmp_path, **kw):
+    cfg_path = tmp_path / "config.json"
+    cfgmod.save(cfg_path, cfgmod.AppConfig(sources=[
+        cfgmod.SourceConfig(cam_id="a", kind="device", target=0),
+        cfgmod.SourceConfig(cam_id="b", kind="device", target=1)], **kw))
+    return create_app(cfg_path, tmp_path / "data")
+
+
+def test_fresh_install_with_real_sources_is_not_calibrated(tmp_path):
+    """Device sources with no calibration file: no fixture calibration is borrowed, nothing is
+    "loaded", the sources only have default lens intrinsics."""
+    server, th, c = _serve(_device_app(tmp_path))
+    try:
+        st = c.j("GET", "/api/pipeline/status")[1]
+        assert st["calibration_loaded"] is False and st["calibration_source"] == "default_intrinsics"
+        assert {v["calibration_source"] for v in st["cameras"].values()} == {"default_intrinsics"}
+        assert {v["intrinsics_source"] for v in st["cameras"].values()} == {"default"}
+        assert st["intrinsics_default"] is True
+        assert "no calibration loaded: 3D reconstruction disabled" in st["warnings"]
+        ss = c.j("GET", "/api/setup/status")[1]
+        assert ss["calibration_loaded"] is False and ss["calibration_source"] == "default_intrinsics"
+        assert ss["intrinsics_default"] is True
+    finally:
+        _shutdown(server, th)
+
+
+def test_fixture_calibration_only_for_demo_or_bundled_fixture_sources(tmp_path):
+    from hiveshot.pipeline import Pipeline
+    from hiveshot.store import Store
+    fx = [cfgmod.SourceConfig(cam_id=f"cam{i}", kind="file", target=f"fixtures/synth_basic/cam{i}.mp4")
+          for i in (0, 1)]
+    cfg = cfgmod.AppConfig(sources=fx, calibration_path=str(tmp_path / "none.json"))
+    pl = Pipeline(cfg, Store(tmp_path / "1.db"), tmp_path, save_clips=False)
+    st = pl.status()
+    assert st["calibration_source"] == "fixture" and st["calibration_loaded"] is False
+    pl.store.close()
+    demo = Pipeline(cfg, Store(tmp_path / "2.db"), tmp_path, save_clips=False, demo=True)
+    assert demo.status()["calibration_loaded"] is True       # the demo is a calibrated setup
+    demo.store.close()
+    # the same fixture videos copied somewhere else (a user's files): no borrowed calibration
+    import shutil
+    mine = tmp_path / "mine"
+    mine.mkdir()
+    for i in (0, 1):
+        for suffix in (".mp4", "_truth.json"):
+            shutil.copy(f"fixtures/synth_basic/cam{i}{suffix}", mine / f"cam{i}{suffix}")
+    cfg2 = cfgmod.AppConfig(calibration_path=str(tmp_path / "none.json"), sources=[
+        cfgmod.SourceConfig(cam_id=f"cam{i}", kind="file", target=str(mine / f"cam{i}.mp4"))
+        for i in (0, 1)])
+    pl2 = Pipeline(cfg2, Store(tmp_path / "3.db"), tmp_path, save_clips=False)
+    assert pl2.calibration()[1] == {} and pl2.status()["calibration_source"] == "default_intrinsics"
+    pl2.store.close()
+    # any device/rtmp/url source with an otherwise bundled one: not a fixture setup
+    mixed = cfg.model_copy(update={"sources": [fx[0], cfgmod.SourceConfig(
+        cam_id="cam1", kind="device", target=0)]})
+    pl3 = Pipeline(mixed, Store(tmp_path / "4.db"), tmp_path, save_clips=False)
+    assert pl3.calibration()[1] == {}
+    pl3.store.close()
+
+
+def test_profile_intrinsics_slot_replaces_the_default(tmp_path):
+    from hiveshot.pipeline import Pipeline
+    from hiveshot.store import Store
+    slot = {"width": 1920, "height": 1080, "fx": 905.0, "fy": 905.0, "cx": 961.0, "cy": 539.0,
+            "dist": [-0.05, 0.01, 0.0, 0.0, 0.0]}
+    cfg = cfgmod.AppConfig(
+        calibration_path=str(tmp_path / "none.json"), active_profile="measured_arducam",
+        profiles={"measured_arducam": {"intrinsics": slot}},
+        sources=[cfgmod.SourceConfig(cam_id="a", kind="device", target=0),
+                 cfgmod.SourceConfig(cam_id="b", kind="device", target=1)])
+    pl = Pipeline(cfg, Store(tmp_path / "p.db"), tmp_path, save_clips=False)
+    st = pl.status()
+    assert pl.calibration()[0]["a"].fx == 905.0
+    assert {v["intrinsics_source"] for v in st["cameras"].values()} == {"profile"}
+    assert st["intrinsics_default"] is False
+    assert not any("default lens intrinsics" in w for w in st["warnings"])
+    pl.store.close()
+
+
+def test_field_size_and_profile_slot_are_plain_config(client):
+    cfg = client.j("GET", "/api/config")[1]
+    assert cfg["active_profile"] is None
+    s, j = client.j("PUT", "/api/config", {"active_profile": "arducam_1080p90"})
+    assert s == 200 and j["active_profile"] == "arducam_1080p90"

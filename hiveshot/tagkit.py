@@ -15,13 +15,18 @@ letter page. Every function takes `size_in` to override it (up to 8 in fits a pa
 Tags (field frame, inches; +Y toward the audience, Z up; positions from
 `field.frame_reference_points()` and the CAD frame constants)
 ------------------------------------------------------------------------------------------
-* 100 and 101, "crossbar tags": 100 at the -X crossbar end, 101 at the +X crossbar end
-  (x = -12.0 and +12.0, the apexes). The tag is taped on the **audience (+Y) face of the logo
-  panel**, which stands in front of the crossbar (panel face y = 4.28, top edge z = 40.02, 30.1
-  in wide); a tag hung directly from the 1 in crossbar at y = 0.5 would be hidden behind the
-  panel. Its top edge is flush with the panel's top edge (z = 40.02) and it is centered on the
-  crossbar end x = +-12.0; the tag is vertical and faces +Y, label up (a 6 in tag fills the 5.95
-  in panel height and spans x = 9 to 15 of the panel's +-15.07).
+* 100 and 101, "panel tags": 100 on the -X side, 101 on the +X side, **lying flat on the
+  audience (+Y) logo panel**. The panel is a flat plate that leans 24 deg with the legs
+  (`field.logo_panel_face("audience")`: sticker face bottom corners (+-14.58, 4.29, 34.12), top
+  corners (+-13.22, 1.67, 40.02), slant height 6.46 in, outward normal (0, 0.9135, 0.4067): it
+  faces the audience AND up), standing in front of the crossbar; a tag hung from the 1 in
+  crossbar would be hidden behind it. The tag lies on the plate, label up (upright direction = up
+  the slope), its **top edge flush with the top edge of the panel** and its outer edge
+  PANEL_EDGE_MARGIN_IN (0.22 in) inside the panel's top corner so that the tag stays on the
+  trapezoid (the top edge is only 26.4 in wide: a 6 in tag centered at the crossbar end x = 12
+  would overhang by 1.8 in). Center x = +-(13.22 - 0.22 - size/2) = +-10.0 for a 6 in tag, 2 in
+  inboard of the crossbar end. The sticker's bottom tabs and chamfered top corners are not in
+  the quad and are not used.
 * 102 and 103, "base tags": 102 at the (-X, +Y) and 103 at the (+X, +Y) audience-side outer base
   corner of the frame (foot bar outer corner (+-24.73, 19.47, 0) on the tiles). The tag **stands on
   the tile leaning back by BASE_TILT_DEG = 20 deg**: its bottom edge lies on the tile at
@@ -29,8 +34,8 @@ Tags (field frame, inches; +Y toward the audience, Z up; positions from
   end, 2.15 in high), its outer edge is flush with the foot bar's outer face (x = +-24.73), and its
   top leans toward the frame (-Y). The face normal is (0, cos 20, sin 20): facing the audience and
   tilted up so that cameras at 20 to 30 in lens height look at it nearly square.
-* "Label up" means the tag's upright direction (bottom edge to top edge) points up: +Z for 100 and
-  101, (0, -sin 20, cos 20) for 102 and 103. A person standing on the audience side looking at the
+* "Label up" means the tag's upright direction (bottom edge to top edge) points up: up the
+  slope (0, -0.407, 0.914) for 100 and 101, (0, -sin 20, cos 20) for 102 and 103. A person standing on the audience side looking at the
   frame sees the tag's right side toward -X.
 * Corner order of `tag_corners_xyz` is the cv2.aruco order, top-left, top-right, bottom-right,
   bottom-left of the tag as it looks when read upright from the front. With u = upright direction,
@@ -62,6 +67,7 @@ DICT_NAME = "DICT_APRILTAG_36h11"
 DEFAULT_TAG_SIZE_IN = 6.0
 TAG_SIZE_IN = DEFAULT_TAG_SIZE_IN
 BASE_TILT_DEG = 20.0             # base tags lean back this far from vertical
+PANEL_EDGE_MARGIN_IN = 0.22      # panel tags stay this far inside the panel's top corners
 DPI = 300
 PAGE_IN = (8.5, 11.0)            # letter, portrait; one tag per page
 QUIET_IN = 0.5                   # white margin kept around each printed tag
@@ -72,24 +78,24 @@ class KitTag:
     id: int
     point_name: str              # the frame feature the tag belongs to
     size_in: float = DEFAULT_TAG_SIZE_IN
-    kind: str = "crossbar"       # "crossbar": on the logo panel at a crossbar end; "base": on the tiles
+    kind: str = "panel"          # "panel": flat on the leaning logo panel; "base": on the tiles
 
 
 def kit_tags(size_in: float | None = None) -> tuple[KitTag, ...]:
-    """The kit at `size_in` (default 6.0 in): 100/101 on the audience logo panel at the -X/+X
-    crossbar ends, 102/103 standing at the -X/+X audience-side base corners."""
+    """The kit at `size_in` (default 6.0 in): 100/101 lying flat on the slanted audience logo
+    panel (-X/+X side, centers x = +-10 for 6 in tags), 102/103 standing at the -X/+X
+    audience-side base corners."""
     s = DEFAULT_TAG_SIZE_IN if size_in is None else float(size_in)
     return (
-        KitTag(100, "Frame crossbar end (-X apex), audience logo panel", s, "crossbar"),
-        KitTag(101, "Frame crossbar end (+X apex), audience logo panel", s, "crossbar"),
+        KitTag(100, "Audience logo panel, -X side (flat on the slanted panel)", s, "panel"),
+        KitTag(101, "Audience logo panel, +X side (flat on the slanted panel)", s, "panel"),
         KitTag(102, "Frame base corner (-X, +Y), standing tilted back 20 deg", s, "base"),
         KitTag(103, "Frame base corner (+X, +Y), standing tilted back 20 deg", s, "base"),
     )
 
 
 KIT_TAGS: tuple[KitTag, ...] = kit_tags()
-_FEATURE = {100: "Frame crossbar end (-X apex)", 101: "Frame crossbar end (+X apex)",
-            102: "Frame base corner (-X, +Y)", 103: "Frame base corner (+X, +Y)"}
+_FEATURE = {102: "Frame base corner (-X, +Y)", 103: "Frame base corner (+X, +Y)"}
 
 
 def _by_id(tag, size_in: float | None = None) -> KitTag:
@@ -107,13 +113,25 @@ def _frame_point(tag_id: int) -> np.ndarray:
 
 def _pose(tag: KitTag) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """(center, upright direction u, face normal n) of a kit tag in the field frame."""
-    a = _frame_point(tag.id)
     h = tag.size_in / 2.0
-    if tag.kind == "crossbar":
-        lp = fc.FRAME_LOGO_PANEL
-        u, n = np.array([0.0, 0.0, 1.0]), np.array([0.0, 1.0, 0.0])
-        c = np.array([a[0], lp["y_outer"], lp["z_hi"] - h])      # top edge on the panel top edge
+    if tag.kind == "panel":
+        quad, n = field.logo_panel_face("audience")           # BL(+X), BR(-X), TR(-X), TL(+X)
+        n = np.asarray(n, float)
+        bottom, top = 0.5 * (quad[0] + quad[1]), 0.5 * (quad[2] + quad[3])
+        slant = float(np.linalg.norm(top - bottom))
+        if tag.size_in > slant - 1e-9:
+            raise ValueError(f"a {tag.size_in:g} in tag does not fit the {slant:.2f} in panel")
+        u = (top - bottom) / slant                             # up the slope, in the plane
+        n = n - float(n @ u) * u                               # orthonormal frame (u, n)
+        n /= np.linalg.norm(n)
+        half_top = float(abs(quad[3][0]))                      # half width of the top edge
+        sx = -1.0 if tag.id == 100 else 1.0
+        cx = sx * (half_top - PANEL_EDGE_MARGIN_IN - h)
+        c = np.array([cx, top[1], top[2]]) - h * u             # top edge flush with the panel top
+        # the lower corners must stay on the trapezoid too (it widens toward the bottom)
+        assert abs(cx) + h <= half_top - PANEL_EDGE_MARGIN_IN + 1e-9
     else:
+        a = _frame_point(tag.id)
         t = math.radians(BASE_TILT_DEG)
         u = np.array([0.0, -math.sin(t), math.cos(t)])
         n = np.array([0.0, math.cos(t), math.sin(t)])
@@ -167,8 +185,8 @@ def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int) -> None:
 
 
 _HOW = {
-    "crossbar": ("Tape on the AUDIENCE face of the logo panel, top edge on the panel's top edge,",
-                 "centered on the crossbar end (12.0 in from the panel's center line)."),
+    "panel": ("Lay it flat on the SLANTED audience logo panel, top edge flush with the top of the",
+              "panel, outer edge 0.2 in inside the panel's top corner (center 10.0 in from the middle)."),
     "base": ("Stand it on the tile at the audience-side base corner, outer edge flush with the",
              "foot bar's outer face, leaning back 20 deg against the end of the foot bar."),
 }

@@ -1,0 +1,9 @@
+n ball sample points 316
+cam A flower aud (-X side): fraction of ball sample points whose ray passes through the flower BOX 0.041
+cam A flower side +X (y~23): fraction of ball sample points whose ray passes through the flower BOX 0.000
+cam A flower side -X (y~-23): fraction of ball sample points whose ray passes through the flower BOX 0.000
+cam A flower far (+X side): fraction of ball sample points whose ray passes through the flower BOX 0.000
+cam B flower aud (-X side): fraction of ball sample points whose ray passes through the flower BOX 0.000
+cam B flower side +X (y~23): fraction of ball sample points whose ray passes through the flower BOX 0.000
+cam B flower side -X (y~-23): fraction of ball sample points whose ray passes through the flower BOX 0.000
+cam B flower far (+X side): fraction of ball sample points whose ray passes through the flower BOX 0.000

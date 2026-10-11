@@ -1,0 +1,95 @@
+### gopro / model_exact (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 0.82 p90 0.93 max 0.98; <2px 30/30; pos err in med 0.12 p90 0.25 max 0.45; rot deg med 0.07 p90 0.14 max 0.21; tags used median 4
+    cam1: reproj px med 0.86 p90 0.96 max 1.00; <2px 30/30; pos err in med 0.20 p90 0.32 max 0.80; rot deg med 0.11 p90 0.18 max 0.39; tags used median 4
+    GATE reproj<2px both cameras: 30/30
+    opening_center err in: med 0.07 p90 0.12 max 0.18; <1 in 30/30
+    tag_row_center err in: med 0.07 p90 0.12 max 0.16; <1 in 30/30
+    flight_rms err in: med 0.11 p90 0.15 max 0.20; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 30/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.76 p90 2.52 max 3.70; <2px 21/30; pos err in med 1.09 p90 1.79 max 3.61; rot deg med 0.54 p90 0.85 max 1.64
+    cam1: reproj px med 1.60 p90 2.10 max 2.52; <2px 24/30; pos err in med 0.69 p90 1.10 max 1.85; rot deg med 0.33 p90 0.60 max 0.95
+    GATE reproj<2px both cameras: 18/30
+    opening_center err in: med 0.24 p90 0.40 max 0.63; <1 in 30/30
+    tag_row_center err in: med 0.23 p90 0.38 max 0.53; <1 in 30/30
+    flight_rms err in: med 0.43 p90 0.54 max 0.83; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 18/30
+- kit out-of-sample HIVE-tag check possible (a HIVE tag decoded in BOTH cameras): 30/30
+    mean HIVE tags decoded per camera: cam0 4.00, cam1 4.00
+    oos max HIVE-tag corner error in: med 0.19 p90 0.23 max 0.30; <1 in 30/30
+    in-sample kit-tag check vs MODEL (app fallback): med 0.11 p90 0.14 max 0.14; <1in 30/30
+    same triangulated points vs TRUE tag positions: med 0.11 p90 0.14 max 0.14
+    kit tags decoded: cam0 4.00, cam1 3.90
+
+### gopro / model_0.25in_0.5deg (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 1.36 p90 1.63 max 2.00; <2px 29/30; pos err in med 1.06 p90 1.60 max 2.44; rot deg med 0.57 p90 0.78 max 1.26; tags used median 4
+    cam1: reproj px med 1.13 p90 1.55 max 1.77; <2px 30/30; pos err in med 1.22 p90 2.18 max 4.60; rot deg med 0.68 p90 1.12 max 2.24; tags used median 4
+    GATE reproj<2px both cameras: 29/30
+    opening_center err in: med 0.32 p90 0.41 max 0.59; <1 in 30/30
+    tag_row_center err in: med 0.26 p90 0.37 max 0.43; <1 in 30/30
+    flight_rms err in: med 0.48 p90 0.68 max 1.51; <1 in 28/30
+    BOTH gates (2px each cam AND opening center<1in): 29/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.62 p90 2.02 max 2.21; <2px 26/30; pos err in med 0.88 p90 1.52 max 2.03; rot deg med 0.48 p90 0.76 max 0.93
+    cam1: reproj px med 1.83 p90 2.29 max 2.83; <2px 22/30; pos err in med 0.67 p90 1.27 max 1.52; rot deg med 0.37 p90 0.58 max 0.77
+    GATE reproj<2px both cameras: 19/30
+    opening_center err in: med 0.25 p90 0.32 max 0.35; <1 in 30/30
+    tag_row_center err in: med 0.27 p90 0.44 max 0.50; <1 in 30/30
+    flight_rms err in: med 0.40 p90 0.54 max 0.77; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 19/30
+- kit out-of-sample HIVE-tag check possible (a HIVE tag decoded in BOTH cameras): 30/30
+    mean HIVE tags decoded per camera: cam0 4.00, cam1 4.00
+    oos max HIVE-tag corner error in: med 0.39 p90 0.47 max 0.64; <1 in 30/30
+    in-sample kit-tag check vs MODEL (app fallback): med 0.21 p90 0.34 max 0.36; <1in 30/30
+    same triangulated points vs TRUE tag positions: med 0.21 p90 0.34 max 0.36
+    kit tags decoded: cam0 4.00, cam1 3.83
+
+### gopro / real_exact (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 6.29 p90 6.49 max 6.59; <2px 0/30; pos err in med 2.82 p90 3.02 max 3.15; rot deg med 1.90 p90 1.97 max 2.01; tags used median 4
+    cam1: reproj px med 6.24 p90 6.58 max 7.11; <2px 0/30; pos err in med 2.78 p90 3.24 max 3.81; rot deg med 1.87 p90 2.10 max 2.40; tags used median 4
+    GATE reproj<2px both cameras: 0/30
+    opening_center err in: med 1.84 p90 1.88 max 1.91; <1 in 0/30
+    tag_row_center err in: med 1.55 p90 1.61 max 1.65; <1 in 0/30
+    flight_rms err in: med 1.92 p90 1.98 max 2.07; <1 in 0/30
+    BOTH gates (2px each cam AND opening center<1in): 0/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.76 p90 2.52 max 3.70; <2px 21/30; pos err in med 1.09 p90 1.79 max 3.61; rot deg med 0.54 p90 0.85 max 1.64
+    cam1: reproj px med 1.60 p90 2.10 max 2.52; <2px 24/30; pos err in med 0.69 p90 1.10 max 1.85; rot deg med 0.33 p90 0.60 max 0.95
+    GATE reproj<2px both cameras: 18/30
+    opening_center err in: med 0.24 p90 0.40 max 0.63; <1 in 30/30
+    tag_row_center err in: med 0.23 p90 0.38 max 0.53; <1 in 30/30
+    flight_rms err in: med 0.43 p90 0.54 max 0.83; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 18/30
+- kit out-of-sample HIVE-tag check possible (a HIVE tag decoded in BOTH cameras): 30/30
+    mean HIVE tags decoded per camera: cam0 4.00, cam1 4.00
+    oos max HIVE-tag corner error in: med 1.68 p90 1.74 max 1.79; <1 in 0/30
+    in-sample kit-tag check vs MODEL (app fallback): med 1.20 p90 1.24 max 1.27; <1in 0/30
+    same triangulated points vs TRUE tag positions: med 1.58 p90 1.64 max 1.72
+    kit tags decoded: cam0 4.00, cam1 3.90
+
+### gopro / real_0.25in_0.5deg (seeds=30)
+- kit: both cameras solved 30/30
+    cam0: reproj px med 6.35 p90 6.60 max 6.62; <2px 0/30; pos err in med 2.71 p90 4.01 max 4.99; rot deg med 1.86 p90 2.44 max 2.94; tags used median 4
+    cam1: reproj px med 6.45 p90 6.98 max 7.85; <2px 0/30; pos err in med 3.03 p90 4.44 max 6.30; rot deg med 1.95 p90 2.75 max 3.52; tags used median 4
+    GATE reproj<2px both cameras: 0/30
+    opening_center err in: med 1.85 p90 2.09 max 2.18; <1 in 0/30
+    tag_row_center err in: med 1.61 p90 1.75 max 1.85; <1 in 0/30
+    flight_rms err in: med 1.97 p90 2.32 max 2.36; <1 in 0/30
+    BOTH gates (2px each cam AND opening center<1in): 0/30
+- click8: both cameras solved 30/30
+    cam0: reproj px med 1.62 p90 2.02 max 2.21; <2px 26/30; pos err in med 0.88 p90 1.52 max 2.03; rot deg med 0.48 p90 0.76 max 0.93
+    cam1: reproj px med 1.83 p90 2.29 max 2.83; <2px 22/30; pos err in med 0.67 p90 1.27 max 1.52; rot deg med 0.37 p90 0.58 max 0.77
+    GATE reproj<2px both cameras: 19/30
+    opening_center err in: med 0.25 p90 0.32 max 0.35; <1 in 30/30
+    tag_row_center err in: med 0.27 p90 0.44 max 0.50; <1 in 30/30
+    flight_rms err in: med 0.40 p90 0.54 max 0.77; <1 in 30/30
+    BOTH gates (2px each cam AND opening center<1in): 19/30
+- kit out-of-sample HIVE-tag check possible (a HIVE tag decoded in BOTH cameras): 30/30
+    mean HIVE tags decoded per camera: cam0 4.00, cam1 4.00
+    oos max HIVE-tag corner error in: med 1.74 p90 1.96 max 1.96; <1 in 0/30
+    in-sample kit-tag check vs MODEL (app fallback): med 1.27 p90 1.34 max 1.41; <1in 0/30
+    same triangulated points vs TRUE tag positions: med 1.63 p90 1.71 max 1.75
+    kit tags decoded: cam0 4.00, cam1 3.83

@@ -63,6 +63,9 @@ pre.json{max-height:260px;overflow:auto;background:var(--bg);padding:8px;border-
 .badge{display:inline-block;padding:1px 8px;border-radius:10px;font-weight:700;color:#111;background:var(--unk)}
 .badge.res-made{background:var(--made)}.badge.res-miss{background:var(--miss)}.badge.res-bounce_out{background:var(--bounce)}
 #warnBanner{background:#6b5a12;color:#ffe9a0;padding:6px 14px;border-bottom:1px solid var(--bounce);font-weight:600}
+.xc-amber{color:var(--bounce);font-weight:700}
+.stepper button.done::after{content:" \2713";color:var(--made)}
+.lenscam{margin-bottom:8px}
 .xc-ok{color:var(--made);font-weight:700}.xc-bad{color:var(--miss);font-weight:700}
 .rtmpurl{user-select:all}
 .stepper{display:flex;gap:6px;flex-wrap:wrap}

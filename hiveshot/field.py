@@ -238,13 +238,47 @@ def _frame_segments():
         top, bot = C.FRAME_PIVOT_CRADLE
         segs.append((P(sx * top[0], 0.0, top[1]), P(sx * bot[0], 0.0, bot[1])))   # pivot cradle
     segs.append((P(-ch, 0.0, cz), P(ch, 0.0, cz)))                                # crossbar
-    lp = C.FRAME_LOGO_PANEL
-    for sy in (-1, 1):
-        y = sy * lp["y_outer"]
-        q = [P(-lp["half_x"], y, lp["z_lo"]), P(lp["half_x"], y, lp["z_lo"]),
-             P(lp["half_x"], y, lp["z_hi"]), P(-lp["half_x"], y, lp["z_hi"])]
+    for side in ("audience", "far"):
+        q, _ = logo_panel_face(side)
         segs += [(q[i], q[(i + 1) % 4]) for i in range(4)]
     return segs
+
+
+def logo_panel_face(side: str):
+    """Logo panel outer face: (corners (4,3), outward unit normal) for the audience (+Y) or
+    far (-Y) panel. The plate leans 24 deg from vertical with the legs (top edge nearer the
+    crossbar). Corner order is counter-clockwise about the normal, i.e. bottom-left,
+    bottom-right, top-right, top-left as seen from outside the field (for the audience
+    panel the viewer looks along -Y, so bottom-left is the +X corner)."""
+    if side not in CELLS:
+        raise ValueError(side)
+    bx, by, bz = C.FRAME_LOGO_PANEL_BOTTOM
+    tx, ty, tz = C.FRAME_LOGO_PANEL_TOP
+    q = np.array([[bx, by, bz], [-bx, by, bz], [-tx, ty, tz], [tx, ty, tz]], float)
+    n = np.array(C.FRAME_LOGO_PANEL_NORMAL, float)
+    n /= np.linalg.norm(n)
+    if side == "far":
+        q = q[[1, 0, 3, 2]] * np.array([1.0, -1.0, 1.0])
+        n = n * np.array([1.0, -1.0, 1.0])
+    return q, n
+
+
+def flower_positions():
+    """The four FLOWER assemblies against the perimeter (CAD): list of dicts with center
+    (x, y, z mid-height), footprint center xy, circumscribed cylinder radius, z range and the
+    long/short footprint sizes (long side parallel to the wall)."""
+    out = []
+    for x, y in C.FLOWER_CENTERS_XY:
+        along_x = abs(y) > abs(x)  # on a +-Y wall the long side runs along X
+        fp = C.FLOWER_FOOTPRINT
+        out.append({
+            "xy": (x, y),
+            "center": (x, y, (C.FLOWER_TOP_Z + 0.0) / 2.0),
+            "radius": C.FLOWER_RADIUS,
+            "z_range": (0.0, C.FLOWER_TOP_Z),
+            "size_xy": (fp[0], fp[1]) if along_x else (fp[1], fp[0]),
+        })
+    return out
 
 
 def frame_reference_points():
@@ -314,5 +348,10 @@ def to_json(up_cells: Optional[dict] = None, field_size_in: Optional[float] = No
         "wireframe": [[a.tolist(), b.tolist()] for a, b in hive_frame_wireframe(up_cells)],
         "frame_reference_points": [{"name": n, "xyz": p.tolist()} for n, p in frame_reference_points()],
         "field_inside_size_cad": C.FIELD_INSIDE_SIZE_CAD,
+        "logo_panels": {sd: {"corners": logo_panel_face(sd)[0].tolist(),
+                             "normal": logo_panel_face(sd)[1].tolist()} for sd in CELLS},
+        "flowers": [{"xy": list(f["xy"]), "center": list(f["center"]), "radius": f["radius"],
+                     "z_range": list(f["z_range"]), "size_xy": list(f["size_xy"])}
+                    for f in flower_positions()],
         "cell_extent": C.CELL_EXTENT_Y,
     }

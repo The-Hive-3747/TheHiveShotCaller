@@ -1,0 +1,262 @@
+{
+ "init": {
+  "s": 1.33,
+  "sources_configured": true,
+  "calibration_loaded": false,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy",
+   "camera cam1 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy"
+  ],
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras.",
+   "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+  ],
+  "wizard_opens": true
+ },
+ "1_cameras": {
+  "s": 3.16,
+  "cameras": {
+   "cam0": {
+    "frames": 7,
+    "props": {
+     "width": 1920,
+     "height": 1080,
+     "fps": 30.0,
+     "fps_reported": 30.0,
+     "backend": "ffmpeg"
+    }
+   },
+   "cam1": {
+    "frames": 6,
+    "props": {
+     "width": 1920,
+     "height": 1080,
+     "fps": 30.0,
+     "fps_reported": 30.0,
+     "backend": "ffmpeg"
+    }
+   }
+  },
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy",
+   "camera cam1 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy"
+  ],
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras.",
+   "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+  ]
+ },
+ "t_apply": 2.0750327110290527,
+ "2_tags_pdf": {
+  "s": 1.72,
+  "tags_json_code": 200,
+  "n_tags": 4,
+  "pdf_code": 200,
+  "pdf_bytes": 178247,
+  "pdf_ct": "application/pdf",
+  "tags_seen": {
+   "cam0": [
+    100,
+    101,
+    102,
+    103
+   ],
+   "cam1": [
+    34,
+    35,
+    100,
+    101,
+    102,
+    103
+   ]
+  },
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras.",
+   "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+  ]
+ },
+ "2_auto_all": {
+  "s": 0.57,
+  "code": 200,
+  "ok": true,
+  "max_error_in": 1.0830425207187702,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "rmse_in": 0.08299483677012856,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "tags_missing": [],
+    "reprojection_px": 0.6532017382799468,
+    "max_corner_px": 1.458861706711063,
+    "warnings": [],
+    "error": null,
+    "status": null
+   },
+   "cam1": {
+    "ok": true,
+    "rmse_in": 0.07151832936159926,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "tags_missing": [],
+    "reprojection_px": 0.5533164620665765,
+    "max_corner_px": 0.9291266975332271,
+    "warnings": [],
+    "error": null,
+    "status": null
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 1.0830425207187702,
+   "within_1_in": false,
+   "error": null,
+   "out_of_sample": true,
+   "held_out": "HIVE tags",
+   "warning": null,
+   "n_points": 8
+  }
+ },
+ "3_learn": {
+  "s": 1.23,
+  "audience": {
+   "code": 200,
+   "learned_ids": [
+    36,
+    37
+   ],
+   "missing_ids": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+   ],
+   "max_residual_in": 0.15680258837143707,
+   "up_cell_error_in": 1.0273853787496772,
+   "detail": null
+  },
+  "far": {
+   "code": 422,
+   "learned_ids": null,
+   "missing_ids": null,
+   "max_residual_in": null,
+   "up_cell_error_in": null,
+   "detail": "only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 sees []); need at least 2. Check the HIVE is settled, well lit, and the tags face the cameras."
+  }
+ },
+ "4_colors": {
+  "s": 0.02,
+  "code": 200,
+  "sampled_hsv": [
+   24,
+   255,
+   251
+  ],
+  "range": [
+   [
+    15,
+    100,
+    100
+   ],
+   [
+    38,
+    255,
+    255
+   ]
+  ],
+  "detail": null,
+  "click": [
+   1024.2,
+   598.9
+  ]
+ },
+ "5_finish": {
+  "s": 1.54,
+  "session": {
+   "session_id": "4dd83e1d"
+  },
+  "running": true,
+  "calibration_loaded": true,
+  "hive_state_source": "tags",
+  "warnings": [],
+  "calibration_mismatch": {},
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras."
+  ],
+  "tags_seen": {
+   "cam0": [
+    100,
+    101,
+    102,
+    103
+   ],
+   "cam1": [
+    34,
+    35,
+    100,
+    101,
+    102,
+    103
+   ]
+  }
+ },
+ "accuracy": {
+  "s": 0.4,
+  "cams": {
+   "cam0": {
+    "pos_err_in": 1.1451612717774204,
+    "rot_err_deg": 0.10919293485689613,
+    "fx_app": 771.0,
+    "fx_true": 771.0
+   },
+   "cam1": {
+    "pos_err_in": 1.0977164910416954,
+    "rot_err_deg": 0.06466457166444949,
+    "fx_app": 771.0,
+    "fx_true": 771.0
+   }
+  },
+  "trajectory": {
+   "n": 316,
+   "mean_in": 1.0372555489437805,
+   "median_in": 1.0395008720938765,
+   "p95_in": 1.0870959999155212,
+   "max_in": 1.121853706143062
+  },
+  "reference_pts": {
+   "n": 8,
+   "mean_in": 0.9852170831992249,
+   "median_in": 0.9819789291060587,
+   "p95_in": 1.0626884683859192,
+   "max_in": 1.0850714291480663
+  },
+  "cell_opening_center_err_in": 1.0080340087576534
+ },
+ "crosscheck_after": {
+  "code": 200,
+  "max_error_in": 1.0817347051600923,
+  "within_1_in": false,
+  "detail": null,
+  "out_of_sample": true,
+  "held_out": "HIVE tags",
+  "warning": null
+ },
+ "crosscheck_in_sample": {
+  "code": 200,
+  "max_error_in": 0.20740577012615466,
+  "within_1_in": true,
+  "detail": null,
+  "out_of_sample": false
+ }
+}

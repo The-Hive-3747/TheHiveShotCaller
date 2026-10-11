@@ -1,0 +1,8 @@
+process start -> API answers: 2.6 s
+/api/calib/checkerboard.pdf 200 0.16 s 39448
+/api/calib/tags.pdf 200 0.45 s 178247
+Traceback (most recent call last):
+  File "C:\Users\3747h\Documents\HiveShotTracker\evidence\refute\dod6_10_2\spot_timing.py", line 10, in <module>
+    c, o, dt = api.call("GET", p); print(p, c, "%.2f s" % dt, o.get("_bytes", ""))
+                                                              ^^^^^
+AttributeError: 'list' object has no attribute 'get'

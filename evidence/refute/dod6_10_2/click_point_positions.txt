@@ -1,0 +1,11 @@
+percent from left/top of 1920x1080 frame, truth cams at placement.recommend('usb') (snapshot 20:54)
+1 Red HIVE up-CELL opening, high-left corner | cam0: 60/30 (u=1157,v=325, depth 108 in) | cam1: 44/33 (u=842,v=352, depth 107 in)
+2 Red HIVE up-CELL opening, high-right corner | cam0: 55/35 (u=1058,v=376, depth 125 in) | cam1: 37/27 (u=703,v=288, depth 92 in)
+3 Red HIVE up-CELL opening, low-right corner | cam0: 53/42 (u=1018,v=451, depth 119 in) | cam1: 38/35 (u=739,v=381, depth 85 in)
+4 Red HIVE up-CELL opening, low-left corner | cam0: 58/38 (u=1116,v=410, depth 103 in) | cam1: 46/40 (u=882,v=435, depth 100 in)
+5 Blue HIVE far-CELL opening, high-left corner | cam0: 77/27 (u=1477,v=291, depth 99 in) | cam1: 44/41 (u=849,v=445, depth 142 in)
+6 Blue HIVE far-CELL opening, high-right corner | cam0: 69/32 (u=1324,v=350, depth 116 in) | cam1: 39/38 (u=749,v=410, depth 126 in)
+7 Blue HIVE far-CELL opening, low-right corner | cam0: 71/41 (u=1365,v=447, depth 118 in) | cam1: 37/46 (u=714,v=500, depth 128 in)
+8 Blue HIVE far-CELL opening, low-left corner | cam0: 79/37 (u=1523,v=404, depth 101 in) | cam1: 43/49 (u=817,v=525, depth 143 in)
+cam0 min pairwise distance among 8 points (px): 68.0 ; red CELL width px: 111.0
+cam1 min pairwise distance among 8 points (px): 31.0 ; red CELL width px: 152.0

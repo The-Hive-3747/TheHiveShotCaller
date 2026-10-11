@@ -1,0 +1,550 @@
+{
+ "src_latest_mtime": "21:27:56",
+ "scenario": "s2_hive_only",
+ "params": {
+  "fx": 771.0,
+  "source": "hive"
+ },
+ "steps": {
+  "init": {
+   "s": 4.89,
+   "sources_configured": true,
+   "calibration_loaded": true,
+   "warnings": [],
+   "recs": [
+    "No cameras detected: plug in the cameras (each on its own USB port), then press Refresh.",
+    "The sources are video files; use the Cameras step to pick real cameras."
+   ],
+   "wizard_opens": false
+  },
+  "1_cameras": {
+   "s": 6.03,
+   "cameras": {
+    "cam0": {
+     "frames": 11,
+     "props": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "fps_reported": 30.0,
+      "backend": "ffmpeg"
+     }
+    },
+    "cam1": {
+     "frames": 11,
+     "props": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "fps_reported": 30.0,
+      "backend": "ffmpeg"
+     }
+    }
+   },
+   "warnings": [
+    "no calibration loaded: 3D reconstruction disabled",
+    "camera cam0 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy",
+    "camera cam1 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy"
+   ],
+   "recs": [
+    "The sources are video files; use the Cameras step to pick real cameras.",
+    "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+   ]
+  },
+  "t_apply": 1.4789447784423828,
+  "2_tags_pdf": {
+   "s": 1.48,
+   "tags_json_code": 200,
+   "n_tags": 4,
+   "pdf_code": 200,
+   "pdf_bytes": 180096,
+   "pdf_ct": "application/pdf",
+   "tags_seen": {
+    "cam0": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     34,
+     35,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "recs": [
+    "The sources are video files; use the Cameras step to pick real cameras.",
+    "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+   ]
+  },
+  "2_auto_all": {
+   "s": 0.44,
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.22115973533128225,
+   "per_cam": {
+    "cam0": {
+     "ok": true,
+     "rmse_in": 0.1196465722703507,
+     "tags_used": [
+      31,
+      34,
+      35,
+      36,
+      37
+     ],
+     "tags_missing": [
+      30,
+      32,
+      33
+     ],
+     "reprojection_px": 0.9531544394222401,
+     "max_corner_px": 1.7358664296507744,
+     "warnings": [
+      "calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit"
+     ],
+     "error": null,
+     "status": null
+    },
+    "cam1": {
+     "ok": true,
+     "rmse_in": 0.1015649638712618,
+     "tags_used": [
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+     ],
+     "tags_missing": [
+      30
+     ],
+     "reprojection_px": 0.7839169851040549,
+     "max_corner_px": 1.366742325903462,
+     "warnings": [
+      "calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit"
+     ],
+     "error": null,
+     "status": null
+    }
+   },
+   "crosscheck": {
+    "max_error_in": 0.22115973533128225,
+    "within_1_in": true,
+    "error": null,
+    "out_of_sample": true,
+    "held_out": "kit tags",
+    "warning": null,
+    "n_points": 16
+   }
+  },
+  "3_learn": {
+   "s": 1.7,
+   "audience": {
+    "code": 200,
+    "learned_ids": [
+     31,
+     34,
+     35,
+     36,
+     37
+    ],
+    "missing_ids": [
+     30,
+     32,
+     33
+    ],
+    "max_residual_in": 0.1283273601039975,
+    "up_cell_error_in": 0.1111835943337535,
+    "detail": null
+   },
+   "far": {
+    "code": 422,
+    "learned_ids": null,
+    "missing_ids": null,
+    "max_residual_in": null,
+    "up_cell_error_in": null,
+    "detail": "only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 sees []); need at least 2. Check the HIVE is settled, well lit, and the tags face the cameras."
+   }
+  },
+  "4_colors": {
+   "s": 0.03,
+   "code": 200,
+   "sampled_hsv": [
+    24,
+    255,
+    253
+   ],
+   "range": [
+    [
+     15,
+     100,
+     100
+    ],
+    [
+     38,
+     255,
+     255
+    ]
+   ],
+   "detail": null,
+   "click": [
+    1037.0,
+    609.9
+   ]
+  },
+  "5_finish": {
+   "s": 1.55,
+   "session": {
+    "session_id": "11b97cf5"
+   },
+   "running": true,
+   "calibration_loaded": true,
+   "hive_state_source": "tags",
+   "warnings": [],
+   "calibration_mismatch": {},
+   "recs": [
+    "The sources are video files; use the Cameras step to pick real cameras."
+   ],
+   "tags_seen": {
+    "cam0": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     34,
+     35,
+     100,
+     101,
+     102,
+     103
+    ]
+   }
+  },
+  "accuracy": {
+   "s": 0.17,
+   "cams": {
+    "cam0": {
+     "pos_err_in": 0.2827318658821193,
+     "rot_err_deg": 0.1966904481174706,
+     "fx_app": 771.0,
+     "fx_true": 771.0
+    },
+    "cam1": {
+     "pos_err_in": 0.31685110919038517,
+     "rot_err_deg": 0.20228958746493642,
+     "fx_app": 771.0,
+     "fx_true": 771.0
+    }
+   },
+   "trajectory": {
+    "n": 316,
+    "mean_in": 0.1103413408440305,
+    "median_in": 0.10321295041257195,
+    "p95_in": 0.19436537786267014,
+    "max_in": 0.3054316446359816
+   },
+   "reference_pts": {
+    "n": 8,
+    "mean_in": 0.10047227005499451,
+    "median_in": 0.09746533772592375,
+    "p95_in": 0.14750721762360477,
+    "max_in": 0.16334751109872983
+   },
+   "cell_opening_center_err_in": 0.041582990240189105
+  },
+  "crosscheck_after": {
+   "code": 200,
+   "max_error_in": 0.20199240415197156,
+   "within_1_in": true,
+   "detail": null,
+   "out_of_sample": true,
+   "held_out": "kit tags",
+   "warning": null
+  },
+  "crosscheck_in_sample": {
+   "code": 409,
+   "max_error_in": null,
+   "within_1_in": null,
+   "detail": "no stored extrinsics clicks for cam0, cam1; solve the extrinsics of both cameras first",
+   "out_of_sample": null
+  }
+ },
+ "truth_fx": 771.0,
+ "render_s": 60.89068603515625,
+ "tags_drawn": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.56
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/setup/status",
+   200,
+   4.88
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.0
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.98
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/setup/status",
+   200,
+   3.78
+  ],
+  [
+   "GET",
+   "/api/calib/tags",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/calib/tags.pdf",
+   200,
+   1.43
+  ],
+  [
+   "GET",
+   "/api/setup/status",
+   200,
+   0.05
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.44
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.2
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.12
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   422,
+   0.09
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.12
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/detector/sample",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/sessions",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/setup/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.05
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   409,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ]
+ ]
+}

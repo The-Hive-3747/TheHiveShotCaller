@@ -1,0 +1,7 @@
+﻿[s20_2718 rt] elapsed=29.6s recorded=0/20 matched=0 extra=0 made app/truth=0/14 rate app/truth=0.0/0.700
+  makemiss agree 0/20=0.0% results={'made': 0, 'bounce_out': 0, 'miss': 0, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 0, '4': 0, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=False
+  speed n=0 max|err|=None >5%:0 >10%:0 none:0 noeq:0 angle max err=None csv_rows=0
+  unmatched truth=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] burst mismatch=[] ball_type={} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=80% max=88% n=29
+  server_exit 1

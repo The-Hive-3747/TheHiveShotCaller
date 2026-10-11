@@ -238,7 +238,8 @@ def test_frame_wireframe_matches_cad_vertices():
             assert has((sx * 23.81, sy * 18.56, 0.53))              # leg feet
         assert has((sx * 12.0, 0.0, 41.45))                         # crossbar ends
         assert has((sx * 12.0, 0.0, 44.27)) and has((sx * 11.15, 0.0, 41.57))  # pivot cradle
-        assert has((sx * 15.07, 4.28, 34.07)) and has((sx * 15.07, -4.28, 40.02))  # logo panel
+        for sy in (-1, 1):                                          # tilted logo plate corners (STEP)
+            assert has((sx * 14.58, sy * 4.292, 34.125)) and has((sx * 13.22, sy * 1.666, 40.024))
     # crossbar is a segment from -12 to +12 in X at 41.45
     assert any(np.allclose(sorted([a[0], b[0]]), [-12.0, 12.0], atol=0.1)
                and abs(a[2] - 41.45) < 0.1 and abs(b[2] - 41.45) < 0.1
@@ -274,3 +275,50 @@ def test_frame_to_json_and_perimeter():
     assert C.FIELD_INSIDE_SIZE_CAD == pytest.approx(141.35, abs=0.05)   # CAD glass inner faces
     assert C.FIELD_SIZE == 144.0                       # manual nominal kept
     assert j["field_inside_size_cad"] == C.FIELD_INSIDE_SIZE_CAD
+
+
+def test_logo_panel_face_matches_step():
+    # STEP (evidence/m1_field/step_panel_out.txt): sticker outer face, audience (+Y) panel
+    q, n = field.logo_panel_face("audience")
+    want = np.array([[14.58, 4.292, 34.125], [-14.58, 4.292, 34.125],
+                     [-13.22, 1.666, 40.024], [13.22, 1.666, 40.024]])
+    assert np.abs(q - want).max() <= 0.1
+    assert np.degrees(np.arccos(np.clip(np.dot(n, np.array([0, 0.9135, 0.4067]) / np.linalg.norm([0.9135, 0.4067])), -1, 1))) < 0.5
+    assert np.linalg.norm(n) == pytest.approx(1.0)
+    # leans 24 deg from vertical; slant height 6.46
+    assert math.degrees(math.asin(n[2])) == pytest.approx(24.0, abs=0.3)
+    assert np.linalg.norm((q[2] + q[3]) / 2 - (q[0] + q[1]) / 2) == pytest.approx(6.46, abs=0.1)
+    # corner order CCW about the outward normal
+    cr = np.cross(q[1] - q[0], q[3] - q[0])
+    assert np.dot(cr / np.linalg.norm(cr), n) > 0.999
+    # far panel is the Y mirror, still CCW about its own outward normal
+    qf, nf = field.logo_panel_face("far")
+    assert np.allclose(nf, [0, -n[1], n[2]])
+    assert np.abs(np.sort(qf[:, 1]) - np.sort(-q[:, 1])).max() < 1e-9
+    crf = np.cross(qf[1] - qf[0], qf[3] - qf[0])
+    assert np.dot(crf / np.linalg.norm(crf), nf) > 0.999
+    # the wireframe draws the tilted plate edges (not a vertical rectangle)
+    segs = field.hive_frame_wireframe()
+    pts = _frame_pts(segs)
+    assert np.min(np.linalg.norm(pts - q[0], axis=1)) < 1e-9
+    assert not any(abs(a[1] - 4.28) < 1e-6 and abs(b[1] - 4.28) < 1e-6 and abs(a[2] - b[2]) > 5
+                   for a, b in segs)
+    with pytest.raises(ValueError):
+        field.logo_panel_face("left")
+
+
+def test_flower_positions_match_step():
+    fl = field.flower_positions()
+    assert len(fl) == 4
+    got = sorted((round(f["xy"][0], 2), round(f["xy"][1], 2)) for f in fl)
+    want = sorted([(23.39, -68.14), (-23.39, 68.14), (68.14, 23.39), (-68.14, -23.39)])
+    assert np.abs(np.array(got) - np.array(want)).max() <= 0.1
+    for f in fl:
+        assert f["radius"] == pytest.approx(3.86, abs=0.05)
+        assert f["z_range"][1] == pytest.approx(22.65, abs=0.05)
+        # one coordinate near the wall (~68.1), the other at +-23.4; long side along the wall
+        assert sorted(np.abs(f["xy"])) == pytest.approx([23.39, 68.14], abs=0.05)
+        sx, sy = f["size_xy"]
+        assert (sx > sy) == (abs(f["xy"][1]) > abs(f["xy"][0]))
+    j = field.to_json()
+    assert len(j["flowers"]) == 4 and set(j["logo_panels"]) == {"audience", "far"}

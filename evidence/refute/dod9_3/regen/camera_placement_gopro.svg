@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" font-family="Arial, sans-serif">
+<rect width="1600" height="1600" fill="#ffffff"/>
+<rect x="356.9" y="356.9" width="886.2" height="886.2" fill="#e9e9e9" stroke="#000" stroke-width="6"/>
+<line x1="356.9" y1="1243.1" x2="356.9" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="1243.1" x2="1243.1" y2="1243.1" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="504.6" y1="1243.1" x2="504.6" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="1095.4" x2="1243.1" y2="1095.4" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="652.3" y1="1243.1" x2="652.3" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="947.7" x2="1243.1" y2="947.7" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="800.0" y1="1243.1" x2="800.0" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="800.0" x2="1243.1" y2="800.0" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="947.7" y1="1243.1" x2="947.7" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="652.3" x2="1243.1" y2="652.3" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="1095.4" y1="1243.1" x2="1095.4" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="504.6" x2="1243.1" y2="504.6" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="1243.1" y1="1243.1" x2="1243.1" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<line x1="356.9" y1="356.9" x2="1243.1" y2="356.9" stroke="#b0b0b0" stroke-width="2"/>
+<rect x="656.9" y="369.2" width="443.1" height="160.0" fill="#ffe9a8" fill-opacity="0.7" stroke="#c08000" stroke-width="3" stroke-dasharray="14 8"/>
+<text x="666.9" y="399.2" font-size="26" fill="#805000">LAUNCH AREA (y 44..70)</text>
+<line x1="647.8" y1="919.8" x2="647.8" y2="680.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="647.8" y1="680.2" x2="660.0" y2="680.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="660.0" y1="680.2" x2="660.0" y2="919.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="660.0" y1="919.8" x2="647.8" y2="919.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="722.5" y1="803.2" x2="653.5" y2="914.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="726.2" y1="800.0" x2="722.5" y2="803.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="722.5" y1="796.8" x2="653.5" y2="685.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="726.2" y1="800.0" x2="722.5" y2="796.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="726.2" y1="800.0" x2="731.4" y2="800.0" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="952.2" y1="919.8" x2="952.2" y2="680.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="952.2" y1="680.2" x2="940.0" y2="680.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="940.0" y1="680.2" x2="940.0" y2="919.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="940.0" y1="919.8" x2="952.2" y2="919.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="877.5" y1="803.2" x2="946.5" y2="914.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="873.8" y1="800.0" x2="877.5" y2="803.2" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="877.5" y1="796.8" x2="946.5" y2="685.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="873.8" y1="800.0" x2="877.5" y2="796.8" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="873.8" y1="800.0" x2="868.6" y2="800.0" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="726.2" y1="800.0" x2="873.8" y2="800.0" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="707.3" y1="826.3" x2="892.7" y2="826.3" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="707.3" y1="773.7" x2="892.7" y2="773.7" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+<line x1="878.5" y1="897.0" x2="878.5" y2="703.0" stroke="#d02020" stroke-width="14"/>
+<text x="878.5" y="980.7" font-size="24" fill="#d02020" text-anchor="middle">RED beam</text>
+<line x1="721.5" y1="897.0" x2="721.5" y2="703.0" stroke="#2040d0" stroke-width="14"/>
+<text x="721.5" y="980.7" font-size="24" fill="#2040d0" text-anchor="middle">BLUE beam</text>
+<circle cx="878.5" cy="703.0" r="16" fill="none" stroke="#000" stroke-width="5"/>
+<text x="938.5" y="773.0" font-size="26">UP CELL (red, audience, +Y)</text>
+<rect x="707.7" y="764.4" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
+<text x="726.2" y="756.4" font-size="22" font-weight="bold" text-anchor="middle">100</text>
+<rect x="855.4" y="764.4" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
+<text x="873.8" y="756.4" font-size="22" font-weight="bold" text-anchor="middle">101</text>
+<rect x="647.8" y="672.5" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
+<text x="666.3" y="664.5" font-size="22" font-weight="bold" text-anchor="middle">102</text>
+<rect x="915.3" y="672.5" width="36.9" height="18.5" fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>
+<text x="933.7" y="664.5" font-size="22" font-weight="bold" text-anchor="middle">103</text>
+<polygon points="356.9,273.8 507.8,870.4 962.6,164.9" fill="#145ac8" fill-opacity="0.12" stroke="#145ac8" stroke-width="3" stroke-dasharray="10 6"/>
+<line x1="356.9" y1="273.8" x2="867.7" y2="603.1" stroke="#145ac8" stroke-width="4"/>
+<circle cx="867.7" cy="603.1" r="8" fill="#145ac8"/>
+<circle cx="356.9" cy="273.8" r="18" fill="#145ac8"/>
+<text x="328.9" y="281.8" font-size="28" font-weight="bold" fill="#145ac8" text-anchor="end">CAM A</text>
+<text x="30" y="1300" font-size="24" fill="#145ac8" font-weight="bold">CAM A - primary: x=-72 y=+86 in from center, lens height 20 in</text>
+<text x="30" y="1330" font-size="21" fill="#145ac8" font-weight="normal">13.5 in out from the +Y wall's INSIDE face (12.0 from the outside face), 0 in along the wall from corner (-72,+72)</text>
+<text x="30" y="1360" font-size="21" fill="#145ac8" font-weight="normal">aim yaw 327 deg (from +X toward +Y), pitch +9 deg; aim point (+11,+32,35); HIVE tags 57 deg off normal (NOT readable, limit 55)</text>
+<polygon points="1243.1,273.8 633.3,190.7 1117.6,876.3" fill="#1e8c1e" fill-opacity="0.12" stroke="#1e8c1e" stroke-width="3" stroke-dasharray="10 6"/>
+<line x1="1243.1" y1="273.8" x2="855.4" y2="547.7" stroke="#1e8c1e" stroke-width="4"/>
+<circle cx="855.4" cy="547.7" r="8" fill="#1e8c1e"/>
+<circle cx="1243.1" cy="273.8" r="18" fill="#1e8c1e"/>
+<text x="1271.1" y="281.8" font-size="28" font-weight="bold" fill="#1e8c1e" text-anchor="start">CAM B (tag reader)</text>
+<text x="30" y="1395" font-size="24" fill="#1e8c1e" font-weight="bold">CAM B - primary, TAG READER: x=+72 y=+86 in from center, lens height 20 in</text>
+<text x="30" y="1425" font-size="21" fill="#1e8c1e" font-weight="normal">13.5 in out from the +Y wall's INSIDE face (12.0 from the outside face), 0 in along the wall from corner (+72,+72)</text>
+<text x="30" y="1455" font-size="21" fill="#1e8c1e" font-weight="normal">aim yaw 215 deg (from +X toward +Y), pitch +11 deg; aim point (+9,+41,35); HIVE tags 51 deg off normal (readable, limit 55)</text>
+<polygon points="880.0,273.8 457.1,720.9 1296.5,726.9" fill="#962896" fill-opacity="0.12" stroke="#962896" stroke-width="3" stroke-dasharray="10 6"/>
+<line x1="880.0" y1="273.8" x2="878.5" y2="492.3" stroke="#962896" stroke-width="4"/>
+<circle cx="878.5" cy="492.3" r="8" fill="#962896"/>
+<circle cx="880.0" cy="273.8" r="18" fill="#962896"/>
+<text x="880.0" y="243.8" font-size="28" font-weight="bold" fill="#962896" text-anchor="middle">CAM C</text>
+<text x="30" y="1490" font-size="24" fill="#962896" font-weight="bold">CAM C - exit speed: x=+13 y=+86 in from center, lens height 58 in</text>
+<text x="30" y="1520" font-size="21" fill="#962896" font-weight="normal">13.5 in out from the +Y wall's INSIDE face (12.0 from the outside face), 59 in along the wall from corner (+72,+72)</text>
+<text x="30" y="1550" font-size="21" fill="#962896" font-weight="normal">aim yaw 270 deg (from +X toward +Y), pitch -38 deg; aim point (+13,+50,30); HFOV 86</text>
+<text x="30" y="50" font-size="34" font-weight="bold">HIVE Shot Tracker camera map - option GOPRO (GoPro Linear lens), HFOV 86 deg</text>
+<text x="30" y="88" font-size="24">Top-down. X right, Y up (audience CELL at top). Inches from field center. Tiles 24 in. Wall at +-72 = INSIDE face.</text>
+<text x="30" y="122" font-size="24">Yaw = bearing from +X toward +Y (0 = right, 90 = up, 180 = left, 270 = down). Pitch + = up.</text>
+<text x="30" y="156" font-size="22">Dark bars: printed kit tags (top view): 100/101 on the audience logo panel at the crossbar ends, 102/103 standing at the audience-side base corners. TAG READER = camera that reads the CELL's own AprilTags.</text>
+</svg>

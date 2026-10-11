@@ -75,11 +75,15 @@ def run(option, seeds):
             "reproj_under_2px": int(sum(1 for r in good if r["A"][2] < 2 and r["B"][2] < 2)),
             "cell_err_in_median": float(np.median(ce)), "cell_err_in_max": float(np.max(ce)),
             "tags_used_min": int(min(r[k][3] for r in good for k in "AB")),
+            # both gates of the M1 target at once: reprojection < 2 px in BOTH cameras and the
+            # triangulated up-CELL opening center within 1 in of its CAD value
+            "both_gates_pass": int(sum(1 for r in good
+                                       if r["A"][2] < 2 and r["B"][2] < 2 and r["cell_err"] < 1.0)),
         }
     return out
 
 
 if __name__ == "__main__":
-    seeds = int(sys.argv[1]) if len(sys.argv) > 1 else 20
+    seeds = int(sys.argv[1]) if len(sys.argv) > 1 else 30
     res = {opt: run(opt, seeds) for opt in ("usb", "gopro")}
     print(json.dumps(res, indent=1))

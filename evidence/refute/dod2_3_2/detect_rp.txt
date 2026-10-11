@@ -1,0 +1,44 @@
+s20_4242 cam0 color+motion: truth=1174 tp=1164 fp=4 recall=0.9915 precision=0.9966 fps=60.0 frames=1005
+s20_4242 cam0 motion only: truth=1174 tp=1144 fp=18 recall=0.9744 precision=0.9845 fps=60.0 frames=1005
+s20_4242 cam1 color+motion: truth=1174 tp=1168 fp=2 recall=0.9949 precision=0.9983 fps=60.0 frames=1005
+s20_4242 cam1 motion only: truth=1174 tp=1158 fp=12 recall=0.9864 precision=0.9897 fps=60.0 frames=1005
+s20_31337 cam0 color+motion: truth=1183 tp=1178 fp=2 recall=0.9958 precision=0.9983 fps=60.0 frames=1011
+s20_31337 cam0 motion only: truth=1183 tp=1163 fp=17 recall=0.9831 precision=0.9856 fps=60.0 frames=1011
+s20_31337 cam1 color+motion: truth=1183 tp=1167 fp=7 recall=0.9865 precision=0.9940 fps=60.0 frames=1011
+s20_31337 cam1 motion only: truth=1183 tp=1158 fp=12 recall=0.9789 precision=0.9897 fps=60.0 frames=1011
+s20_2718 cam0 color+motion: truth=1207 tp=1194 fp=5 recall=0.9892 precision=0.9958 fps=60.0 frames=1008
+s20_2718 cam0 motion only: truth=1207 tp=1184 fp=14 recall=0.9809 precision=0.9883 fps=60.0 frames=1008
+s20_2718 cam1 color+motion: truth=1207 tp=1201 fp=2 recall=0.9950 precision=0.9983 fps=60.0 frames=1008
+s20_2718 cam1 motion only: truth=1207 tp=1189 fp=13 recall=0.9851 precision=0.9892 fps=60.0 frames=1008
+s8_240_7 cam0 color+motion: truth=1872 tp=1832 fp=14 recall=0.9786 precision=0.9924 fps=240.0 frames=782
+s8_240_7 cam0 motion only: truth=1872 tp=1791 fp=51 recall=0.9567 precision=0.9723 fps=240.0 frames=782
+s8_240_7 cam1 color+motion: truth=1872 tp=1871 fp=2 recall=0.9995 precision=0.9989 fps=240.0 frames=782
+s8_240_7 cam1 motion only: truth=1872 tp=1856 fp=32 recall=0.9915 precision=0.9831 fps=240.0 frames=782
+s8_240_99 cam0 color+motion: truth=1912 tp=1902 fp=4 recall=0.9948 precision=0.9979 fps=240.0 frames=767
+s8_240_99 cam0 motion only: truth=1912 tp=1863 fp=49 recall=0.9744 precision=0.9744 fps=240.0 frames=767
+s8_240_99 cam1 color+motion: truth=1912 tp=1911 fp=1 recall=0.9995 precision=0.9995 fps=240.0 frames=767
+s8_240_99 cam1 motion only: truth=1912 tp=1894 fp=24 recall=0.9906 precision=0.9875 fps=240.0 frames=767
+s8_240_555 cam0 color+motion: truth=1857 tp=1810 fp=22 recall=0.9747 precision=0.9880 fps=240.0 frames=692
+s8_240_555 cam0 motion only: truth=1857 tp=1753 fp=96 recall=0.9440 precision=0.9481 fps=240.0 frames=692
+s8_240_555 cam1 color+motion: truth=1857 tp=1856 fp=0 recall=0.9995 precision=1.0000 fps=240.0 frames=692
+s8_240_555 cam1 motion only: truth=1857 tp=1821 fp=29 recall=0.9806 precision=0.9843 fps=240.0 frames=692
+overlap cam0 color+motion: truth=469 tp=457 fp=5 recall=0.9744 precision=0.9892 fps=60.0 frames=361
+overlap cam0 motion only: truth=469 tp=450 fp=13 recall=0.9595 precision=0.9719 fps=60.0 frames=361
+overlap cam1 color+motion: truth=469 tp=461 fp=4 recall=0.9829 precision=0.9914 fps=60.0 frames=361
+overlap cam1 motion only: truth=469 tp=461 fp=4 recall=0.9829 precision=0.9914 fps=60.0 frames=361
+burst6 cam0 color+motion: truth=541 tp=535 fp=2 recall=0.9889 precision=0.9963 fps=60.0 frames=430
+burst6 cam0 motion only: truth=541 tp=526 fp=11 recall=0.9723 precision=0.9795 fps=60.0 frames=430
+burst6 cam1 color+motion: truth=541 tp=535 fp=2 recall=0.9889 precision=0.9963 fps=60.0 frames=430
+burst6 cam1 motion only: truth=541 tp=533 fp=4 recall=0.9852 precision=0.9926 fps=60.0 frames=430
+lowarc cam0 color+motion: truth=66 tp=66 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=357
+lowarc cam0 motion only: truth=66 tp=66 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=357
+lowarc cam1 color+motion: truth=66 tp=66 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=357
+lowarc cam1 motion only: truth=66 tp=66 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=357
+late20 cam0 color+motion: truth=1174 tp=1164 fp=4 recall=0.9915 precision=0.9966 fps=60.0 frames=1065
+late20 cam0 motion only: truth=1174 tp=1152 fp=16 recall=0.9813 precision=0.9863 fps=60.0 frames=1065
+late20 cam1 color+motion: truth=1174 tp=1168 fp=2 recall=0.9949 precision=0.9983 fps=60.0 frames=1065
+late20 cam1 motion only: truth=1174 tp=1159 fp=11 recall=0.9872 precision=0.9906 fps=60.0 frames=1065
+mixed cam0 color+motion: truth=476 tp=469 fp=3 recall=0.9853 precision=0.9936 fps=60.0 frames=417
+mixed cam0 motion only: truth=476 tp=463 fp=9 recall=0.9727 precision=0.9809 fps=60.0 frames=417
+mixed cam1 color+motion: truth=476 tp=476 fp=0 recall=1.0000 precision=1.0000 fps=60.0 frames=417
+mixed cam1 motion only: truth=476 tp=474 fp=2 recall=0.9958 precision=0.9958 fps=60.0 frames=417

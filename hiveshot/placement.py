@@ -66,13 +66,12 @@ TAG_MAX_ANGLE_DEG = 55.0
 TAG_MIN_EDGE_PX = 20.0
 TAG_MARGIN_PX = 60                 # tags must be this far inside the picture
 REF_MARGIN_PX = 60                 # calibration reference points must be this far inside
-# Printed calibration kit (tagkit.KIT_TAGS, 4 in tags on the frame top corners, facing +Y): a
-# camera "reads the kit" when at least KIT_MIN_TAGS (the solver's minimum) tags are under
-# KIT_MAX_ANGLE_DEG off their normal, inside the picture, with the shortest projected edge
-# >= KIT_MIN_EDGE_PX. 28 px / 55 deg is what survives compressed (mp4 / RTMP) video in the
-# synthetic tests; tags at 17 to 24 px or 60+ deg were detected in raw frames but lost in video.
-# Requiring 3 readable kit tags per camera together with the 75 deg triangulation limit has
-# no solution, so 2 is the requirement (a 2-tag pose is coarse: see docs/calibration.md).
+# Printed calibration kit (tagkit.KIT_TAGS: 6 in tags, 100/101 flat on the slanted audience logo
+# panel, 102/103 standing at the audience-side base corners): a camera "reads the kit" when at
+# least KIT_MIN_TAGS tags are under KIT_MAX_ANGLE_DEG off their normal, inside the picture, with
+# the shortest projected edge >= KIT_MIN_EDGE_PX and not overlapping the CELL sticker. 28 px /
+# 55 deg is what survives compressed (mp4 / RTMP) video in the synthetic tests. Three readable
+# tags per camera give a pose within about 1 in (docs/calibration.md); two give 1 to 3 in.
 KIT_MIN_TAGS = 3
 KIT_MIN_EDGE_PX = 28.0
 KIT_MAX_ANGLE_DEG = 55.0
@@ -187,6 +186,41 @@ def occluded(cam_pos, points, margin_in: float = 4.0):
     return (d < OCCLUSION_DIST_IN).any(axis=1)
 
 
+USE_FLOWERS = True      # the four FLOWER assemblies on the perimeter block rays (field.flower_positions)
+
+
+def flower_blocked(cam_pos, points) -> np.ndarray:
+    """Per point: does the segment camera -> point pass through one of the four FLOWER
+    assemblies (CAD, `field.flower_positions()`: a vertical cylinder of radius ~3.9 in from the
+    floor to z = 22.65 in; modeled solid, the real stems are thinner)? Exact segment / cylinder
+    test."""
+    p0 = np.asarray(cam_pos, float)
+    pts = np.asarray(points, float).reshape(-1, 3)
+    d = pts - p0
+    out = np.zeros(len(pts), bool)
+    if not USE_FLOWERS:
+        return out
+    for fl in field.flower_positions():
+        c = np.array(fl["xy"], float)
+        r = float(fl["radius"])
+        z_top = float(fl["z_range"][1])
+        dxy = d[:, :2]
+        f = p0[:2] - c
+        a = (dxy * dxy).sum(1)
+        b = 2.0 * (dxy @ f)
+        cc = float(f @ f) - r * r
+        with np.errstate(divide="ignore", invalid="ignore"):
+            disc = b * b - 4.0 * a * cc
+            sq = np.sqrt(np.maximum(disc, 0.0))
+            t1 = (-b - sq) / (2.0 * a)
+            t2 = (-b + sq) / (2.0 * a)
+        lo, hi = np.clip(t1, 0.0, 1.0), np.clip(t2, 0.0, 1.0)
+        hit = (disc >= 0) & (a > 1e-12) & (lo <= hi)
+        z_lo, z_hi = p0[2] + lo * d[:, 2], p0[2] + hi * d[:, 2]
+        out |= hit & (np.minimum(z_lo, z_hi) <= z_top) & (np.maximum(z_lo, z_hi) >= 0.0)
+    return out
+
+
 @functools.lru_cache(maxsize=1)
 def _up_tag_geometry():
     """(corners (4 tags, 4, 3), row center (3,), sticker normal (3,)) of the red audience
@@ -279,7 +313,7 @@ def _per_camera(cam: VirtualCamera, pos, pts):
     inimg = ((depth > 1.0) & (u >= 0) & (u < cam.intr.width)
              & (v >= 0) & (v < cam.intr.height))
     rpx = cam.intr.fx * (C.POLLEN_DIAMETER / 2) / np.maximum(depth, 1.0)
-    return {"in": inimg, "r": rpx, "occ": occluded(pos, pts)}
+    return {"in": inimg, "r": rpx, "occ": occluded(pos, pts) | flower_blocked(pos, pts)}
 
 
 def _angle_deg(pa, pb, pts):
@@ -377,7 +411,7 @@ def robot_blocked(cam_pos, samples: dict | None = None) -> np.ndarray:
     tmax_ax = np.where(parallel, np.where(inside, np.inf, -np.inf), np.maximum(t1, t2))
     tmin = tmin_ax.max(axis=1)
     tmax = tmax_ax.min(axis=1)
-    return (tmax >= np.maximum(tmin, 0.0)) & (tmin <= 1.0)
+    return ((tmax >= np.maximum(tmin, 0.0)) & (tmin <= 1.0)) | flower_blocked(cam_pos, s["targets"])
 
 
 def robot_view(cam_pos) -> dict:
@@ -419,14 +453,18 @@ def _build(option, pa0, pb0, with_third=True) -> dict:
     # points and (for a tag reader) the CELL tags in view, so a few degrees of aiming error at
     # the field do not lose them.
     ea, eb = nominal[2], nominal[3]
-    aims = {pa0: _center_aim(pa0, aim, hfov, ea[1]["sees"]),
-            pb0: _center_aim(pb0, aim, hfov, eb[1]["sees"])}
-    best = nominal
-    cand = _eval_pair(_entry(pa0, aims[pa0], hfov, pts), _entry(pb0, aims[pb0], hfov, pts), pts)
-    if cand[0][0] >= nominal[0][0]:
-        best = cand
-    else:
-        aims = {pa0: aim, pb0: aim}
+    off_a = _center_offsets(pa0, aim, hfov, ea[1]["sees"])
+    off_b = _center_offsets(pb0, aim, hfov, eb[1]["sees"])
+    best, aims = nominal, {pa0: aim, pb0: aim}
+    # move toward the centered aims as far as the pair keeps its tier (the arc coverage of a
+    # camera with a narrow field of view can need the nominal aim)
+    for f in (1.0, 0.75, 0.5, 0.25):
+        trial = {pa0: _rotated_aim(pa0, aim, f * off_a[0], f * off_a[1]),
+                 pb0: _rotated_aim(pb0, aim, f * off_b[0], f * off_b[1])}
+        cand = _eval_pair(_entry(pa0, trial[pa0], hfov, pts), _entry(pb0, trial[pb0], hfov, pts), pts)
+        if cand[0][0] >= nominal[0][0]:
+            best, aims = cand, trial
+            break
     (tier, _), sc, (pa, ta), (pb, tb) = best[:4]
     rob = {"A": robot_view(pa), "B": robot_view(pb)}
     swap = pa[0] > pb[0]       # A is the camera on the -X side, B on the +X side
@@ -475,10 +513,10 @@ def _aim_ok(pos, look, hfov, need_tags: bool = True) -> bool:
     return bool(kit_view(vc, pos)["ok"] and refs_in_view(vc))
 
 
-def _center_aim(pos, aim, hfov, need_tags=True, span=8, step=1.0):
-    """Aim point for the camera at `pos` in the middle of the (yaw, pitch) offsets within
-    +-span deg for which `_aim_ok` holds (largest distance from the failing region); the
-    nominal aim if even that fails."""
+def _center_offsets(pos, aim, hfov, need_tags=True, span=8, step=1.0):
+    """(yaw, pitch) offsets in degrees from `aim` to the middle of the offsets within
+    +-span deg for which `_aim_ok` holds (largest distance from the failing region); (0, 0)
+    if even the nominal aim fails."""
     n = int(span / step)
     ok = np.zeros((2 * n + 1, 2 * n + 1), np.uint8)
     for i in range(-n, n + 1):
@@ -486,10 +524,16 @@ def _center_aim(pos, aim, hfov, need_tags=True, span=8, step=1.0):
             if _aim_ok(pos, _rotated_aim(pos, aim, i * step, j * step), hfov, need_tags):
                 ok[i + n, j + n] = 1
     if not ok[n, n]:
-        return aim
+        return 0.0, 0.0
     dist = cv2.distanceTransform(np.pad(ok, 1), cv2.DIST_L2, 3)[1:-1, 1:-1]
     i, j = np.unravel_index(int(np.argmax(dist)), dist.shape)
-    return _rotated_aim(pos, aim, (i - n) * step, (j - n) * step)
+    return float((i - n) * step), float((j - n) * step)
+
+
+def _center_aim(pos, aim, hfov, need_tags=True, span=8, step=1.0):
+    """Aim point at the middle of the feasible aim range (see `_center_offsets`)."""
+    dy, dp = _center_offsets(pos, aim, hfov, need_tags, span, step)
+    return _rotated_aim(pos, aim, dy, dp)
 
 
 @functools.lru_cache(maxsize=1)
@@ -528,14 +572,6 @@ def _on_audience_wall(p) -> bool:
     return bool(p[1] >= MIN_RADIUS_IN - 0.5 and p[1] >= abs(p[0]))
 
 
-def _corner_factor(p) -> float:
-    """Prefer corners over the wall center for cameras on the audience wall (the drive team
-    stands there): 1.0 for |x| >= 48 in, down to 0.85 at the center."""
-    if not _on_audience_wall(p):
-        return 1.0
-    return 0.85 + 0.15 * min(1.0, abs(p[0]) / 48.0)
-
-
 def _eval_pair(ea, eb, pts):
     """Evaluate a candidate pair. Returns
     ((main tier, value), score, (pos A, tags A), (pos B, tags B), (main key), (alt key)).
@@ -547,9 +583,9 @@ def _eval_pair(ea, eb, pts):
         tag ray from every launch point (hard)
       4 the printed kit is readable in both (>= 3 of 4 tags)
       5 all 8 calibration points in view in both
-      6 not both cameras on the audience wall (allowed only if nothing else satisfies 1-5)
-      7 both cameras read the tags (preferred, never traded against 1)
-    Value: pair score x tag quality x corner preference.
+      6 both cameras read the tags (preferred, never traded against 1)
+    Value: pair score x tag quality. (Side-wall spots inside the alliance areas are not
+    candidates at all, see `_candidates`.)
     Alternative ("both read tags"): triangulation 60..120 instead of 75..120, tag reading
     by BOTH cameras ranked first after the arc / robot / kit / calibration-point conditions."""
     (pa, da, ta, ra, ba), (pb, db, tb, rb, bb) = ea, eb
@@ -562,21 +598,30 @@ def _eval_pair(ea, eb, pts):
     read_b = tb["sees"] and bb["tag_free"] >= 1.0 - 1e-9
     kit_ok = ta["kit"]["ok"] and tb["kit"]["ok"]
     refs_ok = ra and rb
-    both_wall = _on_audience_wall(pa) and _on_audience_wall(pb)
-    tier = (arc_ok, occ_ok, read_a or read_b, kit_ok, refs_ok, not both_wall, read_a and read_b)
+    tier = (arc_ok, occ_ok, read_a or read_b, kit_ok, refs_ok, read_a and read_b)
     best_cos = max(math.cos(math.radians(t["angle_deg"])) if r else 0.0
                    for t, r in ((ta, read_a), (tb, read_b)))
-    corner = 0.5 * (_corner_factor(pa) + _corner_factor(pb))
-    value = sc["score"] * (0.5 + 0.5 * max(best_cos, 0.0)) * corner
+    value = sc["score"] * (0.5 + 0.5 * max(best_cos, 0.0))
     alt_arc = frac_ok and 60.0 <= ang <= 120.0
     alt_tier = (alt_arc, occ_ok, kit_ok, refs_ok, read_a and read_b)
-    alt_value = sc["score"] * corner * (0.5 + 0.5 * min(1.0, ang / 90.0))
+    alt_value = sc["score"] * (0.5 + 0.5 * min(1.0, ang / 90.0))
     return ((tier, value), sc, (pa, ta), (pb, tb), (tier, value), (alt_tier, alt_value))
 
 
+ALLIANCE_AREA_HALF_Y_IN = 48.5   # Field Setup Guide 8.5: each alliance area (54 in deep, ~97 in wide)
+                                 # is centered on a SIDE wall, so a camera there would be in it
+
+
+def _in_alliance_area(p) -> bool:
+    """Tripod spot beside a side wall, within the y-span of an alliance area (plus 3 in)."""
+    return bool(abs(p[0]) >= abs(p[1]) and abs(p[1]) <= ALLIANCE_AREA_HALF_Y_IN + 3.0)
+
+
 def _candidates():
-    """Ring candidates plus positions every WALL_STEP_IN along the audience (+Y) wall."""
-    out = list(candidate_positions(MIN_RADIUS_IN, HEIGHTS_IN, ANGLES_DEG))
+    """Ring candidates plus positions every WALL_STEP_IN along the audience (+Y) wall, minus the
+    side-wall spots that lie in an alliance area (drive teams and robots stand there)."""
+    out = [p for p in candidate_positions(MIN_RADIUS_IN, HEIGHTS_IN, ANGLES_DEG)
+           if not _in_alliance_area(p)]
     for h in HEIGHTS_IN:
         for x in range(-int(WALL_HALF), int(WALL_HALF) + 1, WALL_STEP_IN):
             out.append((float(x), MIN_RADIUS_IN, float(h)))
@@ -714,9 +759,13 @@ def label_lines(name, cam):
 
 
 OPTION_LABEL = {"gopro": "GOPRO (GoPro Linear lens)", "usb": "USB (Arducam global shutter)"}
-MAP_NOTE = ("Dark bars: printed kit tags (top view): 100/101 on the audience logo panel at the crossbar "
-            "ends, 102/103 standing at the audience-side base corners. TAG READER = camera that "
-            "reads the CELL's own AprilTags.")
+MAP_NOTE = ("Pink: FLOWERs (block rays). Dark bars: kit tags 100/101 on the slanted audience panel, "
+            "102/103 at the base corners. TAG READER = reads the CELL's tags.")
+
+
+def _flower_marks():
+    """(x, y, radius in) of the four FLOWER assemblies, from field.flower_positions()."""
+    return [(float(f["xy"][0]), float(f["xy"][1]), float(f["radius"])) for f in field.flower_positions()]
 
 
 def _kit_marks():
@@ -801,6 +850,12 @@ def _svg(option, rec):
              f'stroke-width="5"/>')
     o.append(f'<text x="{cx+60:.1f}" y="{cy+70:.1f}" font-size="26">'
              f'UP CELL (red, audience, +Y)</text>')
+    for fx_, fy_, fr_ in _flower_marks():
+        cx_, cy_ = _m(fx_, fy_)
+        o.append(f'<circle cx="{cx_:.1f}" cy="{cy_:.1f}" r="{fr_ * SCALE:.1f}" fill="#f4a6c8" '
+                 f'stroke="#b03070" stroke-width="3"/>')
+        o.append(f'<text x="{cx_:.1f}" y="{cy_ + (-fr_ * SCALE - 8) if fy_ > 0 else cy_ + fr_ * SCALE + 22:.1f}" '
+                 f'font-size="20" font-weight="bold" fill="#b03070" text-anchor="middle">FLOWER</text>')
     for tid, x0, y0, x1, y1 in _kit_marks():
         (ax, ay), (bx, by) = _m(x0, y1), _m(x1, y0)
         o.append(f'<rect x="{ax:.1f}" y="{ay:.1f}" width="{bx-ax:.1f}" height="{by-ay:.1f}" '
@@ -878,6 +933,15 @@ def _png(option, rec):
     cv2.circle(img, (cx, cy), 16, (0, 0, 0), 5)
     cv2.putText(img, "UP CELL (red, audience, +Y)", (cx + 60, cy + 70), font, 0.7, (0, 0, 0), 2,
                 cv2.LINE_AA)
+    for fx_, fy_, fr_ in _flower_marks():
+        c_ = P(fx_, fy_)
+        r_ = int(round(fr_ * SCALE))
+        cv2.circle(img, c_, r_, (200, 166, 244), -1)
+        cv2.circle(img, c_, r_, (112, 48, 176), 3)
+        tw_ = cv2.getTextSize("FLOWER", font, 0.5, 2)[0][0]
+        ty_ = c_[1] - r_ - 8 if fy_ > 0 else c_[1] + r_ + 22
+        cv2.putText(img, "FLOWER", (c_[0] - tw_ // 2, ty_), font, 0.5, (112, 48, 176), 2,
+                    cv2.LINE_AA)
     for tid, x0, y0, x1, y1 in _kit_marks():
         (ax, ay), (bx, by) = P(x0, y1), P(x1, y0)
         cv2.rectangle(img, (ax, ay), (bx, by), (48, 48, 48), -1)

@@ -1,0 +1,8 @@
+usb A 100 REAL-tilt tag angle 48.6 deg (model 37.5), min edge 47.7 px, normal [0.    0.914 0.407]
+usb A 101 REAL-tilt tag angle 54.9 deg (model 46.5), min edge 33.1 px, normal [0.    0.914 0.407]
+usb B 100 REAL-tilt tag angle 54.9 deg (model 46.5), min edge 31.8 px, normal [0.    0.914 0.407]
+usb B 101 REAL-tilt tag angle 48.6 deg (model 37.5), min edge 44.5 px, normal [0.    0.914 0.407]
+gopro A 100 REAL-tilt tag angle 48.6 deg (model 37.5), min edge 55.3 px, normal [0.    0.914 0.407]
+gopro A 101 REAL-tilt tag angle 54.9 deg (model 46.5), min edge 38.2 px, normal [0.    0.914 0.407]
+gopro B 100 REAL-tilt tag angle 54.9 deg (model 46.5), min edge 37.7 px, normal [0.    0.914 0.407]
+gopro B 101 REAL-tilt tag angle 48.6 deg (model 37.5), min edge 53.8 px, normal [0.    0.914 0.407]

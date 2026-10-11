@@ -124,8 +124,8 @@ def test_api_paths_in_contract():
     doc = (ROOT / "docs" / "api.md").read_text(encoding="utf-8")
     js = (UI / "app.js").read_text(encoding="utf-8")
     # Endpoints the backend is adding whose docs/api.md entry has not landed yet.
-    # TODO: remove "crosscheck" from this set once docs/api.md documents POST /api/calib/crosscheck.
-    pending_docs = {"crosscheck"}
+    # TODO: remove "crosscheck" / "finish" once docs/api.md documents POST /api/calib/crosscheck and /api/setup/finish.
+    pending_docs = {"crosscheck", "finish"}
     for m in re.finditer(r"['`](/api/[^'`]*)", js):
         path = re.sub(r"\$\{[^}]*\}", "{x}", m.group(1))
         segs = [s for s in path.split("?")[0].replace("{x}", "").split("/") if s]
@@ -379,9 +379,9 @@ def test_round6_setup_wizard_wired():
     css = (UI / "styles.css").read_text(encoding="utf-8")
     # new tab + four steps, each with a hints container
     assert 'data-tab="setup"' in html and 'id="tab-setup"' in html
-    for step in ("cameras", "tags", "hivetags", "colors", "done"):
+    for step in ("cameras", "lens", "tags", "hivetags", "colors", "done"):
         assert 'class="card setupstep' in html and f'data-step="{step}"' in html, step
-    assert html.count('class="hints"') == 5
+    assert html.count('class="hints"') == 6
     assert ".setupstep" in css and ".thumb" in css
     # shown automatically on first run
     assert "'/api/setup/status'" in js and "sources_configured === false" in js
@@ -593,5 +593,92 @@ def test_stub_config_has_field_size():
         with urllib.request.urlopen(base + "/api/config", timeout=10) as r:
             assert json.load(r)["field_size_in"] == 144
     finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_round13_refuter_fixes_wired():
+    html = (UI / "index.html").read_text(encoding="utf-8")
+    js = (UI / "app.js").read_text(encoding="utf-8")
+    css = (UI / "styles.css").read_text(encoding="utf-8")
+    # (1) Calibration tab buttons named like the docs, provenance chips
+    assert 'id="btnAutoAll"' in html and "Auto-calibrate all" in html
+    assert 'data-act="auto">Auto-calibrate</button>' in js
+    assert "/api/calib/extrinsics/${encodeURIComponent(id)}/auto" in js and "'POST', '/api/calib/auto_all'" in js
+    assert "intrinsics_source" in js and "calibration_source" in js
+    assert "info.intrinsics_source === 'default'" in js  # red chip
+    # (2) Lens step before Tags, required unless measured/profile
+    order = [html.index(f'data-step="{k}"') for k in ("cameras", "lens", "tags", "hivetags", "colors", "done")]
+    assert order == sorted(order)
+    assert 'href="/api/calib/checkerboard.pdf"' in html and "1.5 to 3 ft" in html and "20 seconds" in html
+    assert "Start recording" in js and "Stop recording" in js and "/api/calib/intrinsics/${encodeURIComponent(cam)}/" in js
+    assert "LENS_OK_PX = 1.0" in js and "LENS_WARN_PX = 2.0" in js and "xc-amber" in js and ".xc-amber" in css
+    assert "src === 'measured' || src === 'profile'" in js
+    assert "lensBlockingCams()" in js and js.index("lensBlockingCams()") < js.index("'Calibrating...'")
+    # (3) column names
+    assert "Fit residual (in)" in js and "Out-of-sample error (in)" in js and "oos_error_in" in js
+    assert "Pose error" not in js
+    # (4) Done step goes through /api/setup/finish and stops on a refusal
+    assert "'POST', '/api/setup/finish'" in js and "reasonLines(e)" in js
+    fin = js[js.index("$('btnFinish').onclick"):]
+    assert fin.index("/api/setup/finish") < fin.index("return;   // blocked") < fin.index("/api/sessions")
+    # (5) no fixed port anywhere; WebSocket derived from the page location
+    assert "8765" not in js and "window.location.host" in js
+    # (6) Colors step: ranges, undo, reset, clicks outside the image ignored
+    for i in ("colorRanges", "btnColorUndo", "btnColorReset"):
+        assert f'id="{i}"' in html and f"$('{i}')" in js, i
+    assert "Undo last sample" in html and "Reset to defaults" in html
+    assert "fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1" in js and "colorHist[key].push(before)" in js
+    assert "'PUT', '/api/config', { detector }" in js
+    # (7) far-up learn with nothing visible but complete
+    assert "far-up tags are not visible from these cameras; this is expected" in js
+    assert "r.complete === true" in js and "classList.toggle('done'" in js
+    # (8) exact tape positions in plain words plus the tolerance note
+    assert "function describeTag" in js and "x.xyz_center" in js and "x.normal" in js
+    assert "within 0.25 in" in js
+
+
+def test_stub_round13_payloads():
+    import copy
+
+    srv, _ = ui_stub_server.start(0)
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    saved = copy.deepcopy(ui_stub_server.CONFIG)
+    try:
+        def call(path, method="GET", body=None):
+            data = json.dumps(body).encode() if body is not None else (b"" if method != "GET" else None)
+            req = urllib.request.Request(base + path, data=data, method=method)
+            try:
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return r.status, json.load(r)
+            except urllib.error.HTTPError as e:
+                return e.code, json.load(e)
+
+        _, calib = call("/api/calib")
+        assert {i["cam_id"]: i["intrinsics_source"] for i in calib["intrinsics"]} == {"cam0": "default", "cam1": "measured"}
+        assert all("calibration_source" in e for e in calib["extrinsics"])
+        _, tags = call("/api/calib/tags")
+        assert all(len(t["xyz_center"]) == 3 and len(t["normal"]) == 3 for t in tags)
+        assert call("/api/calib/auto_all", "POST", {"source": "kit"})[1]["cameras"]["cam0"]["oos_error_in"] > 0
+        assert call("/api/calib/extrinsics/cam0/auto", "POST", {})[1]["oos_error_in"] is not None
+        assert call("/api/calib/intrinsics/cam0/stop", "POST", {})[1]["reprojection_rmse_px"] > 0
+        assert call("/api/detector/sample", "POST", {"cam_id": "cam0", "u": 1, "v": 1, "ball_type": "pollen"})[
+            1].keys() >= {"ball_type", "sampled_hsv", "range"}
+        # far-up learn: nothing visible but complete
+        far = call("/api/calib/hive_tags/learn", "POST", {"state": {"alliance": "red", "up_cell": "far"}})[1]
+        assert far["complete"] is True and far["learned_ids"] == []
+        # /api/setup/finish: 200 normally, 409 with reasons when blocked
+        assert call("/api/setup/finish", "POST", {})[0] == 200
+        ui_stub_server.FINISH_STATE["block"] = True
+        code, body = call("/api/setup/finish", "POST", {})
+        assert code == 409 and len(body["detail"]) >= 1
+        # PUT /api/config merges the detector section and returns the full config
+        _, cfg = call("/api/config", "PUT", {"detector": {"pollen_hsv": [[1, 2, 3], [4, 5, 6]]}})
+        assert cfg["detector"]["pollen_hsv"] == [[1, 2, 3], [4, 5, 6]] and cfg["detector"]["motion_thresh"] == 25
+        assert "sources" in cfg
+    finally:
+        ui_stub_server.FINISH_STATE["block"] = False
+        ui_stub_server.CONFIG.clear()
+        ui_stub_server.CONFIG.update(saved)
         srv.shutdown()
         srv.server_close()

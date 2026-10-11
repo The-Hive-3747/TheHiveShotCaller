@@ -1,0 +1,658 @@
+===== usb
+{
+ "option": "usb",
+ "hfov_deg": 95.0,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "pair_score": {
+  "score": 1.0,
+  "frac_in_both": 1.0,
+  "mean_angle_deg": 96.738,
+  "mean_radius_px": 11.771,
+  "occluded_frac": 0.0,
+  "n_points": 316,
+  "tags_both": false,
+  "tier": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  "kit_both": true,
+  "both_on_audience_wall": true
+ },
+ "tags": {
+  "A": {
+   "angle_deg": 57.496,
+   "in_image": true,
+   "min_edge_px": 15.752,
+   "sees": false,
+   "kit": {
+    "tags": {
+     "100": {
+      "angle_deg": 37.52,
+      "min_edge_px": 48.523,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "101": {
+      "angle_deg": 46.54,
+      "min_edge_px": 33.016,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "102": {
+      "angle_deg": 36.641,
+      "min_edge_px": 63.899,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "103": {
+      "angle_deg": 54.044,
+      "min_edge_px": 28.54,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     }
+    },
+    "n_ok": 4,
+    "ok": true
+   }
+  },
+  "B": {
+   "angle_deg": 50.842,
+   "in_image": true,
+   "min_edge_px": 22.077,
+   "sees": true,
+   "kit": {
+    "tags": {
+     "100": {
+      "angle_deg": 46.54,
+      "min_edge_px": 31.735,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "101": {
+      "angle_deg": 37.52,
+      "min_edge_px": 44.543,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "102": {
+      "angle_deg": 54.044,
+      "min_edge_px": 28.566,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "103": {
+      "angle_deg": 36.641,
+      "min_edge_px": 59.005,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     }
+    },
+    "n_ok": 4,
+    "ok": true
+   }
+  }
+ },
+ "tag_reader": "B",
+ "robot": {
+  "A": {
+   "free": 1.0,
+   "ball_free": 1.0,
+   "cell_free": 1.0,
+   "tag_free": 1.0
+  },
+  "B": {
+   "free": 0.98,
+   "ball_free": 0.978,
+   "cell_free": 1.0,
+   "tag_free": 1.0
+  }
+ },
+ "cameras": {
+  "A": {
+   "pos": [
+    -72.0,
+    85.5,
+    20.0
+   ],
+   "look_at": [
+    12.0,
+    35.0,
+    38.0
+   ],
+   "height_in": 20.0,
+   "hfov_deg": 95.0
+  },
+  "B": {
+   "pos": [
+    72.0,
+    85.5,
+    20.0
+   ],
+   "look_at": [
+    12.0,
+    38.0,
+    37.0
+   ],
+   "height_in": 20.0,
+   "hfov_deg": 95.0
+  },
+  "C": {
+   "pos": [
+    13,
+    85.5,
+    58.0
+   ],
+   "look_at": [
+    12.75,
+    50.0,
+    30.0
+   ],
+   "height_in": 58.0,
+   "hfov_deg": 95.0,
+   "score": 1.0,
+   "frac_in_view": 1.0,
+   "occluded_frac": 0.0,
+   "mean_radius_px": 29.903
+  }
+ },
+ "both_tags_alternative": {
+  "option": "usb",
+  "hfov_deg": 95.0,
+  "resolution": [
+   1920,
+   1080
+  ],
+  "pair_score": {
+   "score": 1.0,
+   "frac_in_both": 1.0,
+   "mean_angle_deg": 96.738,
+   "mean_radius_px": 11.771,
+   "occluded_frac": 0.0,
+   "n_points": 316,
+   "tags_both": false,
+   "tier": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false
+   ],
+   "kit_both": true,
+   "both_on_audience_wall": true
+  },
+  "tags": {
+   "A": {
+    "angle_deg": 57.496,
+    "in_image": true,
+    "min_edge_px": 15.752,
+    "sees": false,
+    "kit": {
+     "tags": {
+      "100": {
+       "angle_deg": 37.52,
+       "min_edge_px": 48.523,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "101": {
+       "angle_deg": 46.54,
+       "min_edge_px": 33.016,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "102": {
+       "angle_deg": 36.641,
+       "min_edge_px": 63.899,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "103": {
+       "angle_deg": 54.044,
+       "min_edge_px": 28.54,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      }
+     },
+     "n_ok": 4,
+     "ok": true
+    }
+   },
+   "B": {
+    "angle_deg": 50.842,
+    "in_image": true,
+    "min_edge_px": 22.077,
+    "sees": true,
+    "kit": {
+     "tags": {
+      "100": {
+       "angle_deg": 46.54,
+       "min_edge_px": 31.735,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "101": {
+       "angle_deg": 37.52,
+       "min_edge_px": 44.543,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "102": {
+       "angle_deg": 54.044,
+       "min_edge_px": 28.566,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "103": {
+       "angle_deg": 36.641,
+       "min_edge_px": 59.005,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      }
+     },
+     "n_ok": 4,
+     "ok": true
+    }
+   }
+  },
+  "tag_reader": "B",
+  "robot": {
+   "A": {
+    "free": 1.0,
+    "ball_free": 1.0,
+    "cell_free": 1.0,
+    "tag_free": 1.0
+   },
+   "B": {
+    "free": 0.98,
+    "ball_free": 0.978,
+    "cell_free": 1.0,
+    "tag_free": 1.0
+   }
+  },
+  "cameras": {
+   "A": {
+    "pos": [
+     -72.0,
+     85.5,
+     20.0
+    ],
+    "look_at": [
+     12.0,
+     35.0,
+     38.0
+    ],
+    "height_in": 20.0,
+    "hfov_deg": 95.0
+   },
+   "B": {
+    "pos": [
+     72.0,
+     85.5,
+     20.0
+    ],
+    "look_at": [
+     12.0,
+     38.0,
+     37.0
+    ],
+    "height_in": 20.0,
+    "hfov_deg": 95.0
+   }
+  }
+ }
+}
+===== gopro
+{
+ "option": "gopro",
+ "hfov_deg": 86.0,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "pair_score": {
+  "score": 0.965,
+  "frac_in_both": 0.965,
+  "mean_angle_deg": 97.101,
+  "mean_radius_px": 13.893,
+  "occluded_frac": 0.0,
+  "n_points": 316,
+  "tags_both": false,
+  "tier": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  "kit_both": true,
+  "both_on_audience_wall": true
+ },
+ "tags": {
+  "A": {
+   "angle_deg": 57.496,
+   "in_image": true,
+   "min_edge_px": 18.387,
+   "sees": false,
+   "kit": {
+    "tags": {
+     "100": {
+      "angle_deg": 37.52,
+      "min_edge_px": 55.664,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "101": {
+      "angle_deg": 46.54,
+      "min_edge_px": 38.177,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "102": {
+      "angle_deg": 36.641,
+      "min_edge_px": 71.795,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "103": {
+      "angle_deg": 54.044,
+      "min_edge_px": 32.878,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     }
+    },
+    "n_ok": 4,
+    "ok": true
+   }
+  },
+  "B": {
+   "angle_deg": 50.842,
+   "in_image": true,
+   "min_edge_px": 26.49,
+   "sees": true,
+   "kit": {
+    "tags": {
+     "100": {
+      "angle_deg": 46.54,
+      "min_edge_px": 37.607,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "101": {
+      "angle_deg": 37.52,
+      "min_edge_px": 53.849,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "102": {
+      "angle_deg": 54.044,
+      "min_edge_px": 33.157,
+      "in_image": true,
+      "overlaps_sticker": false,
+      "ok": true
+     },
+     "103": {
+      "angle_deg": 36.641,
+      "min_edge_px": 70.758,
+      "in_image": false,
+      "overlaps_sticker": false,
+      "ok": false
+     }
+    },
+    "n_ok": 3,
+    "ok": true
+   }
+  }
+ },
+ "tag_reader": "B",
+ "robot": {
+  "A": {
+   "free": 1.0,
+   "ball_free": 1.0,
+   "cell_free": 1.0,
+   "tag_free": 1.0
+  },
+  "B": {
+   "free": 0.98,
+   "ball_free": 0.978,
+   "cell_free": 1.0,
+   "tag_free": 1.0
+  }
+ },
+ "cameras": {
+  "A": {
+   "pos": [
+    -72.0,
+    85.5,
+    20.0
+   ],
+   "look_at": [
+    11.0,
+    32.0,
+    35.0
+   ],
+   "height_in": 20.0,
+   "hfov_deg": 86.0
+  },
+  "B": {
+   "pos": [
+    72.0,
+    85.5,
+    20.0
+   ],
+   "look_at": [
+    9.0,
+    41.0,
+    35.0
+   ],
+   "height_in": 20.0,
+   "hfov_deg": 86.0
+  },
+  "C": {
+   "pos": [
+    13,
+    85.5,
+    58.0
+   ],
+   "look_at": [
+    12.75,
+    50.0,
+    30.0
+   ],
+   "height_in": 58.0,
+   "hfov_deg": 86.0,
+   "score": 0.958,
+   "frac_in_view": 0.958,
+   "occluded_frac": 0.0,
+   "mean_radius_px": 35.085
+  }
+ },
+ "both_tags_alternative": {
+  "option": "gopro",
+  "hfov_deg": 86.0,
+  "resolution": [
+   1920,
+   1080
+  ],
+  "pair_score": {
+   "score": 0.965,
+   "frac_in_both": 0.965,
+   "mean_angle_deg": 97.101,
+   "mean_radius_px": 13.893,
+   "occluded_frac": 0.0,
+   "n_points": 316,
+   "tags_both": false,
+   "tier": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false
+   ],
+   "kit_both": true,
+   "both_on_audience_wall": true
+  },
+  "tags": {
+   "A": {
+    "angle_deg": 57.496,
+    "in_image": true,
+    "min_edge_px": 18.387,
+    "sees": false,
+    "kit": {
+     "tags": {
+      "100": {
+       "angle_deg": 37.52,
+       "min_edge_px": 55.664,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "101": {
+       "angle_deg": 46.54,
+       "min_edge_px": 38.177,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "102": {
+       "angle_deg": 36.641,
+       "min_edge_px": 71.795,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "103": {
+       "angle_deg": 54.044,
+       "min_edge_px": 32.878,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      }
+     },
+     "n_ok": 4,
+     "ok": true
+    }
+   },
+   "B": {
+    "angle_deg": 50.842,
+    "in_image": true,
+    "min_edge_px": 26.49,
+    "sees": true,
+    "kit": {
+     "tags": {
+      "100": {
+       "angle_deg": 46.54,
+       "min_edge_px": 37.607,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "101": {
+       "angle_deg": 37.52,
+       "min_edge_px": 53.849,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "102": {
+       "angle_deg": 54.044,
+       "min_edge_px": 33.157,
+       "in_image": true,
+       "overlaps_sticker": false,
+       "ok": true
+      },
+      "103": {
+       "angle_deg": 36.641,
+       "min_edge_px": 70.758,
+       "in_image": false,
+       "overlaps_sticker": false,
+       "ok": false
+      }
+     },
+     "n_ok": 3,
+     "ok": true
+    }
+   }
+  },
+  "tag_reader": "B",
+  "robot": {
+   "A": {
+    "free": 1.0,
+    "ball_free": 1.0,
+    "cell_free": 1.0,
+    "tag_free": 1.0
+   },
+   "B": {
+    "free": 0.98,
+    "ball_free": 0.978,
+    "cell_free": 1.0,
+    "tag_free": 1.0
+   }
+  },
+  "cameras": {
+   "A": {
+    "pos": [
+     -72.0,
+     85.5,
+     20.0
+    ],
+    "look_at": [
+     11.0,
+     32.0,
+     35.0
+    ],
+    "height_in": 20.0,
+    "hfov_deg": 86.0
+   },
+   "B": {
+    "pos": [
+     72.0,
+     85.5,
+     20.0
+    ],
+    "look_at": [
+     9.0,
+     41.0,
+     35.0
+    ],
+    "height_in": 20.0,
+    "hfov_deg": 86.0
+   }
+  }
+ }
+}

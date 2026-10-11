@@ -1,0 +1,79 @@
+{
+ "0.5": {
+  "n": 200,
+  "solve_fail": 0,
+  "accepted_by_guide_rule": 200,
+  "cell_err_median": 0.038197302245290034,
+  "cell_err_p95": 0.07503287500586045,
+  "traj_p95_median": 0.24700948505284598,
+  "frac_cell_within_1in": 1.0,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 0
+ },
+ "1": {
+  "n": 200,
+  "solve_fail": 0,
+  "accepted_by_guide_rule": 98,
+  "cell_err_median": 0.07731680593107702,
+  "cell_err_p95": 0.16278518916681473,
+  "traj_p95_median": 0.4954725317342546,
+  "frac_cell_within_1in": 1.0,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 5
+ },
+ "1.5": {
+  "n": 200,
+  "solve_fail": 0,
+  "accepted_by_guide_rule": 5,
+  "cell_err_median": 0.1171607609669435,
+  "cell_err_p95": 0.23838886015427047,
+  "traj_p95_median": 0.736153437017852,
+  "frac_cell_within_1in": 1.0,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 0
+ },
+ "2": {
+  "n": 200,
+  "solve_fail": 0,
+  "accepted_by_guide_rule": 1,
+  "cell_err_median": 0.171807827753601,
+  "cell_err_p95": 0.3349383367162329,
+  "traj_p95_median": 1.111710626367029,
+  "frac_cell_within_1in": 1.0,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 1
+ },
+ "3": {
+  "n": 200,
+  "solve_fail": 0,
+  "accepted_by_guide_rule": 0,
+  "cell_err_median": 0.31073130592100473,
+  "cell_err_p95": 0.6433886130618749,
+  "traj_p95_median": 1.9439090228772824,
+  "frac_cell_within_1in": 0.995,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 0
+ },
+ "4": {
+  "n": 200,
+  "solve_fail": 7,
+  "accepted_by_guide_rule": 0,
+  "cell_err_median": 0.4553752157212068,
+  "cell_err_p95": 0.9316662091576724,
+  "traj_p95_median": 2.9388439772648987,
+  "frac_cell_within_1in": 0.9740932642487047,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 0
+ },
+ "5": {
+  "n": 200,
+  "solve_fail": 24,
+  "accepted_by_guide_rule": 0,
+  "cell_err_median": 0.6038716428285889,
+  "cell_err_p95": 1.3086083943481646,
+  "traj_p95_median": 3.7499490503462978,
+  "frac_cell_within_1in": 0.8125,
+  "accepted_cell_over_1in": 0,
+  "accepted_traj_p95_over_1in": 0
+ }
+}

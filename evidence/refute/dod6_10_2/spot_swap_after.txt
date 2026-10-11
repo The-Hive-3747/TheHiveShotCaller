@@ -1,0 +1,6 @@
+calibrated, xcheck 0.16210269422089035
+after swap: loaded True warnings [] recs ['The sources are video files; use the Cameras step to pick real cameras.'] mismatch {}
+crosscheck after swap: 200 46.188458372469405 False HIVE tags None
+accuracy vs physical: {'trajectory': {'n': 316, 'mean_in': 24.476179803572606, 'median_in': 22.53899557125584, 'p95_in': 53.92512813904899, 'max_in': 86.50461458802202}, 'cell_opening_center_err_in': 38.34099241657083}
+recalibrated xcheck 0.15500570797298577
+accuracy after recal: 0.15006664809763826

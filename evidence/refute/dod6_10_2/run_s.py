@@ -29,6 +29,9 @@ SCEN = {
     "s1c_doc_intrinsics_fx880": dict(fx=None, intr="board"),
     # realistic wide lens: fx 800 and barrel distortion, wizard only
     "s1d_wizard_distorted": dict(fx=800.0, dist=(-0.12, 0.03, 0, 0, 0)),
+    "s1c2_doc_intrinsics_fx880_near": dict(fx=None, intr="board", board_depth=(18, 36)),
+    "s1e2_doc_intrinsics_distorted_near": dict(fx=800.0, dist=(-0.12, 0.03, 0, 0, 0), intr="board", board_depth=(18, 36)),
+    "s3_click_n4": dict(fx=771.0, flow="click", click_noise=4.0),
     "s1e_doc_intrinsics_distorted": dict(fx=800.0, dist=(-0.12, 0.03, 0, 0, 0), intr="board"),
     "s2_hive_only": dict(fx=771.0, source="hive"),
     "s2b_hive_only_fx880": dict(fx=None, source="hive"),
@@ -95,7 +98,9 @@ def summarize_auto(r):
 
 def run(name, port=8793):
     P = dict(SCEN[name])
-    work = SCR / name
+    import os
+    SUF = os.environ.get("RS_SUFFIX", "")
+    work = SCR / (name + SUF)
     if work.exists():
         shutil.rmtree(work)
     (work / "data").mkdir(parents=True)
@@ -125,7 +130,7 @@ def run(name, port=8793):
             pass
         srv.stop()
     rec["api_log"] = api.log
-    (HERE / f"results_{name}.json").write_text(json.dumps(rec, indent=1, default=str), encoding="utf-8")
+    (HERE / f"results_{name}{SUF}.json").write_text(json.dumps(rec, indent=1, default=str), encoding="utf-8")
     return rec
 
 
@@ -167,7 +172,7 @@ def run_flow(api, P, truth, paths, paths_far, work, rec):
         api.call("POST", "/api/pipeline/stop")
         cfg = api.ok("GET", "/api/config")
         for cam in truth:
-            bpath = S.make_board_video(work / f"board_{cam.cam_id}.mp4", cam, seconds=25, seed=7 + int(cam.cam_id[-1]))
+            bpath = S.make_board_video(work / f"board_{cam.cam_id}.mp4", cam, seconds=25, seed=7 + int(cam.cam_id[-1]), depth_range=P.get("board_depth", (24, 60)))
             # camera A's board video as the source for cam0 only; the other one keeps its scene video
             s2 = load_cfg_sources(paths)
             for s in s2:

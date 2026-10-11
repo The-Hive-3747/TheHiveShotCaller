@@ -640,7 +640,9 @@ def test_status_warnings_and_calibration_loaded(tmp_path):
     single.store.close()
 
     ok = Pipeline(_file_cfg(), Store(tmp_path / "o.db"), tmp_path)
-    assert ok.status()["calibration_loaded"] is True and ok.status()["warnings"] == []
+    st_ok = ok.status()
+    assert st_ok["calibration_loaded"] is False and st_ok["calibration_source"] == "fixture"
+    assert st_ok["warnings"] == []                 # it reconstructs; it is just not an operator calibration
     ok.store.close()
 
 

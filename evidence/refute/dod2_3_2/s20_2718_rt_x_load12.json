@@ -1,0 +1,358 @@
+{
+ "fixture": "C:\\Users\\3747h\\AppData\\Local\\Temp\\claude\\C--Users-3747h-Documents-HiveShotTracker\\386da1de-9207-4304-8c4f-9284e5732d29\\scratchpad\\fx\\s20_2718",
+ "mode": "rt",
+ "stress": false,
+ "cmd": [
+  "C:\\Users\\3747h\\Documents\\HiveShotTracker\\.venv\\Scripts\\python.exe",
+  "-m",
+  "hiveshot",
+  "--data-dir",
+  "C:\\Users\\3747h\\AppData\\Local\\Temp\\r2app_yz94eiep",
+  "--config",
+  "C:\\Users\\3747h\\AppData\\Local\\Temp\\r2app_yz94eiep\\config.json",
+  "--port",
+  "8792"
+ ],
+ "elapsed_s": 29.570241928100586,
+ "video_len_s": null,
+ "stats": {
+  "session_id": "a5203e0b",
+  "shots": 0,
+  "made": 0,
+  "bounce_out": 0,
+  "miss": 0,
+  "unknown": 0,
+  "make_rate": 0.0,
+  "by_ball_type": {},
+  "failure_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "bounce_out_order_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "tips": 0,
+  "mean_exit_speed_ips": null,
+  "mean_launch_angle_deg": null
+ },
+ "shots": [],
+ "final_status": {
+  "warnings": [],
+  "cameras": {
+   "cam0": {
+    "fps": 0.0,
+    "latency_estimate_s": 0.0,
+    "finished": true,
+    "dropped": 0,
+    "frames_read": 1008,
+    "is_alive": false,
+    "last_error": null,
+    "reconnects": 0,
+    "props": {
+     "width": 1280,
+     "height": 720,
+     "fps": 60.0,
+     "fps_reported": 60.0,
+     "backend": "ffmpeg"
+    },
+    "ended": true
+   },
+   "cam1": {
+    "fps": 0.0,
+    "latency_estimate_s": 0.0,
+    "finished": true,
+    "dropped": 0,
+    "frames_read": 1008,
+    "is_alive": false,
+    "last_error": null,
+    "reconnects": 0,
+    "props": {
+     "width": 1280,
+     "height": 720,
+     "fps": 60.0,
+     "fps_reported": 60.0,
+     "backend": "ffmpeg"
+    },
+    "ended": true
+   }
+  },
+  "timing": {
+   "detect_ms": 3.438,
+   "track_ms": 0.267,
+   "preview_ms": 0.0,
+   "ring_ms": 0.584,
+   "recon_ms": 0.0,
+   "offset_s": 0.0,
+   "offset_confidence": 0.875
+  },
+  "detector_fps": 0.0
+ },
+ "csv_rows": 0,
+ "stress_log": {
+  "mjpg_bytes": [
+   0,
+   0
+  ],
+  "mjpg_err": [],
+  "stats_calls": 0,
+  "stats_err": [],
+  "stats_max_ms": 0.0,
+  "status_samples": 18,
+  "max_dropped": {
+   "cam0": 0,
+   "cam1": 0
+  },
+  "warnings_seen": [
+   "camera cam0: connected but no frames received yet",
+   "camera cam1: connected but no frames received yet"
+  ],
+  "reader_errors": [],
+  "det_fps": [
+   0.0,
+   151.6,
+   465.8,
+   367.2,
+   259.0,
+   142.6,
+   120.0,
+   33.1,
+   291.5,
+   197.9,
+   120.0,
+   120.1,
+   119.9,
+   261.2,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "cpu_pct": [
+  87.0,
+  87.4,
+  87.5,
+  87.4,
+  87.8,
+  84.1,
+  87.2,
+  77.2,
+  64.0,
+  64.5,
+  68.8,
+  78.0,
+  83.7,
+  79.2,
+  75.3,
+  74.9,
+  73.2,
+  74.3,
+  74.5,
+  83.0,
+  87.6,
+  84.1,
+  81.6,
+  78.5,
+  74.6,
+  74.6,
+  85.7,
+  84.5,
+  81.2
+ ],
+ "server_exit": 1,
+ "cmp": {
+  "n_truth": 20,
+  "n_recorded": 0,
+  "n_matched": 0,
+  "extra": 0,
+  "truth_made": 14,
+  "app_made": 0,
+  "truth_rate": 0.7,
+  "app_rate": 0.0,
+  "makemiss_agree": 0,
+  "makemiss_agree_pct": 0.0,
+  "exp_hist": {
+   "1": 1,
+   "2": 2,
+   "3": 2,
+   "4": 1,
+   "5": 0
+  },
+  "app_hist": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0,
+   "5": 0
+  },
+  "hist_exact": false,
+  "speed_n": 0,
+  "speed_max_abs_pct": null,
+  "speed_n_over_5": 0,
+  "speed_n_over_10": 0,
+  "speed_none": 0,
+  "no_equation": 0,
+  "angle_max_abs_err_deg": null,
+  "unmatched_truth": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "results": {
+   "made": 0,
+   "bounce_out": 0,
+   "miss": 0,
+   "unknown": 0
+  },
+  "burst_mismatch": [],
+  "by_ball_type": {},
+  "ball_type_wrong": [],
+  "dt_max_abs": null
+ },
+ "rows": [
+  {
+   "truth": 0,
+   "t_launch": 0.0,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 1,
+   "t_launch": 0.25,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 2,
+   "t_launch": 0.5,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 3,
+   "t_launch": 0.75,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 4,
+   "t_launch": 3.75,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 5,
+   "t_launch": 4.0,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 6,
+   "t_launch": 4.25,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 7,
+   "t_launch": 4.5,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 8,
+   "t_launch": 7.5,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 9,
+   "t_launch": 7.75,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 10,
+   "t_launch": 8.0,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 11,
+   "t_launch": 8.25,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 12,
+   "t_launch": 11.25,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 13,
+   "t_launch": 11.5,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 14,
+   "t_launch": 11.75,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 15,
+   "t_launch": 12.0,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 16,
+   "t_launch": 15.0,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 17,
+   "t_launch": 15.25,
+   "made_truth": false,
+   "matched": false
+  },
+  {
+   "truth": 18,
+   "t_launch": 15.5,
+   "made_truth": true,
+   "matched": false
+  },
+  {
+   "truth": 19,
+   "t_launch": 15.75,
+   "made_truth": true,
+   "matched": false
+  }
+ ]
+}

@@ -73,8 +73,9 @@ ROUTES = {
         "sources_configured": False, "calibration_loaded": False,
         "tags_seen": {"cam0": [100, 101], "cam1": []}, "pipeline_running": False,
         "recommendations": ["Plug both cameras into USB 3 ports.", "Tape the tags down flat."]},
-    # STUB ONLY: generic tag placeholders (no geometry)
-    "/api/calib/tags": [{"id": 100 + i, "size_in": 4.0, "name": f"tag {i + 1}", "xyz_center": [0, 0, 0],
+    # STUB ONLY: generic tag placeholders (the numbers mean nothing geometrically)
+    "/api/calib/tags": [{"id": 100 + i, "size_in": 4.0, "name": f"tag {i + 1}",
+                         "xyz_center": [1.0 * i, 2.0 * i, 3.0 * i], "normal": [0.0, 0.8, 0.6],
                          "corners_xyz": []} for i in range(4)],
     "/api/devices": [{"index": 0, "width": 1280, "height": 720, "fps": 30}],
     "/api/pipeline/status": {"running": False, "detector_fps": 0, "last_shot_id": None,
@@ -86,7 +87,11 @@ ROUTES = {
                                       "urls": {"cam0": "rtmp://127.0.0.1:1935/cam0",
                                                "cam1": "rtmp://127.0.0.1:1935/cam1"}},
                              "hive_state": {"alliance": "red", "up_cell": "audience"}},
-    "/api/calib": {"cameras": {}},
+    # STUB ONLY: per-camera provenance as the UI looks for it (cam0 still on default intrinsics)
+    "/api/calib": {"intrinsics": [{"cam_id": "cam0", "intrinsics_source": "default"},
+                                  {"cam_id": "cam1", "intrinsics_source": "measured"}],
+                   "extrinsics": [{"cam_id": "cam0", "calibration_source": "kit"},
+                                  {"cam_id": "cam1", "calibration_source": "click"}]},
     "/api/field/geometry": {"field_size": 144.0, "bounds": {"min": [-72, -72, 0], "max": [72, 72, 100]},
                             "hives": {}, "wireframe": [[[0, 0, 0], [0, 0, 10]]], "cell_extent": 12.04},
 }
@@ -110,17 +115,36 @@ def demo_now() -> bool:
     if time.monotonic() >= DEMO_STATE["at"]:
         DEMO_STATE["on"] = DEMO_STATE["target"]
     return DEMO_STATE["on"]
+# far-up learn: nothing is visible from the audience-side cameras, but the backend says it is complete
+FAR_LEARN_RESPONSE = {"learned_ids": [], "missing_ids": [], "visible_per_camera": {"cam0": 0, "cam1": 0},
+                      "max_residual_in": None, "up_cell_error_in": None, "complete": True}
+# set "block" to make POST /api/setup/finish answer 409 with reasons to fix
+FINISH_STATE = {"block": False}
+FINISH_409 = {"detail": ["cam0 still uses default intrinsics: measure the lens (step 2).",
+                         "No extrinsics solved for cam1: run Auto-calibrate."]}
 POST_ROUTES = {
     "/api/demo/start": {"ok": True, "session_id": "s1"},
     "/api/demo/stop": {"ok": True},
     "/api/calib/crosscheck": CROSSCHECK,
-    "/api/calib/auto_all": {"cameras": {"cam0": {"rmse_in": 0.4, "tags_used": [100, 101, 102], "reprojection_px": 0.8},
+    "/api/calib/auto_all": {"cameras": {"cam0": {"rmse_in": 0.4, "oos_error_in": 0.7, "tags_used": [100, 101, 102],
+                                                 "reprojection_px": 0.8},
                                         "cam1": {"error": "Only 1 tag visible; need at least 2."}},
                             "max_error_in": 0.6,
                             "warning": "Stub: using the HIVE's own tags is less accurate than the printed sheet."},
-    "/api/detector/sample": {"ball_type": "pollen", "hsv": [[12, 90, 90], [40, 255, 255]]},
+    "/api/detector/sample": {"ball_type": "pollen", "sampled_hsv": [20, 150, 150],
+                             "range": [[12, 90, 90], [40, 255, 255]]},
+    "/api/setup/finish": {"ok": True},
+    "/api/calib/intrinsics/cam0/start": {"ok": True},
+    "/api/calib/intrinsics/cam1/start": {"ok": True},
+    "/api/calib/intrinsics/cam0/stop": {"reprojection_rmse_px": 1.4, "frames_used": 40},
+    "/api/calib/intrinsics/cam1/stop": {"reprojection_rmse_px": 0.6, "frames_used": 40},
+    "/api/calib/extrinsics/cam0/auto": {"rmse_in": 0.3, "oos_error_in": 0.5, "tags_used": [100, 101],
+                                        "reprojection_px": 0.7},
+    "/api/calib/extrinsics/cam1/auto": {"rmse_in": 0.4, "oos_error_in": 1.4, "tags_used": [102, 103],
+                                        "reprojection_px": 0.9},
     "/api/calib/hive_tags/learn": {"learned_ids": [30, 31, 32, 33, 34, 35], "missing_ids": [36, 37],
-                                   "visible_per_camera": {"cam0": 8, "cam1": 7}, "max_residual_in": 0.35, "up_cell_error_in": 0.7},
+                                   "visible_per_camera": {"cam0": 8, "cam1": 7}, "max_residual_in": 0.35,
+                                   "up_cell_error_in": 0.7, "complete": False},
     "/api/pipeline/start": {"ok": True},
     "/api/pipeline/stop": {"ok": True},
     "/api/sessions": {"session_id": "s9"},
@@ -131,11 +155,28 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, *a):  # quiet
         pass
 
+    def _json(self, status, payload):
+        body = json.dumps(payload).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self):
         path = self.path.split("?", 1)[0]
         n = int(self.headers.get("Content-Length") or 0)
-        if n:
-            self.rfile.read(n)
+        raw = self.rfile.read(n) if n else b""
+        try:
+            req = json.loads(raw) if raw else {}
+        except ValueError:
+            req = {}
+        if path == "/api/setup/finish" and FINISH_STATE["block"]:
+            self._json(409, FINISH_409)
+            return
+        if path == "/api/calib/hive_tags/learn" and (req.get("state") or {}).get("up_cell") == "far":
+            self._json(200, FAR_LEARN_RESPONSE)
+            return
         if path in ("/api/demo/start", "/api/demo/stop"):
             demo_now()
             DEMO_STATE["target"] = path.endswith("start")
@@ -153,12 +194,13 @@ class Handler(SimpleHTTPRequestHandler):
     def do_PUT(self):
         n = int(self.headers.get("Content-Length") or 0)
         if self.path.split("?", 1)[0] == "/api/config":
-            body = json.dumps(json.loads(self.rfile.read(n) or b"{}")).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+            patch = json.loads(self.rfile.read(n) or b"{}")
+            for k, v in patch.items():
+                if isinstance(v, dict) and isinstance(CONFIG.get(k), dict):
+                    CONFIG[k].update(v)
+                else:
+                    CONFIG[k] = v
+            self._json(200, CONFIG)
             return
         self.send_error(404)
 

@@ -52,10 +52,11 @@
     <section id="tab-setup" class="tab">
       <div class="card"><div id="setupStepBtns" class="stepper">
         <button data-step="cameras" class="active">1. Cameras</button>
-        <button data-step="tags">2. Tags</button>
-        <button data-step="hivetags">3. Verify HIVE tags (optional)</button>
-        <button data-step="colors">4. Colors</button>
-        <button data-step="done">5. Done</button>
+        <button data-step="lens">2. Lens</button>
+        <button data-step="tags">3. Tags</button>
+        <button data-step="hivetags">4. Verify HIVE tags (optional)</button>
+        <button data-step="colors">5. Colors</button>
+        <button data-step="done">6. Done</button>
       </div></div>
       <div class="card setupstep active" data-step="cameras">
         <h3>1. Cameras</h3>
@@ -68,8 +69,18 @@
         <div id="setupCamMsg" class="muted" style="margin-top:6px"></div>
         <div id="setupDevices" class="thumbs"></div>
       </div>
+      <div class="card setupstep" data-step="lens">
+        <h3>2. Lens (required unless already measured)</h3>
+        <div class="hints"></div>
+        <p><a id="lnkBoardPdf" class="btnlink" href="/api/calib/checkerboard.pdf" target="_blank" rel="noopener">Open printable checkerboard (PDF)</a>
+          <span class="muted"> Print at 100% / Actual size on a flat, stiff surface.</span></p>
+        <p>For each camera: press <b>Start recording</b>, hold the board 1.5 to 3 ft from the camera and tilt it around
+          (left, right, up, down, corners of the picture) for about 20 seconds, then press <b>Stop recording</b>.
+          Green means under 1 px, amber under 2 px, red means redo it.</p>
+        <div id="lensCams"></div>
+      </div>
       <div class="card setupstep" data-step="tags">
-        <h3>2. Tags and auto-calibration</h3>
+        <h3>3. Tags and auto-calibration</h3>
         <div class="hints"></div>
         <div id="tagSource">
           <label><input type="radio" name="tagSource" value="kit" checked> I printed the tag sheet (recommended)</label><br>
@@ -83,7 +94,7 @@
         <div id="autoCalOut" style="margin-top:8px"></div>
       </div>
       <div class="card setupstep" data-step="hivetags">
-        <h3>3. Verify HIVE tags (optional)</h3>
+        <h3>4. Verify HIVE tags (optional)</h3>
         <div class="hints"></div>
         <p>The tags on the up CELL are already known from the manual. This step checks them against what the
           cameras see and learns the tags on the down CELL, so the HIVE state can then be detected automatically.</p>
@@ -97,15 +108,18 @@
         <div id="learnSummary" style="margin-top:8px"></div>
       </div>
       <div class="card setupstep" data-step="colors">
-        <h3>4. Ball colors</h3>
+        <h3>5. Ball colors</h3>
         <div class="hints"></div>
         <p>Place a ball in view, choose its type, then click the ball in the picture.</p>
         <label>Ball type <select id="colorBall"><option>pollen</option><option>nectar</option></select></label>
+        <div id="colorRanges" class="muted" style="margin:6px 0"></div>
+        <button id="btnColorUndo">Undo last sample</button>
+        <button id="btnColorReset">Reset to defaults</button>
         <div id="colorCams" class="thumbs"></div>
         <pre id="colorOut" class="json"></pre>
       </div>
       <div class="card setupstep" data-step="done">
-        <h3>5. Done</h3>
+        <h3>6. Done</h3>
         <div class="hints"></div>
         <p>Starts the pipeline (if stopped) and creates a session using the name in the top bar.</p>
         <button id="btnFinish">Start pipeline and session</button>
@@ -153,7 +167,8 @@
     <section id="tab-calibration" class="tab">
       <div class="card"><a id="lnkCheckerboard" class="btnlink" href="/api/calib/checkerboard.pdf" download>Download checkerboard PDF</a>
         <span class="muted"> Print at 100% / Actual size (1.00 in squares).</span>
-        <div style="margin-top:8px"><button id="btnCrosscheck">Cross-check</button>
+        <div style="margin-top:8px"><button id="btnAutoAll">Auto-calibrate all</button>
+          <button id="btnCrosscheck">Cross-check</button>
           <span class="muted"> Compares triangulated reference points with the field model.</span></div>
         <div id="crosscheckOut" style="margin-top:6px"></div></div>
       <div id="calibWarn" class="card warnbox" style="display:none"></div>

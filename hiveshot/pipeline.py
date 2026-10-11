@@ -300,6 +300,19 @@ def _fine_timers(on: bool) -> None:
 
 
 
+_SOURCE_RANK = ["none", "default_intrinsics", "fixture", "click", "hive", "kit"]
+
+
+def _source_of_solve(rec: Optional[dict]) -> str:
+    """Provenance word of a recorded extrinsics solve ({source, tags_used})."""
+    if not rec:
+        return "click"                      # solved before solves were recorded
+    ids = [int(t) for t in rec.get("tags_used", [])]
+    if rec.get("source") == "clicks" or not ids:
+        return "click"
+    return "kit" if any(100 <= t <= 103 for t in ids) else "hive"
+
+
 def computed_hive_defs(alliance: str, up_cell: str, up_only: bool = False
                        ) -> dict[int, np.ndarray]:
     """Computed field-frame corners {id: (4,3)} of the HIVE tags of `alliance` with `up_cell`
@@ -494,6 +507,8 @@ class Pipeline:
         self._idle_ended = False
         self._idle_lock = threading.Lock()
         self._default_intr: dict[str, str] = {}
+        self._cal_src: dict[str, str] = {}          # per camera: how its extrinsics came about
+        self._intr_src: dict[str, str] = {}         # per camera: measured | profile | default
         self._timing: dict[str, dict[str, float]] = {}
         self._recon_ms: Optional[float] = None
         self._drops: dict[str, collections.deque] = {}
@@ -658,10 +673,31 @@ class Pipeline:
                             f"calibration for {cam} does not match the video frame size "
                             f"({msg}); 3D results will be wrong until recalibrated")
 
+    def _fixture_calibration_allowed(self) -> bool:
+        """The calibration embedded next to a fixture video (`*_truth.json`) is a convenience
+        for the demo and the bundled fixture files only; with any real source (camera, RTMP,
+        URL, or a file of the user's) it is never used."""
+        if self.demo:
+            return True
+        fx = cfgmod.resolve_path("fixtures", self.data_dir).resolve()
+        for sc in self._rcfg.sources:
+            if sc.kind != "file":
+                return False
+            t = str(sc.target).replace("\\", "/")
+            try:
+                inside = cfgmod.resolve_path(t, self.data_dir).resolve().is_relative_to(fx)
+            except (OSError, ValueError):
+                inside = False
+            if not (inside or t.startswith("fixtures/")):
+                return False
+        return bool(self._rcfg.sources)
+
     def reload_calibration(self) -> None:
         intr: dict[str, CameraIntrinsics] = {}
         ext: dict[str, CameraExtrinsics] = {}
         stale: set[str] = set()
+        cal_src: dict[str, str] = {}
+        intr_src: dict[str, str] = {}
         self._hive_tags = {}
         path = cfgmod.resolve_path(self._rcfg.calibration_path, self.data_dir)
         try:
@@ -673,16 +709,20 @@ class Pipeline:
                 for d in data.get("intrinsics", []):
                     i = CameraIntrinsics(**{**d, "dist": tuple(d["dist"])})
                     intr[i.cam_id] = i
+                    intr_src[i.cam_id] = str((data.get("intrinsics_source") or {}).get(
+                        i.cam_id, "measured"))
+                solves = data.get("solve_tags") or {}
                 for d in data.get("extrinsics", []):
                     d = dict(d)
                     is_stale = bool(d.pop("stale", False))
                     e = CameraExtrinsics(**{**d, "rvec": tuple(d["rvec"]),
                                             "tvec": tuple(d["tvec"])})
                     ext[e.cam_id] = e
+                    cal_src[e.cam_id] = _source_of_solve(solves.get(e.cam_id))
                     if is_stale:
                         stale.add(e.cam_id)
-            else:
-                for sc in self._rcfg.sources:  # dev convenience: embedded fixture calibration
+            elif self._fixture_calibration_allowed():
+                for sc in self._rcfg.sources:  # embedded fixture calibration (demo / bundled)
                     if sc.kind != "file":
                         continue
                     truth = cfgmod.resolve_path(str(sc.target), self.data_dir)
@@ -695,25 +735,39 @@ class Pipeline:
                                                 "rvec": tuple(d["extrinsics"]["rvec"]),
                                                 "tvec": tuple(d["extrinsics"]["tvec"])})
                         intr[sc.cam_id], ext[sc.cam_id] = i, e
+                        cal_src[sc.cam_id] = "fixture"
+                        intr_src[sc.cam_id] = "measured"
         except Exception as e:  # noqa: BLE001
             self.last_error = f"calibration load failed: {e}"
             log.warning(self.last_error)
         self._default_intr = {}
-        defaults = self._rcfg.default_intrinsics
-        if defaults:
-            name, d = next(iter(defaults.items()))
-            for sc in self._rcfg.sources:
-                if sc.cam_id in intr:
-                    continue
-                try:
-                    intr[sc.cam_id] = CameraIntrinsics(
-                        cam_id=sc.cam_id, width=int(d["width"]), height=int(d["height"]),
-                        fx=float(d["fx"]), fy=float(d["fy"]), cx=float(d["cx"]),
-                        cy=float(d["cy"]), dist=tuple(float(x) for x in d.get("dist", [0] * 5)))
-                    self._default_intr[sc.cam_id] = name
-                except (KeyError, TypeError, ValueError) as e:
-                    log.warning("default_intrinsics %r unusable: %s", name, e)
+        # lens intrinsics for cameras without measured ones: the active profile's measured
+        # `intrinsics` slot ("profile"), else the generic default ("default": a warning that
+        # stays until the camera's lens is measured)
+        slot, slot_name, source = None, "", "default"
+        prof = (self._rcfg.profiles or {}).get(self._rcfg.active_profile or "", {})
+        if isinstance(prof, dict) and isinstance(prof.get("intrinsics"), dict):
+            slot, slot_name, source = prof["intrinsics"], str(self._rcfg.active_profile), "profile"
+        elif self._rcfg.default_intrinsics:
+            slot_name, slot = next(iter(self._rcfg.default_intrinsics.items()))
+        for sc in self._rcfg.sources:
+            keep = intr_src.get(sc.cam_id)
+            if sc.cam_id in intr and keep in (None, "measured"):
+                continue
+            if slot is None:
+                continue
+            try:
+                intr[sc.cam_id] = CameraIntrinsics(
+                    cam_id=sc.cam_id, width=int(slot["width"]), height=int(slot["height"]),
+                    fx=float(slot["fx"]), fy=float(slot["fy"]), cx=float(slot["cx"]),
+                    cy=float(slot["cy"]), dist=tuple(float(x) for x in slot.get("dist", [0] * 5)))
+                intr_src[sc.cam_id] = source
+                if source == "default":
+                    self._default_intr[sc.cam_id] = slot_name
+            except (KeyError, TypeError, ValueError) as e:
+                log.warning("intrinsics of %r unusable: %s", slot_name, e)
         self._calib = (intr, ext)
+        self._cal_src, self._intr_src = cal_src, intr_src
         self._stale_ext = stale
         for c in stale:
             self._warn_once(f"stale-{c}", f"extrinsics for {c} are stale (intrinsics were "
@@ -722,6 +776,32 @@ class Pipeline:
             self._check_calib(cam)
         self._offset = None
         self._offset_wall = 0.0
+
+    def intrinsics_sources(self) -> dict[str, str]:
+        """{cam_id: "measured" | "profile" | "default"} of the intrinsics in use."""
+        return dict(self._intr_src)
+
+    def calibration_sources(self) -> dict[str, str]:
+        """{cam_id: provenance of its calibration} for the configured cameras: "none",
+        "fixture" (embedded fixture truth), "default_intrinsics" (no extrinsics, lens
+        defaults only), or how the extrinsics were solved: "kit", "hive" or "click"."""
+        intr, ext = self._calib
+        out = {}
+        for sc in self._rcfg.sources:
+            c = sc.cam_id
+            if c in ext and c in intr:
+                out[c] = self._cal_src.get(c, "click")
+            elif c in intr and self._intr_src.get(c) == "default":
+                out[c] = "default_intrinsics"
+            else:
+                out[c] = "none"
+        return out
+
+    def calibration_source(self) -> str:
+        """Least trustworthy provenance over the cameras (none < default_intrinsics <
+        fixture < click < hive < kit)."""
+        srcs = list(self.calibration_sources().values())
+        return min(srcs, key=_SOURCE_RANK.index) if srcs else "none"
 
     # --------------------------------------------------------------- lifecycle
     def start(self) -> dict:
@@ -1109,7 +1189,7 @@ class Pipeline:
         """Both HIVE states of the configured alliance have been learned (>= 2 tags each)
         and both cameras are calibrated."""
         al = self._hive.alliance
-        return (self.calibration_loaded() and all(
+        return (self.calibration_usable() and all(
             len(self._hive_tags.get(hive_state_key(al, c)) or {}) >= 2 for c in CELLS))
 
     def hive_tags_table(self) -> dict:
@@ -1128,7 +1208,7 @@ class Pipeline:
         """HIVE state from tags ~2 Hz: as soon as the cameras are calibrated (the up CELL's
         tag positions are computed; learned positions refine it); before that, and only if
         the layout is marked verified, from which tag ids are visible."""
-        calibrated = self.calibration_loaded()
+        calibrated = self.calibration_usable()
         if not (calibrated or self._rcfg.hive_tags_verified):
             return
         now = time.monotonic()
@@ -1691,11 +1771,21 @@ class Pipeline:
                 vw.release()
 
     # ------------------------------------------------------------------ status
-    def calibration_loaded(self) -> bool:
-        """True when every configured camera has intrinsics and extrinsics."""
+    def calibration_usable(self) -> bool:
+        """True when every configured camera has intrinsics and extrinsics, whatever their
+        provenance (the pipeline can reconstruct)."""
         intr, ext = self._calib
         cams = [s.cam_id for s in self._rcfg.sources]
         return len(cams) >= 2 and all(c in intr and c in ext for c in cams[:2])
+
+    def calibration_loaded(self) -> bool:
+        """A calibration the operator made (or the demo's): usable, and not merely the
+        fixture-embedded convenience outside demo mode. The setup wizard opens while False."""
+        if not self.calibration_usable():
+            return False
+        if self.demo:
+            return True
+        return not any(v == "fixture" for v in self.calibration_sources().values())
 
     def warnings(self, cameras: Optional[dict] = None) -> list[str]:
         """Human-readable reasons why the pipeline may not produce (good) shots."""
@@ -1703,12 +1793,15 @@ class Pipeline:
         cams = [s.cam_id for s in self._rcfg.sources]
         if len(cams) < 2:
             out.append("single-camera mode: no 3D reconstruction, no shots")
-        elif not self.calibration_loaded():
+        elif not self.calibration_usable():
             out.append("no calibration loaded: 3D reconstruction disabled")
         for cam, msg in self.calibration_mismatch().items():
             out.append(f"camera {cam} resolution mismatch ({msg})")
-        for cam, name in sorted(self._default_intr.items()):
-            out.append(f"camera {cam} uses default intrinsics ({name}); calibrate for accuracy")
+        intr_now = self._calib[0]
+        for cam in sorted(self._default_intr):
+            fx = intr_now[cam].fx if cam in intr_now else 0.0
+            out.append(f"camera {cam} uses default lens intrinsics (fx {fx:.0f}): "
+                       "run the Lens step")
         if self._unpaired:
             out.append(f"{self._unpaired} ball track(s) could not be paired between the "
                        "cameras and were dropped: shots may be missing")
@@ -1751,6 +1844,10 @@ class Pipeline:
             if ended:
                 st["is_alive"] = False
             cams[cid] = st
+        csrc, isrc = self.calibration_sources(), self._intr_src
+        for cid, d in cams.items():
+            d["calibration_source"] = csrc.get(cid, "none")
+            d["intrinsics_source"] = isrc.get(cid, "default")
         now = time.perf_counter()
         dfps = 0.0
         for dq in list(self._proc_times.values()):
@@ -1774,6 +1871,8 @@ class Pipeline:
             "session_id": self._session_id,
             "calibration_mismatch": self.calibration_mismatch(),
             "calibration_loaded": self.calibration_loaded(),
+            "calibration_source": self.calibration_source(),
+            "intrinsics_default": any(v == "default" for v in isrc.values()),
             "hive_state_source": self.hive_state_source(),
             "warnings": self.warnings(cams),
             "cameras": cams,

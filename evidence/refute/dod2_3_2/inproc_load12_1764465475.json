@@ -1,0 +1,52 @@
+{
+ "elapsed": 5.03695273399353,
+ "shots": 0,
+ "unpaired": 0,
+ "last_error": "cam1: Unknown C++ exception from OpenCV code",
+ "cams": {
+  "cam0": [
+   0,
+   0
+  ],
+  "cam1": [
+   0,
+   0
+  ]
+ },
+ "timing": {
+  "detect_ms": 0.0,
+  "track_ms": 0.0,
+  "preview_ms": 0.0,
+  "ring_ms": 0.0,
+  "recon_ms": 0.0,
+  "offset_s": null,
+  "offset_confidence": null
+ },
+ "warnings": [
+  "no calibration loaded: 3D reconstruction disabled",
+  "camera cam0 resolution mismatch (1920x1080 vs 1280x720)",
+  "camera cam1 resolution mismatch (1920x1080 vs 1280x720)",
+  "camera cam0 uses default lens intrinsics (fx 771): run the Lens step",
+  "camera cam1 uses default lens intrinsics (fx 771): run the Lens step",
+  "cam1: Unknown C++ exception from OpenCV code"
+ ],
+ "finalize_log_n": 0,
+ "log_counts": {
+  "INFO opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported": 1,
+  "INFO opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported": 1,
+  "WARNING calibration for cam0 does not match the video frame size (1920x1080 vs": 1,
+  "ERROR camera loop failed for cam0": 1,
+  "WARNING calibration for cam1 does not match the video frame size (1920x1080 vs": 1,
+  "ERROR camera loop failed for cam1": 1,
+  "WARNING no calibration for cam0/cam1; cannot reconstruct": 1
+ },
+ "log_tail": [
+  "INFO hiveshot.ingest opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}",
+  "INFO hiveshot.ingest opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}",
+  "WARNING hiveshot.pipeline calibration for cam0 does not match the video frame size (1920x1080 vs 1280x720); 3D results will be wrong until recalibrated",
+  "ERROR hiveshot.pipeline camera loop failed for cam0",
+  "WARNING hiveshot.pipeline calibration for cam1 does not match the video frame size (1920x1080 vs 1280x720); 3D results will be wrong until recalibrated",
+  "ERROR hiveshot.pipeline camera loop failed for cam1",
+  "WARNING hiveshot.pipeline no calibration for cam0/cam1; cannot reconstruct"
+ ]
+}

@@ -95,6 +95,8 @@ def test_map_files_exist_and_agree(tmp_path, option, stem):
     for tid in range(100, 104):
         assert f">{tid}</text>" in text
     assert ">104" not in text and "opt</text>" not in text      # no optional bar tags any more
+    # the four FLOWERs are drawn with their label
+    assert text.count(">FLOWER</text>") == 4 and text.count("<circle") >= 4 + 3 * 2
     # the frame is the CAD A-frame (foot bars, legs, crossbar), not a box
     assert text.count("<line ") > 20
     # regenerating gives the same SVG (map and recommend() cannot drift apart)
@@ -203,11 +205,7 @@ def test_recommendation_meets_the_hard_constraints(option):
     # tier: arc + triangulation >= 75, robot-free rays, >= 1 tag reader, printed kit readable,
     # 8 reference points, not both cameras on the audience wall, (both read tags: preferred)
     assert all(sc["tier"][:5]), sc["tier"]
-    # both cameras on the audience wall is accepted only because no pair with a side-wall
-    # camera satisfies rules 1-5 (flagged, and stated in docs/camera_placement.md)
-    assert sc["tier"][5] == (not sc["both_on_audience_wall"])
-    assert sc["frac_in_both"] >= 0.9
-    assert pl.MIN_TRI_DEG <= sc["mean_angle_deg"] <= 120.0
+    assert sc["tier"][5] == sc["tags_both"]          # both read the CELL tags: preferred, not required
     assert sc["kit_both"]
     assert all(c["height_in"] >= 20.0 for c in rec["cameras"].values())
     _, centre, normal = pl._up_tag_geometry()
@@ -398,8 +396,11 @@ def test_frame_is_the_cad_a_frame_and_kit_uses_real_features():
     feats = dict(field.frame_reference_points())
     assert len(feats) == 7
     # kit tags are anchored on those features: crossbar ends and audience-side base corners
-    for tid, name in ((100, "Frame crossbar end (-X apex)"), (101, "Frame crossbar end (+X apex)")):
-        assert tagkit.tag_center_xyz(tid)[0] == pytest.approx(feats[name][0])
+    quad, pn = field.logo_panel_face("audience")
+    for tid, sx in ((100, -1), (101, 1)):                 # lying on the slanted logo panel
+        c = tagkit.tag_corners_xyz(tid)
+        assert np.allclose((c - quad[0]) @ pn, 0.0, atol=1e-3)      # on the panel plane
+        assert np.sign(c[:, 0].mean()) == sx and abs(c[:, 0]).max() <= quad[3][0]
     for tid, name in ((102, "Frame base corner (-X, +Y)"), (103, "Frame base corner (+X, +Y)")):
         assert abs(tagkit.tag_corners_xyz(tid)[:, 0]).max() == pytest.approx(abs(feats[name][0]))
     # nothing recommended overlaps the CELL sticker in the picture
@@ -416,11 +417,77 @@ def test_doc_states_tripod_feet_field_size_and_tag_tolerance():
     cal = (DOCS / "calibration.md").read_text(encoding="utf-8")
     assert "one leg pointing straight away from the wall" in place
     assert "12.0 in out from the OUTSIDE face" in place or "12 in out from the OUTSIDE face" in place
-    assert "`field_size` setting defaults to 144 in" in place and "wall to wall" in place
+    assert "`field_size_in`" in place and "default 144 in" in place and "wall to wall" in place
     assert "141.35" in place
     assert "within 0.25 in" in place and "within 0.25 in" in cal
     assert "Cross-check" in cal and "out-of-sample" in cal and "in-sample" in cal
     for needle in ("0.25 in, 0.5 deg", "0.5 in, 1 deg", "1 in, 2 deg"):
         assert needle in place and needle in cal
+    assert "alliance area" in place.lower() and "37 in clear" in place
+    assert "FLOWER" in place and "4.1 %" in place
+    assert "drive team stands between" not in place and "drive team stands between" not in cal
+    assert "in-sample" in cal and "camera B" in cal and "3 px" in cal
     # no leftover mention of the non-existent box frame as a target
     assert "frame top corner" not in cal.replace("frame \"top corners\" (a box", "")
+
+
+# ------------------------------------------------ FLOWER occlusion
+def test_flower_cylinders_block_rays(monkeypatch):
+    from hiveshot import field
+
+    fl = field.flower_positions()
+    assert len(fl) == 4
+    x, y = fl[0]["xy"]
+    r = fl[0]["radius"]
+    cam = np.array([x + 40.0, y, 10.0])
+    through = np.array([[x - 40.0, y, 10.0]])                 # straight through the cylinder at z = 10
+    above = np.array([[x - 40.0, y, 60.0]])
+    beside = np.array([[x - 40.0, y + 2 * r + 6.0, 10.0]])
+    assert pl.flower_blocked(cam, through)[0]
+    assert not pl.flower_blocked(cam, above)[0]               # passes over z > 22.65 at the flower
+    assert not pl.flower_blocked(cam, beside)[0]
+    assert not pl.flower_blocked(np.array([x + 40.0, y, 40.0]), np.array([[x + 20.0, y, 40.0]]))[0]
+    monkeypatch.setattr(pl, "USE_FLOWERS", False)
+    assert not pl.flower_blocked(cam, through)[0]
+
+
+def test_flower_effect_on_camera_a():
+    """The audience-wall FLOWER clips about 4 % of the ball rays from the corner spot the
+    recommendation used before the FLOWERs were modeled; the recommended spot clips under 2 %."""
+    pts = pl._stack(pl.sample_trajectories())
+    old_a = (-72.0, pl.MIN_RADIUS_IN, 20.0)
+    assert 0.03 <= pl.flower_blocked(old_a, pts).mean() <= 0.06
+    for option in ("gopro", "usb"):
+        rec = pl.recommend(option)
+        assert pl.flower_blocked(rec["cameras"]["A"]["pos"], pts).mean() < 0.02
+        assert pl.flower_blocked(rec["cameras"]["B"]["pos"], pts).mean() < 0.02
+
+
+def test_alliance_areas_are_not_camera_spots():
+    from hiveshot import placement
+
+    cands = placement._candidates()
+    assert all(not placement._in_alliance_area(p) for p in cands)
+    # a side-wall spot at the audience corner (outside the 97 in wide alliance area) is allowed
+    assert placement._in_alliance_area((-85.5, 0.0, 30.0)) and not placement._in_alliance_area(
+        (-85.5, 70.0, 30.0))
+    # the recommendation keeps its cameras ~37 in clear (along y) of the alliance area ends
+    for option in ("gopro", "usb"):
+        for k in ("A", "B"):
+            x, y, _ = pl.recommend(option)["cameras"][k]["pos"]
+            assert abs(y) - placement.ALLIANCE_AREA_HALF_Y_IN >= 36.0
+
+
+def test_calibration_doc_button_names_and_intrinsics_guidance():
+    cal = (DOCS / "calibration.md").read_text(encoding="utf-8")
+    for name in ("Auto-calibrate all", "**Auto-calibrate**", "**Cross-check**", "**Start intrinsics**",
+                 "**Stop intrinsics**", "**Refresh image**", "**Solve extrinsics**", "**Undo point**",
+                 "**Clear**", "**Detect and preview**", "**Learn**", "**Start pipeline and session**",
+                 "**Download checkerboard PDF**", "**Open printable tag sheet (PDF)**"):
+        assert name in cal, name
+    for step in ("1. Cameras", "2. Lens", "3. Tags", "4. Verify HIVE tags", "5. Colors", "6. Done"):
+        assert step in cal, step
+    assert "1.5 to 3 ft" in cal and "+-30 degrees" in cal and "a third of the picture" in cal
+    assert "20 seconds" in cal and "under 1 px" in cal and "1 to 2 px" in cal
+    assert "far HIVE tags are not visible from the audience-side cameras" in cal
+    assert "audience-up" in cal

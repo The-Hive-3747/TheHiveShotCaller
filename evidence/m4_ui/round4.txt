@@ -211,3 +211,8 @@ All checks passed!
 ................................                                         [100%]
 --- ruff
 All checks passed!
+=== round13: refuter dod6_10_2 fixes (Calibration auto buttons + provenance chips, Lens step, column names, setup/finish, location-derived WS, Colors undo/reset, far-up expected, tape positions)
+..................................                                       [100%]
+--- ruff
+All checks passed!
+(round13 browser smoke vs stub on 8766, WS now derived from page host so it points at the stub and stays 'reconnecting': lens record -> amber 1.40 px; tags text with positions/normal; auto result columns; far-up expected + step done mark; colors reset/undo; finish blocked with reasons (stub in 409 mode); Calibration chips default=red, per-camera and all auto buttons; stub stopped)

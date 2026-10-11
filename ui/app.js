@@ -9,7 +9,7 @@ const IN_TO_M = 0.0254;
 // or, worse, silently wrong.
 let calibPoints = [];
 
-const state = { config: null, sessionId: null, shots: [], stats: null, status: null, geometry: null, viewer: null, sessions: [], shotFilter: 'all', tips: [], rtmpUrls: {}, demo: false, demoPending: null, demoPosted: false, demoSession: null, demoPoll: null };
+const state = { config: null, sessionId: null, shots: [], stats: null, status: null, geometry: null, viewer: null, sessions: [], shotFilter: 'all', tips: [], rtmpUrls: {}, calib: null, demo: false, demoPending: null, demoPosted: false, demoSession: null, demoPoll: null };
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -48,7 +48,8 @@ document.querySelectorAll('#tabs button').forEach((b) => b.addEventListener('cli
 
 // ---------- websocket ----------
 function connectWs() {
-  const ws = new WebSocket('ws://127.0.0.1:8765/ws');
+  // same host and port the page was served from (never a fixed port)
+  const ws = new WebSocket(`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host || '127.0.0.1'}/ws`);
   const set = (ok, txt) => { const p = $('wsState'); p.textContent = 'ws: ' + txt; p.className = 'pill ' + (ok ? 'ok' : 'bad'); };
   ws.onopen = () => set(true, 'connected');
   ws.onclose = () => { set(false, 'reconnecting'); setTimeout(connectWs, 2000); };
@@ -441,13 +442,14 @@ function renderCalibCams() {
   root.innerHTML = srcs.map((s) => {
     const id = s.cam_id;
     return `<div class="card calibcam" data-cam="${esc(id)}">
-      <div><h3>${esc(id)}</h3>
+      <div><h3>${esc(id)} <span class="calsrc"></span></h3>
         <div class="imgwrap"><img alt="${esc(id)}" src="/api/preview/${encodeURIComponent(id)}.jpg?t=${Date.now()}"></div>
         <div style="margin-top:6px">
           <button data-act="refresh">Refresh image</button>
           <button data-act="undo">Undo point</button>
           <button data-act="clear">Clear</button>
           <button data-act="solve">Solve extrinsics</button>
+          <button data-act="auto">Auto-calibrate</button>
           <button data-act="istart">Start intrinsics</button>
           <button data-act="istop">Stop intrinsics</button>
         </div>
@@ -500,6 +502,17 @@ $('calibCams').addEventListener('click', (ev) => {
       out.innerHTML = `RMSE <b>${fmt(r.rmse_in, 3)} in</b><br>` +
         (r.per_point || []).map((p) => `${esc(p.name)}: ${fmt(p.err_px, 2)} px`).join('<br>');
       loadCalibration();
+    } else if (act === 'auto') {
+      out.textContent = 'Auto-calibrating...';
+      try {
+        const r = await api('POST', `/api/calib/extrinsics/${encodeURIComponent(id)}/auto`, { source: 'kit' });
+        const oos = r.oos_error_in;
+        out.innerHTML = `Fit residual <b>${fmt(r.rmse_in, 2)} in</b>` +
+          (oos != null ? `, out-of-sample <b class="${Number(oos) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(oos, 2)} in</b>` : '') +
+          `, reprojection ${fmt(r.reprojection_px, 2)} px, tags ${esc((r.tags_used || []).join(', ') || '-')}` +
+          (r.warning ? `<div class="warnbox card">${esc(r.warning)}</div>` : '');
+      } catch (e) { out.innerHTML = `<span class="xc-bad">${esc(plainError(e))}</span>`; }
+      loadCalibration();
     } else if (act === 'istart') {
       await api('POST', `/api/calib/intrinsics/${encodeURIComponent(id)}/start`); out.textContent = 'Recording intrinsics frames...';
     } else if (act === 'istop') {
@@ -549,10 +562,38 @@ async function loadCalibPoints() {
   if (changed) { for (const k of Object.keys(calibClicks)) calibClicks[k] = []; }
   (((state.config && state.config.sources) || [])).forEach((s) => paintCalib(s.cam_id));
 }
+// Per-camera calibration provenance (backend fields intrinsics_source / calibration_source). The exact
+// location is not fixed by the docs, so look in the calibration JSON entries for the camera and in the
+// pipeline status camera entry.
+function camCalibInfo(cam) {
+  const c = state.calib || {};
+  const pick = (v) => (Array.isArray(v) ? v.find((x) => x && x.cam_id === cam) : v && v[cam]);
+  const objs = [pick(c.cameras), pick(c.intrinsics), pick(c.extrinsics), ((state.status || {}).cameras || {})[cam]].filter(Boolean);
+  const get = (k) => { for (const o of objs) if (o[k] != null) return o[k]; return null; };
+  return { intrinsics_source: get('intrinsics_source'), calibration_source: get('calibration_source') };
+}
+function renderCalSources() {
+  document.querySelectorAll('.calibcam').forEach((el) => {
+    const info = camCalibInfo(el.dataset.cam);
+    const chip = (label, v, bad) => `<span class="pill ${v == null ? '' : bad ? 'bad' : 'ok'}" title="${esc(label)}">${esc(label)}: ${esc(v ?? 'unknown')}</span>`;
+    el.querySelector('.calsrc').innerHTML =
+      chip('intrinsics', info.intrinsics_source, info.intrinsics_source === 'default') + ' ' +
+      chip('calibration', info.calibration_source, false);
+  });
+}
+$('btnAutoAll').onclick = async () => {
+  const out = $('crosscheckOut');
+  out.textContent = 'Auto-calibrating all cameras...';
+  try {
+    renderAutoCal(await api('POST', '/api/calib/auto_all', { source: 'kit' }), out);
+    loadCalibration();
+  } catch (e) { out.innerHTML = `<div class="xc-bad">${esc(plainError(e))}</div>`; }
+};
 async function loadCalibration() {
   await loadCalibPoints();
   await guarded(async () => {
     const c = await api('GET', '/api/calib');
+    state.calib = c; renderCalSources();
     const summ = {};
     for (const [k, v] of Object.entries(c || {})) {
       summ[k] = v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v) : v;
@@ -725,7 +766,8 @@ function showStep(name) {
   setup.step = name;
   document.querySelectorAll('#setupStepBtns button').forEach((b) => b.classList.toggle('active', b.dataset.step === name));
   document.querySelectorAll('.setupstep').forEach((s) => s.classList.toggle('active', s.dataset.step === name));
-  if (name === 'tags') loadTagInfo();
+  if (name === 'lens') renderLensCams();
+  if (name === 'tags') { loadTagInfo(); api('GET', '/api/calib').then((c) => { state.calib = c; }).catch(() => {}); }
   if (name === 'colors') renderColorCams();
   if (name === 'hivetags') renderLearnSummary();
   renderSetupStatus();
@@ -834,14 +876,36 @@ async function loadTagInfo() {
   let items = null;
   try {
     const t = await api('GET', '/api/calib/tags');
-    if (Array.isArray(t) && t.length) items = t.map((x) => `${x.name} (tag id ${x.id}, ${fmt(x.size_in, 1)} in square)`);
+    if (Array.isArray(t) && t.length) items = t.map(describeTag);
   } catch (e) { console.error(e); }
   if (!items) items = ['(could not load the tag list; every tag on the sheet is labeled with where it goes)'];
-  $('tagsInfo').innerHTML = `<div>Print the sheet, cut the tags out and place each one at the spot named below:</div>
+  $('tagsInfo').innerHTML = `<div>Print the sheet, cut the tags out and place each one exactly here
+    (field center is 0, 0 on the tile surface; +Y points to the audience wall; heights are above the tile):</div>
     <ul>${items.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+    <div><b>Accuracy matters:</b> measure each position with a tape to within 0.25 in. A tag that is 0.5 in off can move the
+      calibrated cameras by several inches, and the checks below may not notice.</div>
     <div>Each camera must see at least 2 tags. Then press Auto-calibrate.</div>`;
 }
-function renderAutoCal(r) {
+// Plain-words placement for one entry of GET /api/calib/tags: {id, name, size_in, xyz_center, normal}.
+function describeTag(x) {
+  const c = Array.isArray(x.xyz_center) ? x.xyz_center : null;
+  const n = Array.isArray(x.normal) ? x.normal : null;
+  let where = '';
+  if (c) where = `: put its center ${fmt(c[0], 2)} in along X, ${fmt(c[1], 2)} in along Y and ${fmt(c[2], 2)} in above the tile`;
+  let facing = '';
+  if (n) {
+    const hmag = Math.hypot(n[0], n[1]);
+    const lean = (Math.asin(Math.max(-1, Math.min(1, n[2]))) * 180) / Math.PI;
+    let dir;
+    if (hmag < 0.1) dir = n[2] >= 0 ? 'straight up' : 'straight down';
+    else if (Math.abs(n[1]) >= Math.abs(n[0])) dir = n[1] > 0 ? 'toward the +Y (audience) side' : 'toward the -Y (far) side';
+    else dir = n[0] > 0 ? 'toward the +X side' : 'toward the -X side';
+    const tilt = hmag < 0.1 ? '' : Math.abs(lean) < 3 ? ', standing upright' : `, leaning ${fmt(Math.abs(lean), 0)} degrees ${lean > 0 ? 'upward' : 'downward'}`;
+    facing = `. The printed face points ${dir}${tilt}`;
+  }
+  return `${x.name} (tag id ${x.id}, ${fmt(x.size_in, 1)} in square)${where}${facing}.`;
+}
+function renderAutoCal(r, target = $('autoCalOut')) {
   const skip = new Set(['max_error_in', 'crosscheck', 'warnings']);
   let per = r && (r.cameras || r.results || r.per_camera || r.extrinsics);
   if (!per || typeof per !== 'object') {
@@ -850,31 +914,92 @@ function renderAutoCal(r) {
   const entries = Array.isArray(per) ? per.map((x, i) => [x.cam_id ?? `camera ${i + 1}`, x]) : Object.entries(per);
   const rows = entries.map(([cam, v]) => {
     const err = v && (v.error || v.detail);
-    if (err) return `<tr><td>${esc(cam)}</td><td class="xc-bad" colspan="3">${esc(typeof err === 'string' ? err : JSON.stringify(err))}</td></tr>`;
-    const good = v && v.rmse_in != null && Number(v.rmse_in) < CROSSCHECK_OK_IN;
-    return `<tr><td>${esc(cam)}</td><td class="${good ? 'xc-ok' : 'xc-bad'}">${fmt(v && v.rmse_in, 2)} in</td>
+    if (err) return `<tr><td>${esc(cam)}</td><td class="xc-bad" colspan="4">${esc(typeof err === 'string' ? err : JSON.stringify(err))}</td></tr>`;
+    const fitOk = v && v.rmse_in != null && Number(v.rmse_in) < CROSSCHECK_OK_IN;
+    const oos = v ? v.oos_error_in : null;
+    const oosCell = oos == null ? '<td class="muted">-</td>' : `<td class="${Number(oos) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(oos, 2)}</td>`;
+    return `<tr><td>${esc(cam)}</td><td class="${fitOk ? 'xc-ok' : 'xc-bad'}">${fmt(v && v.rmse_in, 2)}</td>${oosCell}
       <td>${fmt(v && v.reprojection_px, 2)} px</td><td>${esc(((v && v.tags_used) || []).join(', ') || '-')}</td></tr>`;
   }).join('');
   const max = r ? r.max_error_in : null;
   const warnList = r ? [].concat(r.warning ?? [], r.warnings ?? []).filter((w) => w) : [];
   const warnHtml = warnList.map((w) => `<div class="warnbox card">${esc(typeof w === 'string' ? w : JSON.stringify(w))}</div>`).join('');
-  $('autoCalOut').innerHTML = `${warnHtml}<div>Max error <b class="${max != null && Number(max) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(max, 2)} in</b>
-    (green = under ${CROSSCHECK_OK_IN} in)</div>
-    <table class="data"><thead><tr><th>Camera</th><th>Pose error</th><th>Reprojection</th><th>Tags used</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const inSample = r && r.out_of_sample === false ? ' (in-sample re-measurement, not an independent check)' : '';
+  target.innerHTML = `${warnHtml}<div>Max error <b class="${max != null && Number(max) < CROSSCHECK_OK_IN ? 'xc-ok' : 'xc-bad'}">${fmt(max, 2)} in</b>
+    (green = under ${CROSSCHECK_OK_IN} in)${esc(inSample)}</div>
+    <table class="data"><thead><tr><th>Camera</th><th>Fit residual (in)</th><th>Out-of-sample error (in)</th><th>Reprojection</th><th>Tags used</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="muted">Fit residual is how well the tags fit the solve itself; out-of-sample error is measured on tags the solve did not use.</div>`;
 }
 $('btnAutoCal').onclick = async () => {
+  const lensBlock = lensBlockingCams();
+  if (lensBlock.length) {
+    $('autoCalOut').innerHTML = `<div class="xc-bad">Lens step not finished for ${esc(lensBlock.join(', '))}. Measure the lens (step 2) first, otherwise the result can look fine while being wrong.</div>`;
+    return;
+  }
   $('autoCalOut').textContent = 'Calibrating...';
   try { renderAutoCal(await api('POST', '/api/calib/auto_all', { source: tagSource() })); pollSetup(); }
   catch (e) { $('autoCalOut').innerHTML = `<div class="xc-bad">${esc(plainError(e))}</div>`; }
 };
+// ---- Lens (intrinsics) step: required unless intrinsics_source is "measured" or "profile" ----
+const LENS_OK_PX = 1.0; const LENS_WARN_PX = 2.0;
+setup.lens = {};   // cam_id -> {recording, rmse, frames, error}
+const lensClass = (px) => (px == null ? '' : Number(px) < LENS_OK_PX ? 'xc-ok' : Number(px) < LENS_WARN_PX ? 'xc-amber' : 'xc-bad');
+function lensSatisfied(cam) {
+  const src = camCalibInfo(cam).intrinsics_source;
+  if (src === 'measured' || src === 'profile') return true;
+  const l = setup.lens[cam];
+  return !!(l && l.rmse != null && Number(l.rmse) < LENS_WARN_PX);
+}
+function lensBlockingCams() {
+  return ((state.config && state.config.sources) || []).map((s) => s.cam_id).filter((c) => !lensSatisfied(c));
+}
+async function renderLensCams() {
+  try { state.calib = await api('GET', '/api/calib'); } catch (e) { console.error(e); }
+  const srcs = (state.config && state.config.sources) || [];
+  $('lensCams').innerHTML = srcs.length ? srcs.map((s) => {
+    const id = s.cam_id; const info = camCalibInfo(id); const l = setup.lens[id] || {};
+    const src = info.intrinsics_source;
+    const need = lensSatisfied(id) ? 'done' : 'required';
+    const res = l.error ? `<span class="xc-bad">${esc(l.error)}</span>`
+      : l.recording ? '<span class="muted">Recording... move the board, then press Stop recording.</span>'
+        : l.rmse != null ? `<span class="${lensClass(l.rmse)}">Reprojection RMSE ${fmt(l.rmse, 2)} px (${esc(l.frames ?? '?')} frames)${Number(l.rmse) >= LENS_WARN_PX ? ': too high, record again' : ''}</span>` : '';
+    return `<div class="card lenscam" data-cam="${esc(id)}"><b>${esc(id)}</b>
+      <span class="pill ${src == null ? '' : src === 'default' ? 'bad' : 'ok'}">intrinsics: ${esc(src ?? 'unknown')}</span>
+      <span class="muted">${need}</span>
+      <div style="margin-top:6px"><button data-act="lstart"${l.recording ? ' disabled' : ''}>Start recording</button>
+        <button data-act="lstop"${l.recording ? '' : ' disabled'}>Stop recording</button> ${res}</div></div>`;
+  }).join('') : '<div class="muted">No cameras configured yet (step 1).</div>';
+}
+$('lensCams').addEventListener('click', (ev) => {
+  const act = ev.target.dataset && ev.target.dataset.act; if (!act) return;
+  const cam = ev.target.closest('.lenscam').dataset.cam;
+  (async () => {
+    try {
+      if (act === 'lstart') {
+        await api('POST', `/api/calib/intrinsics/${encodeURIComponent(cam)}/start`);
+        setup.lens[cam] = { recording: true };
+      } else if (act === 'lstop') {
+        const r = await api('POST', `/api/calib/intrinsics/${encodeURIComponent(cam)}/stop`);
+        setup.lens[cam] = { rmse: r.reprojection_rmse_px, frames: r.frames_used };
+      }
+    } catch (e) { setup.lens[cam] = { error: plainError(e) }; }
+    renderLensCams();
+  })();
+});
 // Learn HIVE tags: one POST per physical HIVE state (audience CELL up, then far CELL up).
 setup.learned = { audience: false, far: false };
 function renderLearnSummary() {
   const both = (setup.learned.audience && setup.learned.far)
     || [state.status, setup.status].some((s) => s && s.hive_state_source === 'tags');
   const todo = ['audience', 'far'].filter((k) => !setup.learned[k]);
+  const finished = both || setup.farExpected;
+  document.querySelector('#setupStepBtns [data-step=hivetags]').classList.toggle('done', !!finished);
+  if (setup.farExpected && !both) {
+    $('learnSummary').innerHTML = '<div class="xc-ok">Step done: the far-up tags are not visible from these cameras, which is expected. The HIVE state stays manual unless both states are learned.</div>';
+    return;
+  }
   $('learnSummary').innerHTML = both
-    ? '<div class="xc-ok">Both HIVE states are learned. From now on the HIVE state (and tips) are detected automatically from the tags; you do not need to set it by hand.</div>'
+    ?'<div class="xc-ok">Both HIVE states are learned. From now on the HIVE state (and tips) are detected automatically from the tags; you do not need to set it by hand.</div>'
     : `<div class="muted">Learned: ${['audience', 'far'].filter((k) => setup.learned[k]).join(', ') || 'none yet'}. Still to do: ${todo.join(', ')}.</div>`;
 }
 function renderLearnResult(r, upCell) {
@@ -896,14 +1021,59 @@ $('btnLearn').onclick = async () => {
   const alliance = $('selAlliance').value || (state.config && state.config.alliance) || 'red';
   $('learnOut').textContent = 'Learning...';
   try {
-    renderLearnResult(await api('POST', '/api/calib/hive_tags/learn', { state: { alliance, up_cell: upCell } }), upCell);
+    const r = await api('POST', '/api/calib/hive_tags/learn', { state: { alliance, up_cell: upCell } });
+    // far-up with nothing visible but the backend reporting complete: the audience-side cameras simply cannot
+    // see the far CELL's tags. That is a normal outcome, not a failure.
+    const vis = r.visible_per_camera || {};
+    const visTotal = (Array.isArray(vis) ? vis : Object.values(vis)).reduce((a, v) => a + (Array.isArray(v) ? v.length : Number(v) || 0), 0);
+    const farExpected = upCell === 'far' && r.complete === true && visTotal === 0 && !(r.learned_ids || []).length;
+    if (farExpected) {
+      setup.farExpected = true;
+      $('learnOut').innerHTML = '<div class="xc-ok">far-up tags are not visible from these cameras; this is expected.</div>';
+    } else {
+      renderLearnResult(r, upCell);
+    }
     setup.learned[upCell] = true;
     if (!setup.learned[upCell === 'audience' ? 'far' : 'audience']) $('learnState').value = upCell === 'audience' ? 'far' : 'audience';
     pollSetup();
   } catch (e) { $('learnOut').innerHTML = `<div class="xc-bad">${esc(plainError(e))}</div>`; }
   renderLearnSummary();
 };
-function renderColorCams() {
+// ---- Colors step: ranges, undo and reset. Previous ranges are kept client-side only. ----
+// Reset target = the shipped defaults of hiveshot/config.py DetectorSection (HSV ranges, not field geometry).
+const DEFAULT_HSV = { pollen_hsv: [[15, 100, 100], [38, 255, 255]], nectar_hsv: [[125, 60, 60], [170, 255, 255]] };
+const colorHist = { pollen_hsv: [], nectar_hsv: [] };   // stack of earlier ranges per ball type
+const hsvKey = () => ($('colorBall').value === 'nectar' ? 'nectar_hsv' : 'pollen_hsv');
+const hsvTxt = (r) => (Array.isArray(r) ? `[${r.map((a) => a.join(', ')).join('] to [')}]` : '-');
+function renderColorRanges() {
+  const d = (state.config && state.config.detector) || {};
+  $('colorRanges').innerHTML = `Current HSV ranges (lowest to highest): pollen ${esc(hsvTxt(d.pollen_hsv))}; nectar ${esc(hsvTxt(d.nectar_hsv))}.
+    Samples only ever widen a range; use Undo or Reset to narrow it again.`;
+  $('btnColorUndo').disabled = !colorHist[hsvKey()].length;
+}
+async function putDetectorRange(key, range) {
+  const detector = { ...((state.config && state.config.detector) || {}), [key]: range };
+  state.config = await api('PUT', '/api/config', { detector });
+  renderColorRanges();
+}
+$('colorBall').addEventListener('change', renderColorRanges);
+$('btnColorUndo').onclick = () => guarded(async () => {
+  const key = hsvKey();
+  const prev = colorHist[key].pop();
+  if (!prev) { toast('Nothing to undo'); return; }
+  await putDetectorRange(key, prev);
+  $('colorOut').textContent = `Restored the previous ${$('colorBall').value} range ${hsvTxt(prev)}`;
+});
+$('btnColorReset').onclick = () => guarded(async () => {
+  const key = hsvKey();
+  const cur = state.config && state.config.detector && state.config.detector[key];
+  if (cur) colorHist[key].push(cur);   // so the reset itself can be undone
+  await putDetectorRange(key, DEFAULT_HSV[key]);
+  $('colorOut').textContent = `${$('colorBall').value} range reset to defaults ${hsvTxt(DEFAULT_HSV[key])}`;
+});
+async function renderColorCams() {
+  try { state.config = await api('GET', '/api/config'); } catch (e) { console.error(e); }
+  renderColorRanges();
   const srcs = (state.config && state.config.sources) || [];
   $('colorCams').innerHTML = srcs.length ? srcs.map((s) => `<div class="thumb clickable">
     <img alt="${esc(s.cam_id)}" data-cam="${esc(s.cam_id)}" src="/api/preview/${encodeURIComponent(s.cam_id)}.jpg?t=${Date.now()}">
@@ -914,22 +1084,51 @@ $('colorCams').addEventListener('click', (ev) => {
   guarded(async () => {
     const cam = img.dataset.cam; const r = img.getBoundingClientRect();
     const props = (((state.status || {}).cameras || {})[cam] || {}).props || {};
-    // click position as a fraction of the picture, scaled to the full-resolution frame size
-    const u = ((ev.clientX - r.left) / r.width) * (props.width || img.naturalWidth);
-    const v = ((ev.clientY - r.top) / r.height) * (props.height || img.naturalHeight);
+    // click position as a fraction of the picture; ignore clicks on the border/outside or on a not-yet-loaded picture
+    const fx = (ev.clientX - r.left) / r.width; const fy = (ev.clientY - r.top) / r.height;
+    if (!(r.width > 0 && r.height > 0 && fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1 && img.naturalWidth > 0)) return;
+    // scaled to the full-resolution frame size
+    const u = fx * (props.width || img.naturalWidth);
+    const v = fy * (props.height || img.naturalHeight);
     const ball = $('colorBall').value;
+    const key = hsvKey();
+    const before = state.config && state.config.detector && state.config.detector[key];
     const res = await api('POST', '/api/detector/sample', { cam_id: cam, u, v, ball_type: ball });
+    if (before) colorHist[key].push(before);   // only after the sample succeeded
     $('colorOut').textContent = `${ball} color range updated from ${cam} at (${Math.round(u)}, ${Math.round(v)}):\n` + JSON.stringify(res, null, 1);
     state.config = await api('GET', '/api/config');   // keep the local copy in sync so Settings does not save a stale range
+    renderColorRanges();
   });
 });
+// Turn a backend refusal (e.g. 409 from /api/setup/finish) into a list of plain-language things to fix.
+function reasonLines(e) {
+  const m = String((e && e.message) || e);
+  const j = m.indexOf('{');
+  let d = null;
+  if (j >= 0) { try { const o = JSON.parse(m.slice(j)); d = o.detail ?? o.reasons ?? o.problems ?? o.error ?? o.message ?? o; } catch (err) { /* not JSON */ } }
+  if (d == null) return [m];
+  const flat = (v) => (Array.isArray(v) ? v.flatMap(flat) : v && typeof v === 'object' ? Object.values(v).flatMap(flat) : [String(v)]);
+  return flat(d);
+}
 $('btnFinish').onclick = () => guarded(async () => {
+  const msg = $('finishMsg');
+  msg.className = 'muted'; msg.textContent = 'Checking setup...';
+  try {
+    await api('POST', '/api/setup/finish');
+  } catch (e) {
+    const lines = reasonLines(e);
+    msg.className = 'xc-bad';
+    msg.innerHTML = `<div>Setup is not finished yet. Fix this first:</div><ul>${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>`;
+    return;   // blocked: do not start a session
+  }
+  msg.textContent = '';
   const st = await api('GET', '/api/pipeline/status');
   if (!st.running) await api('POST', '/api/pipeline/start');
   const r = await api('POST', '/api/sessions', { name: sessionNameNow() });
   state.shots = []; state.stats = null; renderStats(); renderShots();
   await refreshSessions();
   setSession(r.session_id);
+  $('finishMsg').className = 'muted';
   $('finishMsg').textContent = `Pipeline running; session ${r.session_id} started.`;
   showTab('dashboard');
 });

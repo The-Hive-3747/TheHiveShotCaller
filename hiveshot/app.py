@@ -35,6 +35,9 @@ log = logging.getLogger("hiveshot.app")
 
 DEMO_REALTIME = True            # tests may set False so the demo footage runs flat out
 DEMO_SESSION_TEMPLATE = "Demo {date} {time}"
+MAX_SAVE_RMSE_PX = 4.0     # an extrinsics solve above this reprojection error is not saved
+MAX_SAVE_OOS_IN = 2.0      # ... nor one whose held-out tags are further off than this
+MAX_FINISH_OOS_IN = 1.0    # the wizard may finish only at or below this cross-check error
 DROP_WINDOW_S = 60.0
 DEVICE_PROBE_MAX = 6
 DEVICE_CACHE_S = 30.0
@@ -58,6 +61,15 @@ UI_DIR = resource_path("ui")
 MAX_INTRINSIC_FRAMES = 40
 _REQ = Body(...)
 _OPT = Body(default_factory=dict)
+
+
+class Refusal(Exception):
+    """A request refused on purpose (HTTP 409): `detail` is the plain-language reason and
+    `extra` the numbers behind it, merged into the JSON body."""
+
+    def __init__(self, detail: str, extra: Optional[dict] = None, status: int = 409):
+        super().__init__(detail)
+        self.detail, self.extra, self.status = detail, dict(extra or {}), status
 
 
 class _Recorder:
@@ -272,7 +284,8 @@ class AppState:
                 "extrinsics": [{**e.__dict__, "rvec": list(e.rvec), "tvec": list(e.tvec),
                                 "stale": e.cam_id in stale} for e in ext.values()]}
 
-    def save_calib(self, intr: dict, ext: dict, stale: Optional[set] = None) -> None:
+    def save_calib(self, intr: dict, ext: dict, stale: Optional[set] = None,
+                   measured: Optional[set] = None) -> None:
         """Write the calibration JSON. Extrinsics of cameras in `stale` get ``stale: true``
         (their intrinsics changed after they were solved); load tolerates the extra key."""
         path = self._calib_path()
@@ -291,6 +304,11 @@ class AppState:
         self.solve_tags = {c: v for c, v in self.solve_tags.items() if c in ext}
         if self.solve_tags:
             data["solve_tags"] = self.solve_tags
+        # where each camera's lens intrinsics came from; "default" keeps its warning alive
+        src = {c: v for c, v in self.pipeline.intrinsics_sources().items() if c in intr}
+        for c in (measured or ()):
+            src[c] = "measured"
+        data["intrinsics_source"] = {c: src.get(c, "measured") for c in intr}
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
         self.pipeline.reload_calibration()
 
@@ -573,18 +591,9 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         `{"in_sample": true}` re-measures the clicked/solved points instead."""
         return _crosscheck(in_sample=bool(body.get("in_sample")))
 
-    def _held_out_points(cams, intr, ext) -> tuple[list[dict], str]:
-        """Held-out features visible in the latest frame of both cameras: the HIVE tags
-        (computed CAD corners for the current HIVE state) and the kit tags that neither
-        camera's solve used. Returns (points, what) or ([], reason)."""
-        a, b = cams
-        fa, fb = st.pipeline.latest_frame(a), st.pipeline.latest_frame(b)
-        if fa is None or fb is None:
-            return [], "the pipeline is not running (no frames)"
-        info = [st.solve_tags.get(c) for c in cams]
-        if not all(info):
-            return [], "it is not known which tags the extrinsics solves used"
-        used = {int(t) for i in info for t in i.get("tags_used", [])}
+    def _expected_tags() -> dict[int, tuple[np.ndarray, str]]:
+        """Known corners {id: ((4,3) field corners, "kit" | "hive")} of every tag with a
+        known position: the printed kit and the computed HIVE tags of the current state."""
         expected: dict[int, tuple[np.ndarray, str]] = {}
         try:
             from . import tagkit
@@ -595,6 +604,22 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         hs = st.pipeline.hive_state()
         for tid, c4 in computed_hive_defs(hs.alliance, hs.up_cell).items():
             expected[int(tid)] = (c4, "hive")
+        return expected
+
+    def _held_out_points(cams, intr, ext, solve_tags=None) -> tuple[list[dict], str]:
+        """Held-out features visible in the latest frame of both cameras: the HIVE tags
+        (computed CAD corners for the current HIVE state) and the kit tags that neither
+        camera's solve used. Returns (points, what) or ([], reason)."""
+        a, b = cams
+        fa, fb = st.pipeline.latest_frame(a), st.pipeline.latest_frame(b)
+        if fa is None or fb is None:
+            return [], "the pipeline is not running (no frames)"
+        recorded = st.solve_tags if solve_tags is None else solve_tags
+        info = [recorded.get(c) for c in cams]
+        if not all(info):
+            return [], "it is not known which tags the extrinsics solves used"
+        used = {int(t) for i in info for t in i.get("tags_used", [])}
+        expected = _expected_tags()
         da = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fa.image)}
         db = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fb.image)}
         ids = sorted(i for i in set(da) & set(db) if i in expected and i not in used)
@@ -615,6 +640,72 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         kinds = sorted({p["kind"] for p in pts})
         what = " and ".join({"hive": "HIVE tags", "kit": "kit tags"}[k] for k in kinds)
         return pts, what
+
+    def _oos_camera_error(intr_c, ext_c, image, used_ids) -> Optional[float]:
+        """Out-of-sample error of ONE camera, in inches: for every tag corner the camera sees
+        that its own solve did not use, the distance between the known 3D corner and the
+        camera ray through the detected pixel. Max over the corners; None if no such tag."""
+        expected = _expected_tags()
+        dets = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(image)}
+        ids = [i for i in sorted(dets) if i in expected and i not in used_ids]
+        if not ids:
+            return None
+        R, t = calib._rt(ext_c)
+        centre = -R.T @ t
+        worst = 0.0
+        for i in ids:
+            norm = calib.undistort_points(intr_c, np.asarray(dets[i], float).reshape(4, 2),
+                                          normalized=True)
+            for k in range(4):
+                d = R.T @ np.array([norm[k, 0], norm[k, 1], 1.0])
+                d /= np.linalg.norm(d)
+                worst = max(worst, float(np.linalg.norm(np.cross(expected[i][0][k] - centre, d))))
+        return worst
+
+    def _gate_extrinsics(cam_id: str, intr_c, ext_new, rmse_px: Optional[float],
+                         record: dict, image: Optional[np.ndarray]) -> Optional[float]:
+        """Refuse (409 with the numbers) to save an extrinsics solve that is clearly wrong:
+        reprojection RMSE over MAX_SAVE_RMSE_PX, a frame whose size is not the intrinsics'
+        size, or an out-of-sample error (this camera's, and the pair's when both cameras are
+        calibrated) over MAX_SAVE_OOS_IN. Returns the camera's out-of-sample error."""
+        numbers: dict = {"cam_id": cam_id, "reprojection_px": rmse_px}
+        reasons = []
+        if rmse_px is not None and rmse_px > MAX_SAVE_RMSE_PX:
+            reasons.append(f"reprojection error {rmse_px:.1f} px is over {MAX_SAVE_RMSE_PX:.0f} px "
+                           "(wrong tag positions, a moved tag, or the wrong lens intrinsics)")
+        if image is not None:
+            h, w = image.shape[:2]
+            numbers["frame_size"] = [int(w), int(h)]
+            numbers["intrinsics_size"] = [int(intr_c.width), int(intr_c.height)]
+            if (w, h) != (intr_c.width, intr_c.height):
+                reasons.append(f"the camera delivers {w}x{h} but its intrinsics are for "
+                               f"{intr_c.width}x{intr_c.height}: redo the intrinsics or fix the "
+                               "camera resolution")
+        oos = None
+        if image is not None:
+            oos = _oos_camera_error(intr_c, ext_new, image, set(record.get("tags_used", [])))
+            numbers["oos_error_in"] = oos
+            if oos is not None and oos > MAX_SAVE_OOS_IN:
+                reasons.append(f"a tag that was not used for the solve is {oos:.1f} in off "
+                               f"(limit {MAX_SAVE_OOS_IN:.0f} in)")
+            cams = [c.cam_id for c in st.cfg.sources][:2]
+            intr, ext = st.pipeline.calibration()
+            if cam_id in cams and len(cams) == 2:
+                other = cams[1 - cams.index(cam_id)]
+                if other in ext and other in intr and not reasons:
+                    pair_ext = {**ext, cam_id: ext_new}
+                    pts, _what = _held_out_points(cams, intr, pair_ext,
+                                                  {**st.solve_tags, cam_id: record})
+                    if pts:
+                        worst = max(p["error_in"] for p in pts)
+                        numbers["crosscheck_error_in"] = worst
+                        if worst > MAX_SAVE_OOS_IN:
+                            reasons.append(f"the out-of-sample cross-check with {other} would be "
+                                           f"{worst:.1f} in (limit {MAX_SAVE_OOS_IN:.0f} in)")
+        if reasons:
+            raise Refusal(f"extrinsics of {cam_id} not saved: " + "; ".join(reasons)
+                          + ". The previous calibration is kept.", numbers)
+        return oos
 
     def _crosscheck(in_sample: bool = False) -> dict:
         cams = [s.cam_id for s in st.cfg.sources][:2]
@@ -717,6 +808,10 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
             raise HTTPException(422, msg) from e
         kit_ids = [t for t in info["tags_used"] if 100 <= t <= 103]
         hive_used = [t for t in info["tags_used"] if t not in kit_ids]
+        record = {"source": source, "tags_used": [int(t) for t in info["tags_used"]]}
+        was_default = st.pipeline.intrinsics_sources().get(cam_id) == "default"
+        oos = _gate_extrinsics(cam_id, old_i[cam_id], ext, info["reprojection_px"], record,
+                               fr.image)
         if kit_ids:
             corners = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fr.image)}
             st.clicks[cam_id] = [
@@ -724,18 +819,22 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 for tid in kit_ids for k, (u, v) in enumerate(corners[tid])]
         else:
             st.clicks.pop(cam_id, None)          # the old kit clicks belong to an older pose
-        st.solve_tags[cam_id] = {"source": source, "tags_used": [int(t) for t in info["tags_used"]]}
+        st.solve_tags[cam_id] = record
         warnings = []
         if not kit_ids:
             warnings.append("calibrated from HIVE tags only: expect 2-3x lower accuracy than "
                             "the kit")
         st.save_calib(old_i, {**old_e, cam_id: ext},
                       st.pipeline.stale_extrinsics() - {cam_id})
-        return {"rmse_in": ext.rmse_in, "tags_used": info["tags_used"],
+        if was_default:
+            warnings.append("this camera still uses default lens intrinsics: run the Lens step")
+        return {"rmse_in": ext.rmse_in, "fit_residual_in": ext.rmse_in, "oos_error_in": oos,
+                "tags_used": info["tags_used"],
                 "tags_missing": info.get("tags_missing", []),
                 "reprojection_px": info["reprojection_px"],
                 "max_corner_px": info.get("max_corner_px"),
-                "hive_tags_used": bool(hive_used), "source": source, "warnings": warnings}
+                "hive_tags_used": bool(hive_used), "source": source, "warnings": warnings,
+                "intrinsics_default": was_default}
 
     @app.post("/api/calib/extrinsics/{cam_id}/auto")
     def extr_auto(cam_id: str, body: dict = _OPT):
@@ -768,6 +867,9 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                             raise first from None
             except HTTPException as e:
                 results[cam] = {"ok": False, "status": e.status_code, "error": e.detail}
+            except Refusal as e:
+                results[cam] = {"ok": False, "status": e.status, "error": e.detail, "refused": True,
+                                **e.extra}
         check = None
         if len(cams) >= 2 and all(results[c]["ok"] for c in cams[:2]):
             try:
@@ -803,6 +905,20 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                     if int(d["id"]) in ids_ok} for c in cams}
         visible = {c: sorted(dets[c]) for c in cams}
         common = sorted(set(dets[cams[0]]) & set(dets[cams[1]]))
+        from .field_constants import APRILTAG_IDS
+        want = {i for (al, _c), ids in APRILTAG_IDS.items() if al == hs.alliance for i in ids}
+        audience_key = f"{hs.alliance}_audience"
+        if not any(visible.values()):
+            # e.g. the far CELL's tags when it is the up one: they face away from cameras on the
+            # audience side. Not an error: nothing to learn, and the step can finish when the
+            # audience-up state is already known.
+            return {"state": f"{hs.alliance}_{hs.up_cell}", "learned": False, "learned_ids": [],
+                    "missing_ids": sorted(want), "max_residual_in": None,
+                    "visible_per_camera": visible, "up_cell_error_in": None,
+                    "reason": f"no HIVE tag of the {hs.up_cell}-up state is visible from these "
+                              "cameras (the far CELL's tags face away from the audience side); "
+                              "nothing to learn for this state",
+                    "complete": audience_key in st.hive_tags}
         if len(common) < 2:
             raise HTTPException(
                 422, f"only {len(common)} HIVE tag(s) seen by both cameras (cam0 sees "
@@ -818,8 +934,6 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         key = f"{hs.alliance}_{hs.up_cell}"
         st.hive_tags[key] = learned
         st.save_calib(intr, ext, st.pipeline.stale_extrinsics())
-        from .field_constants import APRILTAG_IDS
-        want = {i for (al, _c), ids in APRILTAG_IDS.items() if al == hs.alliance for i in ids}
         # sanity check of the whole calibration: the up CELL's tags were triangulated, their
         # positions are also known from the field CAD
         up_err = None
@@ -828,9 +942,10 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 for i in common if i in comp]
         if errs:
             up_err = float(np.mean(errs))
-        return {"state": key, "learned_ids": common,
+        return {"state": key, "learned": True, "learned_ids": common,
                 "missing_ids": sorted(want - set(common)), "max_residual_in": worst,
-                "visible_per_camera": visible, "up_cell_error_in": up_err}
+                "visible_per_camera": visible, "up_cell_error_in": up_err,
+                "complete": audience_key in st.hive_tags}
 
     @app.get("/api/calib/hive_tags")
     def hive_tags_get():
@@ -920,8 +1035,45 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         if not running and loaded and live:
             rec.append("Calibrated. Press Start to begin tracking shots.")
         return {"cameras_detected": detected, "sources_configured": len(sources) >= 2,
-                "calibration_loaded": loaded, "tags_seen": tags, "tags_roll": roll,
+                "calibration_loaded": loaded,
+                "calibration_source": status["calibration_source"],
+                "intrinsics_default": status["intrinsics_default"], "tags_seen": tags, "tags_roll": roll,
                 "pipeline_running": running, "recommendations": rec}
+
+    @app.post("/api/setup/finish")
+    def setup_finish(body: dict = _OPT):
+        """The wizard's Done gate: runs the cross-check and refuses (409, plain-language
+        reason plus the numbers) while a camera still has default lens intrinsics or the
+        cross-check error is over MAX_FINISH_OOS_IN."""
+        status = st.pipeline.status()
+        if status["demo"]:
+            return {"ok": True, "demo": True, "calibration_source": status["calibration_source"]}
+        reasons: list[str] = []
+        numbers: dict = {"calibration_source": status["calibration_source"]}
+        default_cams = sorted(c for c, v in status["cameras"].items()
+                              if v.get("intrinsics_source") == "default")
+        numbers["intrinsics_default_cameras"] = default_cams
+        if default_cams:
+            reasons.append("camera " + ", ".join(default_cams) + " still uses default lens "
+                           "intrinsics: run the Lens step (checkerboard) first")
+        xc = None
+        try:
+            xc = _crosscheck()
+        except HTTPException as e:
+            reasons.append(f"the cross-check could not run: {e.detail}")
+        if xc is not None:
+            numbers.update(max_error_in=xc["max_error_in"], out_of_sample=xc["out_of_sample"])
+            if xc["max_error_in"] > MAX_FINISH_OOS_IN:
+                reasons.append(f"the cross-check error is {xc['max_error_in']:.2f} in "
+                               f"(limit {MAX_FINISH_OOS_IN:.0f} in): re-measure the tags and "
+                               "press Auto-calibrate again")
+        if reasons:
+            numbers["reasons"] = reasons
+            raise Refusal("setup is not finished: " + "; ".join(reasons), numbers)
+        out = {"ok": True, **numbers}
+        if xc is not None and not xc["out_of_sample"]:
+            out["warning"] = xc.get("warning")
+        return out
 
     @app.post("/api/detector/sample")
     def detector_sample(body: dict = _REQ):
@@ -1001,8 +1153,9 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         new_i = {**old_i, cam_id: intr}
         # extrinsics solved with the old intrinsics no longer match: flag them stale
         stale = st.pipeline.stale_extrinsics() | ({cam_id} if cam_id in old_e else set())
-        st.save_calib(new_i, old_e, stale)
-        return {"reprojection_rmse_px": intr.reprojection_rmse_px, "frames_used": used}
+        st.save_calib(new_i, old_e, stale, measured={cam_id})
+        return {"reprojection_rmse_px": intr.reprojection_rmse_px, "frames_used": used,
+                "intrinsics_source": "measured"}
 
     @app.post("/api/calib/extrinsics/{cam_id}")
     def extr_solve(cam_id: str, body: dict = _REQ):
@@ -1033,12 +1186,19 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
         rep = calib.reprojection_report(old_i[cam_id], ext, np.array(img), np.array(fld))
+        rms_px = float(np.sqrt(np.mean(np.square(rep["per_point_px"]))))
+        record = {"source": "clicks", "tags_used": []}
+        was_default = st.pipeline.intrinsics_sources().get(cam_id) == "default"
+        fr = st.pipeline.latest_frame(cam_id)
+        oos = _gate_extrinsics(cam_id, old_i[cam_id], ext, rms_px, record,
+                               None if fr is None else fr.image)
         st.clicks[cam_id] = [{"name": n, "u": float(u), "v": float(v)}
                              for n, (u, v) in zip(names, img, strict=True)]
-        st.solve_tags[cam_id] = {"source": "clicks", "tags_used": []}
+        st.solve_tags[cam_id] = record
         st.save_calib(old_i, {**old_e, cam_id: ext},
                       st.pipeline.stale_extrinsics() - {cam_id})
-        return {"rmse_in": ext.rmse_in,
+        return {"rmse_in": ext.rmse_in, "fit_residual_in": ext.rmse_in, "oos_error_in": oos,
+                "reprojection_px": rms_px, "intrinsics_default": was_default,
                 "per_point": [{"name": n, "err_px": e}
                               for n, e in zip(names, rep["per_point_px"], strict=True)]}
 
@@ -1059,6 +1219,11 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
             st.clients.discard(ws)
 
     # ----------------------------------------------------------------- static
+    @app.exception_handler(Refusal)
+    async def _refusal(_: Request, exc: Refusal):
+        return JSONResponse({**exc.extra, "detail": exc.detail, "refused": True},
+                            status_code=exc.status)
+
     @app.exception_handler(ValueError)
     async def _value_error(_: Request, exc: ValueError):
         return JSONResponse({"detail": str(exc)}, status_code=422)

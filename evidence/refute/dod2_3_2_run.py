@@ -8,8 +8,9 @@ Compares against <fixture>/shots.json (truth). Kills the server on exit."""
 import json, math, subprocess, sys, tempfile, threading, time, urllib.request
 from pathlib import Path
 
-REPO = Path(r"C:\Users\3747h\Documents\HiveShotTracker")
-PY = REPO / ".venv" / "Scripts" / "python.exe"
+import os
+REPO = Path(os.environ.get("HS_ROOT", r"C:\Users\3747h\Documents\HiveShotTracker"))   # code under test (cwd of the server)
+PY = Path(r"C:\Users\3747h\Documents\HiveShotTracker\.venv\Scripts\python.exe")
 fx = Path(sys.argv[1]); port = int(sys.argv[2]); mode = sys.argv[3]; out = Path(sys.argv[4])
 stress = "--stress" in sys.argv
 gap = float(sys.argv[sys.argv.index("--gap") + 1]) if "--gap" in sys.argv else 1.5

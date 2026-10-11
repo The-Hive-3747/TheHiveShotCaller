@@ -1,0 +1,215 @@
+== a1_missing_tag100 truth_fx 771.0 drawn {'cam0': [101, 102, 103], 'cam1': [101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.078, 'tags_used': [101, 102, 103], 'reprojection_px': 0.608, 'max_corner_px': 0.984, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.049, 'tags_used': [101, 102, 103], 'reprojection_px': 0.398, 'max_corner_px': 0.597, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.17585738178302182, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.18452082855763374, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.11173531683393104, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.21, 0.1, 771, 771), 'cam1': (0.19, 0.12, 771, 771)}
+   traj err mean/p95/max in: [0.1, 0.15, 0.26]  cell_center_err 0.06
+   finish: loaded True src manual warn [] mismatch {}
+   learn: {'audience': (200, 0.1055490643401472, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a1b_missing_tag102 truth_fx 771.0 drawn {'cam0': [100, 101, 103], 'cam1': [100, 101, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.074, 'tags_used': [100, 101, 103], 'reprojection_px': 0.536, 'max_corner_px': 0.794, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.051, 'tags_used': [100, 101, 103], 'reprojection_px': 0.403, 'max_corner_px': 0.601, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.18909849668804546, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 8} | after: {'code': 200, 'max_error_in': 0.173741762842223, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.11401673867395824, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.38, 0.18, 771, 771), 'cam1': (0.25, 0.13, 771, 771)}
+   traj err mean/p95/max in: [0.12, 0.18, 0.35]  cell_center_err 0.06
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.12229343276751115, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a1c_missing_two truth_fx 771.0 drawn {'cam0': [100, 103], 'cam1': [100, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.064, 'tags_used': [100, 103], 'reprojection_px': 0.482, 'max_corner_px': 0.794, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.047, 'tags_used': [100, 103], 'reprojection_px': 0.374, 'max_corner_px': 0.687, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.43259217087296725, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.4206814888594096, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.11241070809807514, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (2.4, 1.32, 771, 771), 'cam1': (0.42, 0.18, 771, 771)}
+   traj err mean/p95/max in: [0.35, 0.75, 2.38]  cell_center_err 0.27
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.2553245132906261, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2_tape_off_1in_x truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.278, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.168, 'max_corner_px': 3.507, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.218, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.694, 'max_corner_px': 2.623, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.7456770828809549, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.7770790643555012, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.5214531037730586, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (1.7, 1.0, 771, 771), 'cam1': (1.27, 0.77, 771, 771)}
+   traj err mean/p95/max in: [0.87, 1.05, 2.18]  cell_center_err 0.73
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.6170197629886188, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2b_tape_off_1in_all_dz truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.083, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.653, 'max_corner_px': 1.459, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.072, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.553, 'max_corner_px': 0.929, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 1.0830425207187702, 'within_1_in': False, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 8} | after: {'code': 200, 'max_error_in': 1.0817347051600923, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.20740577012615466, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (1.15, 0.11, 771, 771), 'cam1': (1.1, 0.06, 771, 771)}
+   traj err mean/p95/max in: [1.04, 1.09, 1.12]  cell_center_err 1.01
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 1.0273853787496772, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2c_tape_off_1in_one_z truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.191, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.512, 'max_corner_px': 2.607, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.232, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.815, 'max_corner_px': 3.168, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.6017762405288756, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.6123696027650549, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.40595541453653533, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (3.36, 1.66, 771, 771), 'cam1': (2.98, 1.62, 771, 771)}
+   traj err mean/p95/max in: [1.04, 1.32, 2.47]  cell_center_err 0.68
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.4757475114095829, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2d_tape_off_2in_one_x truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.441, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 3.487, 'max_corner_px': 5.711, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.525, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 3.984, 'max_corner_px': 5.906, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 1.4382397947020509, 'within_1_in': False, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 1.4301831987472318, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.9747025608460133, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (2.22, 1.37, 771, 771), 'cam1': (3.31, 1.92, 771, 771)}
+   traj err mean/p95/max in: [1.69, 2.16, 4.21]  cell_center_err 1.47
+   finish: loaded True src manual warn [] mismatch {}
+   learn: {'audience': (200, 1.296631165608048, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2e_base_tilt_3deg truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.119, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.933, 'max_corner_px': 1.574, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.111, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.856, 'max_corner_px': 1.336, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.24568737703111437, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.18629450489822383, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.21172946526392875, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.35, 0.16, 771, 771), 'cam1': (0.5, 0.25, 771, 771)}
+   traj err mean/p95/max in: [0.14, 0.27, 0.41]  cell_center_err 0.07
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.11699062501986619, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2f_base_tilt_10deg_one truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.272, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.142, 'max_corner_px': 4.798, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.218, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.686, 'max_corner_px': 4.376, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.22996700351191043, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 8} | after: {'code': 200, 'max_error_in': 0.26128446503868263, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.706296187655934, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (1.26, 0.64, 771, 771), 'cam1': (0.71, 0.48, 771, 771)}
+   traj err mean/p95/max in: [0.4, 0.57, 0.73]  cell_center_err 0.21
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.15350267524424532, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a2g_tape_off_05in_all truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.293, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.293, 'max_corner_px': 4.366, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.217, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.664, 'max_corner_px': 2.523, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.6342996934106943, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.6342018296669494, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.5103693330280153, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (3.62, 2.01, 771, 771), 'cam1': (3.27, 1.69, 771, 771)}
+   traj err mean/p95/max in: [1.11, 1.92, 3.6]  cell_center_err 0.62
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.5395782728295323, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a3_zoom10 truth_fx 848.1 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.351, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 3.026, 'max_corner_px': 4.405, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.321, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.721, 'max_corner_px': 4.553, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.7534298360597388, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 16} | after: {'code': 200, 'max_error_in': 0.8044220334184363, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.32605326526783884, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (8.91, 3.34, 771, 848), 'cam1': (8.94, 2.83, 771, 848)}
+   traj err mean/p95/max in: [1.25, 2.57, 4.77]  cell_center_err 0.64
+   finish: loaded True src manual warn [] mismatch {}
+   learn: {'audience': (200, 0.3103507532001971, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a3b_res720_cam1 truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.069, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.543, 'max_corner_px': 0.83, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 1.19, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 6.003, 'max_corner_px': 10.102, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 1.7935358830097032, 'within_1_in': False, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 4} | after: {'code': 200, 'max_error_in': 1.797082944612165, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 1.5410725540238321, 'within_1_in': False, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.21, 0.11, 771, 771), 'cam1': (71.91, 33.11, 771, 771)}
+   traj err mean/p95/max in: [80.82, 202.09, 1449.28]  cell_center_err 51.68
+   finish: loaded True src manual warn ['camera cam1 resolution mismatch (1920x1080 vs 1280x720)'] mismatch {'cam1': '1920x1080 vs 1280x720'}
+   learn: {'audience': (422, None, 'only 1 HIVE tag(s) seen by both cameras (cam0 sees [30, 35, '), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== a4_swap truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.058, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.445, 'max_corner_px': 0.706, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.076, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.601, 'max_corner_px': 1.2, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.1619659511924722, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.1605612314213042, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.1709722825287625, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.15, 0.09, 771, 771), 'cam1': (0.29, 0.16, 771, 771)}
+   traj err mean/p95/max in: [0.1, 0.16, 0.34]  cell_center_err 0.05
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.09685074276739576, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== s1_wizard_default_fx truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.07, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.554, 'max_corner_px': 0.831, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.055, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.428, 'max_corner_px': 0.645, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.15428583067059895, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 8} | after: {'code': 200, 'max_error_in': 0.15281012892037668, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.11684488973589144, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.24, 0.12, 771, 771), 'cam1': (0.17, 0.1, 771, 771)}
+   traj err mean/p95/max in: [0.09, 0.15, 0.29]  cell_center_err 0.04
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.14150839877143745, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== s1b_wizard_fx880 truth_fx 879.7 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.475, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 4.243, 'max_corner_px': 6.785, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.418, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 3.664, 'max_corner_px': 6.108, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.9762338744322571, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 24} | after: {'code': 200, 'max_error_in': 0.9718118035846186, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.41311727380191227, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (12.17, 4.7, 771, 880), 'cam1': (12.23, 4.08, 771, 880)}
+   traj err mean/p95/max in: [1.83, 3.69, 7.16]  cell_center_err 0.94
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.4318941794599293, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== s1c2_doc_intrinsics_fx880_near truth_fx 879.7 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.068, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.611, 'max_corner_px': 1.319, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.065, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.57, 'max_corner_px': 0.97, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.32082558942421285, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 24} | after: {'code': 200, 'max_error_in': 0.33394861933931724, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.1018338600129585, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.16, 0.13, 881, 880), 'cam1': (0.18, 0.25, 880, 880)}
+   traj err mean/p95/max in: [0.08, 0.13, 0.2]  cell_center_err 0.05
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.11846657649426269, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+   intr: {'s': 93.27, 'cam0': {'code': 200, 'reprojection_rmse_px': 0.19261612599515834, 'frames_used': 40, 'detail': None, 'solve_s': 1.93}, 'cam1': {'code': 200, 'reprojection_rmse_px': 0.5533329701391058, 'frames_used': 40, 'detail': None, 'solve_s': 2.32}, 'fx_saved': {'cam0': 880.64370730875, 'cam1': 879.5196309311474}, 'fx_true': {'cam0': 879.6779270567263, 'cam1': 879.6779270567263}}
+== s1c_doc_intrinsics_fx880 truth_fx 879.7 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.129, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.163, 'max_corner_px': 1.886, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.159, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.407, 'max_corner_px': 2.039, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.5436745589306451, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 24} | after: {'code': 200, 'max_error_in': 0.40226178887718855, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.1599648203960514, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (5.19, 1.86, 838, 880), 'cam1': (5.21, 2.95, 834, 880)}
+   traj err mean/p95/max in: [0.63, 1.12, 2.37]  cell_center_err 0.31
+   finish: loaded True src manual warn [] mismatch {}
+   learn: {'audience': (200, 0.13784979707481745, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+   intr: {'s': 85.45, 'cam0': {'code': 200, 'reprojection_rmse_px': 2.2468325506888394, 'frames_used': 40, 'detail': None, 'solve_s': 1.69}, 'cam1': {'code': 200, 'reprojection_rmse_px': 1.74579333593739, 'frames_used': 40, 'detail': None, 'solve_s': 1.85}, 'fx_saved': {'cam0': 838.1579429105475, 'cam1': 833.7380911600877}, 'fx_true': {'cam0': 879.6779270567263, 'cam1': 879.6779270567263}}
+== s1d_wizard_distorted truth_fx 800.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.275, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.193, 'max_corner_px': 4.507, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.261, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.051, 'max_corner_px': 4.164, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.4262797939171589, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.4171600128010017, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.3222341736357459, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (4.55, 2.59, 771, 800), 'cam1': (3.61, 2.07, 771, 800)}
+   traj err mean/p95/max in: [1.07, 1.91, 2.82]  cell_center_err 0.62
+   finish: loaded True src manual warn [] mismatch {}
+   learn: {'audience': (200, 0.3432743646743641, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== s1e2_doc_intrinsics_distorted_near truth_fx 800.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.075, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.609, 'max_corner_px': 0.963, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.086, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 0.692, 'max_corner_px': 1.09, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.2948898389543443, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.25231182070739605, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.12940836530254646, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.83, 0.26, 794, 800), 'cam1': (1.32, 0.46, 790, 800)}
+   traj err mean/p95/max in: [0.12, 0.27, 0.52]  cell_center_err 0.03
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.15142945243119185, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+   intr: {'s': 596.01, 'cam0': {'code': 200, 'reprojection_rmse_px': 0.6794782189730254, 'frames_used': 40, 'detail': None, 'solve_s': 1.29}, 'cam1': {'code': 200, 'reprojection_rmse_px': 1.0354944232701033, 'frames_used': 40, 'detail': None, 'solve_s': 1.77}, 'fx_saved': {'cam0': 794.49912564243, 'cam1': 790.3258603946731}, 'fx_true': {'cam0': 800.0, 'cam1': 800.0}}
+== s1e_doc_intrinsics_distorted truth_fx 800.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.261, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 2.132, 'max_corner_px': 3.564, 'warnings': [], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.238, 'tags_used': [100, 101, 102, 103], 'reprojection_px': 1.923, 'max_corner_px': 2.85, 'warnings': [], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.3278655628124658, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None, 'n_points': 12} | after: {'code': 200, 'max_error_in': 0.31455551789632896, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.2783406241247748, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (10.2, 2.09, 725, 800), 'cam1': (7.92, 3.28, 738, 800)}
+   traj err mean/p95/max in: [1.0, 2.1, 4.57]  cell_center_err 0.43
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.20243313296188672, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+   intr: {'s': 496.46, 'cam0': {'code': 200, 'reprojection_rmse_px': 3.3166442718620597, 'frames_used': 40, 'detail': None, 'solve_s': 2.05}, 'cam1': {'code': 200, 'reprojection_rmse_px': 2.7382070909135474, 'frames_used': 40, 'detail': None, 'solve_s': 1.79}, 'fx_saved': {'cam0': 724.5989167697754, 'cam1': 737.8866885445591}, 'fx_true': {'cam0': 800.0, 'cam1': 800.0}}
+== s2_hive_only truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.106, 'tags_used': [30, 35, 36, 37], 'reprojection_px': 0.727, 'max_corner_px': 1.431, 'warnings': ['calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit'], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.101, 'tags_used': [31, 32, 34, 35, 36, 37], 'reprojection_px': 0.777, 'max_corner_px': 1.431, 'warnings': ['calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit'], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 0.24744267919271032, 'within_1_in': True, 'error': None, 'out_of_sample': True, 'held_out': 'kit tags', 'warning': None, 'n_points': 16} | after: {'code': 200, 'max_error_in': 0.24713329727294508, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'kit tags', 'warning': None} | in_sample: {'code': 409, 'max_error_in': None, 'within_1_in': None, 'detail': 'no stored extrinsics clicks for cam0, cam1; solve the extrinsics of both cameras first', 'out_of_sample': None} | src 20:54:04
+   pose: {'cam0': (1.27, 0.61, 771, 771), 'cam1': (0.7, 0.3, 771, 771)}
+   traj err mean/p95/max in: [0.2, 0.55, 0.83]  cell_center_err 0.06
+   finish: loaded True src manual warn [] mismatch {}
+   learn: {'audience': (200, 0.10463761818437262, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== s2b_hive_only_fx880 truth_fx 879.7 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'ok': True, 'rmse_in': 0.154, 'tags_used': [30, 32, 33, 34, 35, 36, 37], 'reprojection_px': 1.143, 'max_corner_px': 2.495, 'warnings': ['calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit'], 'error': None}
+   cam1 {'ok': True, 'rmse_in': 0.097, 'tags_used': [31, 32, 33, 34, 35, 36, 37], 'reprojection_px': 0.852, 'max_corner_px': 2.255, 'warnings': ['calibrated from HIVE tags only: expect 2-3x lower accuracy than the kit'], 'error': None}
+   crosscheck(auto/click): {'max_error_in': 2.0050800413365515, 'within_1_in': False, 'error': None, 'out_of_sample': True, 'held_out': 'kit tags', 'warning': None, 'n_points': 16} | after: {'code': 200, 'max_error_in': 2.005886191004491, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'kit tags', 'warning': None} | in_sample: {'code': 409, 'max_error_in': None, 'within_1_in': None, 'detail': 'no stored extrinsics clicks for cam0, cam1; solve the extrinsics of both cameras first', 'out_of_sample': None} | src 20:54:04
+   pose: {'cam0': (13.51, 1.78, 771, 880), 'cam1': (11.52, 2.19, 771, 880)}
+   traj err mean/p95/max in: [0.7, 2.59, 5.08]  cell_center_err 0.07
+   finish: loaded True src tags warn [] mismatch {}
+   learn: {'audience': (200, 0.11825060963833442, ''), 'far': (422, None, 'only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 ')}
+== s3_click_n05 truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'code': 200, 'rmse_in': 0.074, 'detail': None, 'max_err_px': 0.829, 'n_over_2px': 0}
+   cam1 {'code': 200, 'rmse_in': 0.086, 'detail': None, 'max_err_px': 0.711, 'n_over_2px': 0}
+   crosscheck(auto/click): {'max_error_in': 0.17245209023806538, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | after: {'code': 200, 'max_error_in': 0.2103068418368402, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.17232885155537003, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.35, 0.18, 771, 771), 'cam1': (0.13, 0.08, 771, 771)}
+   traj err mean/p95/max in: [0.09, 0.17, 0.38]  cell_center_err 0.04
+   finish: loaded True src tags warn [] mismatch {}
+== s3_click_n1 truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'code': 200, 'rmse_in': 0.148, 'detail': None, 'max_err_px': 1.658, 'n_over_2px': 0}
+   cam1 {'code': 200, 'rmse_in': 0.173, 'detail': None, 'max_err_px': 1.423, 'n_over_2px': 0}
+   crosscheck(auto/click): {'max_error_in': 0.28243702025230166, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | after: {'code': 200, 'max_error_in': 0.2810228340177941, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.34333952644377574, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (0.7, 0.36, 771, 771), 'cam1': (0.26, 0.16, 771, 771)}
+   traj err mean/p95/max in: [0.14, 0.31, 0.63]  cell_center_err 0.08
+   finish: loaded True src manual warn ['camera cam0 dropped 9 frames (processing too slow)'] mismatch {}
+== s3_click_n2 truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'code': 200, 'rmse_in': 0.295, 'detail': None, 'max_err_px': 3.314, 'n_over_2px': 4}
+   cam1 {'code': 200, 'rmse_in': 0.345, 'detail': None, 'max_err_px': 2.847, 'n_over_2px': 6}
+   crosscheck(auto/click): {'max_error_in': 0.5361796446366963, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | after: {'code': 200, 'max_error_in': 0.5426906267565623, 'within_1_in': True, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 0.6838057440064488, 'within_1_in': True, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (1.4, 0.72, 771, 771), 'cam1': (0.52, 0.32, 771, 771)}
+   traj err mean/p95/max in: [0.27, 0.62, 1.16]  cell_center_err 0.17
+   finish: loaded True src tags warn [] mismatch {}
+== s3_click_n3 truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'code': 200, 'rmse_in': 0.503, 'detail': None, 'max_err_px': 7.686, 'n_over_2px': 5}
+   cam1 {'code': 200, 'rmse_in': 0.691, 'detail': None, 'max_err_px': 9.791, 'n_over_2px': 4}
+   crosscheck(auto/click): {'max_error_in': 1.321681373414728, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | after: {'code': 200, 'max_error_in': 1.3271148645927333, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 1.3829986654042614, 'within_1_in': False, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (2.73, 1.35, 771, 771), 'cam1': (3.08, 1.7, 771, 771)}
+   traj err mean/p95/max in: [0.72, 2.37, 3.85]  cell_center_err 0.3
+   finish: loaded True src manual warn [] mismatch {}
+== s3_click_n4 truth_fx 771.0 drawn {'cam0': [100, 101, 102, 103], 'cam1': [100, 101, 102, 103]}
+   cam0 {'code': 200, 'rmse_in': 0.662, 'detail': None, 'max_err_px': 9.527, 'n_over_2px': 5}
+   cam1 {'code': 200, 'rmse_in': 0.92, 'detail': None, 'max_err_px': 13.069, 'n_over_2px': 8}
+   crosscheck(auto/click): {'max_error_in': 1.7780358988966178, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | after: {'code': 200, 'max_error_in': 1.7510175074432308, 'within_1_in': False, 'detail': None, 'out_of_sample': True, 'held_out': 'HIVE tags and kit tags', 'warning': None} | in_sample: {'code': 200, 'max_error_in': 1.8838509815543274, 'within_1_in': False, 'detail': None, 'out_of_sample': False} | src 20:54:04
+   pose: {'cam0': (2.3, 1.32, 771, 771), 'cam1': (4.1, 2.26, 771, 771)}
+   traj err mean/p95/max in: [0.98, 2.95, 4.66]  cell_center_err 0.49
+   finish: loaded True src tags warn [] mismatch {}

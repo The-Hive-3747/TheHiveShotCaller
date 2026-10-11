@@ -173,9 +173,11 @@ def test_setup_status_recommendations(client_plain, monkeypatch):
     s, j = c.j("GET", "/api/setup/status")
     assert s == 200
     assert set(j) == {"cameras_detected", "sources_configured", "calibration_loaded",
+                      "calibration_source", "intrinsics_default",
                       "tags_seen", "tags_roll", "pipeline_running", "recommendations"}
     assert j["pipeline_running"] is False and j["cameras_detected"] == []
-    assert j["calibration_loaded"] is True and j["sources_configured"] is True
+    assert j["calibration_loaded"] is False and j["calibration_source"] == "fixture"
+    assert j["sources_configured"] is True
     # file fixtures and no camera on this PC: plug some in, and say the sources are files
     assert any(r.startswith("No cameras detected: plug in the cameras")
                for r in j["recommendations"])
@@ -332,7 +334,7 @@ def test_default_intrinsics_applied_with_warning(tmp_path):
     assert (intr["a"].fx, intr["a"].fy, intr["a"].cx, intr["a"].cy) == (771, 771, 960, 540)
     assert (intr["a"].width, intr["a"].height) == (1920, 1080) and set(intr["a"].dist) == {0.0}
     w = pl.status()["warnings"]
-    assert any("camera a uses default intrinsics (arducam_2.3mp_110)" in x for x in w)
+    assert any("camera a uses default lens intrinsics (fx 771): run the Lens step" in x for x in w)
     # a camera that has its own calibration keeps it, and gets no warning
     pl.store.close()
     calib.save_calibration(tmp_path / "c.json", [CameraIntrinsics("a", 1280, 720, 900, 900, 640, 360, (0,) * 5, 0.3)], [])
@@ -436,8 +438,11 @@ def test_learn_hive_tags_error_paths(client_plain):
     assert c.j("GET", "/api/calib/hive_tags")[1]["states"] == {}
     c.j("POST", "/api/pipeline/start")
     assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["cameras"]["cam0"]["frames_read"] > 3)
+    # no HIVE tag in view at all: "not visible from these cameras", not an error
     s, j = c.j("POST", "/api/calib/hive_tags/learn", ok)
-    assert s == 422 and "0 HIVE tag" in j["detail"] and "need at least 2" in j["detail"]
+    assert s == 200 and j["learned"] is False and j["learned_ids"] == []
+    assert "not visible" in j["reason"] or "no HIVE tag" in j["reason"]
+    assert j["complete"] is False                      # the audience-up state is not learned
     assert c.j("GET", "/api/calib/hive_tags")[1]["ready"] is False
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"use_hive_tags": True})
     assert s == 422                                           # no HIVE tags in the fixture
@@ -723,3 +728,129 @@ def test_auto_all_uses_the_kit_so_the_crosscheck_has_held_out_features(kit_and_h
     xc = j["crosscheck"]
     assert xc["out_of_sample"] is True and xc["held_out"] == "HIVE tags"
     assert j["max_error_in"] == xc["max_error_in"] < 1.5
+
+
+# ------------------------------------------- provenance, intrinsics gate, save gates, finish
+def _patch_calibration_json(rig, fn):
+    path = rig.data / "calibration.json"
+    data = json.loads(path.read_text())
+    fn(data)
+    path.write_text(json.dumps(data))
+
+
+def test_auto_all_reports_fit_residual_and_oos_error_and_provenance(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    s, j = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and j["ok"] is True, j
+    for res in j["results"].values():
+        assert res["fit_residual_in"] == res["rmse_in"]
+        assert res["oos_error_in"] is not None and res["oos_error_in"] < 1.5   # HIVE tags held out
+        assert res["intrinsics_default"] is False
+    st = c.j("GET", "/api/pipeline/status")[1]
+    assert st["calibration_source"] == "kit" and st["calibration_loaded"] is True
+    assert {v["calibration_source"] for v in st["cameras"].values()} == {"kit"}
+    assert {v["intrinsics_source"] for v in st["cameras"].values()} == {"measured"}
+    saved = json.loads((r.data / "calibration.json").read_text())
+    assert saved["intrinsics_source"] == {"cam0": "measured", "cam1": "measured"}
+    assert saved["solve_tags"]["cam0"]["source"] == "kit"
+
+
+def test_default_intrinsics_warning_and_flag_survive_saving_extrinsics(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    c.j("POST", "/api/pipeline/stop")
+    _patch_calibration_json(r, lambda d: d.update(intrinsics_source={"cam0": "default",
+                                                                     "cam1": "default"}))
+    k = r.cams["cam0"].intr                  # the "default" lens happens to equal the real one
+    cfg = json.loads(r.cfg_path.read_text())
+    cfg["default_intrinsics"] = {"arducam_2.3mp_110": {"width": k.width, "height": k.height, "fx": k.fx,
+                                         "fy": k.fy, "cx": k.cx, "cy": k.cy, "dist": list(k.dist)}}
+    assert c.j("PUT", "/api/config", cfg)[0] == 200
+    r.start()
+    st = c.j("GET", "/api/pipeline/status")[1]
+    assert st["intrinsics_default"] is True
+    assert any("default lens intrinsics (fx" in w and "run the Lens step" in w for w in st["warnings"])
+    s, j = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and j["ok"] is True, j
+    assert all(res["intrinsics_default"] is True for res in j["results"].values())
+    st = c.j("GET", "/api/pipeline/status")[1]                 # saved extrinsics did not clear it
+    assert st["calibration_source"] == "kit" and st["intrinsics_default"] is True
+    assert sum("default lens intrinsics" in w for w in st["warnings"]) == 2
+    assert {v["intrinsics_source"] for v in st["cameras"].values()} == {"default"}
+    saved = json.loads((r.data / "calibration.json").read_text())
+    assert saved["intrinsics_source"] == {"cam0": "default", "cam1": "default"}
+    # the wizard may not finish on default lenses, whatever the cross-check says
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 409 and j["refused"] is True and "default lens intrinsics" in j["detail"]
+    assert j["intrinsics_default_cameras"] == ["cam0", "cam1"]
+
+
+def test_save_gate_refuses_a_resolution_mismatch(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    c.j("POST", "/api/pipeline/stop")
+
+    def small(d):
+        for i in d["intrinsics"]:
+            i["width"], i["height"] = 1280, 720
+    _patch_calibration_json(r, small)
+    assert c.j("PUT", "/api/config", json.loads(r.cfg_path.read_text()))[0] == 200
+    r.start()
+    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+    assert s == 409 and j["refused"] is True
+    assert j["frame_size"] == [1920, 1080] and j["intrinsics_size"] == [1280, 720]
+    assert "1920x1080" in j["detail"] and "not saved" in j["detail"]
+    assert c.j("GET", "/api/calib")[1]["extrinsics"] == []
+
+
+def test_save_gate_refuses_a_high_reprojection_error(kit_and_hive_rig, monkeypatch):
+    r, c = kit_and_hive_rig
+    real = calib.solve_extrinsics_from_tags
+
+    def bad(*a, **k):
+        ext, info = real(*a, **k)
+        return ext, {**info, "reprojection_px": 6.5}
+    monkeypatch.setattr(calib, "solve_extrinsics_from_tags", bad)
+    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+    assert s == 409 and j["reprojection_px"] == 6.5 and "6.5 px" in j["detail"]
+    assert c.j("GET", "/api/calib")[1]["extrinsics"] == []
+    monkeypatch.setattr(calib, "solve_extrinsics_from_tags", real)
+    assert c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})[0] == 200
+
+
+def test_save_gate_refuses_a_big_out_of_sample_error(kit_and_hive_rig):
+    """The HIVE state is set the wrong way round, so the held-out HIVE tags are ~15 in away
+    from where the model says they are: the kit solve is right, the check says otherwise."""
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/hive/state", {"alliance": "red", "up_cell": "far"})[0] == 200
+    s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+    assert s == 409 and j["oos_error_in"] > 2.0 and "not used for the solve" in j["detail"]
+    assert c.j("GET", "/api/calib")[1]["extrinsics"] == []
+    assert c.j("POST", "/api/hive/state", {"alliance": "red", "up_cell": "audience"})[0] == 200
+    assert c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})[0] == 200
+
+
+def test_setup_finish_gate(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 409 and j["refused"] is True and "cross-check could not run" in j["detail"]
+    assert c.j("POST", "/api/calib/auto_all")[0] == 200
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 200 and j["ok"] is True and j["out_of_sample"] is True
+    assert j["max_error_in"] <= 1.0 and j["calibration_source"] == "kit"
+
+
+def test_learn_with_nothing_visible_finishes_when_the_audience_state_is_known(tmp_path):
+    frames = {cid: render_tags(cam, seed=1) for cid, cam in
+              ((f"cam{i}", _vcam("gopro", k)) for i, k in enumerate("AB"))}
+    rig = Rig(tmp_path, frames, with_extrinsics=True)
+    _patch_calibration_json(rig, lambda d: d.update(hive_tags={"red_audience": {
+        "34": [[0.0, 0.0, 0.0]] * 4}}))
+    c = rig.serve()
+    try:
+        rig.start()
+        far = {"state": {"alliance": "red", "up_cell": "far"}}
+        s, j = c.j("POST", "/api/calib/hive_tags/learn", far)
+        assert s == 200 and j["learned"] is False and j["learned_ids"] == []
+        assert j["complete"] is True and "not visible" in j["reason"] or "no HIVE tag" in j["reason"]
+        assert j["missing_ids"] and j["visible_per_camera"] == {"cam0": [], "cam1": []}
+    finally:
+        rig.close()

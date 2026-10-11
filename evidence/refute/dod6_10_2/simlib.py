@@ -187,7 +187,7 @@ def make_scene_videos(outdir, truth, kit_ids=(100, 101, 102, 103), tape_off=None
 
 
 # ------------------------------------------------------------------ checkerboard "operator waves board"
-def make_board_video(path, truth_cam, seconds=25, fps=30.0, seed=1, drop_frac=0.0):
+def make_board_video(path, truth_cam, seconds=25, fps=30.0, seed=1, drop_frac=0.0, depth_range=(24, 60)):
     """A person waves the printed 10x7 / 1.00 in board in front of the camera (poses at 2..5 ft)."""
     img, _ = calib_targets.render_checkerboard()
     H0, W0 = img.shape
@@ -209,7 +209,7 @@ def make_board_video(path, truth_cam, seconds=25, fps=30.0, seed=1, drop_frac=0.
         for _try in range(200):
             rx, ry, rz = rng.uniform(-40, 40), rng.uniform(-40, 40), rng.uniform(-25, 25)
             R, _ = cv2.Rodrigues(np.radians([rx, ry, rz]).astype(np.float64))
-            depth = rng.uniform(24, 60)
+            depth = rng.uniform(*depth_range)
             cx, cy = rng.uniform(-0.25, 0.25) * depth * W / pin[0, 0], rng.uniform(-0.2, 0.2) * depth * H / pin[0, 0]
             t = np.array([cx, cy, depth]) - R @ np.array([5.0, 3.5, 0.0])
             Hm = pin @ np.column_stack([R[:, 0], R[:, 1], t])

@@ -16,7 +16,7 @@ Session statistics (make rate, failure order histogram, per ball type) update li
 - A Windows PC (the app is a single download, no Python or other runtime required)
 - Two USB global-shutter cameras at 1080p 90 fps, two 16 ft USB extension cables, and two 60 in tripods. The exact parts we use are in [PURCHASE_LIST.md](PURCHASE_LIST.md), about 370 USD total.
 - A 3D printer for the camera bracket ([docs/camera_bracket.stl](docs/camera_bracket.stl)), or any bracket with a 1/4-20 tripod nut
-- A printer for the one-page AprilTag calibration sheet (the app generates it), or use the HIVE's own AprilTags
+- A printer for the four-page AprilTag calibration sheet and the checkerboard lens target (the app generates both)
 
 GoPro or capture-card setups also work: any camera the PC can open, and RTMP streams, are accepted as sources.
 
@@ -35,9 +35,10 @@ Your browser opens at http://127.0.0.1:8765 with a demo session running on bundl
 1. Run `HiveShotTracker.exe`. The setup wizard opens on first run.
 2. Plug the cameras into separate USB ports on the PC and let the wizard detect them.
 3. Place the tripods where the placement map says ([docs/camera_placement.md](docs/camera_placement.md)) and tape the feet so you can put them back next time.
-4. Print the AprilTag sheet, tape the four tags at the HIVE frame corners the wizard shows, and press **Auto-calibrate**. The HIVE's own tags are used as a cross-check and to read which CELL is up.
-5. Click a ball in each preview so the app learns your ball colors.
-6. Start a session and shoot.
+4. Print the checkerboard and wave it in front of each camera for 20 seconds (the Lens step) so the app learns each lens.
+5. Print the AprilTag sheet and place the four tags where the wizard shows: two lie on the slanted logo panel of the HIVE frame, two stand at the frame's base corners on the audience side. Press **Auto-calibrate**. The HIVE's own tags are used as a cross-check and to read which CELL is up.
+6. Click a ball in each preview so the app learns your ball colors.
+7. Start a session and shoot.
 
 The whole setup takes about 15 minutes the first time and a couple of minutes after that. Full details are in the [operator guide](docs/operator_guide.md) and [troubleshooting](docs/troubleshooting.md).
 

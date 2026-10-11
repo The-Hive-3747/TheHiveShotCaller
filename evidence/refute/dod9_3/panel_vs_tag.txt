@@ -1,0 +1,44 @@
+panel slant height 6.457 in, tilt from vertical 24.00 deg, normal (y,z)=[0.914 0.407]
+tag 100 model corners (x,y,z):
+[[ -9.     4.28  40.02]
+ [-15.     4.28  40.02]
+ [-15.     4.28  34.02]
+ [ -9.     4.28  34.02]]
+ distance of model corners from real panel face (in, + = in front of panel): [ 2.39  2.39 -0.05 -0.05]
+ center dist 1.17 in; model normal [0. 1. 0.] vs panel normal (0,0.914,0.407): angle 24.0 deg
+tag 101 model corners (x,y,z):
+[[15.    4.28 40.02]
+ [ 9.    4.28 40.02]
+ [ 9.    4.28 34.02]
+ [15.    4.28 34.02]]
+ distance of model corners from real panel face (in, + = in front of panel): [ 2.39  2.39 -0.05 -0.05]
+ center dist 1.17 in; model normal [0. 1. 0.] vs panel normal (0,0.914,0.407): angle 24.0 deg
+tag 100 REAL flat-on-panel corners:
+[[ -9.     1.67  40.02]
+ [-15.     1.67  40.02]
+ [-15.     4.11  34.54]
+ [ -9.     4.11  34.54]]
+ per-corner offset vs model (in): [2.61 2.61 0.55 0.55]  center offset 1.42 (dy -1.39 dz 0.26)
+tag 101 REAL flat-on-panel corners:
+[[15.    1.67 40.02]
+ [ 9.    1.67 40.02]
+ [ 9.    4.11 34.54]
+ [15.    4.11 34.54]]
+ per-corner offset vs model (in): [2.61 2.61 0.55 0.55]  center offset 1.42 (dy -1.39 dz 0.26)
+Panel outline (sticker face) x,y,z:
+[[-13.226   1.657  40.02 ]
+ [-13.712   1.811  39.674]
+ [-15.072   4.031  34.688]
+ [-14.587   4.283  34.121]
+ [ 14.572   4.283  34.121]
+ [ 15.058   4.031  34.688]
+ [ 13.697   1.811  39.674]
+ [ 13.212   1.657  40.02 ]]
+tag 101 spans x 9..15; panel top flat edge only reaches x=13.21; corner chamfer to x=13.70 at z=39.67
+ z=40.0: panel half-width 13.24, tag outer edge x=15.0 -> overhang 1.76 in
+ z=39.0: panel half-width 13.88, tag outer edge x=15.0 -> overhang 1.12 in
+ z=38.0: panel half-width 14.15, tag outer edge x=15.0 -> overhang 0.85 in
+ z=37.0: panel half-width 14.43, tag outer edge x=15.0 -> overhang 0.57 in
+ z=36.0: panel half-width 14.70, tag outer edge x=15.0 -> overhang 0.30 in
+ z=35.0: panel half-width 14.97, tag outer edge x=15.0 -> overhang 0.03 in
+ z=34.2: panel half-width 14.64, tag outer edge x=15.0 -> overhang 0.36 in

@@ -176,6 +176,8 @@ def main(argv=None) -> int:
                     help="print per-CELL derived numbers: rib extents, tag centers, beam coords")
     ap.add_argument("--frame", action="store_true",
                     help="print the HIVE frame (am-5854) part extents and centerline endpoints")
+    ap.add_argument("--panel", action="store_true",
+                    help="print the logo panel (ACM Panel / Panel Sticker) vertices, plane fit, and the four flowers")
     ap.add_argument("--perimeter", action="store_true",
                     help="print perimeter / glass / tile extents (field inside size)")
     ap.add_argument("--names", action="store_true", help="only list distinct PRODUCT names")
@@ -230,8 +232,8 @@ def main(argv=None) -> int:
     sys.setrecursionlimit(10000)
     if a.summary:
         return summary(ents, by, pd_name, children, roots, xf, U)
-    if a.frame or a.perimeter:
-        return frame_report(ents, by, pd_name, children, roots, xf, U, a.frame, a.perimeter)
+    if a.frame or a.perimeter or a.panel:
+        return frame_report(ents, by, pd_name, children, roots, xf, U, a.frame, a.perimeter, a.panel)
     for r in roots:
         walk(r, np.eye(4), [])
     return 0
@@ -246,7 +248,7 @@ def _axis_endpoints(w: np.ndarray):
     return c + ax * t.min(), c + ax * t.max(), ax
 
 
-def frame_report(ents, by, pd_name, children, roots, xf, U, do_frame, do_perim) -> int:
+def frame_report(ents, by, pd_name, children, roots, xf, U, do_frame, do_perim, do_panel=False) -> int:
     """CAD frame (x lateral, y up, z along the beam), inches."""
     rows = []
 
@@ -274,6 +276,32 @@ def frame_report(ents, by, pd_name, children, roots, xf, U, do_frame, do_perim) 
             a0, a1, ax = _axis_endpoints(w)
             print(f"{name}: min={w.min(0).round(2).tolist()} max={w.max(0).round(2).tolist()} "
                   f"end0={a0.round(2).tolist()} end1={a1.round(2).tolist()} axis={ax.round(3).tolist()}")
+    if do_panel:
+        print("== logo panel faces (CAD x lateral, y UP, z beam; inches): distinct vertices, plane fit")
+        for _path, name, w in rows:
+            if "ACM Panel" in name or "Panel Sticker" in name:
+                u = np.unique(np.round(w, 3), axis=0)
+                c = w.mean(0)
+                nrm = np.linalg.svd(w - c)[2][2]
+                nrm = nrm if nrm[2] * np.sign(c[2]) > 0 else -nrm   # outward = away from z = 0
+                print(f"{name} (z side {'+' if c[2] > 0 else '-'}): center={c.round(3).tolist()} "
+                      f"outward normal={nrm.round(4).tolist()} "
+                      f"tilt from vertical={np.degrees(np.arcsin(abs(nrm[1]))):.2f} deg")
+                print("  distinct vertices:", u.tolist())
+        print("== flowers (am-5855 Flower Assembly): footprint of layers B/C/X and full extents")
+        fl = defaultdict(list)
+        for path, name, w in rows:
+            key = next((q for q in path + [name] if "Flower Assembly" in q), None)
+            if key:
+                fl[key].append((name, w))
+        for key in sorted(fl):
+            allw = np.vstack([w for _, w in fl[key]])
+            lay = np.vstack([w for n, w in fl[key] if "Flower Layer" in n])
+            c = (lay.min(0) + lay.max(0)) / 2
+            print(f"{key}: parts={len(fl[key])} full min={allw.min(0).round(2).tolist()} "
+                  f"max={allw.max(0).round(2).tolist()} | layer footprint center x,z="
+                  f"({c[0]:.3f}, {c[2]:.3f}) size x,z=({np.ptp(lay[:, 0]):.2f}, {np.ptp(lay[:, 2]):.2f}) "
+                  f"height top={allw.max(0)[1]:.2f}")
     if do_perim:
         print("== perimeter / glass / tiles: world min / max (inches)")
         groups = defaultdict(list)

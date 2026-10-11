@@ -103,3 +103,25 @@ Apex heights: crossbar 41.45 (top 41.95), pivot cradle 44.31, tallest frame poin
 Manual nominal "approximately 144 in" (+-72) is about 2.65 in larger than the CAD inside faces.
 Constants added: `FIELD_INSIDE_SIZE_CAD = 141.35`, `FIELD_TILE_SPAN_CAD = 141.17`,
 `FIELD_PERIMETER_OUTER_CAD = 143.30` (FIELD_SIZE stays 144.0).
+
+# Logo panel (tilted plate) and flowers (CAD; `tools/step_extract.py --panel`, raw: step_panel_out.txt)
+The logo panel (`am-5877 ACM Panel` + `am-5883 Panel Sticker`) is a thin plate (ACM 0.12 in + 0.01 in sticker)
+LEANING 24.00 deg from vertical with the legs, one per Y side (the earlier vertical-at-y=4.28 model was wrong).
+Plane fit of the audience panel: center (x, y, z) = (-0.03, 2.96, 37.11), outward normal (0, 0.9135, 0.4067).
+
+Outer (sticker) face corners, audience (+Y) panel, field frame inches (far panel = Y mirror):
+
+| Corner | x | y | z |
+|---|---|---|---|
+| bottom, +X | +14.58 | 4.292 | 34.125 |
+| bottom, -X | -14.58 | 4.292 | 34.125 |
+| top, -X | -13.22 | 1.666 | 40.024 |
+| top, +X | +13.22 | 1.666 | 40.024 |
+Slant height 6.46 in (centerline); the bottom corners also carry ~0.5 in tabs out to x = +-15.07 at z = 34.69,
+and the top corners are chamfered (x 13.2..13.7). Order in `field.logo_panel_face` is counter-clockwise about the normal
+(bottom-left, bottom-right, top-right, top-left seen from outside).
+
+Flowers (`am-5855: Flower Assembly` x4): footprint 5.88 x 5.01 in (layers B/C/X), height to z = 22.65
+(backstop top), stems (HIPS pipes) z 4.25..21.25, brackets run to the wall (|coord| 71.79). Centers (field frame,
+CAD x -> -x, CAD z -> y): (23.393, -68.136), (-23.393, 68.136), (68.136, 23.393), (-68.136, -23.393); long side along the wall.
+The arrangement is point-symmetric, not mirror-symmetric. Cylinder radius used: 3.86 (circumscribed circle of the footprint).

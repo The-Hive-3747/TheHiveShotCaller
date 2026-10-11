@@ -131,10 +131,28 @@ FRAME_LEG_FOOT = (23.81, 18.56, 0.53)   # leg centerline at the foot end (x, |y|
 FRAME_CROSSBAR_HALF_X = 12.0         # A-Frame Top Bar spans x = +-12.0 (24 in long), centered y = 0
 FRAME_CROSSBAR_Z = 41.45             # crossbar centerline height (bar is 1.0 x 1.0 in)
 FRAME_PIVOT_CRADLE = ((12.0, 44.27), (11.15, 41.57))  # Axle Holder (x, z) top and bottom, mirrored in X
-FRAME_LOGO_PANEL = {"half_x": 15.07, "z_lo": 34.07, "z_hi": 40.02, "y_outer": 4.28, "y_inner": 1.55}
+# Logo panel (am-5877 ACM Panel + am-5883 Panel Sticker): a thin plate LEANING 24.00 deg from vertical with
+# the legs, one on each Y side. Audience (+Y) outer-face corners (x, y, z), outer sticker surface; the far
+# (-Y) panel is the Y mirror. Bottom edge y = 4.292 z = 34.125 (x +-14.58), top edge y = 1.666 z = 40.024
+# (x +-13.22), slant height 6.46; outward normal (0, 0.9135, 0.4067). The sticker has ~0.5 in wide tabs at
+# the bottom corners (x = +-15.07 at z = 34.69) not included in the quad.
+FRAME_LOGO_PANEL_BOTTOM = (14.58, 4.292, 34.125)   # (|x|, y, z) of the bottom edge corners
+FRAME_LOGO_PANEL_TOP = (13.22, 1.666, 40.024)      # (|x|, y, z) of the top edge corners
+FRAME_LOGO_PANEL_NORMAL = (0.0, 0.9135, 0.4067)    # audience (+Y) panel, outward
+FRAME_LOGO_PANEL_MAX_HALF_X = 15.07                # widest point (bottom tabs)
 FRAME_UNDER_TILE_BAR = {"half_x": 23.89, "abs_y": 16.53, "z": -0.68}  # 47.5 in CC bars below the tiles
 # Perimeter (CAD): glass inner face |x|,|y| = 70.674 -> 141.35 in inside size; tiles +-70.585 (141.17);
 # outer rails +-71.65 (143.3). The manual says approximately 144 in (FIELD_SIZE stays the nominal).
 FIELD_INSIDE_SIZE_CAD = 141.35
 FIELD_TILE_SPAN_CAD = 141.17
 FIELD_PERIMETER_OUTER_CAD = 143.30
+
+# Flowers (am-5855 Flower Assembly x4, CAD): free-standing plates on thin stems against the perimeter,
+# each a 5.88 x 5.01 in footprint (layers B/C/X) rising to z = 22.65 (backstop top). Centers (field frame,
+# x, y) below; radius is the circumscribed circle of the footprint. The arrangement is point-symmetric
+# (not mirror-symmetric): CAD x -> field -x, CAD z -> field y.
+FLOWER_CENTERS_XY = ((23.393, -68.136), (-23.393, 68.136), (68.136, 23.393), (-68.136, -23.393))
+FLOWER_FOOTPRINT = (5.88, 5.01)      # long x short, in inches (long side along the wall)
+FLOWER_RADIUS = 3.86                 # circumscribed radius of the footprint
+FLOWER_TOP_Z = 22.65
+FLOWER_STEM_BOTTOM_Z = 4.25          # bottom of the HIPS pipe stems (layer B plate at 3.9..5.25)

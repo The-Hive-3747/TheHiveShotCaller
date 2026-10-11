@@ -1,0 +1,66 @@
+INFO:     Started server process [29116]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8795 (Press CTRL+C to quit)
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688719252 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60489 - "GET /api/preview/cam0.jpg?t=1791688720261 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam1.jpg?t=1791688720261 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60489 - "GET /api/preview/cam1.jpg?t=1791688721259 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688721257 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60489 - "GET /api/preview/cam1.jpg?t=1791688722258 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688722257 HTTP/1.1" 404 Not Found
+2026-10-10 21:18:42,780 hiveshot.ingest WARNING device probe 0 timed out
+INFO:     127.0.0.1:60489 - "GET /api/preview/cam1.jpg?t=1791688723257 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688723256 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam0.jpg?t=1791688724262 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60489 - "GET /api/preview/cam1.jpg?t=1791688724263 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688725260 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60489 - "GET /api/preview/cam0.jpg?t=1791688725259 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60489 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688726254 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688726253 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/setup/status HTTP/1.1" 200 OK
+[ WARN:2@9.096] global cap.cpp:477 cv::VideoCapture::open VIDEOIO(MSMF): backend is generally available but can't be used to capture by index
+[ WARN:3@9.278] global cap.cpp:477 cv::VideoCapture::open VIDEOIO(MSMF): backend is generally available but can't be used to capture by index
+[ WARN:4@9.450] global cap.cpp:477 cv::VideoCapture::open VIDEOIO(MSMF): backend is generally available but can't be used to capture by index
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam1.jpg?t=1791688727250 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam0.jpg?t=1791688727250 HTTP/1.1" 404 Not Found
+[ WARN:5@9.634] global cap.cpp:477 cv::VideoCapture::open VIDEOIO(MSMF): backend is generally available but can't be used to capture by index
+INFO:     127.0.0.1:49268 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62384 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62386 - "GET /api/calib HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61214 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688728262 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688728263 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam1.jpg?t=1791688729259 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam0.jpg?t=1791688729258 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam1.jpg?t=1791688730254 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688730254 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam1.jpg?t=1791688731253 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688731252 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688732258 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam0.jpg?t=1791688732257 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688733254 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam0.jpg?t=1791688733253 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam1.jpg?t=1791688734251 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam0.jpg?t=1791688734251 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam1.jpg?t=1791688735264 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam0.jpg?t=1791688735264 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688736256 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688736255 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam1.jpg?t=1791688737254 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam0.jpg?t=1791688737253 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam1.jpg?t=1791688738253 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam0.jpg?t=1791688738252 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam1.jpg?t=1791688739264 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/preview/cam0.jpg?t=1791688739264 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52317 - "GET /api/setup/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61214 - "GET /api/preview/cam0.jpg?t=1791688740262 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56956 - "GET /api/preview/cam1.jpg?t=1791688740263 HTTP/1.1" 404 Not Found
