@@ -1,0 +1,1356 @@
+{
+ "tags_drawn_aud": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "tags_drawn_moved": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "render_s": 68.8,
+ "mode": "exe",
+ "startup_s": 2.5,
+ "lens": {
+  "cam0": {
+   "code": 200,
+   "rmse": 0.18652111655078124,
+   "src": "measured",
+   "warning": null
+  },
+  "cam1": {
+   "code": 200,
+   "rmse": 0.16600126775355267,
+   "src": "measured",
+   "warning": null
+  }
+ },
+ "0_baseline_auto_all": {
+  "code": 200,
+  "s": 0.6,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.14751366807596844,
+  "calibration_source": null,
+  "warnings": [
+   "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+   "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.044384954281717334,
+    "rmse_in": 0.044384954281717334,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.45491528493831673,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": [
+     "no tag outside this solve is visible to this camera: the result is not independently checked"
+    ]
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.08728227242525936,
+    "rmse_in": 0.08728227242525936,
+    "oos_error_in": 0.23978154015543418,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.7667210317422303,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.14751366807596844,
+   "out_of_sample": false,
+   "held_out": null,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "error": null,
+   "detail": null
+  }
+ },
+ "0_baseline_acc": {
+  "pos_err_in": {
+   "cam0": 0.18,
+   "cam1": 0.41
+  },
+  "rot_err_deg": {
+   "cam0": 0.11,
+   "cam1": 0.03
+  },
+  "fx": {
+   "cam0": [
+    879.7,
+    879.7
+   ],
+   "cam1": [
+    882.3,
+    879.7
+   ]
+  },
+  "traj_mean": 0.07,
+  "traj_p95": 0.12,
+  "traj_max": 0.19,
+  "cell_center_err": 0.03
+ },
+ "0_baseline_finish": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.14751366807596844,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.2338087609869933
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "1a_single_after_both_moved": {
+  "cam1": {
+   "code": 200,
+   "s": 0.16,
+   "detail": null,
+   "hint": null,
+   "pair_check_failed": null,
+   "refused": null,
+   "crosscheck_error_in": null,
+   "oos": 0.23341169769831716,
+   "keys": [
+    "fit_residual_in",
+    "hive_tags_used",
+    "intrinsics_default",
+    "max_corner_px",
+    "oos_error_in",
+    "reprojection_px",
+    "rmse_in",
+    "source",
+    "tags_missing",
+    "tags_used",
+    "warnings"
+   ]
+  },
+  "cam0": {
+   "code": 200,
+   "s": 0.11,
+   "detail": null,
+   "hint": null,
+   "pair_check_failed": null,
+   "refused": null,
+   "crosscheck_error_in": null,
+   "oos": null,
+   "keys": [
+    "fit_residual_in",
+    "hive_tags_used",
+    "intrinsics_default",
+    "max_corner_px",
+    "oos_error_in",
+    "reprojection_px",
+    "rmse_in",
+    "source",
+    "tags_missing",
+    "tags_used",
+    "warnings"
+   ]
+  },
+  "ext_unchanged": false
+ },
+ "1b_force_single": {
+  "code": 200,
+  "ok": null,
+  "warnings": [],
+  "detail": null,
+  "pair_stale": null,
+  "keys": [
+   "fit_residual_in",
+   "hive_tags_used",
+   "intrinsics_default",
+   "max_corner_px",
+   "oos_error_in",
+   "reprojection_px",
+   "rmse_in",
+   "source",
+   "tags_missing",
+   "tags_used",
+   "warnings"
+  ],
+  "status_after": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 69
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 69
+    }
+   }
+  },
+  "finish": {
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.34709334981315226,
+   "out_of_sample": false,
+   "oos_error_in_per_camera": {
+    "cam0": null,
+    "cam1": 0.24047230288642343
+   },
+   "calibration_source": "kit",
+   "warnings": [
+    "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+   ],
+   "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": []
+  },
+  "force_cam0": {
+   "code": 200,
+   "ok": null,
+   "warnings": [
+    "no tag outside this solve is visible to this camera: the result is not independently checked"
+   ],
+   "detail": null
+  },
+  "status_after_both_forced": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 75
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 75
+    }
+   }
+  },
+  "finish_after_both_forced": {
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.3481091366525447,
+   "out_of_sample": false,
+   "oos_error_in_per_camera": {
+    "cam0": null,
+    "cam1": 0.23828047227464733
+   },
+   "calibration_source": "kit",
+   "warnings": [
+    "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+   ],
+   "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": []
+  },
+  "acc_vs_moved_truth": {
+   "pos_err_in": {
+    "cam0": 0.12,
+    "cam1": 0.54
+   },
+   "rot_err_deg": {
+    "cam0": 0.06,
+    "cam1": 0.15
+   },
+   "fx": {
+    "cam0": [
+     879.7,
+     879.7
+    ],
+    "cam1": [
+     882.3,
+     879.7
+    ]
+   },
+   "traj_mean": 0.11,
+   "traj_p95": 0.17,
+   "traj_max": 0.29,
+   "cell_center_err": 0.07
+  }
+ },
+ "1c_restore": {
+  "code": 200,
+  "ok": true,
+  "rolled_back": false
+ },
+ "1c_auto_all_after_both_moved": {
+  "code": 200,
+  "s": 0.58,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.3439739094704933,
+  "calibration_source": null,
+  "warnings": [
+   "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+   "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.033184660931298175,
+    "rmse_in": 0.033184660931298175,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     103
+    ],
+    "reprojection_px": 0.3330857578249955,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": [
+     "no tag outside this solve is visible to this camera: the result is not independently checked"
+    ]
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.11119247796157063,
+    "rmse_in": 0.11119247796157063,
+    "oos_error_in": 0.23918754707245313,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.9865088093967684,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.3439739094704933,
+   "out_of_sample": false,
+   "held_out": null,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "error": null,
+   "detail": null
+  },
+  "acc_vs_moved_truth": {
+   "pos_err_in": {
+    "cam0": 0.19,
+    "cam1": 0.54
+   },
+   "rot_err_deg": {
+    "cam0": 0.08,
+    "cam1": 0.15
+   },
+   "fx": {
+    "cam0": [
+     879.7,
+     879.7
+    ],
+    "cam1": [
+     882.3,
+     879.7
+    ]
+   },
+   "traj_mean": 0.11,
+   "traj_p95": 0.17,
+   "traj_max": 0.25,
+   "cell_center_err": 0.07
+  },
+  "changed": true,
+  "finish": {
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.3439739094704933,
+   "out_of_sample": false,
+   "oos_error_in_per_camera": {
+    "cam0": null,
+    "cam1": 0.23828387160716205
+   },
+   "calibration_source": "kit",
+   "warnings": [
+    "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+   ],
+   "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": []
+  },
+  "status": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 79
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 79
+    }
+   }
+  }
+ },
+ "1d_auto_all_bad_tags_rollback": {
+  "code": 200,
+  "s": 0.1,
+  "ok": false,
+  "rolled_back": true,
+  "max_error_in": null,
+  "calibration_source": null,
+  "warnings": [
+   "not saved: one camera failed, so both old poses were restored"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": false,
+    "status": 409,
+    "refused": true,
+    "error": "extrinsics of cam0 not saved: reprojection error 9.5 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics). The previous calibration is kept.",
+    "fit_residual_in": null,
+    "rmse_in": null,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": null,
+    "reprojection_px": 9.494749296818648,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": null
+   },
+   "cam1": {
+    "ok": false,
+    "status": 409,
+    "refused": true,
+    "error": "extrinsics of cam1 not saved: reprojection error 15.0 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); a tag that was not used for the solve is 4.0 in off (limit 2 in). The previous calibration is kept.",
+    "fit_residual_in": null,
+    "rmse_in": null,
+    "oos_error_in": 4.016577998607135,
+    "crosscheck_error_in": null,
+    "tags_used": null,
+    "reprojection_px": 14.966214106251517,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": null
+   }
+  },
+  "unchanged": true,
+  "acc_vs_moved_truth": {
+   "pos_err_in": {
+    "cam0": 0.19,
+    "cam1": 0.54
+   },
+   "rot_err_deg": {
+    "cam0": 0.08,
+    "cam1": 0.15
+   },
+   "fx": {
+    "cam0": [
+     879.7,
+     879.7
+    ],
+    "cam1": [
+     882.3,
+     879.7
+    ]
+   },
+   "traj_mean": 0.11,
+   "traj_p95": 0.17,
+   "traj_max": 0.25,
+   "cell_center_err": 0.07
+  },
+  "status": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 63
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 63
+    }
+   }
+  }
+ },
+ "1e_reset": {
+  "code": 200,
+  "body": {
+   "ok": true,
+   "reset": [
+    "cam0",
+    "cam1"
+   ],
+   "cameras": [
+    "cam0",
+    "cam1"
+   ],
+   "kept": "intrinsics",
+   "rollback": "<2 ext>"
+  },
+  "calib_after": {
+   "keys": [
+    "version",
+    "calibration_state",
+    "intrinsics",
+    "extrinsics"
+   ],
+   "n_ext": 0,
+   "n_intr": 2,
+   "fx": {
+    "cam0": 879.7,
+    "cam1": 882.3
+   },
+   "rmse": {
+    "cam0": 0.18652111655078124,
+    "cam1": 0.16600126775355267
+   },
+   "isrc": {
+    "cam0": null,
+    "cam1": null
+   },
+   "top_isrc": null,
+   "stale": {}
+  },
+  "status_after": {
+   "running": true,
+   "calibration_loaded": false,
+   "calibration_source": "none",
+   "intrinsics_default": false,
+   "warnings": [
+    "no calibration loaded: 3D reconstruction disabled"
+   ],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "none",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 65
+    },
+    "cam1": {
+     "cs": "none",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 65
+    }
+   }
+  },
+  "bad_first_cal": {
+   "code": 200,
+   "ok": false,
+   "rolled_back": true,
+   "max_error_in": null,
+   "calibration_source": null,
+   "warnings": [
+    "not saved: one camera failed"
+   ],
+   "detail": null,
+   "per_cam": {
+    "cam0": {
+     "ok": false,
+     "status": 409,
+     "refused": true,
+     "error": "extrinsics of cam0 not saved: reprojection error 9.5 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics). The previous calibration is kept.",
+     "fit_residual_in": null,
+     "rmse_in": null,
+     "oos_error_in": null,
+     "crosscheck_error_in": null,
+     "tags_used": null,
+     "reprojection_px": 9.485840783684777,
+     "pair_check_failed": null,
+     "hint": null,
+     "warnings": null
+    },
+    "cam1": {
+     "ok": false,
+     "status": 409,
+     "refused": true,
+     "error": "extrinsics of cam1 not saved: reprojection error 15.0 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); a tag that was not used for the solve is 4.0 in off (limit 2 in). The previous calibration is kept.",
+     "fit_residual_in": null,
+     "rmse_in": null,
+     "oos_error_in": 4.019493449876597,
+     "crosscheck_error_in": null,
+     "tags_used": null,
+     "reprojection_px": 14.95441661927215,
+     "pair_check_failed": null,
+     "hint": null,
+     "warnings": null
+    }
+   }
+  },
+  "after_bad_first_cal": {
+   "keys": [
+    "version",
+    "calibration_state",
+    "intrinsics",
+    "extrinsics"
+   ],
+   "n_ext": 0,
+   "n_intr": 2,
+   "fx": {
+    "cam0": 879.7,
+    "cam1": 882.3
+   },
+   "rmse": {
+    "cam0": 0.18652111655078124,
+    "cam1": 0.16600126775355267
+   },
+   "isrc": {
+    "cam0": null,
+    "cam1": null
+   },
+   "top_isrc": null,
+   "stale": {}
+  },
+  "good_after_reset": {
+   "code": 200,
+   "ok": true,
+   "rolled_back": false,
+   "max_error_in": 0.35503575493726913
+  },
+  "acc": {
+   "pos_err_in": {
+    "cam0": 0.19,
+    "cam1": 0.54
+   },
+   "rot_err_deg": {
+    "cam0": 0.08,
+    "cam1": 0.14
+   },
+   "fx": {
+    "cam0": [
+     879.7,
+     879.7
+    ],
+    "cam1": [
+     882.3,
+     879.7
+    ]
+   },
+   "traj_mean": 0.12,
+   "traj_p95": 0.17,
+   "traj_max": 0.25,
+   "cell_center_err": 0.07
+  },
+  "reset_cameras_all": {
+   "code": 200,
+   "reset": [
+    "cam0",
+    "cam1"
+   ],
+   "kept": "intrinsics"
+  },
+  "reset_cam0_when_none": {
+   "code": 200,
+   "reset": [],
+   "detail": null
+  },
+  "reset_unknown": {
+   "code": 404,
+   "detail": "unknown camera nope"
+  },
+  "reset_empty_body": {
+   "code": 200,
+   "reset": []
+  }
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.02
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.46
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.0
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   1.23
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/start",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/stop",
+   200,
+   1.7
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.6
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.2
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/extrinsics/cam1/auto",
+   200,
+   0.16
+  ],
+  [
+   "POST",
+   "/api/calib/extrinsics/cam0/auto",
+   200,
+   0.11
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/extrinsics/cam1/auto",
+   200,
+   0.12
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.07
+  ],
+  [
+   "POST",
+   "/api/calib/extrinsics/cam0/auto",
+   200,
+   0.12
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.09
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.72
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.14
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.09
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.58
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.1
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/reset",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.19
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/reset",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/reset",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/reset",
+   404,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/reset",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ]
+ ]
+}

@@ -580,3 +580,35 @@ def test_kit_tag_positions_figure_exists_and_regenerates_identically(tmp_path):
     assert img.shape[1] > 3000 and img.shape[0] > 1000
     assert "![Kit tag positions on the HIVE frame](kit_tag_positions.png)" in (
         docs / "calibration.md").read_text(encoding="utf-8")
+
+
+def test_tag_page_id_and_up_arrow_are_inside_the_cut_card():
+    """The tag number and the UP arrow are printed inside the 0.5 in border (they survive the
+    cut) while the 0.25 in next to the black square stays white (quiet zone)."""
+    bw = int(round(tagkit.CARD_BORDER_IN * tagkit.DPI))
+    quiet = int(round(0.25 * tagkit.DPI))
+    for tid, img in zip((100, 101, 102, 103), tagkit.render_tag_pages(), strict=True):
+        c = calib.detect_apriltags(img)[0]["corners"]
+        x0, x1 = int(round(c[:, 0].min())), int(round(c[:, 0].max()))
+        y0, y1 = int(round(c[:, 1].min())), int(round(c[:, 1].max()))
+        # quiet zone: the ring 0.25 in wide around the black square is pure white
+        ring = img[y0 - quiet: y1 + quiet + 1, x0 - quiet: x1 + quiet + 1].copy()
+        ring[quiet:-quiet, quiet:-quiet] = 255
+        assert ring.min() == 255
+        # the id text: dark pixels in the bottom border strip, between the quiet zone and the cut line
+        text = img[y1 + quiet + 3: y1 + bw - 8, x0: x1]
+        assert (text < 128).sum() > 150
+        # the UP arrow: a vertical dark stroke in the left border strip
+        strip = img[y0: y1, x0 - bw + 8: x0 - quiet - 3]
+        assert (strip < 128).any(axis=0).sum() >= 3 and (strip < 128).sum() > 500
+        # the old
+        # outside-the-line arrow area (left of the cut line, beside the card) is blank
+        outside = img[y0: y1, max(0, x0 - bw - int(0.9 * tagkit.DPI)): x0 - bw - 6]
+        assert outside.min() == 255, tid
+
+
+def test_wedge_sits_inboard_of_the_foot_bar():
+    lo, hi = tagkit.STAND_WEDGE_X_IN
+    assert (lo, hi) == pytest.approx((18.73, 22.75))
+    assert hi - lo == pytest.approx(tagkit.STAND_WEDGE_IN[0], abs=0.05)
+    assert hi <= fc.FRAME_BASE_X_INNER                    # clears the 1.98 in wide foot bar

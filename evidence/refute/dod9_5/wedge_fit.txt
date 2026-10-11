@@ -1,0 +1,9 @@
+card bottom y 20.2525  wedge slope 2/5.5 = 0.36364  tan20 = 0.36397  angle 19.983 deg; slope face length 5.852 in; card 7 in
+wedge inboard (x 18.73..22.75, tagkit.py comment): wedge volume 22.1 in3, overlap with foot bar 0.00 in3, with leg foot 0.00 in3
+wedge centered on the black square (x 19.73..23.73): wedge volume 22.0 in3, overlap with foot bar 2.55 in3, with leg foot 0.47 in3
+wedge centered on the 7 in card (x 19.73..23.73 same): wedge volume 22.0 in3, overlap with foot bar 2.57 in3, with leg foot 0.46 in3
+wedge outboard flush with bar outer face (x 20.73..24.73): wedge volume 22.0 in3, overlap with foot bar 5.22 in3, with leg foot 0.89 in3
+card CoM y,z: 19.055 3.289  wedge base y range 18.252536003672333 .. 20.252536003672333 -> CoM inside the wedge base footprint: True
+card top z (7 in along slope): 6.58  wedge top z 5.5 -> card overhangs the wedge by 1.15 in of slope length
+102 [[-18.73, 18.029, 6.108], [-24.73, 18.029, 6.108], [-24.73, 20.082, 0.47], [-18.73, 20.082, 0.47]]
+103 [[24.73, 18.029, 6.108], [18.73, 18.029, 6.108], [18.73, 20.082, 0.47], [24.73, 20.082, 0.47]]

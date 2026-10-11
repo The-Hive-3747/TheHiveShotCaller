@@ -1,0 +1,8 @@
+usb    mount 0 in/0 deg cam0: rmse_in med 0.054 p90 0.064 max 0.075; <0.25 in 60/60; reproj px med 0.54 <2px 60/60
+usb    mount 0 in/0 deg cam1: rmse_in med 0.082 p90 0.099 max 0.117; <0.25 in 60/60; reproj px med 0.72 <2px 60/60
+usb    mount 0.25 in/0.5 deg cam0: rmse_in med 0.100 p90 0.143 max 0.210; <0.25 in 60/60; reproj px med 0.99 <2px 59/60
+usb    mount 0.25 in/0.5 deg cam1: rmse_in med 0.136 p90 0.171 max 0.189; <0.25 in 60/60; reproj px med 1.20 <2px 60/60
+gopro  mount 0 in/0 deg cam0: rmse_in med 0.048 p90 0.056 max 0.063; <0.25 in 60/60; reproj px med 0.52 <2px 60/60
+gopro  mount 0 in/0 deg cam1: rmse_in med 0.062 p90 0.075 max 0.085; <0.25 in 60/60; reproj px med 0.64 <2px 60/60
+gopro  mount 0.25 in/0.5 deg cam0: rmse_in med 0.080 p90 0.115 max 0.168; <0.25 in 60/60; reproj px med 0.89 <2px 60/60
+gopro  mount 0.25 in/0.5 deg cam1: rmse_in med 0.116 p90 0.158 max 0.193; <0.25 in 60/60; reproj px med 1.19 <2px 60/60

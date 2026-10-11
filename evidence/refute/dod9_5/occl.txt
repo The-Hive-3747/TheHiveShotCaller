@@ -1,0 +1,12 @@
+n pts 316
+flowers [((23.393, -68.136), 3.86, (0.0, 22.65)), ((-23.393, 68.136), 3.86, (0.0, 22.65)), ((68.136, 23.393), 3.86, (0.0, 22.65)), ((-68.136, -23.393), 3.86, (0.0, 22.65))]
+old A (-72,85.5,20) flower: 0.04113924050632911
+usb A flower 0.0095 frame 0.0000 union 0.0095
+usb B flower 0.0032 frame 0.0000 union 0.0032
+usb pair occluded_frac 0.006329113924050633 frac_in_both 0.9968354430379747 mean angle 91.80402641979184
+gopro A flower 0.0095 frame 0.0000 union 0.0095
+gopro B flower 0.0032 frame 0.0000 union 0.0032
+gopro pair occluded_frac 0.0031645569620253164 frac_in_both 0.9462025316455697 mean angle 92.13452458226476
+box oldA 0.038
+box A 0.0095
+box B 0.0

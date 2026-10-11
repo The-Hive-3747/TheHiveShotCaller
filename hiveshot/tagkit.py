@@ -41,7 +41,7 @@ Tags (field frame, inches; +Y toward the audience, Z up; positions from
   top edge of the foot bar end, 2.15 in high); **the black square's bottom edge is CARD_BORDER_IN
   up the slope from the tile** (0.47 in high, 0.17 in toward the frame), its outer edge is flush
   with the foot bar's outer face (x = +-24.73, the border hangs outside), and the top leans toward
-  the frame (-Y). A foam wedge holds the card: see `STAND_WEDGE_IN`. The face normal is (0, cos 20, sin 20): facing the audience and
+  the frame (-Y). A foam wedge holds the card: see `STAND_WEDGE_IN`, `STAND_WEDGE_X_IN` (inboard of the foot bar). The face normal is (0, cos 20, sin 20): facing the audience and
   tilted up so that cameras at 20 to 30 in lens height look at it nearly square.
 * "Label up" means the tag's upright direction (bottom edge to top edge) points up: up the
   slope (0, -0.407, 0.914) for 100 and 101, (0, -sin 20, cos 20) for 102 and 103. A person standing on the audience side looking at the
@@ -87,6 +87,9 @@ CALIBRATION_HIVE_STATES = (("red", "audience"), ("blue", "audience"))
 # lies under the back of the card; it fills only the 4 in of the card inboard of the foot bar
 # (x = 22.75 to 18.73), the outer 2 in of the card rest on the foot bar end.
 STAND_WEDGE_IN = (4.0, 2.0, 5.5)
+# |x| range of the wedge behind a base card: INBOARD, from the black square's inner edge (18.73) to the
+# foot bar's inner face (22.75), so it stands on the tile beside the 1.98 in wide foot bar and clears it
+STAND_WEDGE_X_IN = (fc.FRAME_BASE_X_OUTER - 6.0, fc.FRAME_BASE_X_INNER)
 DPI = 300
 PAGE_IN = (8.5, 11.0)            # letter, portrait; one tag per page
 QUIET_IN = 0.5                   # white margin kept around each printed tag
@@ -208,8 +211,8 @@ def _dashed_rect(img: np.ndarray, xa: int, ya: int, xb: int, yb: int, dash: int 
         cv2.line(img, (xb, y), (xb, min(y + dash, yb)), 0, 3)
 
 
-def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int) -> None:
-    cv2.arrowedLine(img, (x, y_bot), (x, y_top), 0, 6, cv2.LINE_AA, tipLength=0.12)
+def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int, width: int = 6) -> None:
+    cv2.arrowedLine(img, (x, y_bot), (x, y_top), 0, width, cv2.LINE_AA, tipLength=0.12)
 
 
 _HOW = {
@@ -243,14 +246,16 @@ def render_tag_pages(size_in: float | None = None) -> list[np.ndarray]:
         cv2.putText(img, f"TAG {t.id}   ({size:g} in)", (x0, int(0.8 * DPI)), font, 1.8, 0, 4,
                     cv2.LINE_AA)
         cv2.putText(img, t.point_name, (x0, int(1.3 * DPI)), font, 0.8, 0, 2, cv2.LINE_AA)
-        cv2.putText(img, "Label up: the arrow points to the top edge.", (x0, int(1.75 * DPI)),
+        cv2.putText(img, "Label up: the small arrow (UP) in the left border points to the top edge.", (x0, int(1.5 * DPI)),
                     font, 0.75, 0, 2, cv2.LINE_AA)
-        ax = max(int(0.35 * DPI), x0 - bw - int(0.2 * DPI))
-        _arrow_up(img, ax, y0 + int(0.2 * DPI), y0 + px // 2)
-        cv2.putText(img, "THIS", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.3 * DPI)),
-                    font, 0.6, 0, 2, cv2.LINE_AA)
-        cv2.putText(img, "EDGE UP", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.5 * DPI)),
-                    font, 0.6, 0, 2, cv2.LINE_AA)
+        # id and "up" arrow INSIDE the cut card (in the outer part of the white border, at least
+        # 0.25 in away from the black square, thin lines), so the cut-out tag still shows them
+        cv2.putText(img, f"TAG {t.id}", (x0, y0 + px + bw - int(0.07 * DPI)), font, 0.7, 0, 2,
+                    cv2.LINE_AA)
+        ax = x0 - bw + int(0.13 * DPI)
+        _arrow_up(img, ax, y0 + px // 2 - int(0.37 * DPI), y0 + px // 2 + int(0.37 * DPI), 3)
+        cv2.putText(img, "UP", (x0 - bw + int(0.04 * DPI), y0 + px // 2 - int(0.43 * DPI)),
+                    font, 0.55, 0, 2, cv2.LINE_AA)
         for i, line in enumerate(_HOW[t.kind]):
             cv2.putText(img, line, (x0, y0 + px + int((0.85 + 0.3 * i) * DPI)), font, 0.62, 0, 2,
                         cv2.LINE_AA)

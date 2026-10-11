@@ -1,0 +1,1309 @@
+{
+ "tags_drawn": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "tags_drawn_far_red": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "tags_drawn_match_start": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "0_auto_all": {
+  "code": 200,
+  "s": 0.25,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.21687090017903068,
+  "calibration_source": null,
+  "warnings": [],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.04370338090785444,
+    "rmse_in": 0.04370338090785444,
+    "oos_error_in": 0.2120359068618623,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.4479574797604401,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.09150014285921308,
+    "rmse_in": 0.09150014285921308,
+    "oos_error_in": 0.24854446409751837,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.8039342409132358,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.21687090017903068,
+   "out_of_sample": true,
+   "held_out": "HIVE tags",
+   "warning": null,
+   "error": null,
+   "detail": null
+  }
+ },
+ "4_learn": {
+  "far_first_red_far_scene": {
+   "code": 200,
+   "s": 0.07,
+   "learned": true,
+   "complete": false,
+   "learned_ids": [
+    38,
+    39,
+    40,
+    41,
+    44
+   ],
+   "missing_ids": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37
+   ],
+   "up_cell_error_in": null,
+   "max_residual_in": 0.19804506890100243,
+   "visible_per_camera": {
+    "cam0": [
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44
+    ],
+    "cam1": [
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   }
+  },
+  "audience_with_state_red": {
+   "code": 200,
+   "s": 0.08,
+   "learned": true,
+   "complete": true,
+   "learned_ids": [
+    30,
+    31,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    44
+   ],
+   "missing_ids": [
+    32,
+    33
+   ],
+   "up_cell_error_in": 0.10030053146776398,
+   "max_residual_in": 0.23665229820509173,
+   "visible_per_camera": {
+    "cam0": [
+     30,
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44
+    ],
+    "cam1": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   }
+  },
+  "audience_with_state_blue": {
+   "code": 200,
+   "s": 0.08,
+   "learned": true,
+   "complete": true,
+   "learned_ids": [
+    30,
+    31,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    44
+   ],
+   "missing_ids": [
+    42,
+    43,
+    45
+   ],
+   "up_cell_error_in": 0.10571605403953627,
+   "max_residual_in": 0.23665229820509173,
+   "visible_per_camera": {
+    "cam0": [
+     30,
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44
+    ],
+    "cam1": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   }
+  },
+  "no_state": {
+   "code": 200,
+   "s": 0.12,
+   "learned": true,
+   "complete": true,
+   "learned_ids": [
+    30,
+    31,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    44
+   ],
+   "missing_ids": [
+    32,
+    33,
+    42,
+    43,
+    45
+   ],
+   "up_cell_error_in": 0.0988314886158432,
+   "max_residual_in": 0.23665229820509173,
+   "visible_per_camera": {
+    "cam0": [
+     30,
+     31,
+     34,
+     35,
+     36,
+     37
+    ],
+    "cam1": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37
+    ]
+   },
+   "errors": {}
+  },
+  "far_after_audience": {
+   "code": 200,
+   "s": 0.07,
+   "learned": true,
+   "complete": true,
+   "learned_ids": [
+    38,
+    39,
+    40,
+    41,
+    44
+   ],
+   "missing_ids": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37
+   ],
+   "up_cell_error_in": null,
+   "max_residual_in": 0.19804506890100243,
+   "visible_per_camera": {
+    "cam0": [
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44
+    ],
+    "cam1": [
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   }
+  }
+ },
+ "4_hive_state_source": "tags",
+ "5_calstate_independent": {
+  "pipeline_red_audience": {
+   "set": 200,
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.22419223491694693,
+    "out_of_sample": true,
+    "held_out": "HIVE tags",
+    "warning": null,
+    "detail": null,
+    "names": [
+     "hive tag 30",
+     "hive tag 31",
+     "hive tag 34",
+     "hive tag 35",
+     "hive tag 36",
+     "hive tag 37",
+     "hive tag 38",
+     "hive tag 39",
+     "hive tag 40",
+     "hive tag 41",
+     "hive tag 44"
+    ]
+   },
+   "auto_all_kit": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.21660343066440985,
+    "oos": {
+     "cam0": 0.21202690193349538,
+     "cam1": 0.24866175552325054
+    }
+   },
+   "auto_all_hive": {
+    "code": 200,
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 0.133173121653088,
+    "per": {
+     "cam0": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43,
+       44
+      ],
+      "oos_error_in": 0.09155811096264463,
+      "rmse_in": 0.05653952949350544
+     },
+     "cam1": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       44,
+       45
+      ],
+      "oos_error_in": 0.20522063642929222,
+      "rmse_in": 0.06590419939333837
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.2194808881954358,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 0.145432802239246,
+     "cam1": 0.24335751273226064
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": []
+   }
+  },
+  "pipeline_blue_far": {
+   "set": 200,
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.2289095175919893,
+    "out_of_sample": true,
+    "held_out": "HIVE tags",
+    "warning": null,
+    "detail": null,
+    "names": [
+     "hive tag 30",
+     "hive tag 31",
+     "hive tag 34",
+     "hive tag 35",
+     "hive tag 36",
+     "hive tag 37",
+     "hive tag 38",
+     "hive tag 39",
+     "hive tag 40",
+     "hive tag 41",
+     "hive tag 44"
+    ]
+   },
+   "auto_all_kit": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.22492255102163605,
+    "oos": {
+     "cam0": 0.21229412466238337,
+     "cam1": 0.23894604179939846
+    }
+   },
+   "auto_all_hive": {
+    "code": 200,
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 0.12695857091482626,
+    "per": {
+     "cam0": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43,
+       44
+      ],
+      "oos_error_in": 0.08447892669545817,
+      "rmse_in": 0.058984053836723546
+     },
+     "cam1": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       44,
+       45
+      ],
+      "oos_error_in": 0.23305009226880913,
+      "rmse_in": 0.06472324371016352
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.22390311038498634,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 0.14823748076540397,
+     "cam1": 0.24243066894228288
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": []
+   }
+  },
+  "pipeline_red_far": {
+   "set": 200,
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.22363954769249567,
+    "out_of_sample": true,
+    "held_out": "HIVE tags",
+    "warning": null,
+    "detail": null,
+    "names": [
+     "hive tag 31",
+     "hive tag 34",
+     "hive tag 35",
+     "hive tag 36",
+     "hive tag 37",
+     "hive tag 38",
+     "hive tag 39",
+     "hive tag 40",
+     "hive tag 41",
+     "hive tag 44"
+    ]
+   },
+   "auto_all_kit": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.2260152853347327,
+    "oos": {
+     "cam0": 0.2138700282651329,
+     "cam1": 0.23920925647613941
+    }
+   },
+   "auto_all_hive": {
+    "code": 200,
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 0.13351524761091343,
+    "per": {
+     "cam0": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43,
+       44
+      ],
+      "oos_error_in": 0.0839672795605287,
+      "rmse_in": 0.05876864018620116
+     },
+     "cam1": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       44,
+       45
+      ],
+      "oos_error_in": 0.21841994022560457,
+      "rmse_in": 0.07035549394786773
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.22462013880973916,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 0.15052778864325314,
+     "cam1": 0.219729410449871
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": []
+   }
+  }
+ },
+ "5_scene_match_start_crosscheck": {
+  "code": 200,
+  "max_error_in": 0.23276096560858142,
+  "out_of_sample": true,
+  "held_out": "HIVE tags",
+  "warning": null,
+  "detail": null,
+  "names": [
+   "hive tag 30",
+   "hive tag 31",
+   "hive tag 34",
+   "hive tag 35",
+   "hive tag 36",
+   "hive tag 37"
+  ]
+ },
+ "5_scene_match_start_finish": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.23276096560858142,
+  "out_of_sample": true,
+  "oos_error_in_per_camera": {
+   "cam0": 0.2229193063234704,
+   "cam1": 0.22860218388915865
+  },
+  "calibration_source": "kit",
+  "warnings": [],
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "5_scene_match_start_auto_all": {
+  "code": 200,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.21731076832445131,
+  "calibration_source": null,
+  "warnings": [],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.04547499383787465,
+    "rmse_in": 0.04547499383787465,
+    "oos_error_in": 0.22489557975564434,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.4660499512906835,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.0901523694276719,
+    "rmse_in": 0.0901523694276719,
+    "oos_error_in": 0.23234069615933203,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.7923118559156949,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.21731076832445131,
+   "out_of_sample": true,
+   "held_out": "HIVE tags",
+   "warning": null,
+   "error": null,
+   "detail": null
+  }
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.02
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.44
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.01
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   1.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/start",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/stop",
+   200,
+   1.72
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.25
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.08
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.08
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.12
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/hive/state",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.26
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.76
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.64
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.09
+  ],
+  [
+   "POST",
+   "/api/hive/state",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.05
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.24
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.27
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   1.16
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.1
+  ],
+  [
+   "POST",
+   "/api/hive/state",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.08
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.27
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.24
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.7
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.46
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.2
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.07
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.08
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.26
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ]
+ ]
+}

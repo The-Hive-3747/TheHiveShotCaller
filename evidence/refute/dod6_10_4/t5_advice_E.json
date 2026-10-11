@@ -1,0 +1,511 @@
+{
+ "aud": [
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.6,
+      "sign": 1
+     },
+     "blue_audience": {
+      "roll_deg": -10.0,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.7,
+      "sign": -1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 20.3,
+      "sign": 1
+     }
+    }
+   },
+   "tip": []
+  },
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.8,
+      "sign": 1
+     },
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.7,
+      "sign": -1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 20.3,
+      "sign": 1
+     }
+    }
+   },
+   "tip": []
+  },
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.6,
+      "sign": 1
+     },
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.7,
+      "sign": -1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 20.4,
+      "sign": 1
+     }
+    }
+   },
+   "tip": []
+  },
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     34,
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.8,
+      "sign": 1
+     },
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.7,
+      "sign": -1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 20.6,
+      "sign": 1
+     }
+    }
+   },
+   "tip": []
+  }
+ ],
+ "mstart": [
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     34,
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.7,
+      "sign": 1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 19.1,
+      "sign": 1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no blue audience CELL tag is visible while red's are)."
+   ]
+  },
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.7,
+      "sign": 1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 20.3,
+      "sign": 1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no blue audience CELL tag is visible while red's are)."
+   ]
+  },
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.6,
+      "sign": 1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 22.3,
+      "sign": 1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no blue audience CELL tag is visible while red's are)."
+   ]
+  },
+  {
+   "tags": {
+    "cam0": [
+     35,
+     36,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     34,
+     35,
+     36,
+     37,
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "red_audience": {
+      "roll_deg": -13.8,
+      "sign": 1
+     }
+    },
+    "cam1": {
+     "red_audience": {
+      "roll_deg": 20.5,
+      "sign": 1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no blue audience CELL tag is visible while red's are)."
+   ]
+  }
+ ],
+ "far": [
+  {
+   "tags": {
+    "cam0": [
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.6,
+      "sign": -1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no red audience CELL tag is visible while blue's are)."
+   ]
+  },
+  {
+   "tags": {
+    "cam0": [
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.7,
+      "sign": -1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no red audience CELL tag is visible while blue's are)."
+   ]
+  },
+  {
+   "tags": {
+    "cam0": [
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.7,
+      "sign": -1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no red audience CELL tag is visible while blue's are)."
+   ]
+  },
+  {
+   "tags": {
+    "cam0": [
+     38,
+     39,
+     40,
+     41,
+     43,
+     44,
+     100,
+     101,
+     102,
+     103
+    ],
+    "cam1": [
+     100,
+     101,
+     102,
+     103
+    ]
+   },
+   "roll": {
+    "cam0": {
+     "blue_audience": {
+      "roll_deg": -10.1,
+      "sign": 1
+     },
+     "blue_far": {
+      "roll_deg": 178.6,
+      "sign": -1
+     }
+    }
+   },
+   "tip": [
+    "Tip both HIVEs so both audience CELLs are up before calibrating (no red audience CELL tag is visible while blue's are)."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1193 @@
+{
+ "tags_drawn": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "tags_drawn_far_red": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "tags_drawn_match_start": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "0_auto_all": {
+  "code": 200,
+  "s": 0.83,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.14234120799048033,
+  "calibration_source": null,
+  "warnings": [
+   "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+   "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.04418722714807169,
+    "rmse_in": 0.04418722714807169,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.45290252763305944,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": [
+     "no tag outside this solve is visible to this camera: the result is not independently checked"
+    ]
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.08934052871371198,
+    "rmse_in": 0.08934052871371198,
+    "oos_error_in": 0.2288634946476192,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.7850764110963173,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.14234120799048033,
+   "out_of_sample": false,
+   "held_out": null,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "error": null,
+   "detail": null
+  }
+ },
+ "4_learn": {
+  "far_first_red_far_scene": {
+   "code": 200,
+   "s": 0.06,
+   "learned": false,
+   "complete": false,
+   "single_camera": true,
+   "camera": "cam1",
+   "learned_ids": [],
+   "missing_ids": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37
+   ],
+   "reason": "only cam1 sees HIVE tags: nothing can be triangulated, the tags were checked against the computed positions (single-camera PnP)",
+   "up_cell_error_in": null,
+   "max_residual_in": null,
+   "visible_per_camera": {
+    "cam0": [],
+    "cam1": [
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   },
+   "pnp_error_in": {}
+  },
+  "audience_with_state_red": {
+   "code": 200,
+   "s": 0.61,
+   "learned": false,
+   "complete": false,
+   "single_camera": true,
+   "camera": "cam1",
+   "learned_ids": [],
+   "missing_ids": [
+    30
+   ],
+   "reason": "only cam1 sees HIVE tags: nothing can be triangulated, the tags were checked against the computed positions (single-camera PnP)",
+   "up_cell_error_in": 1.7481982066734365,
+   "max_residual_in": null,
+   "visible_per_camera": {
+    "cam0": [],
+    "cam1": [
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   },
+   "pnp_error_in": {
+    "31": 2.9166215925603063,
+    "32": 2.5613200762725787,
+    "33": 2.5939647563685244,
+    "34": 0.7916841607431336,
+    "35": 0.7115709707363673,
+    "36": 1.329541163308897,
+    "37": 4.159996531905348
+   }
+  },
+  "audience_with_state_blue": {
+   "code": 200,
+   "s": 0.16,
+   "learned": false,
+   "complete": false,
+   "single_camera": true,
+   "camera": "cam1",
+   "learned_ids": [],
+   "missing_ids": [
+    42,
+    43
+   ],
+   "reason": "only cam1 sees HIVE tags: nothing can be triangulated, the tags were checked against the computed positions (single-camera PnP)",
+   "up_cell_error_in": 1.8579910572740843,
+   "max_residual_in": null,
+   "visible_per_camera": {
+    "cam0": [],
+    "cam1": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   },
+   "pnp_error_in": {
+    "38": 1.1779691225944964,
+    "39": 1.1527548411424873,
+    "40": 1.5930973286974417,
+    "41": 3.508142936661912,
+    "44": 6.336386984222133,
+    "45": 4.784584197697311
+   }
+  },
+  "no_state": {
+   "code": 200,
+   "s": 0.24,
+   "learned": false,
+   "complete": false,
+   "learned_ids": [],
+   "missing_ids": [
+    42,
+    43
+   ],
+   "up_cell_error_in": null,
+   "max_residual_in": null,
+   "visible_per_camera": {
+    "cam0": [],
+    "cam1": [
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37
+    ]
+   },
+   "errors": {}
+  },
+  "far_after_audience": {
+   "code": 200,
+   "s": 0.07,
+   "learned": false,
+   "complete": false,
+   "single_camera": true,
+   "camera": "cam1",
+   "learned_ids": [],
+   "missing_ids": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37
+   ],
+   "reason": "only cam1 sees HIVE tags: nothing can be triangulated, the tags were checked against the computed positions (single-camera PnP)",
+   "up_cell_error_in": null,
+   "max_residual_in": null,
+   "visible_per_camera": {
+    "cam0": [],
+    "cam1": [
+     38,
+     39,
+     40,
+     41,
+     44,
+     45
+    ]
+   },
+   "pnp_error_in": {}
+  }
+ },
+ "4_hive_state_source": "manual",
+ "5_calstate_independent": {
+  "pipeline_red_audience": {
+   "set": 200,
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.14234120799048033,
+    "out_of_sample": false,
+    "held_out": null,
+    "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+    "detail": null,
+    "names": [
+     "tag 100",
+     "tag 101",
+     "tag 102",
+     "tag 103"
+    ]
+   },
+   "auto_all_kit": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.14311641686255352,
+    "oos": {
+     "cam0": null,
+     "cam1": 0.2288634946476192
+    }
+   },
+   "auto_all_hive": {
+    "code": 200,
+    "ok": false,
+    "rolled_back": true,
+    "max_error_in": null,
+    "per": {
+     "cam0": {
+      "ok": false,
+      "error": "no HIVE tags visible to cam0 (need at least 2 of ids [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]); only cameras that can read the HIVE tags can be calibrated from them",
+      "tags_used": null,
+      "oos_error_in": null,
+      "rmse_in": null
+     },
+     "cam1": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       44,
+       45
+      ],
+      "oos_error_in": 0.2264489727126728,
+      "rmse_in": 0.10215560293056444
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.1494075161372176,
+    "out_of_sample": false,
+    "oos_error_in_per_camera": {
+     "cam0": null,
+     "cam1": 0.2258283869158904
+    },
+    "calibration_source": "kit",
+    "warnings": [
+     "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+    ],
+    "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": []
+   }
+  },
+  "pipeline_blue_far": {
+   "set": 200,
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.1494075161372176,
+    "out_of_sample": false,
+    "held_out": null,
+    "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+    "detail": null,
+    "names": [
+     "tag 100",
+     "tag 101",
+     "tag 102",
+     "tag 103"
+    ]
+   },
+   "auto_all_kit": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.15421500805474728,
+    "oos": {
+     "cam0": null,
+     "cam1": 0.23804388800136372
+    }
+   },
+   "auto_all_hive": {
+    "code": 200,
+    "ok": false,
+    "rolled_back": true,
+    "max_error_in": null,
+    "per": {
+     "cam0": {
+      "ok": false,
+      "error": "no HIVE tags visible to cam0 (need at least 2 of ids [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]); only cameras that can read the HIVE tags can be calibrated from them",
+      "tags_used": null,
+      "oos_error_in": null,
+      "rmse_in": null
+     },
+     "cam1": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       44,
+       45
+      ],
+      "oos_error_in": 0.21895312488308835,
+      "rmse_in": 0.09826869031096148
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.14915589008854646,
+    "out_of_sample": false,
+    "oos_error_in_per_camera": {
+     "cam0": null,
+     "cam1": 0.23988185368827478
+    },
+    "calibration_source": "kit",
+    "warnings": [
+     "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+    ],
+    "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": []
+   }
+  },
+  "pipeline_red_far": {
+   "set": 200,
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.14915589008854646,
+    "out_of_sample": false,
+    "held_out": null,
+    "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+    "detail": null,
+    "names": [
+     "tag 100",
+     "tag 101",
+     "tag 102",
+     "tag 103"
+    ]
+   },
+   "auto_all_kit": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.15349799094005473,
+    "oos": {
+     "cam0": null,
+     "cam1": 0.23804388800136372
+    }
+   },
+   "auto_all_hive": {
+    "code": 200,
+    "ok": false,
+    "rolled_back": true,
+    "max_error_in": null,
+    "per": {
+     "cam0": {
+      "ok": false,
+      "error": "no HIVE tags visible to cam0 (need at least 2 of ids [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]); only cameras that can read the HIVE tags can be calibrated from them",
+      "tags_used": null,
+      "oos_error_in": null,
+      "rmse_in": null
+     },
+     "cam1": {
+      "ok": true,
+      "error": null,
+      "tags_used": [
+       30,
+       31,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       44,
+       45
+      ],
+      "oos_error_in": 0.21894347873377742,
+      "rmse_in": 0.09828548785817724
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.14809845786099052,
+    "out_of_sample": false,
+    "oos_error_in_per_camera": {
+     "cam0": null,
+     "cam1": 0.23904812502950554
+    },
+    "calibration_source": "kit",
+    "warnings": [
+     "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+    ],
+    "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": []
+   }
+  }
+ },
+ "5_scene_match_start_crosscheck": {
+  "code": 200,
+  "max_error_in": 0.14809845786099052,
+  "out_of_sample": false,
+  "held_out": null,
+  "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+  "detail": null,
+  "names": [
+   "tag 100",
+   "tag 101",
+   "tag 102",
+   "tag 103"
+  ]
+ },
+ "5_scene_match_start_finish": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.14809845786099052,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.22600403213678247
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "5_scene_match_start_auto_all": {
+  "code": 200,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.14281169918817543,
+  "calibration_source": null,
+  "warnings": [
+   "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+   "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.04352702589624489,
+    "rmse_in": 0.04352702589624489,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.4461201497413123,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": [
+     "no tag outside this solve is visible to this camera: the result is not independently checked"
+    ]
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.09100118891874066,
+    "rmse_in": 0.09100118891874066,
+    "oos_error_in": 0.22543465161443962,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.7997454847374393,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.14281169918817543,
+   "out_of_sample": false,
+   "held_out": null,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "error": null,
+   "detail": null
+  }
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   1.56
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.02
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.76
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.02
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   2.24
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/start",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/stop",
+   200,
+   3.31
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.83
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.61
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.16
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.24
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.09
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/hive_tags/learn",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/hive/state",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.14
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.52
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.22
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   2.17
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   1.43
+  ],
+  [
+   "POST",
+   "/api/hive/state",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.04
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.35
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.26
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.86
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.46
+  ],
+  [
+   "POST",
+   "/api/hive/state",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.06
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.33
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.18
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.38
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.14
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.08
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.07
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.2
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.46
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ]
+ ]
+}

@@ -153,10 +153,12 @@
 <text x="1190.0" y="1379.0" font-size="16" fill="#202020">center (21.73, 19.06, 3.29)</text>
 <text x="1190.0" y="1403.0" font-size="16" fill="#202020">black square x 18.73..24.73 (flush with the</text>
 <text x="1190.0" y="1427.0" font-size="16" fill="#202020">foot bar outer face), z 0.47..6.11</text>
+<text x="1190.0" y="1451.0" font-size="16" fill="#202020">foam wedge behind the card, inboard: x 18.73..22.75</text>
 <line x1="1557.5" y1="1257.2" x2="1557.5" y2="1340.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
 <text x="2060.0" y="1355.0" font-size="18" fill="#202020" font-weight="bold">102 (-X base corner)</text>
 <text x="2060.0" y="1379.0" font-size="16" fill="#202020">center (-21.73, 19.06, 3.29)</text>
 <text x="2060.0" y="1403.0" font-size="16" fill="#202020">black square x -24.73..-18.73, z 0.47..6.11</text>
+<text x="2060.0" y="1427.0" font-size="16" fill="#202020">foam wedge behind the card, inboard: x -18.73..-22.75</text>
 <line x1="2122.5" y1="1257.2" x2="2122.5" y2="1340.0" stroke="#202020" stroke-width="1" stroke-linecap="round"/>
 <text x="1180.0" y="1466.0" font-size="16" fill="#404040">Both audience CELLs are up (calibration state): tip BOTH HIVEs by hand before calibrating. Black squares are the kit tags (to scale); dashed outlines are the CELLs that point away.</text>
 <text x="2560.0" y="120.0" font-size="28" fill="#202020" font-weight="bold">BASE TAG DETAIL (side view, tag 102 / 103)</text>
@@ -198,5 +200,6 @@
 <text x="2560.0" y="1142.0" font-size="16" fill="#202020">(0.78 in beyond the foot bar end); the card rests on the foot bar end's top edge.</text>
 <text x="2560.0" y="1168.0" font-size="16" fill="#202020">Black-square bottom edge height = 0.5 x cos 20 deg = 0.47 in; top edge z 6.11.</text>
 <text x="2560.0" y="1194.0" font-size="16" fill="#202020">Black square outer edge flush with the foot bar's outer face (x = +-24.73).</text>
-<text x="2560.0" y="1220.0" font-size="16" fill="#202020">The wedge may be notched where it crosses the foot bar end; only the card position counts.</text>
+<text x="2560.0" y="1220.0" font-size="16" fill="#202020">Wedge position along the card: INBOARD, x 18.73..22.75 (|x|), on the tile beside the foot bar (the bar is only</text>
+<text x="2560.0" y="1246.0" font-size="16" fill="#202020">x 22.75..24.73), so it clears the bar; the card's outer 2 in rests on the bar end. Only the card position counts.</text>
 </svg>

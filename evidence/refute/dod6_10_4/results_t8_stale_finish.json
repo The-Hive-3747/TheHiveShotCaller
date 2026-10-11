@@ -1,0 +1,120 @@
+{
+ "0_before": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.18750476334746793,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.20570882602726456
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "lens": {
+  "cam0": {
+   "reprojection_rmse_px": 0.9261874204495003,
+   "frames_used": 40,
+   "intrinsics_source": "measured"
+  }
+ },
+ "status": {
+  "running": true,
+  "calibration_loaded": true,
+  "calibration_source": "kit",
+  "intrinsics_default": false,
+  "warnings": [
+   "extrinsics for cam0 are stale (intrinsics were recalibrated)"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "kit",
+    "isrc": "measured",
+    "pair_stale": false,
+    "frames": 56
+   },
+   "cam1": {
+    "cs": "kit",
+    "isrc": "measured",
+    "pair_stale": false,
+    "frames": 56
+   }
+  }
+ },
+ "finish_with_stale_cam0": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.182795011980582,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.215242139096503
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "calib": {
+  "keys": [
+   "version",
+   "calibration_state",
+   "intrinsics",
+   "extrinsics"
+  ],
+  "n_ext": 2,
+  "n_intr": 2,
+  "fx": {
+   "cam0": 797.7,
+   "cam1": 798.5
+  },
+  "rmse": {
+   "cam0": 0.9261874204495003,
+   "cam1": 0.7072296454615752
+  },
+  "isrc": {
+   "cam0": null,
+   "cam1": null
+  },
+  "top_isrc": null,
+  "stale": {
+   "cam0": true,
+   "cam1": false
+  }
+ },
+ "acc": {
+  "pos_err_in": {
+   "cam0": 0.21,
+   "cam1": 0.36
+  },
+  "rot_err_deg": {
+   "cam0": 0.1,
+   "cam1": 0.27
+  },
+  "fx": {
+   "cam0": [
+    797.7,
+    800.0
+   ],
+   "cam1": [
+    798.5,
+    800.0
+   ]
+  },
+  "traj_mean": 0.08,
+  "traj_p95": 0.16,
+  "traj_max": 0.25,
+  "cell_center_err": 0.02
+ }
+}

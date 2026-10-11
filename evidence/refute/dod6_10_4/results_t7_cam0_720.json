@@ -1,0 +1,240 @@
+{
+ "0_base": {
+  "code": 200,
+  "ok": true
+ },
+ "0_base_finish": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.1507541948677166,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.22395194404917476
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": [],
+  "ack": true
+ },
+ "cam0_720p": {
+  "auto_all": {
+   "code": 200,
+   "ok": false,
+   "rolled_back": true,
+   "max_error_in": null,
+   "calibration_source": null,
+   "warnings": [
+    "not saved: one camera failed, so both old poses were restored"
+   ],
+   "detail": null,
+   "per_cam": {
+    "cam0": {
+     "ok": false,
+     "status": 409,
+     "refused": true,
+     "error": "extrinsics of cam0 not saved: reprojection error 16.2 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); the camera delivers 1280x720 but its intrinsics are for 1920x1080: redo the intrinsics or fix the camera resolution. The previous calibration is kept.",
+     "fit_residual_in": null,
+     "rmse_in": null,
+     "oos_error_in": null,
+     "crosscheck_error_in": null,
+     "tags_used": null,
+     "reprojection_px": 16.214705314900996,
+     "pair_check_failed": null,
+     "hint": null,
+     "warnings": null
+    },
+    "cam1": {
+     "ok": true,
+     "status": null,
+     "refused": null,
+     "error": null,
+     "fit_residual_in": 0.08548556546438336,
+     "rmse_in": 0.08548556546438336,
+     "oos_error_in": 0.2402120582304816,
+     "crosscheck_error_in": null,
+     "tags_used": [
+      100,
+      101,
+      102,
+      103
+     ],
+     "reprojection_px": 0.751070246972488,
+     "pair_check_failed": null,
+     "hint": null,
+     "warnings": []
+    }
+   }
+  },
+  "status": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [
+    "camera cam0 resolution mismatch (1920x1080 vs 1280x720)"
+   ],
+   "mismatch": {
+    "cam0": "1920x1080 vs 1280x720"
+   },
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 62
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 62
+    }
+   }
+  },
+  "finish": {
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.1507541948677166,
+   "out_of_sample": false,
+   "oos_error_in_per_camera": {
+    "cam0": null,
+    "cam1": 0.22395194404917476
+   },
+   "calibration_source": "kit",
+   "warnings": [
+    "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+   ],
+   "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": [],
+   "ack": true
+  },
+  "crosscheck": {
+   "code": 200,
+   "max_error_in": 0.1507541948677166,
+   "out_of_sample": false,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "detail": null
+  }
+ },
+ "cam0_zoom10": {
+  "auto_all": {
+   "code": 200,
+   "ok": true,
+   "rolled_back": false,
+   "max_error_in": 0.23719079544962487,
+   "calibration_source": null,
+   "warnings": [
+    "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+    "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+   ],
+   "detail": null,
+   "per_cam": {
+    "cam0": {
+     "ok": true,
+     "status": null,
+     "refused": null,
+     "error": null,
+     "fit_residual_in": 0.16948953874514827,
+     "rmse_in": 0.16948953874514827,
+     "oos_error_in": null,
+     "crosscheck_error_in": null,
+     "tags_used": [
+      100,
+      101,
+      103
+     ],
+     "reprojection_px": 1.768584123263898,
+     "pair_check_failed": null,
+     "hint": null,
+     "warnings": [
+      "no tag outside this solve is visible to this camera: the result is not independently checked"
+     ]
+    },
+    "cam1": {
+     "ok": true,
+     "status": null,
+     "refused": null,
+     "error": null,
+     "fit_residual_in": 0.08539560639376977,
+     "rmse_in": 0.08539560639376977,
+     "oos_error_in": 0.24000203190034522,
+     "crosscheck_error_in": null,
+     "tags_used": [
+      100,
+      101,
+      102,
+      103
+     ],
+     "reprojection_px": 0.7502565749963234,
+     "pair_check_failed": null,
+     "hint": null,
+     "warnings": []
+    }
+   },
+   "crosscheck": {
+    "max_error_in": 0.23719079544962487,
+    "out_of_sample": false,
+    "held_out": null,
+    "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+    "error": null,
+    "detail": null
+   }
+  },
+  "status": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 62
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 62
+    }
+   }
+  },
+  "finish": {
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.23719079544962487,
+   "out_of_sample": false,
+   "oos_error_in_per_camera": {
+    "cam0": null,
+    "cam1": 0.22116481883070294
+   },
+   "calibration_source": "kit",
+   "warnings": [
+    "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+   ],
+   "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": [],
+   "ack": true
+  },
+  "crosscheck": {
+   "code": 200,
+   "max_error_in": 0.23719079544962487,
+   "out_of_sample": false,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "detail": null
+  }
+ }
+}

@@ -1,0 +1,6 @@
+usb    sigma 0.7: per-camera gate cam0 0.99 cam1 0.98; solver exception cam0 0/300 cam1 0/300; RMSE<2 only 1.00/1.00; both cameras pass first try 0.96; opening center <1 in 1.000 of 300 (med 0.11, max 0.38)
+usb    sigma 1.0: per-camera gate cam0 0.88 cam1 0.84; solver exception cam0 0/300 cam1 0/300; RMSE<2 only 0.98/0.98; both cameras pass first try 0.73; opening center <1 in 1.000 of 300 (med 0.17, max 0.55)
+usb    sigma 1.5: per-camera gate cam0 0.39 cam1 0.41; solver exception cam0 0/300 cam1 1/300; RMSE<2 only 0.63/0.62; both cameras pass first try 0.19; opening center <1 in 1.000 of 299 (med 0.26, max 0.87)
+gopro  sigma 0.7: per-camera gate cam0 0.99 cam1 0.97; solver exception cam0 0/300 cam1 0/300; RMSE<2 only 1.00/1.00; both cameras pass first try 0.97; opening center <1 in 1.000 of 300 (med 0.10, max 0.24)
+gopro  sigma 1.0: per-camera gate cam0 0.89 cam1 0.83; solver exception cam0 0/300 cam1 0/300; RMSE<2 only 0.98/0.98; both cameras pass first try 0.74; opening center <1 in 1.000 of 300 (med 0.15, max 0.35)
+gopro  sigma 1.5: per-camera gate cam0 0.45 cam1 0.42; solver exception cam0 0/300 cam1 0/300; RMSE<2 only 0.64/0.62; both cameras pass first try 0.21; opening center <1 in 1.000 of 300 (med 0.22, max 0.62)

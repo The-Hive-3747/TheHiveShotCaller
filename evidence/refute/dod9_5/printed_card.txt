@@ -1,0 +1,4 @@
+usb    generated decoded cam0 {100: 15, 101: 15, 102: 11, 103: 15} cam1 {100: 15, 101: 15, 102: 15, 103: 15}  reproj med 0.57 max 0.85
+usb    printed   decoded cam0 {100: 15, 101: 15, 102: 11, 103: 15} cam1 {100: 15, 101: 15, 102: 15, 103: 15}  reproj med 0.53 max 0.84
+gopro  generated decoded cam0 {100: 15, 101: 15, 102: 0, 103: 15} cam1 {100: 15, 101: 15, 102: 15, 103: 15}  reproj med 0.55 max 0.77
+gopro  printed   decoded cam0 {100: 15, 101: 15, 102: 0, 103: 15} cam1 {100: 15, 101: 15, 102: 15, 103: 15}  reproj med 0.50 max 0.75

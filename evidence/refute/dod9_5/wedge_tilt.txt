@@ -1,0 +1,4 @@
+usb    base cards tilted +1.5 deg: reproj<2px both 29/30; opening<1in 30/30; both 29/30; open err med 0.31 max 0.66
+usb    base cards tilted -1.5 deg: reproj<2px both 29/30; opening<1in 30/30; both 29/30; open err med 0.30 max 0.59
+gopro  base cards tilted +1.5 deg: reproj<2px both 30/30; opening<1in 30/30; both 30/30; open err med 0.31 max 0.61
+gopro  base cards tilted -1.5 deg: reproj<2px both 29/30; opening<1in 30/30; both 29/30; open err med 0.34 max 0.69

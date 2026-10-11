@@ -1,0 +1,17 @@
+### gopro / mount_0.25 / seeds 30..229  seeds=200
+  detected kit ids cam0 (counts): {100: 200, 101: 200, 102: 1, 103: 200}  cam1: {100: 200, 101: 200, 102: 200, 103: 182}  | hidden-by-occluder runs: 0
+  kit solve [app]: both cameras solved 200/200
+    cam0: reproj px med 0.91 max 1.87, <2px 200/200; pos err in med 2.22 max 6.21; rot deg med 1.29 max 3.53; tags used med 3 min 3
+    cam1: reproj px med 1.22 max 2.04, <2px 199/200; pos err in med 0.95 max 4.94; rot deg med 0.52 max 2.44; tags used med 4 min 3
+    reproj<2px both cameras: 199/200
+    opening center err in: med 0.35 p90 0.59 max 0.76; <1 in 200/200
+    BOTH GATES (2 px both cams AND opening center < 1 in): 199/200
+    out-of-sample HIVE-tag check possible 200/200; max corner err in med 0.50 max 1.12; <1 in 199/200
+  kit solve [n0.5]: both cameras solved 200/200
+    cam0: reproj px med 1.09 max 1.92, <2px 200/200; pos err in med 2.24 max 6.50; rot deg med 1.30 max 3.70; tags used med 3 min 3
+    cam1: reproj px med 1.38 max 2.10, <2px 196/200; pos err in med 0.99 max 5.22; rot deg med 0.53 max 2.57; tags used med 4 min 3
+    reproj<2px both cameras: 196/200
+    opening center err in: med 0.35 p90 0.60 max 0.85; <1 in 200/200
+    BOTH GATES (2 px both cams AND opening center < 1 in): 196/200
+    out-of-sample HIVE-tag check possible 200/200; max corner err in med 0.51 max 1.15; <1 in 198/200
+  click method 1.5 px: per-camera gate passed 162/400; both on first try 33/200; RMSE<2 only 240/400; opening center err med 0.21 max 0.50, <1 in 200/200

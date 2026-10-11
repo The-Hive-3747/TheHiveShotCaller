@@ -243,12 +243,14 @@ def _front(cv):
     b3 = tagkit.tag_center_xyz(103)
     bx, by = v.hz(b3[0], b3[2])
     _note(cv, 1190, 1355, ["103 (+X base corner)", "center (21.73, 19.06, 3.29)",
-                           "black square x 18.73..24.73 (flush with the", "foot bar outer face), z 0.47..6.11"])
+                           "black square x 18.73..24.73 (flush with the", "foot bar outer face), z 0.47..6.11",
+                           "foam wedge behind the card, inboard: x 18.73..22.75"])
     cv.line((bx, by + 30), (bx, 1340), INK, 1)
     b2 = tagkit.tag_center_xyz(102)
     bx2, by2 = v.hz(b2[0], b2[2])
     _note(cv, 2060, 1355, ["102 (-X base corner)", "center (-21.73, 19.06, 3.29)",
-                           "black square x -24.73..-18.73, z 0.47..6.11"])
+                           "black square x -24.73..-18.73, z 0.47..6.11",
+                           "foam wedge behind the card, inboard: x -18.73..-22.75"])
     cv.line((bx2, by2 + 30), (bx2, 1340), INK, 1)
     cv.text(1180, 1466, "Both audience CELLs are up (calibration state): tip BOTH HIVEs by hand before calibrating. "
             "Black squares are the kit tags (to scale); dashed outlines are the CELLs that point away.", 0.55, "#404040")
@@ -309,7 +311,8 @@ def _detail(cv):
         "(0.78 in beyond the foot bar end); the card rests on the foot bar end's top edge.",
         f"Black-square bottom edge height = 0.5 x cos 20 deg = {z_bot:.2f} in; top edge z {top[1]:.2f}.",
         "Black square outer edge flush with the foot bar's outer face (x = +-24.73).",
-        "The wedge may be notched where it crosses the foot bar end; only the card position counts."],
+        "Wedge position along the card: INBOARD, x 18.73..22.75 (|x|), on the tile beside the foot bar (the bar is only",
+        "x 22.75..24.73), so it clears the bar; the card's outer 2 in rests on the bar end. Only the card position counts."],
         head=False, step=26)
 
 

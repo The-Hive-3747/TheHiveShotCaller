@@ -683,7 +683,7 @@ def test_stub_round13_payloads():
 
 
 NOTE = ("Before calibrating, tip BOTH HIVEs by hand so both audience-side CELLs are up "
-        "(the CELLs otherwise hide the tags). Put the red HIVE back to match start afterwards.")
+        "(the CELLs otherwise hide the tags). Afterwards tip the blue HIVE back so its far CELL is up (match start).")
 
 
 def test_round14_tip_both_hives_note_and_calibration_state():

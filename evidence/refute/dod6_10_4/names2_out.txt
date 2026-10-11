@@ -1,0 +1,62 @@
+H-  Detect and preview
+HA  This is the -X wall camera
+H-  Open printable checkerboard (PDF)
+HA  Start recording
+HA  Stop recording
+H-  Open printable tag sheet (PDF)
+HA  Auto-calibrate
+HA  Auto-calibrate all
+HA  Recalibrate both
+HA  Cross-check
+H-  Undo last sample
+HA  Reset to defaults
+HA  Start pipeline and session
+-A  Refresh image
+-A  Undo point
+-A  Clear
+-A  Solve extrinsics
+-A  Start intrinsics
+-A  Stop intrinsics
+H-  Download checkerboard PDF
+HA  Pipeline start
+HA  Pipeline stop
+H-  Set HIVE state
+HA  Run demo
+HA  Exit demo
+-A  Add source
+-A  use picked device
+-A  Save config
+-A  detected devices
+H-  No printer: use the HIVE's own tags
+H-  I printed the tag sheet
+HA  Reset calibration
+HA  Learn
+-A  Field size (in)
+H-  Start session
+H-  End session
+H-  Export CSV
+H-  Follow ball
+HA  Play
+-A  Pause
+HA  Speed
+H-  Current calibration
+-A  Max error
+-A  Fit residual
+-A  Out-of-sample
+-A  pair_stale
+-A  pair stale
+-A  calibration mismatch
+-A  Refresh
+HA  remove
+HA  Session
+HA  Alliance
+HA  Up cell
+H-  1. Cameras
+H-  2. Lens
+H-  3. Tags
+H-  4. Verify HIVE tags
+H-  5. Colors
+H-  6. Done
+-A  Force this camera only
+HA  Result
+--  Run anyway

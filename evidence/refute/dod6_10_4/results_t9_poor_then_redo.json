@@ -1,0 +1,149 @@
+{
+ "far": {
+  "cam0": [
+   2.83925938859828,
+   "measured_poor"
+  ],
+  "cam1": [
+   3.175561671385536,
+   "measured_poor"
+  ]
+ },
+ "auto_all": {
+  "code": 200,
+  "ok": true,
+  "max": 0.31019663285203014
+ },
+ "acc_poor": {
+  "pos_err_in": {
+   "cam0": 7.05,
+   "cam1": 10.54
+  },
+  "rot_err_deg": {
+   "cam0": 2.47,
+   "cam1": 1.34
+  },
+  "fx": {
+   "cam0": [
+    734.7,
+    800.0
+   ],
+   "cam1": [
+    723.9,
+    800.0
+   ]
+  },
+  "traj_mean": 0.89,
+  "traj_p95": 2.36,
+  "traj_max": 4.35,
+  "cell_center_err": 0.17
+ },
+ "finish_poor": {
+  "code": 409,
+  "detail": "setup is not finished: camera cam0 lens calibration is poor (RMSE 2.8 px): re-run the Lens step closer, 1.5-3 ft; camera cam1 lens calibration is poor (RMSE 3.2 px): re-run the Lens step closer, 1.5-3 ft",
+  "reasons": [
+   "camera cam0 lens calibration is poor (RMSE 2.8 px): re-run the Lens step closer, 1.5-3 ft",
+   "camera cam1 lens calibration is poor (RMSE 3.2 px): re-run the Lens step closer, 1.5-3 ft"
+  ],
+  "max_error_in": 0.31019663285203014,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.9293376673244735
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [
+   "cam0",
+   "cam1"
+  ],
+  "intrinsics_default_cameras": []
+ },
+ "near": {
+  "cam0": [
+   0.8577281824877998,
+   "measured"
+  ],
+  "cam1": [
+   0.7116572258572937,
+   "measured"
+  ]
+ },
+ "status_after_lens_redo": {
+  "running": true,
+  "calibration_loaded": true,
+  "calibration_source": "kit",
+  "intrinsics_default": false,
+  "warnings": [
+   "extrinsics for cam0 are stale (intrinsics were recalibrated)",
+   "extrinsics for cam1 are stale (intrinsics were recalibrated)"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "kit",
+    "isrc": "measured",
+    "pair_stale": false,
+    "frames": 56
+   },
+   "cam1": {
+    "cs": "kit",
+    "isrc": "measured",
+    "pair_stale": false,
+    "frames": 56
+   }
+  }
+ },
+ "calib_stale": {
+  "cam0": true,
+  "cam1": true
+ },
+ "finish_after_lens_only": {
+  "code": 409,
+  "detail": "setup is not finished: the cross-check error is 4.39 in (limit 1 in): re-measure the tags and press Auto-calibrate again; camera cam1: a tag that was not used for its solve is 4.81 in off (limit 1 in)",
+  "reasons": [
+   "the cross-check error is 4.39 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+   "camera cam1: a tag that was not used for its solve is 4.81 in off (limit 1 in)"
+  ],
+  "max_error_in": 4.3938291896977,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 4.80676258933102
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "acc_after_lens_only": {
+  "pos_err_in": {
+   "cam0": 7.05,
+   "cam1": 10.54
+  },
+  "rot_err_deg": {
+   "cam0": 2.47,
+   "cam1": 1.34
+  },
+  "fx": {
+   "cam0": [
+    796.7,
+    800.0
+   ],
+   "cam1": [
+    798.5,
+    800.0
+   ]
+  },
+  "traj_mean": 4.72,
+  "traj_p95": 5.68,
+  "traj_max": 5.92,
+  "cell_center_err": 4.38
+ }
+}

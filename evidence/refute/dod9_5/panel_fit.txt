@@ -1,0 +1,14 @@
+panel quad in-plane (s along bottom edge, t up slope):
+ [[ 0.     0.   ]
+ [29.16   0.   ]
+ [27.8    6.457]
+ [ 1.36   6.457]]  planarity 0.0002723153671903814
+tag 100: off-plane [0.0003, 0.0003, 0.0, 0.0]  inside margins per corner (in; >0 inside): [np.float64(0.0), np.float64(0.0), np.float64(0.457), np.float64(0.457)]
+   7 in card margins (negative = hangs over the panel edge): [np.float64(-0.5), np.float64(-0.5), np.float64(-0.043), np.float64(-0.043)]
+   card top edge mid (x,y,z): [-10.      1.463  40.481]  card top corners x: [ -6.5 -13.5]  block face y=1.52: card top y = 1.463
+tag 101: off-plane [0.0003, 0.0003, 0.0, 0.0]  inside margins per corner (in; >0 inside): [np.float64(0.0), np.float64(0.0), np.float64(0.457), np.float64(0.457)]
+   7 in card margins (negative = hangs over the panel edge): [np.float64(-0.5), np.float64(-0.5), np.float64(-0.043), np.float64(-0.043)]
+   card top edge mid (x,y,z): [10.     1.463 40.481]  card top corners x: [13.5  6.5]  block face y=1.52: card top y = 1.463
+panel top corner x = +-13.22 per quad; CAD notes chamfer to x 13.7 and tabs to 15.07
+tag 100: margin to SIDE edges per corner (in): left [np.float64(19.786), np.float64(25.657), np.float64(26.894), np.float64(21.022)] right [np.float64(6.086), np.float64(0.215), np.float64(1.452), np.float64(7.323)]; to bottom edge [np.float64(6.457), np.float64(6.457), np.float64(0.457), np.float64(0.457)]
+tag 101: margin to SIDE edges per corner (in): left [np.float64(0.215), np.float64(6.086), np.float64(7.323), np.float64(1.452)] right [np.float64(25.657), np.float64(19.786), np.float64(21.022), np.float64(26.894)]; to bottom edge [np.float64(6.457), np.float64(6.457), np.float64(0.457), np.float64(0.457)]

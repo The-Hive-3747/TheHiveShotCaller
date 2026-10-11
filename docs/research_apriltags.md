@@ -19,7 +19,7 @@ Sources read directly: Competition Manual TU04 Section 9 (text and Figures 9-8, 
 - The down CELL is now pinned by the CAD (rigid beam model reproduces the official 30.6 in lowest point to 0.01 in), so both CELLs' tags are computable; learning remains as a verification step.
 
 ## Consequences for the design
-1. Calibration: the kit (tags at the frame top corners, 49 in apart) stays the default for accuracy; the up CELL's four known tags give a no-printer fallback and a continuous check.
+1. Calibration: the kit (two tags on the slanted logo panel, two standing at the audience-side base corners of the frame; docs/calibration.md) stays the default for accuracy; the up CELL's four known tags give a no-printer fallback and a continuous check.
 2. HIVE state: read automatically from which clusters are visible right-side-up (roll within ±90°) with hysteresis; tips logged automatically; no manual toggling once cameras see the tags.
 3. Camera placement: from (−78, 65, 36) and (65, 78, 36) the up CELL sticker is seen about 65° off its normal (marginal). Lower (18-24 in) and closer to the audience wall gives about 50°. placement.recommend() gets a tag-visibility term; the placement map and docs are regenerated from it.
 

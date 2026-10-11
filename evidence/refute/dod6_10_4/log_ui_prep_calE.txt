@@ -1,0 +1,2 @@
+auto_all 200 True
+ready 8797 13812

@@ -1,0 +1,18 @@
+### usb / mount_0.25 / seeds 30..229  seeds=200
+  detected kit ids cam0 (counts): {100: 200, 101: 200, 102: 115, 103: 200}  cam1: {100: 200, 101: 200, 102: 200, 103: 200}  | hidden-by-occluder runs: 0
+  kit solve [app]: both cameras solved 200/200
+    cam0: reproj px med 0.99 max 1.96, <2px 200/200; pos err in med 1.40 max 5.28; rot deg med 0.82 max 3.00; tags used med 4 min 3
+    cam1: reproj px med 1.11 max 1.86, <2px 200/200; pos err in med 0.92 max 2.83; rot deg med 0.52 max 1.36; tags used med 4 min 4
+    reproj<2px both cameras: 200/200
+    opening center err in: med 0.32 p90 0.51 max 0.71; <1 in 200/200
+    BOTH GATES (2 px both cams AND opening center < 1 in): 200/200
+    out-of-sample HIVE-tag check possible 200/200; max corner err in med 0.47 max 0.93; <1 in 200/200
+  kit solve [n0.5]: both cameras solved 200/200
+    cam0: reproj px med 1.17 max 2.15, <2px 195/200; pos err in med 1.40 max 5.65; rot deg med 0.84 max 3.22; tags used med 4 min 3
+    cam1: reproj px med 1.27 max 2.08, <2px 199/200; pos err in med 0.95 max 2.78; rot deg med 0.53 max 1.35; tags used med 4 min 4
+    reproj<2px both cameras: 194/200
+    opening center err in: med 0.33 p90 0.52 max 0.77; <1 in 200/200
+    BOTH GATES (2 px both cams AND opening center < 1 in): 194/200
+    out-of-sample HIVE-tag check possible 200/200; max corner err in med 0.47 max 1.09; <1 in 198/200
+  click method 1.5 px: per-camera gate passed 159/400; both on first try 29/200; RMSE<2 only 243/400; opening center err med 0.24 max 0.63, <1 in 200/200
+app opening center err: p95 0.60 p99 0.66 max 0.71; n>=1in: 0

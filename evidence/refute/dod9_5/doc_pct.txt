@@ -1,0 +1,32 @@
+gopro A cell opening centre %/%: (54, 27) tag row (min/max): (53, 38) (58, 37) kit: {100: (71, 50), 101: (60, 50), 102: (74, 99), 103: (50, 83)} | tags 100->101 du,dv px: -200 2 slope (px up per 100 px going left) -1.1
+   aim off by 2.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 3.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 4.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 5.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 5.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 6.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+gopro B cell opening centre %/%: (37, 28) tag row (min/max): (33, 36) (39, 39) kit: {100: (41, 54), 101: (33, 52), 102: (50, 83), 103: (32, 90)} | tags 100->101 du,dv px: -148 -25 slope (px up per 100 px going left) 17.0
+   aim off by 2.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 4.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 5.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 5.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 6.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+usb A cell opening centre %/%: (56, 30) tag row (min/max): (54, 40) (59, 38) kit: {100: (70, 50), 101: (61, 50), 102: (73, 93), 103: (52, 79)} | tags 100->101 du,dv px: -176 2 slope (px up per 100 px going left) -1.2
+   aim off by 2.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 4.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 5.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 5.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+   aim off by 6.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: False
+usb B cell opening centre %/%: (41, 34) tag row (min/max): (37, 41) (42, 43) kit: {100: (44, 56), 101: (37, 54), 102: (52, 81), 103: (36, 87)} | tags 100->101 du,dv px: -124 -21 slope (px up per 100 px going left) 16.6
+   aim off by 2.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 3.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 4.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 5.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 5.5 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True
+   aim off by 6.0 deg in yaw/pitch (each sign): refs + >=3 kit tags (+CELL tags for reader) still ok: True

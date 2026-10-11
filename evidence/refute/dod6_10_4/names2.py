@@ -1,0 +1,6 @@
+from pathlib import Path
+R = Path(r"C:\Users\3747h\Documents\HiveShotTracker")
+h = (R/"ui/index.html").read_text(encoding="utf-8"); a = (R/"ui/app.js").read_text(encoding="utf-8")
+names = ["Detect and preview","This is the -X wall camera","Open printable checkerboard (PDF)","Start recording","Stop recording","Open printable tag sheet (PDF)","Auto-calibrate","Auto-calibrate all","Recalibrate both","Cross-check","Undo last sample","Reset to defaults","Start pipeline and session","Refresh image","Undo point","Clear","Solve extrinsics","Start intrinsics","Stop intrinsics","Download checkerboard PDF","Pipeline start","Pipeline stop","Set HIVE state","Run demo","Exit demo","Add source","use picked device","Save config","detected devices","No printer: use the HIVE's own tags","I printed the tag sheet","Reset calibration","Learn","Field size (in)","Start session","End session","Export CSV","Follow ball","Play","Pause","Speed","Current calibration","Max error","Fit residual","Out-of-sample","pair_stale","pair stale","calibration mismatch","Refresh","remove","Session","Alliance","Up cell","1. Cameras","2. Lens","3. Tags","4. Verify HIVE tags","5. Colors","6. Done","Force this camera only","Result","Run anyway"]
+for n in names:
+    print(f"{'H' if n.lower() in h.lower() else '-'}{'A' if n.lower() in a.lower() else '-'}  {n}")

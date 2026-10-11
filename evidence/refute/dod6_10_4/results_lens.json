@@ -1,0 +1,835 @@
+{
+ "truth": {
+  "fx": 800.0,
+  "dist": [
+   -0.12,
+   0.03,
+   0,
+   0,
+   0
+  ]
+ },
+ "board_render_s": 1537.8,
+ "0_initial_status": {
+  "running": true,
+  "calibration_loaded": false,
+  "calibration_source": "default_intrinsics",
+  "intrinsics_default": true,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default lens intrinsics (fx 771): run the Lens step",
+   "camera cam1 uses default lens intrinsics (fx 771): run the Lens step"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "default_intrinsics",
+    "isrc": "default",
+    "pair_stale": false,
+    "frames": 56
+   },
+   "cam1": {
+    "cs": "default_intrinsics",
+    "isrc": "default",
+    "pair_stale": false,
+    "frames": 56
+   }
+  }
+ },
+ "2a_far_lens": {
+  "cam0": {
+   "code": 200,
+   "rmse": 2.851109918536152,
+   "frames": 39,
+   "src": "measured_poor",
+   "warning": "lens RMSE 2.9 px is over 2 px: saved as poor; re-run the Lens step closer, 1.5-3 ft from the camera (setup cannot finish until you do)",
+   "keys": [
+    "frames_used",
+    "intrinsics_source",
+    "reprojection_rmse_px",
+    "warning"
+   ]
+  },
+  "cam1": {
+   "code": 200,
+   "rmse": 2.986267065854277,
+   "frames": 39,
+   "src": "measured_poor",
+   "warning": "lens RMSE 3.0 px is over 2 px: saved as poor; re-run the Lens step closer, 1.5-3 ft from the camera (setup cannot finish until you do)",
+   "keys": [
+    "frames_used",
+    "intrinsics_source",
+    "reprojection_rmse_px",
+    "warning"
+   ]
+  }
+ },
+ "2a_status": {
+  "running": true,
+  "calibration_loaded": false,
+  "calibration_source": "none",
+  "intrinsics_default": false,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0: the lens calibration is poor (RMSE 2.9 px): re-run the Lens step closer, 1.5-3 ft from the camera",
+   "camera cam1: the lens calibration is poor (RMSE 3.0 px): re-run the Lens step closer, 1.5-3 ft from the camera"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "none",
+    "isrc": "measured_poor",
+    "pair_stale": false,
+    "frames": 57
+   },
+   "cam1": {
+    "cs": "none",
+    "isrc": "measured_poor",
+    "pair_stale": false,
+    "frames": 57
+   }
+  }
+ },
+ "2a_calib": {
+  "keys": [
+   "version",
+   "calibration_state",
+   "intrinsics",
+   "extrinsics"
+  ],
+  "n_ext": 0,
+  "n_intr": 2,
+  "fx": {
+   "cam0": 744.8,
+   "cam1": 727.5
+  },
+  "rmse": {
+   "cam0": 2.851109918536152,
+   "cam1": 2.986267065854277
+  },
+  "isrc": {
+   "cam0": null,
+   "cam1": null
+  },
+  "top_isrc": null,
+  "stale": {}
+ },
+ "2a_kit_auto_all": {
+  "code": 200,
+  "s": 0.2,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.293846605471967,
+  "calibration_source": null,
+  "warnings": [
+   "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+   "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.1892963027252176,
+    "rmse_in": 0.1892963027252176,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 1.776519621627211,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": [
+     "no tag outside this solve is visible to this camera: the result is not independently checked"
+    ]
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.2563940652083811,
+    "rmse_in": 0.2563940652083811,
+    "oos_error_in": 0.8798344419910241,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 2.0537639268574415,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.293846605471967,
+   "out_of_sample": false,
+   "held_out": null,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "error": null,
+   "detail": null
+  }
+ },
+ "2a_acc": {
+  "pos_err_in": {
+   "cam0": 6.03,
+   "cam1": 10.09
+  },
+  "rot_err_deg": {
+   "cam0": 1.87,
+   "cam1": 0.9
+  },
+  "fx": {
+   "cam0": [
+    744.8,
+    800.0
+   ],
+   "cam1": [
+    727.5,
+    800.0
+   ]
+  },
+  "traj_mean": 0.79,
+  "traj_p95": 2.12,
+  "traj_max": 3.9,
+  "cell_center_err": 0.13
+ },
+ "2a_finish": {
+  "code": 409,
+  "detail": "setup is not finished: camera cam0 lens calibration is poor (RMSE 2.9 px): re-run the Lens step closer, 1.5-3 ft; camera cam1 lens calibration is poor (RMSE 3.0 px): re-run the Lens step closer, 1.5-3 ft",
+  "reasons": [
+   "camera cam0 lens calibration is poor (RMSE 2.9 px): re-run the Lens step closer, 1.5-3 ft",
+   "camera cam1 lens calibration is poor (RMSE 3.0 px): re-run the Lens step closer, 1.5-3 ft"
+  ],
+  "max_error_in": 0.293846605471967,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.8798344419910241
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [
+   "cam0",
+   "cam1"
+  ],
+  "intrinsics_default_cameras": []
+ },
+ "2a_status_after_kit": {
+  "running": true,
+  "calibration_loaded": true,
+  "calibration_source": "kit",
+  "intrinsics_default": false,
+  "warnings": [
+   "camera cam0: the lens calibration is poor (RMSE 2.9 px): re-run the Lens step closer, 1.5-3 ft from the camera",
+   "camera cam1: the lens calibration is poor (RMSE 3.0 px): re-run the Lens step closer, 1.5-3 ft from the camera"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "kit",
+    "isrc": "measured_poor",
+    "pair_stale": false,
+    "frames": 70
+   },
+   "cam1": {
+    "cs": "kit",
+    "isrc": "measured_poor",
+    "pair_stale": false,
+    "frames": 70
+   }
+  }
+ },
+ "2a_after_restart_warnings": {
+  "warnings": [
+   "camera cam0: the lens calibration is poor (RMSE 2.9 px): re-run the Lens step closer, 1.5-3 ft from the camera",
+   "camera cam1: the lens calibration is poor (RMSE 3.0 px): re-run the Lens step closer, 1.5-3 ft from the camera"
+  ],
+  "isrc": {
+   "cam0": "measured_poor",
+   "cam1": "measured_poor"
+  }
+ },
+ "2b_mid_cam0": {
+  "cam0": {
+   "code": 200,
+   "rmse": 2.0147792594606644,
+   "frames": 39,
+   "src": "measured_poor",
+   "warning": "lens RMSE 2.0 px is over 2 px: saved as poor; re-run the Lens step closer, 1.5-3 ft from the camera (setup cannot finish until you do)",
+   "keys": [
+    "frames_used",
+    "intrinsics_source",
+    "reprojection_rmse_px",
+    "warning"
+   ]
+  }
+ },
+ "2b_status": {
+  "running": true,
+  "calibration_loaded": true,
+  "calibration_source": "kit",
+  "intrinsics_default": false,
+  "warnings": [
+   "camera cam0: the lens calibration is poor (RMSE 2.0 px): re-run the Lens step closer, 1.5-3 ft from the camera",
+   "camera cam1: the lens calibration is poor (RMSE 3.0 px): re-run the Lens step closer, 1.5-3 ft from the camera",
+   "extrinsics for cam0 are stale (intrinsics were recalibrated)"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "kit",
+    "isrc": "measured_poor",
+    "pair_stale": false,
+    "frames": 55
+   },
+   "cam1": {
+    "cs": "kit",
+    "isrc": "measured_poor",
+    "pair_stale": false,
+    "frames": 55
+   }
+  }
+ },
+ "2c_near_lens": {
+  "cam0": {
+   "code": 200,
+   "rmse": 0.9260239882047772,
+   "frames": 40,
+   "src": "measured",
+   "warning": null,
+   "keys": [
+    "frames_used",
+    "intrinsics_source",
+    "reprojection_rmse_px"
+   ]
+  },
+  "cam1": {
+   "code": 200,
+   "rmse": 0.7072296454615752,
+   "frames": 40,
+   "src": "measured",
+   "warning": null,
+   "keys": [
+    "frames_used",
+    "intrinsics_source",
+    "reprojection_rmse_px"
+   ]
+  }
+ },
+ "2c_status": {
+  "running": true,
+  "calibration_loaded": true,
+  "calibration_source": "kit",
+  "intrinsics_default": false,
+  "warnings": [
+   "extrinsics for cam0 are stale (intrinsics were recalibrated)",
+   "extrinsics for cam1 are stale (intrinsics were recalibrated)"
+  ],
+  "mismatch": {},
+  "cams": {
+   "cam0": {
+    "cs": "kit",
+    "isrc": "measured",
+    "pair_stale": false,
+    "frames": 56
+   },
+   "cam1": {
+    "cs": "kit",
+    "isrc": "measured",
+    "pair_stale": false,
+    "frames": 56
+   }
+  }
+ },
+ "2c_calib": {
+  "keys": [
+   "version",
+   "calibration_state",
+   "intrinsics",
+   "extrinsics"
+  ],
+  "n_ext": 2,
+  "n_intr": 2,
+  "fx": {
+   "cam0": 797.7,
+   "cam1": 798.5
+  },
+  "rmse": {
+   "cam0": 0.9260239882047772,
+   "cam1": 0.7072296454615752
+  },
+  "isrc": {
+   "cam0": null,
+   "cam1": null
+  },
+  "top_isrc": null,
+  "stale": {
+   "cam0": true,
+   "cam1": true
+  }
+ },
+ "2c_kit_auto_all": {
+  "code": 200,
+  "s": 0.48,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.18750476334746793,
+  "calibration_source": null,
+  "warnings": [
+   "cam0: no tag outside this solve is visible to this camera: the result is not independently checked",
+   "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)"
+  ],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.05340682471876631,
+    "rmse_in": 0.05340682471876631,
+    "oos_error_in": null,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.4982718197706565,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": [
+     "no tag outside this solve is visible to this camera: the result is not independently checked"
+    ]
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.1080364252814855,
+    "rmse_in": 0.1080364252814855,
+    "oos_error_in": 0.2267367734611084,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.8644645697420021,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.18750476334746793,
+   "out_of_sample": false,
+   "held_out": null,
+   "warning": "in-sample: these are the points the extrinsics were solved from, so the error is optimistic (no held-out feature: no tag outside the solves is visible in both cameras)",
+   "error": null,
+   "detail": null
+  }
+ },
+ "2c_acc": {
+  "pos_err_in": {
+   "cam0": 0.21,
+   "cam1": 0.36
+  },
+  "rot_err_deg": {
+   "cam0": 0.1,
+   "cam1": 0.27
+  },
+  "fx": {
+   "cam0": [
+    797.7,
+    800.0
+   ],
+   "cam1": [
+    798.5,
+    800.0
+   ]
+  },
+  "traj_mean": 0.07,
+  "traj_p95": 0.15,
+  "traj_max": 0.24,
+  "cell_center_err": 0.02
+ },
+ "2c_finish": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.18750476334746793,
+  "out_of_sample": false,
+  "oos_error_in_per_camera": {
+   "cam0": null,
+   "cam1": 0.2203077722526914
+  },
+  "calibration_source": "kit",
+  "warnings": [
+   "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners"
+  ],
+  "warning": "camera cam0 cross-check is in-sample: tape errors, resolution mismatch or a camera swap would not be detected; verify by clicking the 8 corners",
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": []
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   1.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.0
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.48
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.1
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.02
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   5.26
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.07
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.01
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   1.1
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/start",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/stop",
+   200,
+   2.41
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.48
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.1
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ]
+ ]
+}

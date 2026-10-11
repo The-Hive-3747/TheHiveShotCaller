@@ -266,3 +266,7 @@ All checks passed!
 --- ruff
 All checks passed!
 (round15 browser smoke vs stub on 8766 (finish in warn mode): chips measured_poor red + pair stale amber on cam1; cam1 auto 409 -> hint + Recalibrate both / Force this camera only; force shows warnings; Reset calibration confirm -> toast; Lens measured_poor required + re-run closer text; finish shows both warnings, ack box, button disabled until ticked, then proceeds to Dashboard with warnings kept; stub stopped)
+=== round16: tip-both-HIVEs note wording (blue HIVE back, far CELL up)
+......................................                                   [100%]
+--- ruff
+All checks passed!

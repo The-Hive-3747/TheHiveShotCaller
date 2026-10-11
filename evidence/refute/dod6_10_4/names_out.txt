@@ -1,0 +1,219 @@
+== docs/calibration.md 128
+MISS Where the controls are (names as in the app)
+MISS Setup tab, the wizard
+OK   1. Cameras
+OK   Detect and preview
+OK   2. Lens
+OK   3. Tags
+OK   Open printable tag sheet (PDF)
+OK   Auto-calibrate
+OK   4. Verify HIVE tags
+OK   Learn
+OK   5. Colors
+OK   6. Done
+OK   Start pipeline and session
+OK   Calibration tab
+OK   Refresh image
+OK   Undo point
+OK   Clear
+OK   Solve extrinsics
+OK   Start intrinsics
+OK   Stop intrinsics
+OK   Auto-calibrate all
+OK   Cross-check
+OK   Download checkerboard PDF
+OK   Pipeline start
+OK   Pipeline stop
+OK   Set HIVE state
+MISS Two ways to set the camera positions (extrinsics)
+MISS Primary: the printed tag kit
+MISS Fallback: click 8 points
+MISS Targets (PLAN.md M1)
+OK   Cameras
+MISS and `cam1` is camera
+MISS +X corner
+MISS Field axes used below
+MISS +Y toward the audience
+MISS After calibrating, set the HIVEs back to match start as needed
+MISS logo panel leans 24 deg with the legs
+MISS Print the checkerboard
+OK   100% / Actual size
+OK   1.00 in
+MISS Measure your field and the HIVE
+MISS height of the crossbar centerline above the tiles (model: 41.45 in)
+MISS logo panel
+MISS top edge
+MISS bottom edge
+MISS foot bar
+MISS Changing any of these later invalidates the intrinsics
+MISS Print the tag kit
+MISS one tag per page
+OK   6.00 in
+MISS dashed cut line exactly 0.5 in outside the black square
+MISS Tags 102 and 103 need a stand: a foam-core wedge
+OK   Calibration
+OK   Lens
+MISS 1.5 to 3 ft (45 to 90 cm) from the lens
+MISS fills about a third of the picture
+OK   20 seconds
+MISS tilt it through +-30 degrees
+OK   Accept
+OK   under 1 px
+MISS at least 8
+MISS 1 to 2 px is usable but a warning
+MISS Over 2 px: redo it
+OK   stale
+MISS a tag put 1 in off its place moves the camera pose by several inches
+MISS Tip BOTH HIVEs by hand so that both audience CELLs are up
+MISS Put the tags up, "label up"
+MISS lay it flat on the slanted audience logo panel
+MISS on the panel, no gap
+MISS top edge flush with the top edge of the panel
+MISS stands on the tile
+MISS -X base corner
+OK   card
+OK   20.25 in
+MISS leans back 20 deg
+MISS +X base corner
+MISS Figure: where the four kit tags go
+MISS Why the base tags are tilted back
+MISS Keep the tags clean and flat
+MISS no robot
+MISS at least 3 tags
+OK   under 2 px
+MISS under 0.25 in
+MISS The HIVE's own tags: a fallback, not the normal route
+MISS What the buttons do
+MISS from the kit first, and keep the HIVE tags out of the solve
+OK   auto_all
+MISS coarse
+MISS The far HIVE tags are not visible from the audience-side cameras
+MISS audience-up
+MISS verification
+MISS What a mounting error costs
+OK   calibration state
+MISS 30 / 30 and 30 / 30
+OK   0.25 in
+MISS The calibration state matters
+MISS no run solves, 0 of 30
+MISS corners of the two AUDIENCE-side CELL openings
+OK   up
+MISS tip BOTH HIVEs by hand so that both audience CELLs are up
+MISS in the air on the HIVE
+MISS in this order
+OK   left
+MISS blue opening is the one to the right of the red one
+MISS -X / +X side
+MISS Zoom the browser to 200 % (Ctrl and +) for the clicks
+MISS reprojection RMSE over the 8 points is under 2 px
+MISS and no single point is over 3 px
+MISS Why 3 px per point, not 2, and what to expect
+MISS gate: RMSE under 2 px and every point under 3 px
+MISS 198 / 199
+MISS 179 / 175
+MISS 96 / 91
+MISS 32 / 29
+MISS 46 to 48 %
+MISS never accepted (0 of 200 for both lens options)
+MISS calibration mismatch (n)
+OK   Current calibration
+MISS Cross-check button
+MISS It is out-of-sample by default
+MISS green (under 1 in) is the M1 target
+MISS What to expect with the recommended placement
+OK   in both cameras
+MISS camera B (the tag reader)
+MISS falls back to the in-sample check with a warning
+MISS Recommended independent check, including camera A: the click-corner method
+OK   both
+OK   Replay
+== docs/operator_guide.md 89
+MISS no Python, Node.js or other runtime needs to be installed
+MISS More info
+MISS Run anyway
+MISS Private networks
+MISS http://127.0.0.1:8765
+MISS Stop the app by closing the console window
+MISS Data folder (default)
+OK   Run demo
+OK   Exit demo
+OK   Pipeline start
+MISS Option A, GoPro
+MISS Option B, USB global shutter
+OK   Settings
+OK   Sources
+OK   detected devices
+OK   use picked device
+OK   Save config
+OK   Pipeline stop
+OK   Add source
+OK   remove
+OK   Setup
+OK   Cameras
+OK   Detect and preview
+OK   This is the -X wall camera
+MISS Lens (intrinsics), once per camera and lens setting
+OK   Open printable checkerboard (PDF)
+OK   Start recording
+OK   Stop recording
+OK   Calibration
+OK   Start intrinsics
+OK   Stop intrinsics
+MISS Tags and auto-calibration (the normal way for extrinsics, both cameras at once)
+MISS tip both HIVEs by hand so that both audience CELLs are up
+OK   Open printable tag sheet (PDF)
+OK   6.00 in
+MISS 4 in wide, 2 in deep along the floor and 5.5 in tall
+OK   Auto-calibrate
+OK   Auto-calibrate all
+MISS Reading the result
+OK   not
+MISS within 1 in
+MISS What gets refused
+MISS Both cameras moved?
+OK   pair_stale
+OK   Cross-check
+OK   Verify HIVE tags (optional)
+OK   Learn
+OK   Ball colors
+OK   Undo last sample
+OK   Reset to defaults
+OK   Done
+OK   Start pipeline and session
+MISS Fallback: click the points by hand
+OK   Refresh image
+OK   Undo point
+OK   Clear
+OK   Solve extrinsics
+OK   Current calibration
+MISS calibration mismatch (n)
+OK   Field size
+OK   Alliance
+OK   Up cell
+OK   Set HIVE state
+OK   Start session
+OK   Shots
+OK   Dashboard
+OK   End session
+OK   Session
+OK   Made
+OK   Bounce-out
+OK   Miss
+OK   Failures by burst order
+OK   By ball type
+OK   Tip events
+OK   Shots tab
+OK   Exit m/s
+OK   Exit in/s
+OK   Angle
+OK   Azimuth
+OK   Apex in
+OK   Result
+MISS Equation and fit RMSE
+OK   Replay
+OK   Play
+OK   Pause
+OK   Speed
+OK   Follow ball
+OK   clip
+OK   Export CSV

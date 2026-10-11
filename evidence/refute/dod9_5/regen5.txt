@@ -1,0 +1,6 @@
+camera_placement.svg 73aafdc05afa0979 73aafdc05afa0979 IDENTICAL 10472 10472
+camera_placement.png b31b7f8b85374852 b31b7f8b85374852 IDENTICAL 464632 464632
+camera_placement_gopro.svg 121de7b9ecfcbbc5 121de7b9ecfcbbc5 IDENTICAL 10467 10467
+camera_placement_gopro.png b5f560ab9fe1674c b5f560ab9fe1674c IDENTICAL 463225 463225
+kit_tag_positions.svg fe161bb43df5e771 fe161bb43df5e771 IDENTICAL 22276 22276
+kit_tag_positions.png fa7b527078bbfd6c fa7b527078bbfd6c IDENTICAL 748824 748824

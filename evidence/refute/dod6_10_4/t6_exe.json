@@ -1,0 +1,78 @@
+{
+ "startup_s": 1.1,
+ "browser_calls_default_launch": "BROWSER_OPEN http://127.0.0.1:8798/\n",
+ "default_sources": [
+  [
+   "cam0",
+   "file",
+   "fixtures/synth_basic/cam0.mp4"
+  ],
+  [
+   "cam1",
+   "file",
+   "fixtures/synth_basic/cam1.mp4"
+  ]
+ ],
+ "default_config": {
+  "running": false,
+  "calibration_loaded": false,
+  "calibration_source": "fixture",
+  "intrinsics_default": false,
+  "warnings": [],
+  "cams": {
+   "cam0": [
+    "fixture",
+    "measured"
+   ],
+   "cam1": [
+    "fixture",
+    "measured"
+   ]
+  },
+  "calib_intr": 2,
+  "calib_extr": 2
+ },
+ "put_device": 200,
+ "device_sources_8_9": {
+  "running": false,
+  "calibration_loaded": false,
+  "calibration_source": "default_intrinsics",
+  "intrinsics_default": true,
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default lens intrinsics (fx 771): run the Lens step",
+   "camera cam1 uses default lens intrinsics (fx 771): run the Lens step"
+  ],
+  "cams": {
+   "cam0": [
+    "default_intrinsics",
+    "default"
+   ],
+   "cam1": [
+    "default_intrinsics",
+    "default"
+   ]
+  },
+  "calib_intr": 2,
+  "calib_extr": 0
+ },
+ "wizard_opens_rule": [
+  "len(sources)>=2 -> sources_configured true; calibration_loaded false -> showTab('setup')",
+  true
+ ],
+ "exe_log_head": [
+  "INFO:     Started server process [28384]",
+  "INFO:     Waiting for application startup.",
+  "INFO:     Application startup complete.",
+  "INFO:     Uvicorn running on http://127.0.0.1:8798 (Press CTRL+C to quit)",
+  "INFO:     127.0.0.1:53263 - \"GET /api/config HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49685 - \"GET /api/config HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49686 - \"GET /api/pipeline/status HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49687 - \"GET /api/calib HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49688 - \"GET /api/calib/tags.pdf HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49689 - \"PUT /api/config HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49690 - \"GET /api/pipeline/status HTTP/1.1\" 200 OK",
+  "INFO:     127.0.0.1:49691 - \"GET /api/calib HTTP/1.1\" 200 OK"
+ ],
+ "browser_calls_no_browser_flag": null
+}

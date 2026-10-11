@@ -1,0 +1,1700 @@
+{
+ "tags_drawn": {
+  "cam0": [
+   100,
+   101,
+   102,
+   103
+  ],
+  "cam1": [
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "0_baseline_auto_all": {
+  "code": 200,
+  "s": 0.28,
+  "ok": true,
+  "rolled_back": false,
+  "max_error_in": 0.2225821037388338,
+  "calibration_source": null,
+  "warnings": [],
+  "detail": null,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.04338987497631459,
+    "rmse_in": 0.04338987497631459,
+    "oos_error_in": 0.19323772908686476,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.44473707945574276,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   },
+   "cam1": {
+    "ok": true,
+    "status": null,
+    "refused": null,
+    "error": null,
+    "fit_residual_in": 0.08228087980284379,
+    "rmse_in": 0.08228087980284379,
+    "oos_error_in": 0.21901012760156696,
+    "crosscheck_error_in": null,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "reprojection_px": 0.7228609349156702,
+    "pair_check_failed": null,
+    "hint": null,
+    "warnings": []
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.2225821037388338,
+   "out_of_sample": true,
+   "held_out": "HIVE tags",
+   "warning": null,
+   "error": null,
+   "detail": null
+  }
+ },
+ "0_baseline_acc": {
+  "pos_err_in": {
+   "cam0": 0.19,
+   "cam1": 0.41
+  },
+  "rot_err_deg": {
+   "cam0": 0.11,
+   "cam1": 0.04
+  },
+  "fx": {
+   "cam0": [
+    879.7,
+    879.7
+   ],
+   "cam1": [
+    882.3,
+    879.7
+   ]
+  },
+  "traj_mean": 0.07,
+  "traj_p95": 0.12,
+  "traj_max": 0.18,
+  "cell_center_err": 0.03
+ },
+ "0_baseline_finish": {
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.2216141095446978,
+  "out_of_sample": true,
+  "oos_error_in_per_camera": {
+   "cam0": 0.19883805664179652,
+   "cam1": 0.23924493774042085
+  },
+  "calibration_source": "kit",
+  "warnings": [],
+  "pair_stale_cameras": [],
+  "intrinsics_poor_cameras": [],
+  "intrinsics_default_cameras": [],
+  "ui_needs_ack": false
+ },
+ "0_baseline_crosscheck": {
+  "code": 200,
+  "max_error_in": 0.2174199195715637,
+  "out_of_sample": true,
+  "held_out": "HIVE tags",
+  "warning": null
+ },
+ "gates": {
+  "g1_all4_1in_low": {
+   "code": 200,
+   "s": 0.79,
+   "res": {
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 1.0997155338966214,
+    "calibration_source": null,
+    "warnings": [],
+    "detail": null,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.04664783694726895,
+      "rmse_in": 0.04664783694726895,
+      "oos_error_in": 1.1200969476979359,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       103
+      ],
+      "reprojection_px": 0.4406686297963993,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.08288477581830175,
+      "rmse_in": 0.08288477581830175,
+      "oos_error_in": 1.1065583571421906,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 0.7304531895297424,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     }
+    },
+    "crosscheck": {
+     "max_error_in": 1.0997155338966214,
+     "out_of_sample": true,
+     "held_out": "HIVE tags",
+     "warning": null,
+     "error": null,
+     "detail": null
+    }
+   },
+   "changed": true,
+   "acc": {
+    "pos_err_in": {
+     "cam0": 0.71,
+     "cam1": 0.95
+    },
+    "rot_err_deg": {
+     "cam0": 0.17,
+     "cam1": 0.12
+    },
+    "fx": {
+     "cam0": [
+      879.7,
+      879.7
+     ],
+     "cam1": [
+      882.3,
+      879.7
+     ]
+    },
+    "traj_mean": 0.96,
+    "traj_p95": 1.02,
+    "traj_max": 1.07,
+    "cell_center_err": 0.99
+   },
+   "status": {
+    "running": true,
+    "calibration_loaded": true,
+    "calibration_source": "kit",
+    "intrinsics_default": false,
+    "warnings": [],
+    "mismatch": {},
+    "cams": {
+     "cam0": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 88
+     },
+     "cam1": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 88
+     }
+    }
+   },
+   "finish": {
+    "code": 409,
+    "detail": "setup is not finished: the cross-check error is 1.11 in (limit 1 in): re-measure the tags and press Auto-calibrate again; camera cam0: a tag that was not used for its solve is 1.11 in off (limit 1 in); camera cam1: a tag that was not used for its solve is 1.12 in off (limit 1 in)",
+    "reasons": [
+     "the cross-check error is 1.11 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+     "camera cam0: a tag that was not used for its solve is 1.11 in off (limit 1 in)",
+     "camera cam1: a tag that was not used for its solve is 1.12 in off (limit 1 in)"
+    ],
+    "max_error_in": 1.1111134827935325,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 1.1053102253634237,
+     "cam1": 1.1190391286061079
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": [],
+    "ui_needs_ack": null
+   },
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 1.1178196343381581,
+    "out_of_sample": true,
+    "warning": null,
+    "detail": null
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.18,
+      "cam1": 0.41
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.04
+     },
+     "fx": {
+      "cam0": [
+       879.7,
+       879.7
+      ],
+      "cam1": [
+       882.3,
+       879.7
+      ]
+     },
+     "traj_mean": 0.07,
+     "traj_p95": 0.12,
+     "traj_max": 0.18,
+     "cell_center_err": 0.03
+    }
+   }
+  },
+  "g2_base102_1in_low": {
+   "code": 200,
+   "s": 0.68,
+   "res": {
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 0.5833461506810192,
+    "calibration_source": null,
+    "warnings": [],
+    "detail": null,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.04732430671534195,
+      "rmse_in": 0.04732430671534195,
+      "oos_error_in": 0.15567000776330103,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       103
+      ],
+      "reprojection_px": 0.4471025091746906,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.22536603240647432,
+      "rmse_in": 0.22536603240647432,
+      "oos_error_in": 0.6893502108784924,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 2.00912400611958,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     }
+    },
+    "crosscheck": {
+     "max_error_in": 0.5833461506810192,
+     "out_of_sample": true,
+     "held_out": "HIVE tags",
+     "warning": null,
+     "error": null,
+     "detail": null
+    }
+   },
+   "changed": true,
+   "acc": {
+    "pos_err_in": {
+     "cam0": 0.16,
+     "cam1": 2.75
+    },
+    "rot_err_deg": {
+     "cam0": 0.11,
+     "cam1": 1.62
+    },
+    "fx": {
+     "cam0": [
+      879.7,
+      879.7
+     ],
+     "cam1": [
+      882.3,
+      879.7
+     ]
+    },
+    "traj_mean": 0.77,
+    "traj_p95": 1.26,
+    "traj_max": 2.07,
+    "cell_center_err": 0.49
+   },
+   "status": {
+    "running": true,
+    "calibration_loaded": true,
+    "calibration_source": "kit",
+    "intrinsics_default": false,
+    "warnings": [],
+    "mismatch": {},
+    "cams": {
+     "cam0": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 91
+     },
+     "cam1": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 91
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.491093445532736,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 0.14490000453879942,
+     "cam1": 0.6886400957322475
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": [],
+    "ui_needs_ack": false
+   },
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.5700541169204058,
+    "out_of_sample": true,
+    "warning": null,
+    "detail": null
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.18,
+      "cam1": 0.41
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.04
+     },
+     "fx": {
+      "cam0": [
+       879.7,
+       879.7
+      ],
+      "cam1": [
+       882.3,
+       879.7
+      ]
+     },
+     "traj_mean": 0.07,
+     "traj_p95": 0.12,
+     "traj_max": 0.18,
+     "cell_center_err": 0.03
+    }
+   }
+  },
+  "g3_one_tag101_1in_x": {
+   "code": 200,
+   "s": 0.31,
+   "res": {
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 0.7455283556688872,
+    "calibration_source": null,
+    "warnings": [],
+    "detail": null,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.25612128949921126,
+      "rmse_in": 0.25612128949921126,
+      "oos_error_in": 0.8406191264939705,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 2.6357283676775163,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.2948103236366073,
+      "rmse_in": 0.2948103236366073,
+      "oos_error_in": 0.7254687157913448,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 2.567297743945565,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     }
+    },
+    "crosscheck": {
+     "max_error_in": 0.7455283556688872,
+     "out_of_sample": true,
+     "held_out": "HIVE tags",
+     "warning": null,
+     "error": null,
+     "detail": null
+    }
+   },
+   "changed": true,
+   "acc": {
+    "pos_err_in": {
+     "cam0": 2.11,
+     "cam1": 1.94
+    },
+    "rot_err_deg": {
+     "cam0": 1.42,
+     "cam1": 0.94
+    },
+    "fx": {
+     "cam0": [
+      879.7,
+      879.7
+     ],
+     "cam1": [
+      882.3,
+      879.7
+     ]
+    },
+    "traj_mean": 0.83,
+    "traj_p95": 1.23,
+    "traj_max": 2.32,
+    "cell_center_err": 0.7
+   },
+   "status": {
+    "running": true,
+    "calibration_loaded": true,
+    "calibration_source": "kit",
+    "intrinsics_default": false,
+    "warnings": [],
+    "mismatch": {},
+    "cams": {
+     "cam0": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 71
+     },
+     "cam1": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 71
+     }
+    }
+   },
+   "finish": {
+    "code": 200,
+    "ok": true,
+    "max_error_in": 0.7495720480531862,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 0.8406191264939705,
+     "cam1": 0.7264370576878916
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": [],
+    "ui_needs_ack": false
+   },
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 0.7430607949583911,
+    "out_of_sample": true,
+    "warning": null,
+    "detail": null
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.18,
+      "cam1": 0.41
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.04
+     },
+     "fx": {
+      "cam0": [
+       879.7,
+       879.7
+      ],
+      "cam1": [
+       882.3,
+       879.7
+      ]
+     },
+     "traj_mean": 0.07,
+     "traj_p95": 0.12,
+     "traj_max": 0.18,
+     "cell_center_err": 0.03
+    }
+   }
+  },
+  "g4_cam1_720p": {
+   "code": 200,
+   "s": 0.19,
+   "res": {
+    "ok": false,
+    "rolled_back": true,
+    "max_error_in": null,
+    "calibration_source": null,
+    "warnings": [
+     "not saved: one camera failed, so both old poses were restored"
+    ],
+    "detail": null,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.04347491187442041,
+      "rmse_in": 0.04347491187442041,
+      "oos_error_in": 0.1925576609554271,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 0.4456209500582579,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": false,
+      "status": 409,
+      "refused": true,
+      "error": "extrinsics of cam1 not saved: reprojection error 6.5 px is over 4 px (wrong tag positions, a moved tag, or the wrong lens intrinsics); the camera delivers 1280x720 but its intrinsics are for 1920x1080: redo the intrinsics or fix the camera resolution; a tag that was not used for the solve is 3.0 in off (limit 2 in). The previous calibration is kept.",
+      "fit_residual_in": null,
+      "rmse_in": null,
+      "oos_error_in": 2.966444643986078,
+      "crosscheck_error_in": null,
+      "tags_used": null,
+      "reprojection_px": 6.455771179828233,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": null
+     }
+    }
+   },
+   "changed": false,
+   "acc": {
+    "pos_err_in": {
+     "cam0": 0.18,
+     "cam1": 0.41
+    },
+    "rot_err_deg": {
+     "cam0": 0.1,
+     "cam1": 0.04
+    },
+    "fx": {
+     "cam0": [
+      879.7,
+      879.7
+     ],
+     "cam1": [
+      882.3,
+      879.7
+     ]
+    },
+    "traj_mean": 0.07,
+    "traj_p95": 0.12,
+    "traj_max": 0.18,
+    "cell_center_err": 0.03
+   },
+   "status": {
+    "running": true,
+    "calibration_loaded": true,
+    "calibration_source": "kit",
+    "intrinsics_default": false,
+    "warnings": [
+     "camera cam1 resolution mismatch (1920x1080 vs 1280x720)"
+    ],
+    "mismatch": {
+     "cam1": "1920x1080 vs 1280x720"
+    },
+    "cams": {
+     "cam0": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 66
+     },
+     "cam1": {
+      "cs": "kit",
+      "isrc": "measured",
+      "pair_stale": false,
+      "frames": 66
+     }
+    }
+   },
+   "finish": {
+    "code": 409,
+    "detail": "setup is not finished: the cross-check error is 35.51 in (limit 1 in): re-measure the tags and press Auto-calibrate again; camera cam1: a tag that was not used for its solve is 31.98 in off (limit 1 in)",
+    "reasons": [
+     "the cross-check error is 35.51 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+     "camera cam1: a tag that was not used for its solve is 31.98 in off (limit 1 in)"
+    ],
+    "max_error_in": 35.506141732267494,
+    "out_of_sample": true,
+    "oos_error_in_per_camera": {
+     "cam0": 0.1411779979515649,
+     "cam1": 31.983529910565988
+    },
+    "calibration_source": "kit",
+    "warnings": [],
+    "pair_stale_cameras": [],
+    "intrinsics_poor_cameras": [],
+    "intrinsics_default_cameras": [],
+    "ui_needs_ack": null
+   },
+   "crosscheck": {
+    "code": 200,
+    "max_error_in": 35.505186797104365,
+    "out_of_sample": true,
+    "warning": null,
+    "detail": null
+   },
+   "restore": {
+    "code": 200,
+    "ok": true,
+    "acc": {
+     "pos_err_in": {
+      "cam0": 0.18,
+      "cam1": 0.41
+     },
+     "rot_err_deg": {
+      "cam0": 0.1,
+      "cam1": 0.04
+     },
+     "fx": {
+      "cam0": [
+       879.7,
+       879.7
+      ],
+      "cam1": [
+       882.3,
+       879.7
+      ]
+     },
+     "traj_mean": 0.07,
+     "traj_p95": 0.12,
+     "traj_max": 0.18,
+     "cell_center_err": 0.03
+    }
+   }
+  }
+ },
+ "swap": {
+  "status": {
+   "running": true,
+   "calibration_loaded": true,
+   "calibration_source": "kit",
+   "intrinsics_default": false,
+   "warnings": [],
+   "mismatch": {},
+   "cams": {
+    "cam0": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 56
+    },
+    "cam1": {
+     "cs": "kit",
+     "isrc": "measured",
+     "pair_stale": false,
+     "frames": 56
+    }
+   }
+  },
+  "crosscheck": {
+   "code": 200,
+   "max_error_in": 84.60507556974973,
+   "out_of_sample": true,
+   "warning": null,
+   "detail": null
+  },
+  "finish": {
+   "code": 409,
+   "detail": "setup is not finished: the cross-check error is 84.60 in (limit 1 in): re-measure the tags and press Auto-calibrate again; camera cam0: a tag that was not used for its solve is 75.46 in off (limit 1 in); camera cam1: a tag that was not used for its solve is 92.05 in off (limit 1 in)",
+   "reasons": [
+    "the cross-check error is 84.60 in (limit 1 in): re-measure the tags and press Auto-calibrate again",
+    "camera cam0: a tag that was not used for its solve is 75.46 in off (limit 1 in)",
+    "camera cam1: a tag that was not used for its solve is 92.05 in off (limit 1 in)"
+   ],
+   "max_error_in": 84.60491213210246,
+   "out_of_sample": true,
+   "oos_error_in_per_camera": {
+    "cam0": 75.46314845393027,
+    "cam1": 92.05297959299638
+   },
+   "calibration_source": "kit",
+   "warnings": [],
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": [],
+   "ui_needs_ack": null
+  },
+  "auto_all_swapped": {
+   "code": 200,
+   "res": {
+    "ok": true,
+    "rolled_back": false,
+    "max_error_in": 0.24650248715129242,
+    "calibration_source": null,
+    "warnings": [],
+    "detail": null,
+    "per_cam": {
+     "cam0": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.08241628883965346,
+      "rmse_in": 0.08241628883965346,
+      "oos_error_in": 0.2350575446851647,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 0.7239085978581968,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     },
+     "cam1": {
+      "ok": true,
+      "status": null,
+      "refused": null,
+      "error": null,
+      "fit_residual_in": 0.04677030759199155,
+      "rmse_in": 0.04677030759199155,
+      "oos_error_in": 0.164891076766075,
+      "crosscheck_error_in": null,
+      "tags_used": [
+       100,
+       101,
+       102,
+       103
+      ],
+      "reprojection_px": 0.47932804648177346,
+      "pair_check_failed": null,
+      "hint": null,
+      "warnings": []
+     }
+    },
+    "crosscheck": {
+     "max_error_in": 0.24650248715129242,
+     "out_of_sample": true,
+     "held_out": "HIVE tags",
+     "warning": null,
+     "error": null,
+     "detail": null
+    }
+   }
+  },
+  "finish_after_resolve": {
+   "code": 200,
+   "ok": true,
+   "max_error_in": 0.24650248715129242,
+   "out_of_sample": true,
+   "oos_error_in_per_camera": {
+    "cam0": 0.2350575446851647,
+    "cam1": 0.17340918957702872
+   },
+   "calibration_source": "kit",
+   "warnings": [],
+   "pair_stale_cameras": [],
+   "intrinsics_poor_cameras": [],
+   "intrinsics_default_cameras": [],
+   "ui_needs_ack": false
+  }
+ },
+ "api_log": [
+  [
+   "GET",
+   "/api/config",
+   200,
+   1.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.0
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.84
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.06
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.01
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/start",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam0/stop",
+   200,
+   2.91
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.18
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/start",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/intrinsics/cam1/stop",
+   200,
+   2.09
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.28
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.22
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.12
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.46
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.2
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.79
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.1
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.08
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.06
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.29
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.09
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.09
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.68
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.03
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.21
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.19
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.05
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.26
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.31
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.12
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.07
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.33
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.19
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.12
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.04
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.26
+  ],
+  [
+   "GET",
+   "/api/calib",
+   200,
+   0.03
+  ],
+  [
+   "GET",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.05
+  ],
+  [
+   "PUT",
+   "/api/config",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/pipeline/start",
+   200,
+   0.04
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.0
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.01
+  ],
+  [
+   "GET",
+   "/api/pipeline/status",
+   200,
+   0.02
+  ],
+  [
+   "POST",
+   "/api/calib/crosscheck",
+   200,
+   0.05
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   409,
+   0.08
+  ],
+  [
+   "POST",
+   "/api/calib/auto_all",
+   200,
+   0.21
+  ],
+  [
+   "POST",
+   "/api/setup/finish",
+   200,
+   0.07
+  ],
+  [
+   "POST",
+   "/api/pipeline/stop",
+   200,
+   0.03
+  ]
+ ]
+}

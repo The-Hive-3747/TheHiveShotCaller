@@ -1,0 +1,16 @@
+== usb tri 91.8 both 0.997 kit_both True both_on_wall True
+A (-49.0, 85.5, 36.0) look (10.0, 34.0, 37.0) yaw 318.9 pitch 0.7 out_outer 12.00 along_outer 24.50
+B (72.0, 85.5, 20.0) look (11.0, 39.0, 37.0) yaw 217.3 pitch 12.5 out_outer 12.00 along_outer 1.50
+C (13, 85.5, 58.0) look (12.75, 50.0, 30.0) yaw 269.6 pitch -38.3 out_outer 12.00 along_outer 60.50
+ tag A 60.0 False 21.3 kit ok ids [100, 101, 103] kit angles {100: 34.9, 101: 42.4, 102: 21.1, 103: 44.0} edges {100: 57.1, 101: 44.7, 102: 85.3, 103: 39.6}
+ tag B 50.8 True 22.2 kit ok ids [100, 101, 102, 103] kit angles {100: 54.4, 101: 49.2, 102: 54.1, 103: 36.7} edges {100: 32.8, 101: 43.6, 102: 28.5, 103: 59.5}
+ robot {'A': {'free': 1.0, 'ball_free': 1.0, 'cell_free': 1.0, 'tag_free': 1.0}, 'B': {'free': 0.98, 'ball_free': 0.978, 'cell_free': 1.0, 'tag_free': 1.0}}
+ pixel {'A': {'min': 26.5, 'mean': 32.5, 'max': 65.5, 'fx': 879.7}, 'B': {'min': 24.5, 'mean': 31.1, 'max': 75.7, 'fx': 879.7}, 'C': {'min': 43.6, 'mean': 62.4, 'max': 85.8, 'fx': 879.7}}
+== gopro tri 92.1 both 0.946 kit_both True both_on_wall True
+A (-49.0, 85.5, 36.0) look (8.0, 31.0, 37.0) yaw 316.3 pitch 0.7 out_outer 12.00 along_outer 24.50
+B (72.0, 85.5, 20.0) look (9.0, 41.0, 35.0) yaw 215.2 pitch 11.0 out_outer 12.00 along_outer 1.50
+C (13, 85.5, 58.0) look (12.75, 50.0, 30.0) yaw 269.6 pitch -38.3 out_outer 12.00 along_outer 60.50
+ tag A 60.0 False 24.7 kit ok ids [100, 101, 103] kit angles {100: 34.9, 101: 42.4, 102: 21.1, 103: 44.0} edges {100: 65.6, 101: 51.2, 102: 98.2, 103: 46.0}
+ tag B 50.8 True 26.5 kit ok ids [100, 101, 102] kit angles {100: 54.4, 101: 49.2, 102: 54.1, 103: 36.7} edges {100: 38.7, 101: 52.1, 102: 33.1, 103: 70.6}
+ robot {'A': {'free': 1.0, 'ball_free': 1.0, 'cell_free': 1.0, 'tag_free': 1.0}, 'B': {'free': 0.98, 'ball_free': 0.978, 'cell_free': 1.0, 'tag_free': 1.0}}
+ pixel {'A': {'min': 31.0, 'mean': 38.0, 'max': 75.0, 'fx': 1029.5}, 'B': {'min': 28.9, 'mean': 36.6, 'max': 87.4, 'fx': 1029.5}, 'C': {'min': 51.0, 'mean': 72.2, 'max': 98.2, 'fx': 1029.5}}

@@ -1,0 +1,4 @@
+usb tag 101 rotated 180: solved 20/20; reproj max-of-two med 33.7 min 32.6; reproj>4px (app refuses) 20; reproj<2px 0; opening center err med 0.8 max 12.8; <1in 11
+usb tag 103 rotated 180: solved 20/20; reproj max-of-two med 46.9 min 45.7; reproj>4px (app refuses) 20; reproj<2px 0; opening center err med 1.7 max 12.7; <1in 0
+gopro tag 101 rotated 180: solved 20/20; reproj max-of-two med 44.0 min 43.0; reproj>4px (app refuses) 20; reproj<2px 0; opening center err med 1.7 max 2.5; <1in 0
+gopro tag 103 rotated 180: solved 20/20; reproj max-of-two med 54.7 min 44.5; reproj>4px (app refuses) 20; reproj<2px 0; opening center err med 6.7 max 12.5; <1in 0
