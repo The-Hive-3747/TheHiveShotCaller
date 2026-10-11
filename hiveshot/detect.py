@@ -12,6 +12,7 @@ import numpy as np
 from .models import BallType, Detection2D
 
 HSV = tuple[tuple[int, int, int], tuple[int, int, int]]
+_ROI_PAD = 4          # px around the motion box: > the reach of the 3x3 open + close
 
 
 @dataclass
@@ -59,14 +60,31 @@ class BallDetector:
             history=self.cfg.bg_history, varThreshold=self.cfg.motion_thresh,
             detectShadows=False)
 
+    def _learning_rate(self) -> Optional[float]:
+        """Resolved MOG2 learning rate, or None to use the subtractor's own default."""
+        lr = self.cfg.bg_learning_rate
+        if lr is None:
+            lr = 0.001 if self.cfg.use_color else -1.0
+        if isinstance(lr, bool) or not isinstance(lr, (int, float)):
+            return None
+        return float(lr)
+
+    def _apply_bg(self, small: np.ndarray) -> np.ndarray:
+        lr = self._learning_rate()
+        if lr is None:
+            return self._bg.apply(small)
+        try:
+            return self._bg.apply(small, learningRate=lr)
+        except TypeError:  # wrapper/subtractor whose apply() has no learningRate
+            return self._bg.apply(small)
+
     def _masks(self, small: np.ndarray):
         cfg = self.cfg
         motion = None
         if cfg.use_motion:
-            lr = cfg.bg_learning_rate
-            if lr is None:
-                lr = 0.001 if cfg.use_color else -1.0
-            motion = self._bg.apply(small, learningRate=lr)
+            motion = self._apply_bg(small)
+        if motion is not None and cfg.use_color:
+            return self._gated_masks(small, motion)
         pollen = nectar = None
         if cfg.use_color:
             hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
@@ -85,6 +103,35 @@ class BallDetector:
             raise ValueError("DetectorConfig: enable use_motion and/or use_color")
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, self._kernel)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self._kernel)
+        return mask, pollen, nectar
+
+    def _gated_masks(self, small: np.ndarray, motion: np.ndarray):
+        """Same masks as the full-frame path for motion & colour gating, but the colour
+        conversion, thresholds and morphology only run inside the bounding box of the motion
+        mask (the gated mask is zero everywhere else). The box is padded beyond the morphology
+        reach so the result is identical to processing the whole frame; a frame without
+        motion costs nothing."""
+        cfg = self.cfg
+        h, w = small.shape[:2]
+        mask = np.zeros((h, w), np.uint8)
+        pollen = np.zeros((h, w), np.uint8)
+        nectar = np.zeros((h, w), np.uint8)
+        bx, by, bw, bh = cv2.boundingRect(motion)
+        if bw == 0 or bh == 0:
+            return mask, pollen, nectar
+        x0, y0 = max(0, bx - _ROI_PAD), max(0, by - _ROI_PAD)
+        x1, y1 = min(w, bx + bw + _ROI_PAD), min(h, by + bh + _ROI_PAD)
+        hsv = cv2.cvtColor(small[y0:y1, x0:x1], cv2.COLOR_BGR2HSV)
+        pol = cv2.inRange(hsv, np.array(cfg.pollen_hsv[0], np.uint8),
+                          np.array(cfg.pollen_hsv[1], np.uint8))
+        nec = cv2.inRange(hsv, np.array(cfg.nectar_hsv[0], np.uint8),
+                          np.array(cfg.nectar_hsv[1], np.uint8))
+        m = cv2.bitwise_and(motion[y0:y1, x0:x1], cv2.bitwise_or(pol, nec))
+        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, self._kernel)
+        m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, self._kernel)
+        mask[y0:y1, x0:x1] = m
+        pollen[y0:y1, x0:x1] = pol
+        nectar[y0:y1, x0:x1] = nec
         return mask, pollen, nectar
 
     def detect(self, frame_bgr: np.ndarray, frame_idx: int, t: float,

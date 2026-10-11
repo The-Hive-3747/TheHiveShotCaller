@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import sys
 import threading
+import time
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -106,7 +107,16 @@ WS_MESSAGES = [
 ]
 
 
-DEMO_STATE = {"on": False}   # toggled by POST /api/demo/start|stop; reported as status.demo
+# POST /api/demo/start|stop return 200 at once but, like the real backend, status.demo only flips
+# DEMO_DELAY_S seconds later (the pipeline is still switching until then).
+DEMO_DELAY_S = 2.0
+DEMO_STATE = {"on": False, "target": False, "at": 0.0}
+
+
+def demo_now() -> bool:
+    if time.monotonic() >= DEMO_STATE["at"]:
+        DEMO_STATE["on"] = DEMO_STATE["target"]
+    return DEMO_STATE["on"]
 POST_ROUTES = {
     "/api/demo/start": {"ok": True, "session_id": "s1"},
     "/api/demo/stop": {"ok": True},
@@ -134,7 +144,9 @@ class Handler(SimpleHTTPRequestHandler):
         if n:
             self.rfile.read(n)
         if path in ("/api/demo/start", "/api/demo/stop"):
-            DEMO_STATE["on"] = path.endswith("start")
+            demo_now()
+            DEMO_STATE["target"] = path.endswith("start")
+            DEMO_STATE["at"] = time.monotonic() + DEMO_DELAY_S
         if path in POST_ROUTES:
             body = json.dumps(POST_ROUTES[path]).encode()
             self.send_response(200)
@@ -170,7 +182,7 @@ class Handler(SimpleHTTPRequestHandler):
         if path in ROUTES:
             payload = ROUTES[path]
             if path == "/api/pipeline/status":
-                payload = dict(payload, demo=DEMO_STATE["on"])
+                payload = dict(payload, demo=demo_now())
             body = json.dumps(payload).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")

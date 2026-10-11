@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 
 from . import field
-from .field_constants import FIELD_SIZE, GRAVITY_IPS2, POLLEN_DIAMETER
+from .field_constants import FIELD_SIZE, GRAVITY_IPS2, POLLEN_DIAMETER, RED_HIVE_X
 from .models import CameraExtrinsics, CameraIntrinsics
 
 
@@ -153,15 +153,17 @@ class VirtualCamera:
         return VirtualCamera(intr, extr)
 
 
-def make_default_pair(width: int = 1920, height: int = 1080, fx: float = 900.0
+def make_default_pair(width: int = 1920, height: int = 1080, fx: Optional[float] = None
                       ) -> list[VirtualCamera]:
     """Two wide-angle cameras (fx=900 on 1920 px, ~94 deg HFOV), 90 deg apart,
     55 in high, 115 in from field center, both aimed at a point 45 in high
     roughly midway between the launch area and the up CELL, so whole shot arcs
     stay in frame."""
-    target = np.array([-12.75, 47.0, 45.0])
+    fx = 900.0 * width / 1920.0 if fx is None else fx  # keeps the ~94 deg HFOV at any width
+    target = np.array([RED_HIVE_X, 47.0, 45.0])
     cams = []
-    for name, ang in (("cam0", 45.0), ("cam1", 135.0)):
+    # red HIVE is at +X, so the cameras sit mirrored in X relative to the old layout
+    for name, ang in (("cam0", 135.0), ("cam1", 45.0)):
         a = math.radians(ang)
         pos = (115.0 * math.cos(a), 115.0 * math.sin(a), 55.0)
         cams.append(VirtualCamera.look_at(name, pos, target, width, height, fx))
@@ -376,11 +378,13 @@ def main(argv=None) -> int:
     ap.add_argument("--gap", type=float, default=3.0,
                     help="s from last launch of a burst to first launch of the next")
     ap.add_argument("--fps", type=float, default=60.0)
+    ap.add_argument("--width", type=int, default=1920)
+    ap.add_argument("--height", type=int, default=1080)
     ap.add_argument("--seed", type=int, default=1)
     a = ap.parse_args(argv)
     offs = _parse_bursts(a.bursts or str(a.shots), a.spacing, a.gap)
-    trajs, info = build_shots(offs, a.seed)
-    cams = make_default_pair()
+    cams = make_default_pair(a.width, a.height)
+    trajs, info = build_shots(offs, a.seed, cams=cams)
     paths = render_sequence(trajs, cams, a.fps, a.out)
     Path(a.out, "shots.json").write_text(json.dumps(info, indent=1))
     print(f"cameras: {paths}")

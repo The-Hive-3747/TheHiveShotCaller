@@ -1,25 +1,71 @@
-$ .venv/Scripts/python.exe -m hiveshot.synth --out fixtures/synth_basic --shots 6 --fps 60
+Regenerated after RED_HIVE_X=+12.75, CAD geometry, mirrored default cameras (cam0 at 135 deg, cam1 at 45 deg), fx scaled with width (900 at 1920). All four from the CLI, in one run.
+
+$ .venv/Scripts/python.exe -m hiveshot.synth --out fixtures/synth_basic --shots 6 --fps 60 --seed 1 --width 1920 --height 1080
 cameras: {'cam0': 'fixtures\\synth_basic\\cam0.mp4', 'cam1': 'fixtures\\synth_basic\\cam1.mp4'}
 cam0: in-image fraction 1.000
 cam1: in-image fraction 1.000
 shot 0: t_launch=0.00s speed=237 ips apex=81 in flight=0.93s made=True
-shot 1: t_launch=0.25s speed=225 ips apex=71 in flight=0.80s made=True
-shot 2: t_launch=0.50s speed=235 ips apex=80 in flight=1.24s made=False
-shot 3: t_launch=0.75s speed=223 ips apex=73 in flight=0.83s made=True
-shot 4: t_launch=1.00s speed=224 ips apex=74 in flight=0.84s made=True
-shot 5: t_launch=1.25s speed=236 ips apex=81 in flight=1.25s made=False
+shot 1: t_launch=0.25s speed=225 ips apex=73 in flight=0.83s made=True
+shot 2: t_launch=0.50s speed=233 ips apex=78 in flight=1.22s made=False
+shot 3: t_launch=0.75s speed=235 ips apex=77 in flight=0.89s made=True
+shot 4: t_launch=1.00s speed=222 ips apex=72 in flight=0.82s made=True
+shot 5: t_launch=1.25s speed=239 ips apex=83 in flight=1.26s made=False
 made 4/6
 
-$ .venv/Scripts/python.exe -m hiveshot.synth --out fixtures/synth_burst --bursts 4,2 --spacing 0.3 --gap 3.0 --fps 60 --seed 2
+$ .venv/Scripts/python.exe -m hiveshot.synth --out fixtures/synth_burst --bursts 4,2 --spacing 0.3 --gap 3.0 --fps 60 --seed 2 --width 1920 --height 1080
 cameras: {'cam0': 'fixtures\\synth_burst\\cam0.mp4', 'cam1': 'fixtures\\synth_burst\\cam1.mp4'}
 cam0: in-image fraction 1.000
 cam1: in-image fraction 1.000
-shot 0: t_launch=0.00s speed=227 ips apex=75 in flight=0.85s made=True
-shot 1: t_launch=0.30s speed=225 ips apex=73 in flight=0.82s made=True
-shot 2: t_launch=0.60s speed=234 ips apex=80 in flight=1.24s made=False
-shot 3: t_launch=0.90s speed=230 ips apex=78 in flight=0.90s made=True
-shot 4: t_launch=3.90s speed=238 ips apex=80 in flight=0.92s made=True
-shot 5: t_launch=4.20s speed=221 ips apex=71 in flight=1.16s made=False
+shot 0: t_launch=0.00s speed=221 ips apex=71 in flight=0.80s made=True
+shot 1: t_launch=0.30s speed=238 ips apex=82 in flight=0.94s made=True
+shot 2: t_launch=0.60s speed=233 ips apex=77 in flight=1.21s made=False
+shot 3: t_launch=0.90s speed=235 ips apex=79 in flight=0.91s made=True
+shot 4: t_launch=3.90s speed=236 ips apex=82 in flight=0.94s made=True
+shot 5: t_launch=4.20s speed=232 ips apex=80 in flight=1.23s made=False
 made 4/6
 
-(regenerated after the rigid-body geometry change: up opening center y 24.25 -> 15.77)
+$ .venv/Scripts/python.exe -m hiveshot.synth --out fixtures/synth_20 --bursts 4,4,4,4,4 --gap 3 --seed 4242 --fps 60 --width 1280 --height 720
+cameras: {'cam0': 'fixtures\\synth_20\\cam0.mp4', 'cam1': 'fixtures\\synth_20\\cam1.mp4'}
+cam0: in-image fraction 1.000
+cam1: in-image fraction 1.000
+shot 0: t_launch=0.00s speed=237 ips apex=82 in flight=0.95s made=True
+shot 1: t_launch=0.25s speed=235 ips apex=81 in flight=0.93s made=True
+shot 2: t_launch=0.50s speed=240 ips apex=83 in flight=1.26s made=False
+shot 3: t_launch=0.75s speed=227 ips apex=74 in flight=0.85s made=True
+shot 4: t_launch=3.75s speed=226 ips apex=74 in flight=0.84s made=True
+shot 5: t_launch=4.00s speed=225 ips apex=75 in flight=1.19s made=False
+shot 6: t_launch=4.25s speed=230 ips apex=78 in flight=0.89s made=True
+shot 7: t_launch=4.50s speed=227 ips apex=75 in flight=0.86s made=True
+shot 8: t_launch=7.50s speed=224 ips apex=75 in flight=1.19s made=False
+shot 9: t_launch=7.75s speed=233 ips apex=79 in flight=0.90s made=True
+shot 10: t_launch=8.00s speed=228 ips apex=77 in flight=0.88s made=True
+shot 11: t_launch=8.25s speed=237 ips apex=80 in flight=1.24s made=False
+shot 12: t_launch=11.25s speed=223 ips apex=73 in flight=0.82s made=True
+shot 13: t_launch=11.50s speed=221 ips apex=72 in flight=0.81s made=True
+shot 14: t_launch=11.75s speed=241 ips apex=82 in flight=1.25s made=False
+shot 15: t_launch=12.00s speed=226 ips apex=74 in flight=0.84s made=True
+shot 16: t_launch=15.00s speed=224 ips apex=72 in flight=0.81s made=True
+shot 17: t_launch=15.25s speed=239 ips apex=83 in flight=1.26s made=False
+shot 18: t_launch=15.50s speed=226 ips apex=76 in flight=0.86s made=True
+shot 19: t_launch=15.75s speed=224 ips apex=70 in flight=0.78s made=True
+made 14/20
+
+$ .venv/Scripts/python.exe -m hiveshot.synth --out fixtures/synth_240 --shots 8 --spacing 0.3 --fps 240 --seed 7 --width 1280 --height 720
+cameras: {'cam0': 'fixtures\\synth_240\\cam0.mp4', 'cam1': 'fixtures\\synth_240\\cam1.mp4'}
+cam0: in-image fraction 1.000
+cam1: in-image fraction 1.000
+shot 0: t_launch=0.00s speed=238 ips apex=83 in flight=0.96s made=True
+shot 1: t_launch=0.30s speed=226 ips apex=73 in flight=0.83s made=True
+shot 2: t_launch=0.60s speed=232 ips apex=79 in flight=1.23s made=False
+shot 3: t_launch=0.90s speed=225 ips apex=73 in flight=0.82s made=True
+shot 4: t_launch=1.20s speed=228 ips apex=75 in flight=0.85s made=True
+shot 5: t_launch=1.50s speed=228 ips apex=76 in flight=1.20s made=False
+shot 6: t_launch=1.80s speed=236 ips apex=82 in flight=0.94s made=True
+shot 7: t_launch=2.10s speed=239 ips apex=83 in flight=0.95s made=True
+made 6/8
+
+6.9M	fixtures/synth_20
+5.7M	fixtures/synth_240
+2.3M	fixtures/synth_basic
+4.3M	fixtures/synth_burst
+ALLDONE

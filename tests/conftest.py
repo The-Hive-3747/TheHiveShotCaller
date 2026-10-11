@@ -3,6 +3,11 @@ import os
 import pytest
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "perf: realtime throughput check; skipped unless HIVESHOT_PERF=1")
+
+
 def pytest_collection_modifyitems(config, items):
     if os.environ.get("HIVESHOT_LIVE") == "1":
         return

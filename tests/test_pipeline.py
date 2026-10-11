@@ -70,10 +70,10 @@ def test_pipeline_on_synth_fixture(tmp_path):
     store.close()
 
 
-def _run_fixture(fixture: str, tmp_path, **cfg_kw):
+def _run_fixture(fixture: str, tmp_path, realtime: bool = False, **cfg_kw):
     cfg = cfgmod.AppConfig(**cfg_kw, sources=[
         cfgmod.SourceConfig(cam_id=f"cam{i}", kind="file",
-                            target=f"fixtures/{fixture}/cam{i}.mp4", realtime=False)
+                            target=f"fixtures/{fixture}/cam{i}.mp4", realtime=realtime)
         for i in (0, 1)])
     store = Store(tmp_path / "p.db")
     pl = Pipeline(cfg, store, tmp_path, save_clips=False)
@@ -123,7 +123,9 @@ def test_pipeline_on_burst_fixture(tmp_path):
 
 @pytest.mark.xfail(not HAVE_MODULES, reason="detect/track2d/recon not present yet", strict=False)
 def test_stitching_disabled_gives_same_shots(tmp_path):
-    store, sid, pl = _run_fixture("synth_basic", tmp_path, stitch_gap_s=0.0)
+    # real-time playback: "promptly" is about source time, which a lockstep run (as fast as
+    # the CPU allows) would stretch by its speed-up factor
+    store, sid, pl = _run_fixture("synth_basic", tmp_path, realtime=True, stitch_gap_s=0.0)
     try:
         shots = store.list_shots(sid)
         assert len(shots) == 6
@@ -640,3 +642,95 @@ def test_status_warnings_and_calibration_loaded(tmp_path):
     ok = Pipeline(_file_cfg(), Store(tmp_path / "o.db"), tmp_path)
     assert ok.status()["calibration_loaded"] is True and ok.status()["warnings"] == []
     ok.store.close()
+
+
+def _run_long_fixture(fixture: str, tmp_path, timeout: float = 280.0):
+    cfg = cfgmod.AppConfig(sources=[
+        cfgmod.SourceConfig(cam_id=f"cam{i}", kind="file",
+                            target=f"fixtures/{fixture}/cam{i}.mp4", realtime=False)
+        for i in (0, 1)])
+    store = Store(tmp_path / "p.db")
+    pl = Pipeline(cfg, store, tmp_path, save_clips=False)
+    sid = store.create_session("fixture")
+    pl.set_session(sid)
+    pl.start()
+    try:
+        deadline = time.time() + timeout
+        while time.time() < deadline and not pl.is_finished():
+            time.sleep(0.2)
+        assert pl.is_finished(), f"pipeline did not consume {fixture} within {timeout} s"
+    finally:
+        pl.stop()
+    return store, sid, pl
+
+
+def _truth_bursts(truth, gap=1.5):
+    """(burst id, 1-based index) per truth shot, from launch times alone."""
+    out, b, idx, last = [], 0, 0, None
+    for t in truth:
+        if last is None or t["t_launch"] - last > gap:
+            b, idx = b + 1, 0
+        idx += 1
+        last = t["t_launch"]
+        out.append((b, idx))
+    return out
+
+
+def _check_long_fixture(fixture: str, tmp_path, speed_rel: float, n_made: int):
+    fx = FIX.parent / fixture
+    truth = sorted(json.loads((fx / "shots.json").read_text()), key=lambda t: t["t_launch"])
+    store, sid, _pl = _run_long_fixture(fixture, tmp_path)
+    try:
+        shots = sorted(store.list_shots(sid), key=lambda s: s.t_launch)
+        # every shot is reported (none silently dropped, no spurious extras), in launch order
+        assert len(shots) == len(truth)
+        assert sum(_made(t) for t in truth) == n_made
+        for s, t in zip(shots, truth, strict=True):
+            assert abs(s.t_launch - t["t_launch"]) < 0.1
+            assert (s.result.value == "made") == _made(t), (t["shot"], s.result.value)
+            assert s.exit_speed_ips == pytest.approx(t["speed_ips"], rel=speed_rel), t["shot"]
+            assert s.parabola is not None
+        assert [(s.burst_id, s.burst_index) for s in shots] == _truth_bursts(truth)
+        expected = {k: 0 for k in range(1, 6)}
+        for t, (_b, i) in zip(truth, _truth_bursts(truth), strict=True):
+            if not _made(t):
+                expected[min(i, 5)] += 1
+        assert compute_stats(shots, [], sid).failure_order_hist == expected
+        return expected
+    finally:
+        store.close()
+
+
+def test_pipeline_on_synth_20_fixture(tmp_path):
+    """20-shot practice session (five bursts of four, 60 fps): totals, makes, the
+    failure-order histogram and exit speeds within 10 % of the simulated launch speed.
+    Shot 0 is launched on the first video frame (mid-flight start) and must be classified."""
+    hist = _check_long_fixture("synth_20", tmp_path, speed_rel=0.10, n_made=14)
+    assert hist == {1: 1, 2: 2, 3: 2, 4: 1, 5: 0}
+
+
+def test_pipeline_on_synth_240_fixture(tmp_path):
+    """240 fps session of 8 shots in one long burst: exit speeds within 5 %."""
+    hist = _check_long_fixture("synth_240", tmp_path, speed_rel=0.05, n_made=6)
+    assert sum(hist.values()) == 2
+
+
+def test_shots_are_stored_with_their_burst_already_assigned(tmp_path, monkeypatch):
+    """No reader may see the (0, 0) burst placeholder between insert and re-assignment."""
+    seen = []
+    orig = Store.add_shot
+
+    def spy(self, shot):
+        seen.append((shot.burst_id, shot.burst_index))
+        return orig(self, shot)
+
+    monkeypatch.setattr(Store, "add_shot", spy)
+    store, sid, _pl = _run_fixture("synth_burst", tmp_path)
+    try:
+        assert len(seen) == 6
+        assert all(b >= 1 and i >= 1 for b, i in seen), seen
+        assert [(s.burst_id, s.burst_index) for s in sorted(
+            store.list_shots(sid), key=lambda s: s.t_launch)] == [
+            (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2)]
+    finally:
+        store.close()

@@ -242,6 +242,10 @@ class CaptureThread:
         if wait > 0:
             self._stop.wait(min(wait, 0.25))
 
+    def _sleep(self, seconds: float) -> bool:
+        """Backoff sleep; True if stop was requested. Overridable in tests."""
+        return self._stop.wait(seconds)
+
     def _run(self) -> None:
         try:
             self._run_inner()
@@ -273,7 +277,7 @@ class CaptureThread:
                 if not reconnectable:
                     self.finished = True
                     break
-                if self._stop.wait(backoff):
+                if self._sleep(backoff):
                     break
                 backoff = min(backoff * 2, self.backoff_max)
                 continue
@@ -304,7 +308,7 @@ class CaptureThread:
                 self.last_error = self.last_error or "no frames received"
             log.warning("%s: stream lost, reconnecting in %.1fs",
                         self.spec.cam_id, backoff)
-            if self._stop.wait(backoff):
+            if self._sleep(backoff):
                 break
             backoff = min(backoff * 2, self.backoff_max)
 

@@ -111,3 +111,59 @@ def test_apex():
 def test_equation_string():
     s = physics.equation_string(ParabolaFit(-0.0123, 0.84, 12.0, 0.0, 40.0, 300.0))
     assert s == "z = -0.0123 s^2 + 0.84 s + 12.0 (in)"
+
+
+# --- regression: fast scalar/Hermite integrator vs the original dense integrator ---
+
+def _legacy_integrate_at(p0, v0, k, times, max_step=1 / 240):
+    """Original implementation: numpy RK4, sub-steps of at most 1/240 s."""
+    p = np.asarray(p0, float).copy()
+    v = np.asarray(v0, float).copy()
+    out = np.empty((len(times), 3))
+    tc = 0.0
+    for i, tt in enumerate(times):
+        span = float(tt) - tc
+        if span > 0:
+            n = max(1, int(math.ceil(span / max_step)))
+            h = span / n
+            for _ in range(n):
+                p, v = physics._rk4_step(p, v, k, h)
+            tc = float(tt)
+        out[i] = p
+    return out
+
+
+def _synth240_tracks():
+    import json
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[1] / "fixtures" / "synth_240" / "cam0_truth.json"
+    if not path.exists():
+        pytest.skip("fixtures/synth_240 not present")
+    data = json.loads(path.read_text())
+    tracks: dict[int, list] = {}
+    for fr in data["frames"]:
+        for b in fr["balls"]:
+            tracks.setdefault(b["ball"], []).append([fr["t"], *b["xyz"]])
+    return [np.array(v) for _, v in sorted(tracks.items()) if len(v) >= 20]
+
+
+def test_integrate_at_matches_legacy_on_dense_grid():
+    k = 0.002
+    for dur in (0.5, 1.0, 2.5, 3.1):  # includes tracks longer than 2 s
+        t = np.arange(0, dur, 1 / 240)
+        fast = physics._integrate_at(P0, V0, k, t)
+        slow = _legacy_integrate_at(P0, V0, k, t)
+        assert np.max(np.abs(fast - slow)) < 1e-3
+        # endpoints are exact nodes of the coarse grid
+        assert np.allclose(fast[0], P0, atol=1e-9)
+
+
+def test_fit_drag_synth240_matches_legacy_integrator(monkeypatch):
+    tracks = _synth240_tracks()
+    assert tracks
+    fast = [physics.fit_drag(tr) for tr in tracks]
+    monkeypatch.setattr(physics, "_integrate_at", _legacy_integrate_at)
+    slow = [physics.fit_drag(tr) for tr in tracks]
+    for f, s in zip(fast, slow, strict=True):
+        assert np.max(np.abs(np.array(f.v0) - np.array(s.v0))) < 1e-3
+        assert abs(f.rmse_in - s.rmse_in) < 1e-3

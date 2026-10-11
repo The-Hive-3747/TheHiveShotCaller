@@ -17,7 +17,7 @@ const FALLBACK_CALIB_NAMES = [
 ];
 let calibPoints = FALLBACK_CALIB_NAMES.map((name) => ({ name, xyz: null }));
 
-const state = { config: null, sessionId: null, shots: [], stats: null, status: null, geometry: null, viewer: null, sessions: [], shotFilter: 'all', tips: [], rtmpUrls: {}, demo: false };
+const state = { config: null, sessionId: null, shots: [], stats: null, status: null, geometry: null, viewer: null, sessions: [], shotFilter: 'all', tips: [], rtmpUrls: {}, demo: false, demoPending: null, demoPosted: false, demoSession: null, demoPoll: null };
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -159,7 +159,9 @@ async function loadShots() {
 function applyDemoUi() {
   const demo = state.demo === true;
   $('demoBadge').style.display = demo ? '' : 'none';
-  $('btnDemo').textContent = demo ? 'Exit demo' : 'Run demo';
+  const pend = state.demoPending;
+  $('btnDemo').disabled = !!pend;
+  $('btnDemo').textContent = pend === 'stopping' ? 'Exiting demo...' : pend === 'starting' ? 'Starting demo...' : demo ? 'Exit demo' : 'Run demo';
   $('demoBanner').style.display = demo ? '' : 'none';
   const save = document.getElementById('btnSave');
   if (save) { save.disabled = demo; save.title = demo ? 'Demo config is not saved; exit demo first' : ''; }
@@ -170,21 +172,63 @@ async function reloadAfterModeChange() {
   state.status = await api('GET', '/api/pipeline/status');
   renderStatus();
 }
-$('btnDemo').onclick = () => guarded(async () => {
-  if (state.demo) {
-    await api('POST', '/api/demo/stop');
+// The demo endpoints return 200 before the pipeline has finished switching, so the button stays disabled
+// ("Starting demo..." / "Exiting demo...") until a status message reports the new state; only then is
+// the config/session data reloaded. Status arrives over the WebSocket, with a 1 s poll as a fallback.
+const DEMO_TIMEOUT_MS = 40000;
+function demoSettled(st) {
+  if (!state.demoPending || !state.demoPosted) return;
+  if ((st.demo === true) !== (state.demoPending === 'starting')) return;   // stale status; keep waiting
+  finishDemoTransition();
+}
+function clearDemoPending() {
+  state.demoPending = null; state.demoPosted = false;
+  clearInterval(state.demoPoll); state.demoPoll = null;
+  applyDemoUi();
+}
+async function finishDemoTransition() {
+  const starting = state.demoPending === 'starting';
+  const sid = state.demoSession;
+  clearDemoPending();   // before reloading, so the status refresh below cannot re-enter
+  await guarded(async () => {
+    if (starting) { state.shots = []; state.stats = null; renderStats(); renderShots(); }
     await reloadAfterModeChange();
     await refreshSessions();
-    toast('Demo stopped; your saved configuration is restored');
-  } else {
-    const r = await api('POST', '/api/demo/start');
-    state.shots = []; state.stats = null; renderStats(); renderShots();
-    await reloadAfterModeChange();
-    await refreshSessions();
-    if (r && r.session_id) setSession(r.session_id);
-    showTab('dashboard');
+    if (starting) {
+      if (sid) setSession(sid);
+      showTab('dashboard');
+    } else {
+      toast('Demo stopped; your saved configuration is restored');
+    }
+  });
+}
+function watchDemoTransition() {
+  state.demoPosted = true;
+  const t0 = Date.now();
+  const tick = async () => {
+    if (!state.demoPending) return;
+    if (Date.now() - t0 > DEMO_TIMEOUT_MS) { clearDemoPending(); toast('Demo mode change timed out; check the pipeline status'); return; }
+    try { state.status = await api('GET', '/api/pipeline/status'); renderStatus(); } catch (e) { console.error(e); }
+  };
+  clearInterval(state.demoPoll);
+  state.demoPoll = setInterval(tick, 1000);
+  tick();
+}
+$('btnDemo').onclick = async () => {
+  if (state.demoPending) return;
+  const starting = !state.demo;
+  state.demoPending = starting ? 'starting' : 'stopping';
+  state.demoPosted = false; state.demoSession = null;
+  applyDemoUi();
+  try {
+    const r = await api('POST', starting ? '/api/demo/start' : '/api/demo/stop');
+    state.demoSession = (r && r.session_id) || null;
+    watchDemoTransition();
+  } catch (e) {
+    clearDemoPending();
+    toast(e.message); console.error(e);
   }
-});
+};
 
 // Client-side expansion of config.session_name_template ({date} = YYYY-MM-DD, {time} = HH:MM, local time).
 const DEFAULT_NAME_TEMPLATE = 'Practice {date} {time}';
@@ -256,6 +300,7 @@ function renderStatus() {
   $('noCalib').style.display = st.calibration_loaded === false ? '' : 'none';
   state.demo = st.demo === true;
   applyDemoUi();
+  demoSettled(st);
   const hiveSrc = st.hive_state_source === 'tags' ? 'tags' : 'manual';
   $('hiveSrc').textContent = hiveSrc === 'tags' ? 'auto (tags)' : 'HIVE: manual';
   $('hiveSrc').className = 'pill' + (hiveSrc === 'tags' ? ' ok' : '');

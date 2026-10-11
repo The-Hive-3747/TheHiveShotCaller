@@ -1,0 +1,8 @@
+wall 5.0 cameras (read,dropped) {'cam0': (782, 0), 'cam1': (782, 0)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 143), 'cam1': (782, 140)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 146), 'cam1': (782, 147)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 158), 'cam1': (782, 157)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 137), 'cam1': (782, 144)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 147), 'cam1': (782, 145)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 135), 'cam1': (782, 135)}
+wall 6.0 cameras (read,dropped) {'cam0': (782, 145), 'cam1': (782, 149)}

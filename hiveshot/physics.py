@@ -95,22 +95,84 @@ def _rk4_step(p: np.ndarray, v: np.ndarray, k: float, h: float):
     return p_new, v_new
 
 
-def _integrate_at(p0, v0, k: float, times: np.ndarray, max_step: float = 1 / 240) -> np.ndarray:
-    """Positions (N,3) at ascending `times` (relative to launch, times[0] may be 0)."""
-    p = np.asarray(p0, float).copy()
-    v = np.asarray(v0, float).copy()
-    out = np.empty((len(times), 3))
+_COARSE_STEP_S = 1 / 60       # RK4 node spacing used for densely sampled (high fps) tracks
+_USE_COARSE = True
+
+
+def _integrate_at(p0, v0, k: float, times: np.ndarray, max_step: float = 1 / 60) -> np.ndarray:
+    """Positions (N,3) at ascending `times` (relative to launch, times[0] may be 0).
+
+    Same RK4 scheme as `_rk4_step`, written with scalars: it runs hundreds of times per drag
+    fit and holds the GIL, so the numpy-per-step version starved the camera threads. When the
+    samples are much denser than `_COARSE_STEP_S` (240 fps footage) the trajectory is
+    integrated on a 1/60 s grid and read at the sample times with cubic Hermite interpolation
+    (positions and velocities are known at the nodes; interpolation error << 1e-4 in for a
+    ball flight), which is 4x fewer RK4 steps for the same data.
+    """
+    times = np.asarray(times, float)
+    n_t = len(times)
+    dense = n_t > 8 and times[-1] > 0 and float(np.min(np.diff(times))) < 0.6 * _COARSE_STEP_S
+    if _USE_COARSE and dense and max_step >= _COARSE_STEP_S - 1e-12:
+        return _integrate_coarse(p0, v0, k, times)
+    px, py, pz = (float(x) for x in p0)
+    vx, vy, vz = (float(x) for x in v0)
+    out = np.empty((n_t, 3))
     tc = 0.0
     for i, tt in enumerate(times):
         span = float(tt) - tc
         if span > 0:
             n = max(1, int(math.ceil(span / max_step)))
-            h = span / n
-            for _ in range(n):
-                p, v = _rk4_step(p, v, k, h)
+            px, py, pz, vx, vy, vz = _rk4_n(px, py, pz, vx, vy, vz, k, span / n, n)
             tc = float(tt)
-        out[i] = p
+        out[i, 0], out[i, 1], out[i, 2] = px, py, pz
     return out
+
+
+def _rk4_n(px, py, pz, vx, vy, vz, k, h, n):
+    """`n` RK4 steps of size `h` of a = -g z_hat - k|v|v; returns (p, v) as six floats."""
+    g = GRAVITY_IPS2
+    sqrt = math.sqrt
+    h2, h6 = 0.5 * h, h / 6.0
+    for _ in range(n):
+        s1 = k * sqrt(vx * vx + vy * vy + vz * vz)
+        a1x, a1y, a1z = -s1 * vx, -s1 * vy, -g - s1 * vz
+        v2x, v2y, v2z = vx + h2 * a1x, vy + h2 * a1y, vz + h2 * a1z
+        s2 = k * sqrt(v2x * v2x + v2y * v2y + v2z * v2z)
+        a2x, a2y, a2z = -s2 * v2x, -s2 * v2y, -g - s2 * v2z
+        v3x, v3y, v3z = vx + h2 * a2x, vy + h2 * a2y, vz + h2 * a2z
+        s3 = k * sqrt(v3x * v3x + v3y * v3y + v3z * v3z)
+        a3x, a3y, a3z = -s3 * v3x, -s3 * v3y, -g - s3 * v3z
+        v4x, v4y, v4z = vx + h * a3x, vy + h * a3y, vz + h * a3z
+        s4 = k * sqrt(v4x * v4x + v4y * v4y + v4z * v4z)
+        a4x, a4y, a4z = -s4 * v4x, -s4 * v4y, -g - s4 * v4z
+        px += h6 * (vx + 2 * v2x + 2 * v3x + v4x)
+        py += h6 * (vy + 2 * v2y + 2 * v3y + v4y)
+        pz += h6 * (vz + 2 * v2z + 2 * v3z + v4z)
+        vx += h6 * (a1x + 2 * a2x + 2 * a3x + a4x)
+        vy += h6 * (a1y + 2 * a2y + 2 * a3y + a4y)
+        vz += h6 * (a1z + 2 * a2z + 2 * a3z + a4z)
+    return px, py, pz, vx, vy, vz
+
+
+def _integrate_coarse(p0, v0, k: float, times: np.ndarray) -> np.ndarray:
+    t_end = float(times[-1])
+    n = max(1, int(math.ceil(t_end / _COARSE_STEP_S)))
+    h = t_end / n
+    nodes = np.empty((n + 1, 6))
+    st = (*(float(x) for x in p0), *(float(x) for x in v0))
+    nodes[0] = st
+    for j in range(1, n + 1):
+        st = _rk4_n(*st, k, h, 1)
+        nodes[j] = st
+    j = np.minimum((times / h).astype(int), n - 1)
+    j = np.maximum(j, 0)
+    u = ((times - j * h) / h)[:, None]
+    p_a, v_a = nodes[j, 0:3], nodes[j, 3:6]
+    p_b, v_b = nodes[j + 1, 0:3], nodes[j + 1, 3:6]
+    u2, u3 = u * u, u * u * u
+    h00, h10 = 2 * u3 - 3 * u2 + 1, u3 - 2 * u2 + u
+    h01, h11 = -2 * u3 + 3 * u2, u3 - u2
+    return h00 * p_a + h10 * h * v_a + h01 * p_b + h11 * h * v_b
 
 
 def simulate(p0, v0, k: float, dt: float, t_max: float) -> np.ndarray:

@@ -1,0 +1,67 @@
+................................F..F.Fs................................. [ 19%]
+......................................ss..................s............. [ 39%]
+........................................................................ [ 59%]
+........................................................................ [ 79%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+================================== FAILURES ===================================
+_____________ test_vc_runtime_dlls_ship_with_bundle[msvcp140.dll] _____________
+
+dll = 'msvcp140.dll'
+
+    @pytest.mark.parametrize("dll", ["msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"])
+    def test_vc_runtime_dlls_ship_with_bundle(dll):
+        """App-local VC++ runtime so a PC without the redistributable can start the exe."""
+        f = _find_ci(dll)
+>       assert f is not None, f"{dll} missing from {BUNDLE} (root or _internal)"
+E       AssertionError: msvcp140.dll missing from C:\Users\3747h\Documents\HiveShotTracker\dist\HiveShotTracker (root or _internal)
+E       assert None is not None
+
+tests\test_build_smoke.py:108: AssertionError
+______________________ test_bundle_ships_docs_and_readme ______________________
+
+    def test_bundle_ships_docs_and_readme():
+        """build.ps1 copies docs/ and writes README.txt next to the exe (run the test after build.ps1)."""
+        docs = BUNDLE / "docs"
+        for name in ("operator_guide.md", "troubleshooting.md", "calibration.md", "clean_machine_test.md",
+                     "camera_placement.md", "camera_placement.png", "camera_placement.svg",
+                     "camera_bracket.md", "camera_bracket.stl", "camera_bracket.png"):
+>           assert (docs / name).is_file(), f"docs/{name} missing from bundle"
+E           AssertionError: docs/operator_guide.md missing from bundle
+E           assert False
+E            +  where False = is_file()
+E            +    where is_file = (WindowsPath('C:/Users/3747h/Documents/HiveShotTracker/dist/HiveShotTracker/docs') / 'operator_guide.md').is_file
+
+tests\test_build_smoke.py:118: AssertionError
+____________________ test_fixture_dirs_in_bundle[synth_20] ____________________
+
+name = 'synth_20'
+
+    @pytest.mark.parametrize("name", ["synth_basic", "synth_20"])
+    def test_fixture_dirs_in_bundle(name):
+        """Demo videos ship in the bundle. synth_20 is required only if the repo has it."""
+        src = Path(__file__).resolve().parent.parent / "fixtures" / name
+        if name != "synth_basic" and not src.is_dir():
+            pytest.skip(f"fixtures/{name} not present in the repo, so not bundled")
+        dst = None
+        for d in (BUNDLE / "_internal" / "fixtures" / name, BUNDLE / "fixtures" / name):
+            if d.is_dir():
+                dst = d
+                break
+>       assert dst is not None, f"fixtures/{name} missing from {BUNDLE} (root or _internal)"
+E       AssertionError: fixtures/synth_20 missing from C:\Users\3747h\Documents\HiveShotTracker\dist\HiveShotTracker (root or _internal)
+E       assert None is not None
+
+tests\test_build_smoke.py:137: AssertionError
+============================== warnings summary ===============================
+tests/test_setup.py::test_detector_sample_widens_range_persists_and_applies_live
+tests/test_setup.py::test_detector_sample_applied_to_running_detectors
+  C:\Users\3747h\Documents\HiveShotTracker\.venv\Lib\site-packages\numpy\lib\_polynomial_impl.py:676: RuntimeWarning: invalid value encountered in divide
+    lhs /= scale
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_build_smoke.py::test_vc_runtime_dlls_ship_with_bundle[msvcp140.dll]
+FAILED tests/test_build_smoke.py::test_bundle_ships_docs_and_readme - Asserti...
+FAILED tests/test_build_smoke.py::test_fixture_dirs_in_bundle[synth_20] - Ass...
+3 failed, 355 passed, 4 skipped, 2 warnings in 175.80s (0:02:55)

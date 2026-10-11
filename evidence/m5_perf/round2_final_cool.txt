@@ -1,0 +1,24 @@
+## pytest HIVESHOT_PERF=1 test_realtime_no_drops
+realtime synth_20: frames/dropped per camera {'cam0': (1005, 0), 'cam1': (1005, 0)}; timing {'detect_ms': 1.403, 'track_ms': 0.121, 'preview_ms': 0.0, 'ring_ms': 0.18, 'recon_ms': 34.103, 'offset_s': 0.0, 'offset_confidence': 0.884}
+.
+====================== 1 passed, 1 deselected in 18.01s =======================
+## synth_240
+wall 4.0 cameras (read,dropped) {'cam0': (782, 0), 'cam1': (782, 0)}
+timing(mid) {'detect_ms': 1.529, 'track_ms': 0.24, 'preview_ms': 0.0, 'ring_ms': 0.25, 'recon_ms': 98.987, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+timing(final) {'detect_ms': 1.246, 'track_ms': 0.108, 'preview_ms': 0.0, 'ring_ms': 0.229, 'recon_ms': 176.905, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+shots 8 of 8 made 6 truth made 6 ALL_CORRECT
+## synth_240 +preview clients
+wall 4.0 cameras (read,dropped) {'cam0': (782, 0), 'cam1': (782, 0)}
+timing(mid) {'detect_ms': 1.903, 'track_ms': 0.321, 'preview_ms': 10.226, 'ring_ms': 0.289, 'recon_ms': 90.899, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+timing(final) {'detect_ms': 1.458, 'track_ms': 0.153, 'preview_ms': 9.688, 'ring_ms': 0.242, 'recon_ms': 196.262, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+shots 8 of 8 made 6 truth made 6 ALL_CORRECT
+## synth_basic
+wall 3.0 cameras (read,dropped) {'cam0': (164, 0), 'cam1': (164, 0)}
+timing(mid) {'detect_ms': 3.693, 'track_ms': 0.261, 'preview_ms': 0.0, 'ring_ms': 0.191, 'recon_ms': 15.615, 'offset_s': 0.0, 'offset_confidence': 0.909}
+timing(final) {'detect_ms': 3.24, 'track_ms': 0.196, 'preview_ms': 0.0, 'ring_ms': 0.195, 'recon_ms': 40.695, 'offset_s': 0.0, 'offset_confidence': 0.909}
+shots 6 of 6 made 4 truth made 4 ALL_CORRECT
+## synth_20 +preview clients
+wall 17.0 cameras (read,dropped) {'cam0': (1005, 0), 'cam1': (1005, 0)}
+timing(mid) {'detect_ms': 1.528, 'track_ms': 0.167, 'preview_ms': 5.043, 'ring_ms': 0.195, 'recon_ms': 8.093, 'offset_s': 0.0, 'offset_confidence': 0.884}
+timing(final) {'detect_ms': 1.449, 'track_ms': 0.13, 'preview_ms': 3.471, 'ring_ms': 0.192, 'recon_ms': 35.327, 'offset_s': 0.0, 'offset_confidence': 0.884}
+shots 20 of 20 made 14 truth made 14 ALL_CORRECT

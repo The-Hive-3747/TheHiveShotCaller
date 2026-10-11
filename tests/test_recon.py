@@ -59,6 +59,18 @@ def _tracks(d, intr, rng, shift=0.0, noise=NOISE_PX):
     return tracks, truth
 
 
+def _truth_plane(truth, ball: int):
+    """True vertical shot plane of a ball, from its own truth trajectory:
+    launch point = first truth point, azimuth = horizontal direction of the
+    flight (drag-free fixtures fly in a vertical plane).  Derived from the
+    truth JSON rather than shots.json so it cannot go stale relative to it."""
+    frames = sorted(k for b, k in truth if b == ball)
+    p0 = np.array(truth[(ball, frames[0])])
+    p1 = np.array(truth[(ball, frames[min(10, len(frames) - 1)])])
+    az = np.degrees(np.arctan2(p1[1] - p0[1], p1[0] - p0[0]))
+    return plane_from_launch(tuple(p0), az)
+
+
 @pytest.fixture(scope="module")
 def setup():
     rng = np.random.default_rng(12345)
@@ -163,15 +175,12 @@ def test_bad_pairing_rejected(setup):
 
 
 def test_plane_fallback_matches_truth_noisy(setup):
-    shots = json.loads((FIX / "shots.json").read_text())
     for intr, ext, tracks in (
         (setup["i0"], setup["e0"], setup["ta"]),
         (setup["i1"], setup["e1"], setup["tb"]),
     ):
         for tr in tracks:
-            sh = shots[tr.track_id]
-            az = np.degrees(np.arctan2(sh["v0"][1], sh["v0"][0]))
-            pp, pn = plane_from_launch(tuple(sh["launch_point"]), az)
+            pp, pn = _truth_plane(setup["truth"], tr.track_id)
             tr3 = reconstruct_with_plane(tr, intr, ext, pp, pn)
             assert len(tr3.points) > 10
             # frame index is not recoverable after the +SHIFT on cam1, so
@@ -186,12 +195,9 @@ def test_plane_fallback_matches_truth_noisy(setup):
 def test_plane_fallback_noise_free_exact():
     d0, i0, e0 = _load("cam0")
     tracks, truth = _tracks(d0, i0, np.random.default_rng(0), noise=0.0)
-    shots = json.loads((FIX / "shots.json").read_text())
     worst = 0.0
     for tr in tracks:
-        sh = shots[tr.track_id]
-        az = np.degrees(np.arctan2(sh["v0"][1], sh["v0"][0]))
-        pp, pn = plane_from_launch(tuple(sh["launch_point"]), az)
+        pp, pn = _truth_plane(truth, tr.track_id)
         tr3 = reconstruct_with_plane(tr, i0, e0, pp, pn)
         by_t = {round(d.t, 6): d.frame_idx for d in tr.detections}
         for p in tr3.points:

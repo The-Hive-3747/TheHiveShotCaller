@@ -1,0 +1,134 @@
+1 ball track(s) from cam1 found no partner in the other camera and were dropped (a shot may be missing)
+wall 7.0 {'cam0': (782, 164), 'cam1': (782, 166)}
+timing {'detect_ms': 7.126, 'track_ms': 0.387, 'preview_ms': 0.0, 'ring_ms': 2.022, 'recon_ms': 482.051, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+===== thread aux-cam0: 688 samples
+ leaf:
+    511 wait threading.py:355
+    166 _after_frame pipeline.py:900
+     11 _after_frame pipeline.py:901
+ in hiveshot (cumulative):
+    688 _aux_loop pipeline.py
+    177 _after_frame pipeline.py
+===== thread aux-cam1: 685 samples
+ leaf:
+    568 wait threading.py:355
+    117 _after_frame pipeline.py:900
+ in hiveshot (cumulative):
+    685 _aux_loop pipeline.py
+    117 _after_frame pipeline.py
+===== thread cam-cam0: 690 samples
+ leaf:
+    165 apply pipeline.py:292
+    156 wait threading.py:359
+     91 _cam_loop pipeline.py:798
+     48 _masks detect.py:87
+     44 shrink pipeline.py:329
+     34 _masks detect.py:88
+     33 _masks detect.py:90
+     19 correct track2d.py:89
+ in hiveshot (cumulative):
+    690 _cam_loop pipeline.py
+    373 detect detect.py
+    373 detect pipeline.py
+    335 _masks detect.py
+    179 apply pipeline.py
+    179 _apply_bg detect.py
+    156 get ingest.py
+     44 shrink pipeline.py
+     23 update track2d.py
+     19 correct track2d.py
+      4 predict track2d.py
+===== thread cam-cam1: 685 samples
+ leaf:
+    148 wait threading.py:359
+    111 apply pipeline.py:292
+     88 _cam_loop pipeline.py:798
+     62 _masks detect.py:87
+     61 shrink pipeline.py:329
+     49 _masks detect.py:88
+     33 _masks detect.py:90
+     20 apply pipeline.py:290
+ in hiveshot (cumulative):
+    685 _cam_loop pipeline.py
+    364 detect detect.py
+    364 detect pipeline.py
+    323 _masks detect.py
+    148 get ingest.py
+    131 apply pipeline.py
+    131 _apply_bg detect.py
+     61 shrink pipeline.py
+     22 update track2d.py
+     17 correct track2d.py
+      5 predict track2d.py
+===== thread capture-cam0: 654 samples
+ leaf:
+    467 read ingest.py:148
+    176 wait threading.py:359
+      8 close ingest.py:190
+      1 _open ingest.py:99
+      1 read ingest.py:177
+      1 read ingest.py:176
+ in hiveshot (cumulative):
+    654 _run_inner ingest.py
+    654 _run ingest.py
+    469 read ingest.py
+    176 _pace ingest.py
+      8 close ingest.py
+      1 _open ingest.py
+      1 __init__ ingest.py
+===== thread capture-cam1: 668 samples
+ leaf:
+    461 read ingest.py:148
+    185 wait threading.py:359
+      8 close ingest.py:190
+      6 read ingest.py:177
+      5 read ingest.py:176
+      2 _open ingest.py:99
+      1 props ingest.py:127
+ in hiveshot (cumulative):
+    668 _run_inner ingest.py
+    668 _run ingest.py
+    472 read ingest.py
+    185 _pace ingest.py
+      8 close ingest.py
+      2 _open ingest.py
+      2 __init__ ingest.py
+      1 props ingest.py
+===== thread recon: 1220 samples
+ leaf:
+    498 _write_clips pipeline.py:1522
+    367 wait threading.py:359
+    203 _write_clips pipeline.py:1504
+     18 _dense_difference _numdiff.py:711
+     12 _dense_difference _numdiff.py:710
+     11 trf_bounds trf.py:300
+     10 _integrate_at physics.py:133
+     10 _dense_difference _numdiff.py:762
+ in hiveshot (cumulative):
+   1220 _recon_loop pipeline.py
+    853 _recon_cycle pipeline.py
+    835 _finalize pipeline.py
+    835 _release_chains pipeline.py
+    722 _write_clips pipeline.py
+    103 build_shot shots.py
+     97 fit_drag physics.py
+     24 resid physics.py
+     21 _integrate_at physics.py
+      9 _choose_offset pipeline.py
+      9 _fast_cost_matrix recon.py
+      8 best_near recon.py
+===== thread tags: 1249 samples
+ leaf:
+   1129 wait threading.py:359
+    107 detect_apriltags calib.py:246
+      7 scan_tags pipeline.py:929
+      2 detect_apriltags calib.py:242
+      1 detect_apriltags calib.py:245
+      1 detect_apriltags calib.py:241
+      1 detect_apriltags calib.py:243
+      1 wait threading.py:367
+ in hiveshot (cumulative):
+   1249 _tag_loop pipeline.py
+    119 scan_tags pipeline.py
+    119 _tag_tick pipeline.py
+    112 detect_apriltags calib.py

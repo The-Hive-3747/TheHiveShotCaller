@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -521,8 +522,8 @@ def test_round9_demo_mode_wired():
     assert html.index('class="brand"') < html.index('id="demoBadge"') < html.index('id="wsState"')
     assert ">DEMO<" in html and ".demo-badge" in css
     assert "Run demo" in html and "'Exit demo' : 'Run demo'" in js
-    assert "'POST', '/api/demo/start'" in js and "'POST', '/api/demo/stop'" in js
-    assert "r.session_id" in js and "setSession(r.session_id)" in js and "showTab('dashboard')" in js
+    assert "'/api/demo/start'" in js and "'/api/demo/stop'" in js and "api('POST', starting ?" in js
+    assert "r.session_id" in js and "setSession(sid)" in js and "showTab('dashboard')" in js
     assert "st.demo === true" in js
     assert "demo config (not saved)" in html
     # wizard auto-open is suppressed in demo mode (check happens before the auto-open)
@@ -542,11 +543,34 @@ def test_stub_round9_demo_toggle():
             with urllib.request.urlopen(req, timeout=10) as r:
                 return json.load(r)
 
+        ui_stub_server.DEMO_DELAY_S = 0.4
         assert status()["demo"] is False
         res = post("/api/demo/start")
-        assert res["ok"] is True and res["session_id"] and status()["demo"] is True
-        assert post("/api/demo/stop")["ok"] is True and status()["demo"] is False
+        assert res["ok"] is True and res["session_id"]
+        assert status()["demo"] is False, "status.demo must lag the 200 response"
+        time.sleep(0.6)
+        assert status()["demo"] is True
+        assert post("/api/demo/stop")["ok"] is True
+        assert status()["demo"] is True, "status.demo stays true until the pipeline has stopped"
+        time.sleep(0.6)
+        assert status()["demo"] is False
     finally:
-        ui_stub_server.DEMO_STATE["on"] = False
+        ui_stub_server.DEMO_DELAY_S = 2.0
+        ui_stub_server.DEMO_STATE.update(on=False, target=False, at=0.0)
         srv.shutdown()
         srv.server_close()
+
+
+def test_round10_demo_transition_waits_for_status():
+    js = (UI / "app.js").read_text(encoding="utf-8")
+    assert "'Exiting demo...'" in js and "'Starting demo...'" in js
+    assert "$('btnDemo').disabled = !!pend" in js
+    # completion is driven by status (demo flag), not by the POST response
+    assert "demoSettled(st)" in js and "(st.demo === true) !== (state.demoPending === 'starting')" in js
+    assert "setInterval(tick, 1000)" in js and "DEMO_TIMEOUT_MS" in js
+    # reload of config/sessions happens in the settle handler, after pending is cleared
+    fin = js[js.index("async function finishDemoTransition"):js.index("function watchDemoTransition")]
+    assert fin.index("clearDemoPending()") < fin.index("reloadAfterModeChange()") < fin.index("refreshSessions()")
+    onclick = js[js.index("$('btnDemo').onclick"):]
+    onclick = onclick[:onclick.index("};")]
+    assert "reloadAfterModeChange" not in onclick and "refreshSessions" not in onclick

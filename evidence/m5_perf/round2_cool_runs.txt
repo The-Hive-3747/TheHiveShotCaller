@@ -1,0 +1,74 @@
+# BEFORE tree=C:/Users/3747h/AppData/Local/Temp/claude/C--Users-3747h-Documents-HiveShotTracker/386da1de-9207-4304-8c4f-9284e5732d29/scratchpad/before Sat Oct 10 19:29:41 2026 reps=3 rest=40s
+## BEFORE synth_basic rep 1
+wall 5.1 cameras (read,dropped) {'cam0': (164, 27), 'cam1': (164, 25)}
+timing(final) {'detect_ms': 14.247, 'track_ms': 0.299, 'preview_ms': 0.0, 'ring_ms': 0.872, 'recon_ms': 284.69, 'offset_s': 0.0, 'offset_confidence': 0.795}
+shots 6 of 6 made 4 truth made 4 ALL_CORRECT
+## BEFORE synth_basic rep 2
+wall 5.1 cameras (read,dropped) {'cam0': (164, 23), 'cam1': (164, 25)}
+timing(final) {'detect_ms': 13.157, 'track_ms': 0.559, 'preview_ms': 0.0, 'ring_ms': 0.651, 'recon_ms': 270.204, 'offset_s': 0.0, 'offset_confidence': 0.795}
+shots 6 of 6 made 4 truth made 4 ALL_CORRECT
+## BEFORE synth_basic rep 3
+wall 5.1 cameras (read,dropped) {'cam0': (164, 27), 'cam1': (164, 26)}
+timing(final) {'detect_ms': 13.658, 'track_ms': 1.167, 'preview_ms': 0.0, 'ring_ms': 0.504, 'recon_ms': 283.967, 'offset_s': 0.0, 'offset_confidence': 0.795}
+shots 6 of 6 made 3 truth made 4 MISMATCH
+## BEFORE synth_20 rep 1
+wall 19.2 cameras (read,dropped) {'cam0': (1005, 132), 'cam1': (1005, 137)}
+timing(final) {'detect_ms': 7.691, 'track_ms': 0.178, 'preview_ms': 0.0, 'ring_ms': 1.24, 'recon_ms': 296.977, 'offset_s': -0.0, 'offset_confidence': 0.665}
+shots 20 of 20 made 14 truth made 14 ALL_CORRECT
+## BEFORE synth_20 rep 2
+wall 18.2 cameras (read,dropped) {'cam0': (1005, 135), 'cam1': (1005, 141)}
+timing(final) {'detect_ms': 7.483, 'track_ms': 0.592, 'preview_ms': 0.0, 'ring_ms': 1.119, 'recon_ms': 273.289, 'offset_s': -0.0, 'offset_confidence': 0.665}
+shots 20 of 20 made 13 truth made 14 MISMATCH
+## BEFORE synth_20 rep 3
+wall 19.1 cameras (read,dropped) {'cam0': (1005, 118), 'cam1': (1005, 125)}
+timing(final) {'detect_ms': 7.332, 'track_ms': 0.365, 'preview_ms': 0.0, 'ring_ms': 1.753, 'recon_ms': 282.2, 'offset_s': -0.0, 'offset_confidence': 0.665}
+shots 20 of 20 made 13 truth made 14 MISMATCH
+## BEFORE synth_240 rep 1
+wall 8.1 cameras (read,dropped) {'cam0': (782, 234), 'cam1': (782, 225)}
+timing(final) {'detect_ms': 4.401, 'track_ms': 0.235, 'preview_ms': 0.0, 'ring_ms': 0.919, 'recon_ms': 509.839, 'offset_s': 0.0004, 'offset_confidence': 0.352}
+shots 8 of 8 made 5 truth made 6 MISMATCH
+## BEFORE synth_240 rep 2
+wall 8.2 cameras (read,dropped) {'cam0': (782, 177), 'cam1': (782, 178)}
+timing(final) {'detect_ms': 6.026, 'track_ms': 0.42, 'preview_ms': 0.0, 'ring_ms': 1.488, 'recon_ms': 502.771, 'offset_s': 0.0004, 'offset_confidence': 0.352}
+shots 7 of 8 made 5 truth made 6 MISMATCH
+## BEFORE synth_240 rep 3
+wall 7.1 cameras (read,dropped) {'cam0': (782, 234), 'cam1': (782, 229)}
+timing(final) {'detect_ms': 4.724, 'track_ms': 0.435, 'preview_ms': 0.0, 'ring_ms': 0.925, 'recon_ms': 499.73, 'offset_s': 0.0004, 'offset_confidence': 0.352}
+shots 8 of 8 made 5 truth made 6 MISMATCH
+# AFTER tree=C:/Users/3747h/Documents/HiveShotTracker Sat Oct 10 19:37:26 2026 reps=3 rest=40s
+## AFTER synth_basic rep 1
+wall 3.0 cameras (read,dropped) {'cam0': (164, 0), 'cam1': (164, 0)}
+timing(final) {'detect_ms': 3.253, 'track_ms': 0.201, 'preview_ms': 0.0, 'ring_ms': 0.179, 'recon_ms': 34.702, 'offset_s': 0.0, 'offset_confidence': 0.909}
+shots 6 of 6 made 4 truth made 4 ALL_CORRECT
+## AFTER synth_basic rep 2
+wall 3.0 cameras (read,dropped) {'cam0': (164, 0), 'cam1': (164, 0)}
+timing(final) {'detect_ms': 3.797, 'track_ms': 0.245, 'preview_ms': 0.0, 'ring_ms': 0.2, 'recon_ms': 35.974, 'offset_s': 0.0, 'offset_confidence': 0.909}
+shots 6 of 6 made 4 truth made 4 ALL_CORRECT
+## AFTER synth_basic rep 3
+wall 3.0 cameras (read,dropped) {'cam0': (164, 0), 'cam1': (164, 0)}
+timing(final) {'detect_ms': 3.285, 'track_ms': 0.208, 'preview_ms': 0.0, 'ring_ms': 0.197, 'recon_ms': 35.726, 'offset_s': 0.0, 'offset_confidence': 0.909}
+shots 6 of 6 made 4 truth made 4 ALL_CORRECT
+## AFTER synth_20 rep 1
+wall 17.0 cameras (read,dropped) {'cam0': (1005, 0), 'cam1': (1005, 0)}
+timing(final) {'detect_ms': 1.487, 'track_ms': 0.133, 'preview_ms': 0.0, 'ring_ms': 0.198, 'recon_ms': 35.82, 'offset_s': 0.0, 'offset_confidence': 0.884}
+shots 20 of 20 made 14 truth made 14 ALL_CORRECT
+## AFTER synth_20 rep 2
+wall 17.0 cameras (read,dropped) {'cam0': (1005, 0), 'cam1': (1005, 0)}
+timing(final) {'detect_ms': 1.314, 'track_ms': 0.109, 'preview_ms': 0.0, 'ring_ms': 0.169, 'recon_ms': 34.298, 'offset_s': 0.0, 'offset_confidence': 0.884}
+shots 20 of 20 made 14 truth made 14 ALL_CORRECT
+## AFTER synth_20 rep 3
+wall 17.0 cameras (read,dropped) {'cam0': (1005, 0), 'cam1': (1005, 0)}
+timing(final) {'detect_ms': 1.364, 'track_ms': 0.115, 'preview_ms': 0.0, 'ring_ms': 0.188, 'recon_ms': 33.764, 'offset_s': 0.0, 'offset_confidence': 0.884}
+shots 20 of 20 made 14 truth made 14 ALL_CORRECT
+## AFTER synth_240 rep 1
+wall 4.0 cameras (read,dropped) {'cam0': (782, 0), 'cam1': (782, 0)}
+timing(final) {'detect_ms': 1.326, 'track_ms': 0.113, 'preview_ms': 0.0, 'ring_ms': 0.229, 'recon_ms': 168.318, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+shots 8 of 8 made 6 truth made 6 ALL_CORRECT
+## AFTER synth_240 rep 2
+wall 4.0 cameras (read,dropped) {'cam0': (782, 0), 'cam1': (782, 0)}
+timing(final) {'detect_ms': 1.42, 'track_ms': 0.128, 'preview_ms': 0.0, 'ring_ms': 0.253, 'recon_ms': 175.088, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+shots 8 of 8 made 6 truth made 6 ALL_CORRECT
+## AFTER synth_240 rep 3
+wall 4.0 cameras (read,dropped) {'cam0': (782, 0), 'cam1': (782, 0)}
+timing(final) {'detect_ms': 1.308, 'track_ms': 0.11, 'preview_ms': 0.0, 'ring_ms': 0.235, 'recon_ms': 167.254, 'offset_s': 0.0004, 'offset_confidence': 0.911}
+shots 8 of 8 made 6 truth made 6 ALL_CORRECT

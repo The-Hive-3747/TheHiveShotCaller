@@ -1,0 +1,16 @@
+# Idle-CPU realtime headroom AFTER perf fix, source app on 8765, Sat Oct 10 19:59:02 MDT 2026
+## synth_basic
+cameras {'cam0': (164, 0, True), 'cam1': (164, 0, True)}
+timing {'detect_ms': 4.04, 'track_ms': 0.25, 'preview_ms': 0.0, 'ring_ms': 0.21, 'recon_ms': 38.68, 'offset_s': 0.0, 'offset_confidence': 0.91}
+warnings []
+stats shots 6 made 4 miss 2 bounce 0 unknown 0 hist {'1': 0, '2': 0, '3': 1, '4': 0, '5': 1}
+## synth_20
+cameras {'cam0': (1005, 0, True), 'cam1': (1005, 0, True)}
+timing {'detect_ms': 1.84, 'track_ms': 0.23, 'preview_ms': 0.0, 'ring_ms': 0.21, 'recon_ms': 35.16, 'offset_s': 0.0, 'offset_confidence': 0.88}
+warnings []
+stats shots 20 made 14 miss 6 bounce 0 unknown 0 hist {'1': 1, '2': 2, '3': 2, '4': 1, '5': 0}
+## synth_240
+cameras {'cam0': (782, 0, True), 'cam1': (782, 0, True)}
+timing {'detect_ms': 1.62, 'track_ms': 0.19, 'preview_ms': 0.0, 'ring_ms': 0.28, 'recon_ms': 203.16, 'offset_s': 0.0, 'offset_confidence': 0.91}
+warnings ['1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing']
+stats shots 8 made 6 miss 2 bounce 0 unknown 0 hist {'1': 0, '2': 0, '3': 1, '4': 0, '5': 1}

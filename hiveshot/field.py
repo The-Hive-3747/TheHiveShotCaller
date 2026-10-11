@@ -9,7 +9,7 @@ official field CAD, see evidence/m1_field/step_extract.md):
 * Each HIVE beam is a rigid body pivoting about (hive_x, 0, PIVOT_HEIGHT),
   tilted +-CELL_TILT_DEG (30) about X. Beam coordinates: a along the beam
   (outward from the pivot), b perpendicular in the YZ plane (b_hat has z>0).
-* Both CELLs sit at |a| = CELL_PAIR_SPAN/2 = 21.455 (opening plane, normal along
+* Both CELLs sit at |a| = CELL_OPENING_ALONG_BEAM = 21.455 (opening plane, normal along
   the beam) and are offset +B_CENTER along b_hat from the axis. B_CENTER is
   chosen so the up opening center lands EXACTLY on UP_CELL_OPENING_CENTER_Z
   (59.55); its bottom/top edges then land at 53.49/65.61 (official 53.5/65.6).
@@ -23,13 +23,11 @@ official field CAD, see evidence/m1_field/step_extract.md):
 * Opening 20 in wide (X) by 14 in tall (in-plane). `gabled=True` gives the
   pentagon: full width up to the 7.61 in shoulder, peak at the full 14 in.
 * hive_lowest_point_z: lowest rim of the down CELL, CAD-derived rim thickness
-  RIB_BOTTOM_RIM below the opening bottom edge; comes out 30.61 vs official 30.6.
+  GOAL_RIB_RIM_BELOW_OPENING below the opening bottom edge; comes out 30.61 vs official 30.6.
 * Tag geometry (cell_floor_frame, hive_tag_corners): see those functions.
-  Handedness note: the CAD is right-handed with the red HIVE at CAD -X and the
-  audience at CAD +Z, which in a right-handed frame with audience at +Y puts red
-  at +X. field_constants has RED_HIVE_X = -12.75, so red/blue X positions are
-  mirrored relative to the real field (tag-face geometry here is built
-  right-handed from the face itself and is unaffected).
+  Handedness: the CAD is right-handed with the red HIVE at CAD -X and the audience
+  at CAD +Z; with the audience at +Y that puts red at +X, which is what
+  field_constants now has (RED_HIVE_X = +12.75).
 """
 
 from __future__ import annotations
@@ -47,14 +45,16 @@ CELLS = ("audience", "far")
 
 _TILT = math.radians(C.CELL_TILT_DEG)
 _S, _C = math.sin(_TILT), math.cos(_TILT)
-BEAM_A_OPEN = C.CELL_PAIR_SPAN / 2.0                       # opening plane, along the beam
+BEAM_A_OPEN = C.CELL_OPENING_ALONG_BEAM                    # opening plane, along the beam (CAD)
 B_CENTER = (C.UP_CELL_OPENING_CENTER_Z - C.PIVOT_HEIGHT - BEAM_A_OPEN * _S) / _C
 HALF_H = C.CELL_OPENING_HEIGHT / 2.0
 B_BOTTOM = B_CENTER - HALF_H                               # opening bottom edge, along b_hat
-RIB_BOTTOM_RIM = 1.64          # CAD: Goal Rib extends 1.64 in below the opening bottom edge
+RIB_BOTTOM_RIM = C.GOAL_RIB_RIM_BELOW_OPENING
 TAG_STICKER_BELOW_FLOOR = 0.12  # CAD: sticker plane sits 0.12 in outside the opening-bottom line
-# y of the up CELL opening center in the audience-up state (|y| of the up CELL in any state)
+# y of the up CELL opening center (|y| of the up CELL in any state), from the rigid body;
+# must agree with the CAD-recorded constant
 OPENING_CENTER_ABS_Y = BEAM_A_OPEN * _C - B_CENTER * _S
+assert abs(OPENING_CENTER_ABS_Y - C.UP_CELL_OPENING_CENTER_Y) < 0.01
 FRAME_TOP_Z = C.PIVOT_HEIGHT + 20.0  # frame box height is not in constants; assumed
 FIELD_MAX_Z = 120.0  # assumed ceiling for bounds/viewer
 
@@ -118,11 +118,9 @@ def hive_tag_corners(alliance: str, which: str, state: HiveState) -> dict:
     TAG_ROW_FROM_CELL_FRONT behind the opening along u_depth and
     TAG_STICKER_BELOW_FLOOR outside the floor; ids ascend toward image-right (left to
     right on the sticker art, Figure 9-16) at offsets HIVE_TAG_ROW_OFFSETS_IN.
-    VERIFY: the direction of ascending ids relative to +X. Built right-handed from the
-    face (image_right = normal x image_down), so for the audience-up CELL ids ascend
-    toward -X in this frame (the requested 'ids ascend toward +X' assumption does not
-    hold for a right-handed frame; the CAD has them ascending toward its +X, where the
-    red HIVE is at CAD -X)."""
+    Built right-handed from the face (image_right = normal x image_down): for the
+    audience-up CELL, ids ascend toward -X in this frame (consistent with the CAD, where
+    they ascend toward CAD +X and CAD X = -field X). VERIFY on the real field."""
     origin, _ux, udep, nrm = cell_floor_frame(alliance, which, state)
     ids = C.HIVE_TAG_CLUSTERS[f"{alliance}_{which}"]
     down = udep / np.linalg.norm(udep)

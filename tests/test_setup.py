@@ -170,8 +170,18 @@ def test_setup_status_recommendations(client_plain, monkeypatch):
                       "tags_seen", "tags_roll", "pipeline_running", "recommendations"}
     assert j["pipeline_running"] is False and j["cameras_detected"] == []
     assert j["calibration_loaded"] is True and j["sources_configured"] is True
-    # file fixtures: no "plug in the cameras" advice
+    # file fixtures and no camera on this PC: plug some in, and say the sources are files
+    assert any(r.startswith("No cameras detected: plug in the cameras")
+               for r in j["recommendations"])
+    assert any("video files" in r and "Cameras step" in r for r in j["recommendations"])
+    # a webcam is present: only the video-file advice remains
+    monkeypatch.setattr(ingest, "list_devices", lambda max_index=10, **kw: [
+        {"index": 0, "width": 1280, "height": 720, "fps": 30.0, "backend": "x"}])
+    j = c.j("GET", "/api/setup/status")[1]
+    assert j["cameras_detected"] == [{"index": 0, "width": 1280, "height": 720, "fps": 30.0}]
     assert not any("plug in" in r for r in j["recommendations"])
+    assert any("video files" in r for r in j["recommendations"])
+    monkeypatch.setattr(ingest, "list_devices", lambda max_index=10, **kw: [])
     # device sources, nothing detected, no calibration file
     c.j("PUT", "/api/config", {"sources": [
         {"cam_id": "cam0", "kind": "device", "target": 0},
@@ -189,7 +199,7 @@ def test_setup_status_recommendations(client_plain, monkeypatch):
     assert any("camera 0 is at 30 fps" in r and "own USB port" in r for r in j["recommendations"])
 
 
-def test_setup_status_flags_slow_running_camera(tmp_path):
+def test_setup_status_flags_slow_running_camera(tmp_path, monkeypatch):
     cfg_path = tmp_path / "config.json"
     cfgmod.save(cfg_path, cfgmod.AppConfig(sources=[
         cfgmod.SourceConfig(cam_id="cam0", kind="device", target=0),
@@ -202,10 +212,13 @@ def test_setup_status_flags_slow_running_camera(tmp_path):
             "cam1": {"fps": 88.0, "dropped": 0, "frames_read": 900, "is_alive": True,
                      "last_error": None, "props": {"width": 1920, "height": 1080, "fps": 90}}}
     pl.status = lambda: {**real, "running": True, "cameras": cams}
+    probed = []
+    monkeypatch.setattr(ingest, "_probe_one", lambda i, out: probed.append(i))
     server, th, c = _serve(app)
     try:
         j = c.j("GET", "/api/setup/status")[1]
         assert j["pipeline_running"] is True
+        assert 0 not in probed and 1 not in probed        # indexes the pipeline holds are skipped
         slow = [r for r in j["recommendations"] if "is at 31 fps" in r]
         assert len(slow) == 1 and slow[0].startswith("camera cam0 is at 31 fps; move it to")
         assert "own USB port, not a shared hub" in slow[0]
@@ -219,7 +232,14 @@ def test_setup_status_reports_tags_seen(kit_rig):
     r, c = kit_rig
     j = c.j("GET", "/api/setup/status")[1]
     assert j["pipeline_running"] is True
-    assert j["tags_seen"] == {"cam0": [100, 101, 102, 103], "cam1": [100, 101, 102, 103]}
+    # recommended poses: each camera sees the two kit tags on its own side of the frame
+    # (more with the larger kit); ids are reported sorted
+    seen = j["tags_seen"]
+    assert set(seen) == {"cam0", "cam1"}
+    for ids in seen.values():
+        assert ids == sorted(ids) and set(ids) <= {100, 101, 102, 103}
+    assert {100, 102, 103} <= set(seen["cam0"])
+    assert {101, 102, 103} <= set(seen["cam1"])
     assert any("Auto-calibrate" in x for x in j["recommendations"])
 
 
@@ -555,3 +575,81 @@ def test_hive_tags_computed_positions_calibrate_without_the_kit(tmp_path):
             assert d < 1.0, (e["cam_id"], d)
     finally:
         rig.close()
+
+
+def test_hive_tags_with_a_single_tag_reading_camera(tmp_path):
+    """Only one calibrated camera reads the up-CELL tags (the other has no view of them):
+    the HIVE state still follows the tags, HIVE-tag calibration works for that camera, and
+    the blind camera is refused with a plain-language 422."""
+    cams, tags = _computed_world()
+    frames = {"cam0": np.full((H, W, 3), 110, np.uint8),
+              "cam1": render_tag_dict(cams["cam1"], tags, seed=3)}
+    rig = Rig(tmp_path, frames, with_extrinsics=True, cams=cams)
+    c = rig.serve()
+    try:
+        rig.start()
+        assert _wait(lambda: c.j("GET", "/api/pipeline/status")[1]["hive_state_source"] == "tags", 45)
+        assert c.j("GET", "/api/pipeline/status")[1]["hive_state"]["up_cell"] == "audience"
+        seen = c.j("GET", "/api/setup/status")[1]["tags_seen"]
+        assert seen["cam0"] == [] and seen["cam1"] == [34, 35, 36, 37]
+        s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto", {"source": "hive"})
+        assert s == 200 and j["tags_used"] == [34, 35, 36, 37], j
+        s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
+        assert s == 422 and "HIVE tag" in j["detail"], j
+        s, j = c.j("POST", "/api/calib/hive_tags/learn",
+                   {"state": {"alliance": "red", "up_cell": "audience"}})
+        assert s == 422                                      # learning needs both cameras
+        s, j = c.j("POST", "/api/calib/auto_all", {"source": "hive"})
+        assert s == 200 and j["ok"] is False
+        assert j["results"]["cam1"]["ok"] is True and j["results"]["cam0"]["status"] == 422
+    finally:
+        rig.close()
+
+
+def test_setup_status_lists_free_devices_and_flags_dropped_frames_while_running(
+        tmp_path, monkeypatch):
+    """File sources running + a webcam on the PC: the webcam is listed (probed through the
+    cached ingest.list_devices) and recommendations come from the actual state, including
+    dropped frames in the last minute."""
+    cfg_path = tmp_path / "config.json"
+    cfgmod.save(cfg_path, cfgmod.AppConfig(sources=[
+        cfgmod.SourceConfig(cam_id=f"cam{i}", kind="file", target=f"fixtures/synth_basic/cam{i}.mp4",
+                            loop=True) for i in (0, 1)]))
+    calls = []
+
+    def fake_list(max_index=10, **kw):
+        calls.append(max_index)
+        return [{"index": 0, "width": 1920, "height": 1080, "fps": 60.0, "backend": "x"}]
+
+    monkeypatch.setattr(ingest, "list_devices", fake_list)
+    app = create_app(cfg_path, tmp_path / "data")
+    pl = app.state.hs.pipeline
+    real = pl.status()
+    cams = {c: {"fps": 60.0, "dropped": 0, "frames_read": 500, "is_alive": True,
+                "last_error": None, "props": {"width": 1280, "height": 720, "fps": 60}}
+            for c in ("cam0", "cam1")}
+    state = {"cams": cams}
+    pl.status = lambda: {**real, "running": True, "cameras": state["cams"]}
+    server, th, c = _serve(app)
+    try:
+        j = c.j("GET", "/api/setup/status")[1]
+        assert j["pipeline_running"] is True and calls
+        assert j["cameras_detected"] == [{"index": 0, "width": 1920, "height": 1080, "fps": 60.0}]
+        recs = j["recommendations"]
+        assert any("video files" in r and "Cameras step" in r for r in recs)
+        assert not any("plug in" in r or "dropping frames" in r for r in recs)
+        # cam1 starts dropping frames
+        state["cams"] = {**cams, "cam1": {**cams["cam1"], "dropped": 7}}
+        recs = c.j("GET", "/api/setup/status")[1]["recommendations"]
+        drop = [r for r in recs if "dropping frames" in r]
+        assert len(drop) == 1 and drop[0].startswith("camera cam1 is dropping frames")
+        assert "processing too slow" in drop[0] and "lower the preview fps" in drop[0]
+        # the counter stays at 7: drops from before the window would not be flagged, so check
+        # the window logic directly (older sample 61 s ago with the same count -> no drops)
+        hs = app.state.hs
+        with hs.lock:
+            hs._drop_hist.clear()
+            hs._drop_hist.append((time.monotonic() - 61.0, {"cam0": 0, "cam1": 7}))
+        assert hs.recent_drops({**real, "running": True, "cameras": state["cams"]}) == {}
+    finally:
+        _shutdown(server, th)

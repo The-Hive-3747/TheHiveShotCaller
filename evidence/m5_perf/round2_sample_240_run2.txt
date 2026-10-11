@@ -1,0 +1,155 @@
+1 ball track(s) from cam1 found no partner in the other camera and were dropped (a shot may be missing)
+wall 6.5 {'cam0': (782, 371), 'cam1': (782, 369)}
+timing {'detect_ms': 10.081, 'track_ms': 2.295, 'preview_ms': 0.0, 'ring_ms': 2.569, 'recon_ms': 442.212, 'offset_s': 0.0, 'offset_confidence': 0.904}
+===== thread aux-cam0: 280 samples
+ leaf:
+    121 wait threading.py:355
+     77 _after_frame pipeline.py:958
+     57 wait threading.py:365
+     15 _after_frame pipeline.py:947
+      5 _acquire_restore threading.py:312
+      1 __exit__ threading.py:303
+      1 _tick pipeline.py:904
+      1 wait threading.py:364
+ in hiveshot (cumulative):
+    280 _aux_loop pipeline.py
+     93 _after_frame pipeline.py
+      1 _tick pipeline.py
+===== thread aux-cam1: 285 samples
+ leaf:
+    112 wait threading.py:355
+     73 _after_frame pipeline.py:958
+     65 wait threading.py:365
+     20 _after_frame pipeline.py:947
+      3 _acquire_restore threading.py:312
+      3 __exit__ threading.py:303
+      3 _tick pipeline.py:904
+      2 _qsize queue.py:210
+ in hiveshot (cumulative):
+    285 _aux_loop pipeline.py
+     96 _after_frame pipeline.py
+      3 _tick pipeline.py
+===== thread cam-cam0: 280 samples
+ leaf:
+     69 apply pipeline.py:328
+     61 _masks detect.py:103
+     23 wait threading.py:359
+     21 shrink pipeline.py:365
+     21 detect detect.py:143
+     19 wait threading.py:365
+     12 update track2d.py:193
+      8 predict track2d.py:82
+ in hiveshot (cumulative):
+    280 _cam_loop pipeline.py
+    179 detect pipeline.py
+    174 detect detect.py
+    151 _masks detect.py
+     69 apply pipeline.py
+     69 _apply_bg detect.py
+     46 get ingest.py
+     23 update track2d.py
+     21 shrink pipeline.py
+      8 predict track2d.py
+      2 correct track2d.py
+      2 _note_frame pipeline.py
+===== thread cam-cam1: 285 samples
+ leaf:
+     62 apply pipeline.py:328
+     32 _masks detect.py:103
+     27 wait threading.py:359
+     26 shrink pipeline.py:365
+     24 wait threading.py:365
+     24 detect detect.py:143
+     17 update track2d.py:193
+     16 _masks detect.py:90
+ in hiveshot (cumulative):
+    285 _cam_loop pipeline.py
+    153 detect pipeline.py
+    147 detect detect.py
+    122 _masks detect.py
+     62 apply pipeline.py
+     62 _apply_bg detect.py
+     56 get ingest.py
+     41 update track2d.py
+     26 shrink pipeline.py
+     14 predict track2d.py
+      7 correct track2d.py
+      1 _interval track2d.py
+===== thread capture-cam0: 277 samples
+ leaf:
+    166 read ingest.py:186
+     58 read ingest.py:148
+     15 wait threading.py:367
+     13 wait threading.py:359
+      8 _push ingest.py:228
+      7 __exit__ threading.py:303
+      2 notify threading.py:407
+      1 is_set threading.py:603
+ in hiveshot (cumulative):
+    277 _run_inner ingest.py
+    277 _run ingest.py
+    224 read ingest.py
+     38 _pace ingest.py
+     11 _push ingest.py
+      2 close ingest.py
+===== thread capture-cam1: 281 samples
+ leaf:
+    157 read ingest.py:186
+     56 read ingest.py:148
+     18 wait threading.py:367
+     16 wait threading.py:359
+      7 _push ingest.py:228
+      6 __exit__ threading.py:303
+      5 notify threading.py:407
+      5 _pace ingest.py:242
+ in hiveshot (cumulative):
+    281 _run_inner ingest.py
+    281 _run ingest.py
+    215 read ingest.py
+     44 _pace ingest.py
+     16 _push ingest.py
+      2 close ingest.py
+===== thread clip-cam1: 173 samples
+ leaf:
+    165 _write_clip pipeline.py:1601
+      5 _write_clip pipeline.py:1608
+      2 _write_clip pipeline.py:1596
+      1 _bootstrap threading.py:1032
+ in hiveshot (cumulative):
+    172 _write_clip pipeline.py
+    172 write pipeline.py
+    172 run pipeline.py
+===== thread recon: 717 samples
+ leaf:
+    194 wait threading.py:359
+    164 _write_clip pipeline.py:1601
+     86 _integrate_at physics.py:133
+     43 _integrate_at physics.py:126
+     33 _integrate_at physics.py:123
+     27 _integrate_at physics.py:120
+     17 _integrate_at physics.py:136
+     17 _integrate_at physics.py:117
+ in hiveshot (cumulative):
+    717 _recon_loop pipeline.py
+    520 _recon_cycle pipeline.py
+    461 _finalize pipeline.py
+    461 _release_chains pipeline.py
+    274 build_shot shots.py
+    268 fit_drag physics.py
+    256 _integrate_at physics.py
+    256 resid physics.py
+    176 _write_clips pipeline.py
+    172 _write_clip pipeline.py
+    172 write pipeline.py
+     45 _choose_offset pipeline.py
+===== thread tags: 796 samples
+ leaf:
+    723 wait threading.py:359
+     69 detect_apriltags calib.py:246
+      3 wait threading.py:367
+      1 detect_apriltags calib.py:249
+ in hiveshot (cumulative):
+    796 _tag_loop pipeline.py
+     70 detect_apriltags calib.py
+     70 scan_tags pipeline.py
+     70 _tag_tick pipeline.py

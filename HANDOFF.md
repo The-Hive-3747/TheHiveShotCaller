@@ -26,3 +26,11 @@ Updated: 2026-10-10 ~17:10 (session 1, paused by owner for an offline period)
 
 ## Rules learned
 - Never git stash/checkout while workers run (reverted edits once). Commit the tree as-is first.
+
+## Round 7 (resumed after owner offline period)
+- Fixtures regenerated consistently (consistency test added); detection/tracking green on all four; recon plane-fallback tests fixed; detector learningRate robustness added.
+- Placement FINAL: cam0 (-78,+65) lens 30 in; cam1 (+65,+78) lens 20 in; 105° triangulation; cam1 is the HIVE-tag reader; robot occlusion modeled; kit tags now 6 in (3 readable per camera, pose 0.21 in / 0.13°). docs/camera_placement.* and docs/calibration.md regenerated.
+- Waiting on: backend worker (restore green pipeline on new fixtures, DoD2 fixes, setup/auto-calib/sample/defaults, HIVE-tag state, demo mode). Then full suite -> build.ps1 -> browser pass 3 -> refuters 2,3,6,9,10 -> phase commit.
+- 18:40 Browser pass 3 done (evidence/m4_e2e/browser_pass_3.md). build.ps1 failed only on its own stale-dist smoke gate (packaging worker reordering). CRITICAL finding: realtime headroom insufficient (PLAN.md section 12); performance task queued to the backend worker. Refuters and the phase commit wait for a green build and the perf fix.
+
+- 20:00 Perf fix landed and verified (zero drops, stats exact). Gated build.ps1 running; physics/detect owners reviewing the backend's cross-file perf edits. Next: phase commit + push, refuters 2,3,6,9,10, then DoD status update.

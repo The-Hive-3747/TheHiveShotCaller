@@ -143,8 +143,8 @@ def test_tag_row_center_and_normal():
     centers = np.array([c.mean(axis=0) for c in t.values()])
     row = centers.mean(axis=0)
     assert row[0] == pytest.approx(C.RED_HIVE_X, abs=0.1)
-    assert row[1] == pytest.approx(13.10, abs=0.1)
-    assert row[2] == pytest.approx(49.79, abs=0.1)
+    assert (row[1], row[2]) == pytest.approx(C.HIVE_TAG_ROW_CENTER_UP, abs=0.1)
+    assert (row[1], row[2]) == pytest.approx((13.10, 49.79), abs=0.1)  # CAD sticker center + 0.25
     # centers spaced +-2.75 / +-6.5 from the row center along one line
     assert sorted(np.abs(centers[:, 0] - row[0])) == pytest.approx([2.75, 2.75, 6.5, 6.5])
     assert np.allclose(centers[:, 1:], row[1:], atol=1e-9)
@@ -186,3 +186,33 @@ def test_hive_lowest_point_matches_official():
     z = field.hive_lowest_point_z(ST)
     assert z == pytest.approx(C.HIVE_LOWEST_POINT_Z, abs=1.5)   # official Figure 9-9: 30.6
     assert field.hive_lowest_point_z(field.HiveState("red", "far")) == pytest.approx(z)
+
+
+def test_red_at_plus_x_and_tag_ids_ascend_toward_minus_x():
+    assert C.RED_HIVE_X > 0 > C.BLUE_HIVE_X
+    for al, sign in (("red", 1), ("blue", -1)):
+        pt, _ = field.cell_opening_plane(al, "audience", ST)
+        assert np.sign(pt[0]) == sign
+        t = field.hive_tag_corners(al, "audience", ST)
+        xs = [t[i].mean(axis=0)[0] for i in sorted(t)]
+        assert xs == sorted(xs, reverse=True)           # ids ascend toward -X
+        assert np.mean(xs) == pytest.approx(sign * 12.75, abs=1e-6)
+        # image-right of the tag (TL->TR) points toward -X for the audience-up CELL
+        c = t[sorted(t)[0]]
+        assert (c[1] - c[0])[0] < 0
+    # far-up CELL is the mirror about the Y=0 plane
+    st = field.HiveState("red", "far")
+    tf = field.hive_tag_corners("red", "far", st)
+    xs = [tf[i].mean(axis=0)[0] for i in sorted(tf)]
+    assert xs == sorted(xs)                              # ids ascend toward +X
+
+
+def test_constants_are_the_single_source():
+    assert field.BEAM_A_OPEN == C.CELL_OPENING_ALONG_BEAM
+    assert field.RIB_BOTTOM_RIM == C.GOAL_RIB_RIM_BELOW_OPENING
+    pt, _ = field.cell_opening_plane("red", "audience", ST)
+    assert pt[1] == pytest.approx(C.UP_CELL_OPENING_CENTER_Y, abs=0.01)
+    far = field.cell_opening_plane("red", "far", ST)[0]
+    assert far[2] == pytest.approx(C.DOWN_CELL_OPENING_CENTER_Z, abs=0.01)
+    lo = field.cell_opening_polygon("red", "far", ST)[:, 2]
+    assert (lo.min(), lo.max()) == pytest.approx(C.DOWN_CELL_OPENING_Z_RANGE, abs=0.05)

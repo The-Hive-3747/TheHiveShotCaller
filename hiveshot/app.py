@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import collections
 import contextlib
 import json
 import logging
 import os
 import tempfile
 import threading
+import time
 import webbrowser
 from pathlib import Path
 from typing import Optional
@@ -33,6 +35,9 @@ log = logging.getLogger("hiveshot.app")
 
 DEMO_REALTIME = True            # tests may set False so the demo footage runs flat out
 DEMO_SESSION_TEMPLATE = "Demo {date} {time}"
+DROP_WINDOW_S = 60.0
+DEVICE_PROBE_MAX = 6
+DEVICE_CACHE_S = 30.0
 DEMO_FIXTURES = ("synth_20", "synth_basic")
 
 
@@ -101,6 +106,8 @@ class AppState:
         self.pipeline = Pipeline(self.cfg, self.store, self.data_dir, on_event=self.on_event)
         self.recorders: dict[str, _Recorder] = {}
         self.lock = threading.Lock()
+        self._drop_hist: collections.deque = collections.deque()
+        self._dev_cache: Optional[tuple[float, set, list]] = None
         # last extrinsics click set per camera: {cam_id: [{name, u, v}]} (image pixels)
         self.clicks: dict[str, list[dict]] = self._load_clicks()
         # learned HIVE tag corners per state: {"red_audience": {"34": [[x,y,z] x4]}}
@@ -134,7 +141,60 @@ class AppState:
                 self.clients.discard(ws)
 
     def status_msg(self) -> dict:
-        return {"type": "status", **self.pipeline.status()}
+        status = self.pipeline.status()
+        self.note_drops(status)
+        return {"type": "status", **status}
+
+    # ------------------------------------------------ setup helpers (devices, dropped frames)
+    def note_drops(self, status: dict) -> None:
+        """Remember the cumulative dropped-frame counters, to tell recent drops from old."""
+        now = time.monotonic()
+        with self.lock:
+            if not status.get("running"):
+                self._drop_hist.clear()
+                return
+            self._drop_hist.append((now, {c: int(v.get("dropped") or 0)
+                                          for c, v in status["cameras"].items()}))
+            while self._drop_hist and now - self._drop_hist[0][0] > DROP_WINDOW_S + 5.0:
+                self._drop_hist.popleft()
+
+    def recent_drops(self, status: dict) -> dict[str, int]:
+        """Frames dropped per camera in the last DROP_WINDOW_S (counters start at 0 when the
+        pipeline starts, so before a full window of samples the baseline is 0)."""
+        self.note_drops(status)
+        now = time.monotonic()
+        with self.lock:
+            hist = list(self._drop_hist)
+        if not hist:
+            return {}
+        last = hist[-1][1]
+        older = [h for h in hist if now - h[0] >= DROP_WINDOW_S]
+        base = older[-1][1] if older else {}
+        return {c: n - base.get(c, 0) for c, n in last.items() if n - base.get(c, 0) > 0}
+
+    def free_devices(self, busy: set[int]) -> list[dict]:
+        """Capture devices on this PC (30 s cache) without touching indexes the pipeline has
+        open: `ingest.list_devices` when nothing is busy, else a probe of the free indexes."""
+        if not busy:
+            return [dict(d) for d in ingest.list_devices(max_index=DEVICE_PROBE_MAX)]
+        now = time.monotonic()
+        with self.lock:
+            c = self._dev_cache
+        if c is not None and now - c[0] < DEVICE_CACHE_S and c[1] == busy:
+            return [dict(d) for d in c[2]]
+        found: list[dict] = []
+        for i in range(DEVICE_PROBE_MAX):
+            if i in busy:
+                continue
+            out: dict = {}
+            th = threading.Thread(target=ingest._probe_one, args=(i, out), daemon=True)
+            th.start()
+            th.join(2.5 if i == 0 else 1.0)
+            if not th.is_alive() and "info" in out:
+                found.append(out["info"])
+        with self.lock:
+            self._dev_cache = (now, set(busy), [dict(d) for d in found])
+        return found
 
     def save_cfg(self) -> None:
         if self.demo:
@@ -581,7 +641,12 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
             ext, info = calib.solve_extrinsics_from_tags(
                 old_i[cam_id], fr.image, defs, cam_id, min_tags=2)
         except ValueError as e:
-            raise HTTPException(422, str(e)) from e
+            msg = str(e)
+            if source == "hive" and "tags visible" in msg:
+                msg = (f"no HIVE tags visible to {cam_id} (need at least 2 of ids "
+                       f"{sorted(defs)}); only cameras that can read the HIVE tags can be "
+                       "calibrated from them")
+            raise HTTPException(422, msg) from e
         kit_ids = [t for t in info["tags_used"] if 100 <= t <= 103]
         hive_used = [t for t in info["tags_used"] if t not in kit_ids]
         if kit_ids:
@@ -673,7 +738,7 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         # sanity check of the whole calibration: the up CELL's tags were triangulated, their
         # positions are also known from the field CAD
         up_err = None
-        comp = computed_hive_defs(hs.alliance, hs.up_cell)
+        comp = computed_hive_defs(hs.alliance, hs.up_cell, up_only=True)
         errs = [float(np.mean(np.linalg.norm(np.asarray(learned[str(i)]) - comp[i], axis=1)))
                 for i in common if i in comp]
         if errs:
@@ -709,38 +774,51 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         status = st.pipeline.status()
         running = status["running"]
         cams = status["cameras"]
+        # devices the running pipeline holds are reported from its own stream properties;
+        # every other index is probed (cached 30 s), whatever the pipeline is doing
+        busy: set[int] = set()
+        detected: list[dict] = []
         if running:
-            # a running pipeline holds the devices: report what it is reading
-            detected = []
             for s in st.cfg.sources:
                 p = cams.get(s.cam_id, {}).get("props") or {}
-                if s.kind == "device" and p:
-                    detected.append({"index": int(s.target) if str(s.target).isdigit() else -1,
-                                     "width": int(p.get("width") or 0),
-                                     "height": int(p.get("height") or 0),
-                                     "fps": float(p.get("fps") or 0.0)})
-        else:
-            detected = [{"index": d["index"], "width": d["width"], "height": d["height"],
-                         "fps": d["fps"]} for d in ingest.list_devices(max_index=6)]
+                if s.kind == "device" and str(s.target).isdigit():
+                    busy.add(int(s.target))
+                    if p:
+                        detected.append({"index": int(s.target),
+                                         "width": int(p.get("width") or 0),
+                                         "height": int(p.get("height") or 0),
+                                         "fps": float(p.get("fps") or 0.0)})
+        detected += [{"index": d["index"], "width": d["width"], "height": d["height"],
+                      "fps": d["fps"]} for d in st.free_devices(busy)]
+        detected.sort(key=lambda d: d["index"])
         tags = st.pipeline.tags_seen() if running else {}
         roll = st.pipeline.tags_roll() if running else {}
         loaded = status["calibration_loaded"]
         rec: list[str] = []
-        live = [s for s in st.cfg.sources if s.kind != "file"]
-        if not detected and all(s.kind == "device" for s in st.cfg.sources):
-            rec.append("No cameras detected: plug in the cameras (each on its own USB port), "
-                       "then press Refresh.")
-        if len(st.cfg.sources) < 2:
+        sources = st.cfg.sources
+        live = [s for s in sources if s.kind != "file"]
+        if not st.demo:
+            if not detected:
+                rec.append("No cameras detected: plug in the cameras (each on its own USB "
+                           "port), then press Refresh.")
+            if sources and all(s.kind == "file" for s in sources):
+                rec.append("The sources are video files; use the Cameras step to pick real "
+                           "cameras.")
+        if len(sources) < 2:
             rec.append("Only one camera is configured: add a second camera source "
                        "(3D needs two).")
-        for s in st.cfg.sources:
+        for s in sources:
             c = cams.get(s.cam_id, {})
             h = int((c.get("props") or {}).get("height") or 0)
             if (running and s.kind == "device" and c.get("is_alive")
                     and c.get("frames_read", 0) > 60 and h >= 1080 and c.get("fps", 0.0) < 59.0):
                 rec.append(f"camera {s.cam_id} is at {c['fps']:.0f} fps; move it to its own "
                            "USB port, not a shared hub.")
-        if not running:
+        if running:
+            for cid, n in sorted(st.recent_drops(status).items()):
+                rec.append(f"camera {cid} is dropping frames ({n} in the last minute): "
+                           "processing too slow; close other programs or lower the preview fps.")
+        else:
             for d in detected:
                 if d["height"] >= 1080 and 0 < d["fps"] < 59.0:
                     rec.append(f"camera {d['index']} is at {d['fps']:.0f} fps at 1080p; move "
@@ -756,7 +834,7 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                                "the tags so at least 2 are fully visible.")
         if not running and loaded and live:
             rec.append("Calibrated. Press Start to begin tracking shots.")
-        return {"cameras_detected": detected, "sources_configured": len(st.cfg.sources) >= 2,
+        return {"cameras_detected": detected, "sources_configured": len(sources) >= 2,
                 "calibration_loaded": loaded, "tags_seen": tags, "tags_roll": roll,
                 "pipeline_running": running, "recommendations": rec}
 

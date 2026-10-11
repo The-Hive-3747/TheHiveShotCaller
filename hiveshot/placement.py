@@ -64,12 +64,15 @@ TAG_MIN_EDGE_PX = 14.0
 TAG_MARGIN_PX = 60                 # tags must be this far inside the picture
 REF_MARGIN_PX = 60                 # calibration reference points must be this far inside
 # Printed calibration kit (tagkit.KIT_TAGS, 4 in tags on the frame top corners, facing +Y): a
-# camera "reads the kit" when at least KIT_MIN_TAGS tags are under TAG_MAX_ANGLE_DEG off their
-# normal, inside the picture, with the shortest projected edge >= KIT_MIN_EDGE_PX (a margin
-# above bare detectability so compressed video still decodes them).
+# camera "reads the kit" when at least KIT_MIN_TAGS (the solver's minimum) tags are under
+# KIT_MAX_ANGLE_DEG off their normal, inside the picture, with the shortest projected edge
+# >= KIT_MIN_EDGE_PX. 28 px / 55 deg is what survives compressed (mp4 / RTMP) video in the
+# synthetic tests; tags at 17 to 24 px or 60+ deg were detected in raw frames but lost in video.
+# Requiring 3 readable kit tags per camera together with the 75 deg triangulation limit has
+# no solution, so 2 is the requirement (a 2-tag pose is coarse: see docs/calibration.md).
 KIT_MIN_TAGS = 3
-KIT_MIN_EDGE_PX = 20.0
-KIT_MAX_ANGLE_DEG = 62.0
+KIT_MIN_EDGE_PX = 28.0
+KIT_MAX_ANGLE_DEG = 55.0
 
 
 def candidate_positions(radius_in, heights_in, angles_deg):
@@ -664,14 +667,17 @@ def label_lines(name, cam):
     x, y, z = cam["pos"]
     lx, ly, lz = cam["look_at"]
     yaw, pitch = aim_angles(cam)
+    role = ROLES[name]
     if name in ("A", "B"):
         tv = tag_view(_vcam(cam["pos"], cam["look_at"], cam["hfov_deg"]), cam["pos"])
         tail = (f"HIVE tags {tv['angle_deg']:.0f} deg off normal "
                 f"({'readable' if tv['sees'] else 'NOT readable'}, limit {TAG_MAX_ANGLE_DEG:.0f})")
+        if tv["sees"]:
+            role += ", TAG READER"
     else:
         tail = f"HFOV {cam['hfov_deg']:.0f}"
     return [
-        f"CAM {name} - {ROLES[name]}: x={x:+.0f} y={y:+.0f} in from center, "
+        f"CAM {name} - {role}: x={x:+.0f} y={y:+.0f} in from center, "
         f"lens height {z:.0f} in",
         f"{m['out_from_wall_in']:.0f} in out from the {m['wall']} wall's INSIDE face, "
         f"{m['along_wall_from_corner_in']:.0f} in along the wall from corner "
@@ -679,6 +685,36 @@ def label_lines(name, cam):
         f"aim yaw {yaw:.0f} deg (from +X toward +Y), pitch {pitch:+.0f} deg; "
         f"aim point ({lx:+.0f},{ly:+.0f},{lz:.0f}); " + tail,
     ]
+
+
+OPTION_LABEL = {"gopro": "GOPRO (GoPro Linear lens)", "usb": "USB (Arducam global shutter)"}
+MAP_NOTE = ("Squares: printed kit tags 100-103 on the frame top corners (dashed 104/105 optional). "
+            "TAG READER = camera that reads the CELL's own AprilTags.")
+
+
+def _kit_marks():
+    """(id, x, y, half-size in map px, optional) of every kit tag, from tagkit (top view)."""
+    from . import tagkit
+
+    out = []
+    for t in tagkit.kit_tags(extended=True):
+        c = tagkit.tag_center_xyz(t)
+        out.append((t.id, float(c[0]), float(c[1]), t.size_in * SCALE / 2.0, t.id >= 104))
+    return out
+
+
+def _kit_label_pos(tid, kx, ky, mx, my, hp, optional):
+    """Label spot for a kit tag square: audience-side corner tags above, optional bar tags
+    below, far-side tags to the right (keeps the crowded audience bar readable)."""
+    if optional:
+        return mx, my - hp - 34, "middle"
+    if ky > 0:
+        return mx, my - hp - 8, "middle"
+    return mx + hp + 6, my + 8, "start"
+
+
+def _is_reader(rec, k):
+    return k in ("A", "B") and rec.get("tag_reader") in (k, "both")
 
 
 LEGEND_Y0 = 1300
@@ -731,8 +767,17 @@ def _svg(option, rec):
     cx, cy = _m(cell[0], cell[1])
     o.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="16" fill="none" stroke="#000" '
              f'stroke-width="5"/>')
-    o.append(f'<text x="{cx+24:.1f}" y="{cy-20:.1f}" font-size="26">'
+    o.append(f'<text x="{cx+60:.1f}" y="{cy+70:.1f}" font-size="26">'
              f'UP CELL (red, audience, +Y)</text>')
+    for tid, kx, ky, hp, optional in _kit_marks():
+        mx, my = _m(kx, ky)
+        dash = ' stroke-dasharray="6 4"' if optional else ""
+        o.append(f'<rect x="{mx-hp:.1f}" y="{my-hp:.1f}" width="{2*hp:.1f}" height="{2*hp:.1f}" '
+                 f'fill="{"#ffffff" if optional else "#303030"}" fill-opacity="0.85" '
+                 f'stroke="#000" stroke-width="3"{dash}/>')
+        lx, ly, anc = _kit_label_pos(tid, kx, ky, mx, my, hp, optional)
+        o.append(f'<text x="{lx:.1f}" y="{ly:.1f}" font-size="22" font-weight="bold" '
+                 f'text-anchor="{anc}">{tid}{" opt" if optional else ""}</text>')
     for k in ("A", "B", "C"):
         cam = rec["cameras"][k]
         col = _hex(COLORS[k])
@@ -746,18 +791,20 @@ def _svg(option, rec):
         o.append(f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="8" fill="{col}"/>')
         o.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="18" fill="{col}"/>')
         dx, dy, anchor = TAG_OFFSET[k]
+        name = f"CAM {k} (tag reader)" if _is_reader(rec, k) else f"CAM {k}"
         o.append(f'<text x="{px+dx:.1f}" y="{py+dy:.1f}" font-size="28" font-weight="bold" '
-                 f'fill="{col}" text-anchor="{anchor}">CAM {k}</text>')
+                 f'fill="{col}" text-anchor="{anchor}">{name}</text>')
         for i, txt in enumerate(label_lines(k, cam)):
             o.append(f'<text x="30" y="{LEGEND_Y0 + LEGEND_DY*("ABC".index(k)) + i*30}" '
                      f'font-size="{24 if i == 0 else 21}" fill="{col}" '
                      f'font-weight="{"bold" if i == 0 else "normal"}">{txt}</text>')
     o.append(f'<text x="30" y="50" font-size="34" font-weight="bold">HIVE Shot Tracker camera '
-             f'map - option {option.upper()} (HFOV {rec["hfov_deg"]:.0f} deg)</text>')
+             f'map - option {OPTION_LABEL[option]}, HFOV {rec["hfov_deg"]:.0f} deg</text>')
     o.append('<text x="30" y="88" font-size="24">Top-down. X right, Y up (audience CELL at top). '
              'Inches from field center. Tiles 24 in. Wall at +-72 = INSIDE face.</text>')
     o.append('<text x="30" y="122" font-size="24">Yaw = bearing from +X toward +Y (0 = right, '
              '90 = up, 180 = left, 270 = down). Pitch + = up.</text>')
+    o.append(f'<text x="30" y="156" font-size="22">{MAP_NOTE}</text>')
     o.append('</svg>')
     return "\n".join(o)
 
@@ -800,8 +847,30 @@ def _png(option, rec):
         cv2.putText(img, label, (tx - w // 2, ty + 24), font, 0.6, col, 2, cv2.LINE_AA)
     cx, cy = P(cell[0], cell[1])
     cv2.circle(img, (cx, cy), 16, (0, 0, 0), 5)
-    cv2.putText(img, "UP CELL (red, audience, +Y)", (cx + 24, cy - 20), font, 0.7, (0, 0, 0), 2,
+    cv2.putText(img, "UP CELL (red, audience, +Y)", (cx + 60, cy + 70), font, 0.7, (0, 0, 0), 2,
                 cv2.LINE_AA)
+    for tid, kx, ky, hp, optional in _kit_marks():
+        a, b = P(kx, ky)
+        hp_i = int(round(hp))
+        if optional:
+            cv2.rectangle(img, (a - hp_i, b - hp_i), (a + hp_i, b + hp_i), (255, 255, 255), -1)
+            for i in range(0, 2 * hp_i, 10):                  # dashed outline
+                cv2.line(img, (a - hp_i + i, b - hp_i), (a - hp_i + min(i + 5, 2 * hp_i), b - hp_i),
+                         (0, 0, 0), 2)
+                cv2.line(img, (a - hp_i + i, b + hp_i), (a - hp_i + min(i + 5, 2 * hp_i), b + hp_i),
+                         (0, 0, 0), 2)
+                cv2.line(img, (a - hp_i, b - hp_i + i), (a - hp_i, b - hp_i + min(i + 5, 2 * hp_i)),
+                         (0, 0, 0), 2)
+                cv2.line(img, (a + hp_i, b - hp_i + i), (a + hp_i, b - hp_i + min(i + 5, 2 * hp_i)),
+                         (0, 0, 0), 2)
+        else:
+            cv2.rectangle(img, (a - hp_i, b - hp_i), (a + hp_i, b + hp_i), (48, 48, 48), -1)
+            cv2.rectangle(img, (a - hp_i, b - hp_i), (a + hp_i, b + hp_i), (0, 0, 0), 3)
+        lx, ly, anc = _kit_label_pos(tid, kx, ky, a, b, hp, optional)
+        txt = f"{tid}{' opt' if optional else ''}"
+        tw = cv2.getTextSize(txt, font, 0.6, 2)[0][0]
+        cv2.putText(img, txt, (int(lx - (tw // 2 if anc == "middle" else 0)), int(ly)), font, 0.6,
+                    (0, 0, 0), 2, cv2.LINE_AA)
     for k in ("A", "B", "C"):
         cam = rec["cameras"][k]
         col = COLORS[k]
@@ -815,16 +884,18 @@ def _png(option, rec):
         cv2.circle(img, a0, 8, col, -1)
         cv2.circle(img, p0, 18, col, -1)
         dx, dy, anchor = TAG_OFFSET[k]
-        w = cv2.getTextSize(f"CAM {k}", font, 0.9, 2)[0][0]
+        name = f"CAM {k} (tag reader)" if _is_reader(rec, k) else f"CAM {k}"
+        w = cv2.getTextSize(name, font, 0.9, 2)[0][0]
         x = p0[0] + dx - (w if anchor == "end" else w // 2 if anchor == "middle" else 0)
-        cv2.putText(img, f"CAM {k}", (x, p0[1] + dy), font, 0.9, col, 2, cv2.LINE_AA)
+        cv2.putText(img, name, (x, p0[1] + dy), font, 0.9, col, 2, cv2.LINE_AA)
         for i, txt in enumerate(label_lines(k, cam)):
             scale, thick = (0.72, 2) if i == 0 else (0.62, 1)
             cv2.putText(img, txt, (30, LEGEND_Y0 + LEGEND_DY * "ABC".index(k) + i * 30), font,
                         scale, col, thick, cv2.LINE_AA)
-    cv2.putText(img, f"HIVE Shot Tracker camera map - option {option.upper()} "
-                f"(HFOV {rec['hfov_deg']:.0f} deg)", (30, 50), font, 0.95, (0, 0, 0), 2,
+    cv2.putText(img, f"HIVE Shot Tracker camera map - option {OPTION_LABEL[option]}, "
+                f"HFOV {rec['hfov_deg']:.0f} deg", (30, 50), font, 0.95, (0, 0, 0), 2,
                 cv2.LINE_AA)
+    cv2.putText(img, MAP_NOTE, (30, 156), font, 0.55, (0, 0, 0), 1, cv2.LINE_AA)
     cv2.putText(img, "Top-down. X right, Y up (audience CELL at top). Inches from field "
                 "center. Tiles 24 in. Wall at +-72 = INSIDE face.", (30, 88), font, 0.6,
                 (0, 0, 0), 1, cv2.LINE_AA)

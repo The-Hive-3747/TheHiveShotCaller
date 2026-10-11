@@ -1,13 +1,22 @@
-"""Printed AprilTag calibration kit: four 36h11 tags on the HIVE frame top corners.
+"""Printed AprilTag calibration kit: 36h11 tags on the HIVE frame top corners.
 
-The operator prints the sheet (`write_tag_sheet_pdf`), cuts the four tags out, tapes
-one at each top corner of the HIVE frame "label up", and the app solves each camera's
-pose from the detected tag corners (`calib.solve_extrinsics_from_tags`). No clicking.
+The operator prints the sheet (`write_tag_sheet_pdf`), cuts the tags out, tapes one at each
+top corner of the HIVE frame "label up", and the app solves each camera's pose from the
+detected tag corners (`calib.solve_extrinsics_from_tags`). No clicking.
+
+Size: the default tag size is DEFAULT_TAG_SIZE_IN = 6.0 in (the black square), one tag per
+letter page. Every function takes `size_in` to override it. (4.0 in tags left each camera
+with only two reliably readable tags at the recommended poses; 6.0 in gives three.)
 
 Geometry conventions (field frame, inches; +Y toward the audience, Z up)
 ------------------------------------------------------------------------
 * Tag ids 100..103 correspond to `calib_targets.field_reference_points()` entries 5..8,
   the HIVE frame top corners: 100 = (-X,+Y), 101 = (+X,+Y), 102 = (-X,-Y), 103 = (+X,-Y).
+* Optional extra tags 104 and 105 (`kit_tags(extended=True)`) sit on the audience-side top
+  bar at its midpoint -12 in and +12 in (the bar ends come from
+  `field.hive_frame_wireframe` via `calib_targets.frame_top_corners`); the tag hangs down
+  from the top edge of the bar. They are not part of the default kit: at the recommended
+  poses both cameras already read three of the four corner tags.
 * **Every tag lies in a vertical plane (constant Y) and faces +Y**, i.e. toward the
   audience side where the cameras stand. For the +Y corners this is the outward face of
   the audience-side top bar. For the -Y corners it is the face of the far-side top bar
@@ -16,7 +25,7 @@ Geometry conventions (field frame, inches; +Y toward the audience, Z up)
   the frame corner point and the tag hangs down and inward, so its center is
   (corner_x -/+ size/2 toward the frame center, corner_y, corner_z - size/2). A tag
   centered on the corner point itself would hang half in the air. Set FLUSH_MOUNT = False
-  to center the tag on the corner point instead (then it needs a bracket).
+  to center the tag on the anchor point instead (then it needs a bracket).
 * "Label up" means the tag's upright direction is +Z. Seen by a person standing on the
   audience side looking at the frame (looking toward -Y), the tag's right side is toward
   -X and its left side toward +X.
@@ -25,9 +34,9 @@ Geometry conventions (field frame, inches; +Y toward the audience, Z up)
   front. Hence for a tag centered at (cx, y, cz) with half size s:
       TL = (cx + s, y, cz + s)   TR = (cx - s, y, cz + s)
       BR = (cx - s, y, cz - s)   BL = (cx + s, y, cz - s)
-  The detector's corners are the corners of the outer black square (the 4.0 in).
-* Print scale: the 4.0 in is the black square. Leave the white margin printed around it
-  (at least 0.5 in) when cutting; the detector needs the white quiet zone.
+  The detector's corners are the corners of the outer black square (the tag size).
+* Print scale: the tag size is the black square. Leave the white margin printed around it
+  (at least QUIET_IN = 0.5 in) when cutting; the detector needs the white quiet zone.
 
 All frame dimensions are CAD guesses (VERIFY, see calib_targets). If the tags are taped
 where the real frame corners are but the model is off, the solved pose is off by the same
@@ -47,54 +56,75 @@ from hiveshot import calib, calib_targets, field
 from hiveshot import field_constants as fc
 
 DICT_NAME = "DICT_APRILTAG_36h11"
-TAG_SIZE_IN = 4.0
+DEFAULT_TAG_SIZE_IN = 6.0
+TAG_SIZE_IN = DEFAULT_TAG_SIZE_IN
 FLUSH_MOUNT = True
 DPI = 300
-PAGE_IN = (11.0, 8.5)            # letter, landscape; two tags per page
+PAGE_IN = (8.5, 11.0)            # letter, portrait; one tag per page
 QUIET_IN = 0.5                   # white margin kept around each printed tag
+BAR_TAG_OFFSET_IN = 12.0         # tags 104 / 105: audience-side top bar midpoint -/+ this
 
 
 @dataclass(frozen=True)
 class KitTag:
     id: int
-    point_name: str              # name of the calib_targets reference point (corner)
-    size_in: float = TAG_SIZE_IN
+    point_name: str              # name of the reference point (corner) or of the bar position
+    size_in: float = DEFAULT_TAG_SIZE_IN
+    bar_dx: float | None = None  # None: on a frame top corner; else offset along the bar
 
 
 _FRAME_NAMES = calib_targets.FRAME_TOP_NAMES   # (-X,+Y), (+X,+Y), (-X,-Y), (+X,-Y)
-KIT_TAGS: tuple[KitTag, ...] = tuple(
-    KitTag(100 + i, n) for i, n in enumerate(_FRAME_NAMES)
-)
 
 
-def _corner_xyz(tag: KitTag) -> np.ndarray:
-    pts = dict(calib_targets.field_reference_points())
-    return np.asarray(pts[tag.point_name], float)
+def kit_tags(size_in: float | None = None, extended: bool = False) -> tuple[KitTag, ...]:
+    """The kit: ids 100-103 on the frame top corners (plus 104, 105 on the audience-side top
+    bar at midpoint -/+ BAR_TAG_OFFSET_IN when `extended`), at `size_in` (default 6.0 in)."""
+    s = DEFAULT_TAG_SIZE_IN if size_in is None else float(size_in)
+    out = [KitTag(100 + i, n, s) for i, n in enumerate(_FRAME_NAMES)]
+    if extended:
+        out += [KitTag(104, f"HIVE frame top bar, midpoint -{BAR_TAG_OFFSET_IN:g} in", s,
+                       -BAR_TAG_OFFSET_IN),
+                KitTag(105, f"HIVE frame top bar, midpoint +{BAR_TAG_OFFSET_IN:g} in", s,
+                       BAR_TAG_OFFSET_IN)]
+    return tuple(out)
 
 
-def _by_id(tag) -> KitTag:
+KIT_TAGS: tuple[KitTag, ...] = kit_tags()
+
+
+def _anchor_xyz(tag: KitTag) -> np.ndarray:
+    if tag.bar_dx is None:
+        pts = dict(calib_targets.field_reference_points())
+        return np.asarray(pts[tag.point_name], float)
+    a, b = calib_targets.frame_top_corners()[:2]       # audience-side top bar ends
+    mid = 0.5 * (np.asarray(a, float) + np.asarray(b, float))
+    return mid + np.array([tag.bar_dx, 0.0, 0.0])
+
+
+def _by_id(tag, size_in: float | None = None) -> KitTag:
     if isinstance(tag, KitTag):
         return tag
-    for t in KIT_TAGS:
+    for t in kit_tags(size_in, extended=True):
         if t.id == int(tag):
             return t
-    raise KeyError(f"unknown kit tag id {tag!r}; kit ids are {[t.id for t in KIT_TAGS]}")
+    raise KeyError(f"unknown kit tag id {tag!r}; kit ids are {[t.id for t in kit_tags(size_in, True)]}")
 
 
-def tag_center_xyz(tag) -> np.ndarray:
+def tag_center_xyz(tag, size_in: float | None = None) -> np.ndarray:
     """Center of the tag square in the field frame."""
-    t = _by_id(tag)
-    c = _corner_xyz(t).copy()
+    t = _by_id(tag, size_in)
+    c = _anchor_xyz(t).copy()
     if FLUSH_MOUNT:
         h = t.size_in / 2.0
-        c[0] -= np.sign(c[0]) * h      # inward, toward the frame center
-        c[2] -= h                      # downward
+        if t.bar_dx is None:
+            c[0] -= np.sign(c[0]) * h  # corner tag: inward, toward the frame center
+        c[2] -= h                      # hanging down from the top edge
     return c
 
 
-def tag_corners_xyz(tag) -> np.ndarray:
+def tag_corners_xyz(tag, size_in: float | None = None) -> np.ndarray:
     """(4,3) field-frame corners in cv2.aruco order (TL, TR, BR, BL of the upright tag)."""
-    t = _by_id(tag)
+    t = _by_id(tag, size_in)
     cx, y, cz = tag_center_xyz(t)
     s = t.size_in / 2.0
     return np.array([[cx + s, y, cz + s],
@@ -103,17 +133,17 @@ def tag_corners_xyz(tag) -> np.ndarray:
                      [cx + s, y, cz - s]], float)
 
 
-def tag_defs() -> dict[int, np.ndarray]:
+def tag_defs(size_in: float | None = None, extended: bool = False) -> dict[int, np.ndarray]:
     """{tag id: (4,3) corners}, the form `calib.solve_extrinsics_from_tags` takes."""
-    return {t.id: tag_corners_xyz(t) for t in KIT_TAGS}
+    return {t.id: tag_corners_xyz(t) for t in kit_tags(size_in, extended)}
 
 
-def tags_json() -> list[dict]:
+def tags_json(size_in: float | None = None, extended: bool = False) -> list[dict]:
     """Payload of GET /api/calib/tags."""
     return [{"id": t.id, "size_in": t.size_in, "name": t.point_name,
              "xyz_center": [float(v) for v in tag_center_xyz(t)],
              "corners_xyz": [[float(v) for v in p] for p in tag_corners_xyz(t)]}
-            for t in KIT_TAGS]
+            for t in kit_tags(size_in, extended)]
 
 
 def render_marker(tag_id: int, px: int) -> np.ndarray:
@@ -126,44 +156,48 @@ def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int) -> None:
     cv2.arrowedLine(img, (x, y_bot), (x, y_top), 0, 6, cv2.LINE_AA, tipLength=0.12)
 
 
-def render_tag_pages() -> list[np.ndarray]:
-    """Two landscape letter pages (300 dpi gray), two tags each."""
+def render_tag_pages(size_in: float | None = None, extended: bool = False) -> list[np.ndarray]:
+    """One portrait letter page (300 dpi gray) per tag: the tag (`size_in`, default 6.0 in)
+    with a white margin of at least QUIET_IN, its label and frame corner, an arrow "this
+    edge up", taping instructions and a print-scale ruler line of the same length as the
+    tag."""
+    tags = kit_tags(size_in, extended)
+    size = tags[0].size_in
+    if size + 2 * QUIET_IN > PAGE_IN[0]:
+        raise ValueError(f"a {size:g} in tag plus its {QUIET_IN} in quiet zone does not fit on "
+                         f"a {PAGE_IN[0]} in wide page")
     W, H = int(PAGE_IN[0] * DPI), int(PAGE_IN[1] * DPI)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    px = int(round(TAG_SIZE_IN * DPI))
+    px = int(round(size * DPI))
     pages = []
-    for chunk in (KIT_TAGS[:2], KIT_TAGS[2:]):
+    for t in tags:
         img = np.full((H, W), 255, np.uint8)
-        slot_w = W // 2
-        for k, t in enumerate(chunk):
-            x0 = k * slot_w + (slot_w - px) // 2
-            y0 = int(1.3 * DPI)
-            img[y0:y0 + px, x0:x0 + px] = render_marker(t.id, px)
-            cv2.putText(img, f"TAG {t.id}", (x0, y0 - int(0.75 * DPI)), font, 1.6, 0, 4,
-                        cv2.LINE_AA)
-            cv2.putText(img, t.point_name, (x0, y0 - int(0.3 * DPI)), font, 0.95, 0, 2,
-                        cv2.LINE_AA)
-            ax = x0 - int(0.3 * DPI)
-            _arrow_up(img, ax, y0, y0 + px // 2)
-            cv2.putText(img, "THIS", (ax - int(0.55 * DPI), y0 + px // 2 + int(0.35 * DPI)), font,
-                        0.8, 0, 2, cv2.LINE_AA)
-            cv2.putText(img, "EDGE UP", (ax - int(0.7 * DPI), y0 + px // 2 + int(0.6 * DPI)), font,
-                        0.8, 0, 2, cv2.LINE_AA)
-            cv2.putText(img, "Tape label up, outer top corner on the frame corner.",
-                        (x0 - int(0.4 * DPI), y0 + px + int(0.45 * DPI)), font, 0.7, 0, 2,
-                        cv2.LINE_AA)
-            cv2.putText(img, "Cut leaving the white border (0.5 in or more).",
-                        (x0 - int(0.4 * DPI), y0 + px + int(0.75 * DPI)), font, 0.7, 0, 2,
-                        cv2.LINE_AA)
-        # print-scale check: a 4.00 in line with end ticks
-        ly = H - int(0.7 * DPI)
-        lx = (W - px) // 2
-        cv2.line(img, (lx, ly), (lx + px, ly), 0, 5)
-        cv2.line(img, (lx, ly - 25), (lx, ly + 25), 0, 5)
-        cv2.line(img, (lx + px, ly - 25), (lx + px, ly + 25), 0, 5)
-        cv2.putText(img, f"This line must measure {TAG_SIZE_IN:.2f} in. Print at 100% / Actual "
-                    "size, not fit to page.", (lx - int(0.6 * DPI), ly + int(0.45 * DPI)), font,
-                    0.75, 0, 2, cv2.LINE_AA)
+        x0, y0 = (W - px) // 2, int(2.1 * DPI)
+        img[y0:y0 + px, x0:x0 + px] = render_marker(t.id, px)
+        cv2.putText(img, f"TAG {t.id}   ({size:g} in)", (x0, int(0.8 * DPI)), font, 1.8, 0, 4,
+                    cv2.LINE_AA)
+        cv2.putText(img, t.point_name, (x0, int(1.3 * DPI)), font, 1.0, 0, 2, cv2.LINE_AA)
+        cv2.putText(img, "Tape label up on a vertical face that looks toward the audience.",
+                    (x0, int(1.75 * DPI)), font, 0.75, 0, 2, cv2.LINE_AA)
+        ax = max(int(0.35 * DPI), x0 - int(0.45 * DPI))
+        _arrow_up(img, ax, y0 + int(0.2 * DPI), y0 + px // 2)
+        cv2.putText(img, "THIS", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.3 * DPI)),
+                    font, 0.6, 0, 2, cv2.LINE_AA)
+        cv2.putText(img, "EDGE UP", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.5 * DPI)),
+                    font, 0.6, 0, 2, cv2.LINE_AA)
+        how = ("outer top corner on the frame corner." if t.bar_dx is None
+               else "top edge on the top edge of the bar.")
+        cv2.putText(img, f"Place it with its {how}", (x0, y0 + px + int(0.45 * DPI)), font, 0.7, 0,
+                    2, cv2.LINE_AA)
+        cv2.putText(img, f"Cut leaving the white border ({QUIET_IN:g} in or more).",
+                    (x0, y0 + px + int(0.75 * DPI)), font, 0.7, 0, 2, cv2.LINE_AA)
+        # print-scale check: a line as long as the tag, with end ticks
+        ly = H - int(1.0 * DPI)
+        cv2.line(img, (x0, ly), (x0 + px, ly), 0, 5)
+        cv2.line(img, (x0, ly - 25), (x0, ly + 25), 0, 5)
+        cv2.line(img, (x0 + px, ly - 25), (x0 + px, ly + 25), 0, 5)
+        cv2.putText(img, f"This line must measure {size:.2f} in. Print at 100% / Actual size, "
+                    "not fit to page.", (x0, ly + int(0.45 * DPI)), font, 0.7, 0, 2, cv2.LINE_AA)
         pages.append(img)
     return pages
 
@@ -202,18 +236,20 @@ def _build_pdf_pages(pages: list[np.ndarray], page_in: tuple[float, float]) -> b
     return bytes(out)
 
 
-def tag_sheet_pdf_bytes() -> bytes:
-    return _build_pdf_pages(render_tag_pages(), PAGE_IN)
+def tag_sheet_pdf_bytes(size_in: float | None = None, extended: bool = False) -> bytes:
+    return _build_pdf_pages(render_tag_pages(size_in, extended), PAGE_IN)
 
 
-def write_tag_sheet_pdf(path: str | Path) -> Path:
-    """Write the printable tag sheet (2 landscape letter pages, 2 tags each, each tag
-    4.00 in with its quiet zone, labeled with its frame corner, an "edge up" arrow and a
-    4.00 in ruler line for the print-scale check). Also writes page PNGs next to it
-    (<stem>_p1.png, <stem>_p2.png). Returns the PDF path."""
+def write_tag_sheet_pdf(path: str | Path, size_in: float | None = None,
+                        extended: bool = False) -> Path:
+    """Write the printable tag sheet: one portrait letter page per tag (4 pages for ids
+    100-103, 6 with `extended`), each tag `size_in` (default 6.0 in) with its quiet zone,
+    labeled with its frame corner, an "edge up" arrow and a ruler line of the tag's length
+    for the print-scale check. Also writes page PNGs next to it (<stem>_p1.png, ...).
+    Returns the PDF path."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    pages = render_tag_pages()
+    pages = render_tag_pages(size_in, extended)
     path.write_bytes(_build_pdf_pages(pages, PAGE_IN))
     for i, g in enumerate(pages, 1):
         cv2.imwrite(str(path.with_name(f"{path.stem}_p{i}.png")), g)

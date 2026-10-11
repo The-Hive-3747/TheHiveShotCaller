@@ -61,21 +61,39 @@ def test_occlusion_detects_frame():
     assert not pl.occluded((-78.0, 65.0, 36.0), np.array([[fc.RED_HIVE_X, 60.0, 40.0]]))[0]
 
 
-def test_map_files_exist_and_agree(tmp_path):
-    svg, png = DOCS / "camera_placement.svg", DOCS / "camera_placement.png"
+@pytest.mark.parametrize("option,stem", [("usb", "camera_placement"),
+                                          ("gopro", "camera_placement_gopro")])
+def test_map_files_exist_and_agree(tmp_path, option, stem):
+    """The default map is the Arducam (usb) option, the GoPro alternative has its own pair."""
+    svg, png = DOCS / f"{stem}.svg", DOCS / f"{stem}.png"
     assert svg.exists() and png.exists()
     text = svg.read_text(encoding="utf-8")
     for label in ("CAM A", "CAM B", "CAM C"):
         assert label in text
-    rec = pl.recommend("gopro")
+    rec = pl.recommend(option)
+    assert pl.OPTION_LABEL[option] in text and f"HFOV {rec['hfov_deg']:.0f} deg" in text
     for c in rec["cameras"].values():
         x, y, z = c["pos"]
         assert f"x={x:+.0f} y={y:+.0f}" in text and f"lens height {z:.0f} in" in text
+    for k in ("A", "B"):
+        yaw, pitch = pl.aim_angles(rec["cameras"][k])
+        assert f"aim yaw {yaw:.0f} deg" in text and f"pitch {pitch:+.0f} deg" in text
+    # tag reader is marked, kit tags 100-105 are drawn with their ids (104/105 optional)
+    reader = rec["tag_reader"]
+    assert reader in ("A", "B", "both")
+    for k in ("A", "B"):
+        marked = f"CAM {k} (tag reader)" in text
+        assert marked == (reader in (k, "both"))
+    assert "TAG READER" in text
+    for tid in range(100, 104):
+        assert f">{tid}</text>" in text
+    assert ">104 opt</text>" in text and ">105 opt</text>" in text
     # regenerating gives the same SVG (map and recommend() cannot drift apart)
-    pl.write_map("gopro", tmp_path / "m.svg", tmp_path / "m.png")
+    pl.write_map(option, tmp_path / "m.svg", tmp_path / "m.png")
     assert (tmp_path / "m.svg").read_text(encoding="utf-8") == text
     img = cv2.imread(str(png))
     assert img.shape[:2] == (1600, 1600)
+    assert (cv2.imread(str(tmp_path / "m.png")) == img).all()
 
 
 # ------------------------------------------------ calibration reference points (DoD 9)
@@ -160,7 +178,7 @@ def test_placement_doc_matches_recommend():
     assert "own USB port on the PC" in text and "INSIDE face" in text
     # the svg/png carry the same bearings
     svg = (DOCS / "camera_placement.svg").read_text(encoding="utf-8")
-    yaw_a, _ = pl.aim_angles(pl.recommend("gopro")["cameras"]["A"])
+    yaw_a, _ = pl.aim_angles(pl.recommend("usb")["cameras"]["A"])
     assert f"aim yaw {yaw_a:.0f} deg" in svg
 
 
@@ -170,26 +188,53 @@ OLD_POSES = {"A": (78.0, 65.0, 36.0), "B": (-65.0, 78.0, 36.0)}
 
 
 @pytest.mark.parametrize("option", ["gopro", "usb"])
-def test_recommended_cameras_see_the_up_cell_tags(option):
+def test_recommendation_meets_the_hard_constraints(option):
     rec = pl.recommend(option)
     sc = rec["pair_score"]
-    # arc + triangulation, printed kit readable, CELL tags readable, 8 reference points
-    assert sc["tier"] == (True, True, True, True)
-    assert sc["kit_both"]
-    assert sc["frac_in_both"] >= 0.9 and 60.0 <= sc["mean_angle_deg"] <= 120.0
-    assert sc["tags_both"] and sc["refs_in_both"]
+    # tier: arc + triangulation >= 75, robot-free rays, >= 1 tag reader, printed kit readable,
+    # 8 reference points, not both cameras on the audience wall, (both read tags: preferred)
+    assert all(sc["tier"][:6]), sc["tier"]
+    assert sc["frac_in_both"] >= 0.9
+    assert pl.MIN_TRI_DEG <= sc["mean_angle_deg"] <= 120.0
+    assert not sc["both_on_audience_wall"] and sc["kit_both"]
+    assert all(c["height_in"] >= 20.0 for c in rec["cameras"].values())
     _, centre, normal = pl._up_tag_geometry()
     # the sticker normal is (0, sin30, -cos30): faces down and toward the audience
     assert normal == pytest.approx([0.0, 0.5, -math.sqrt(3) / 2], abs=1e-6)
+    readers = []
     for k in ("A", "B"):
         c = rec["cameras"][k]
         ray = np.array(c["pos"]) - centre
         ray /= np.linalg.norm(ray)
         ang = math.degrees(math.acos(float(ray @ normal)))
-        assert ang < pl.TAG_MAX_ANGLE_DEG
         tv = rec["tags"][k]
-        assert tv["sees"] and tv["in_image"] and tv["angle_deg"] == pytest.approx(ang, abs=1e-6)
-        assert tv["min_edge_px"] >= pl.TAG_MIN_EDGE_PX
+        assert tv["angle_deg"] == pytest.approx(ang, abs=1e-6)
+        if tv["sees"]:
+            readers.append(k)
+            assert ang < pl.TAG_MAX_ANGLE_DEG and tv["in_image"]
+            assert tv["min_edge_px"] >= pl.TAG_MIN_EDGE_PX
+        rv = rec["robot"][k]
+        assert rv["free"] >= pl.ROBOT_MIN_FREE and rv["tag_free"] == 1.0
+        assert rv == pl.robot_view(c["pos"])
+    assert readers and rec["tag_reader"] == ("both" if len(readers) == 2 else readers[0])
+
+
+@pytest.mark.parametrize("option", ["gopro", "usb"])
+def test_both_tags_alternative_is_reported_not_recommended(option):
+    rec = pl.recommend(option)
+    alt = rec["both_tags_alternative"]
+    assert alt["tag_reader"] == "both" and alt["pair_score"]["tags_both"]
+    for k in ("A", "B"):
+        assert alt["tags"][k]["sees"] and alt["tags"][k]["angle_deg"] < pl.TAG_MAX_ANGLE_DEG
+        assert alt["cameras"][k]["height_in"] >= 20.0
+        assert alt["robot"][k]["free"] >= pl.ROBOT_MIN_FREE
+    # it is only ever chosen over the recommendation if it is no worse on the hard
+    # constraints; the recommendation must not give up triangulation angle for tag reading
+    assert rec["pair_score"]["mean_angle_deg"] >= pl.MIN_TRI_DEG
+    assert alt["pair_score"]["both_on_audience_wall"] or alt["pair_score"]["mean_angle_deg"] <= \
+        rec["pair_score"]["mean_angle_deg"] + 1e-9
+    assert (alt["cameras"]["A"]["pos"], alt["cameras"]["B"]["pos"]) != (
+        rec["cameras"]["A"]["pos"], rec["cameras"]["B"]["pos"])
 
 
 @pytest.mark.parametrize("option", ["gopro", "usb"])
@@ -205,12 +250,14 @@ def test_old_recommendation_could_not_read_the_tags(option):
 
 
 def test_height_candidates_and_wall_positions():
-    assert min(pl.HEIGHTS_IN) == 12.0 and {12.0, 18.0, 24.0, 30.0, 36.0} <= set(pl.HEIGHTS_IN)
+    assert min(pl.HEIGHTS_IN) == 20.0                # UBeesize MT60 practical minimum
+    assert {20.0, 24.0, 30.0, 36.0, 48.0, 58.0} <= set(pl.HEIGHTS_IN) and max(pl.HEIGHTS_IN) == 58.0
     cands = pl._candidates()
     assert len(cands) == len(set(cands))
     wall = [p for p in cands if p[1] == pl.MIN_RADIUS_IN]
     assert {p[0] for p in wall} >= set(range(-72, 73, pl.WALL_STEP_IN))
     assert all(max(abs(x), abs(y)) >= pl.MIN_RADIUS_IN - 1e-9 for x, y, _ in cands)
+    assert all(p[2] >= 20.0 for p in cands)
 
 
 def test_hive_tags_visible_in_both_recommended_images():
@@ -253,20 +300,67 @@ def test_calibration_doc_pixel_table_matches_recommend():
 
 
 def test_recommended_aim_has_slack_and_same_spots_for_both_options():
-    """Each camera's aim sits inside the range that keeps the CELL tags, the printed kit and
-    the 8 reference points in view, with at least 3 deg to spare in yaw and pitch; both lens
-    options use the same tripod spots."""
+    """Each camera's aim sits inside the range that keeps the printed kit, the 8 reference
+    points (and, for a tag reader, the CELL tags) in view, with at least 3 deg to spare in yaw
+    and pitch; both lens options use the same tripod spots."""
     for k in ("A", "B"):
         assert pl.recommend("gopro")["cameras"][k]["pos"] == pl.recommend("usb")["cameras"][k]["pos"]
     for option in ("gopro", "usb"):
         rec = pl.recommend(option)
         for k in ("A", "B"):
             c = rec["cameras"][k]
-            assert pl._aim_ok(c["pos"], c["look_at"], c["hfov_deg"])
+            need = rec["tags"][k]["sees"]
+            assert pl._aim_ok(c["pos"], c["look_at"], c["hfov_deg"], need)
             for dy, dp in ((3, 0), (-3, 0), (0, 3), (0, -3)):
                 look = pl._rotated_aim(c["pos"], c["look_at"], dy, dp)
-                assert pl._aim_ok(c["pos"], look, c["hfov_deg"]), (option, k, dy, dp)
+                assert pl._aim_ok(c["pos"], look, c["hfov_deg"], need), (option, k, dy, dp)
         assert rec["pair_score"]["kit_both"]
+
+
+# ------------------------------------------------ robot occlusion
+def test_robot_box_blocks_rays_through_it_and_only_those():
+    smp = pl._robot_samples()
+    assert set(np.unique(smp["kind"])) == {"ball", "cell", "tag"}
+    # a camera right behind a robot (same launch point, low) cannot see targets beyond it
+    shot0 = smp["shot"] == 0
+    lo, hi = smp["lo"][shot0][0], smp["hi"][shot0][0]
+    centre = 0.5 * (lo + hi)
+    behind = centre + np.array([0.0, 30.0, -11.0])
+    blocked = pl.robot_blocked(behind, {k: v[shot0] for k, v in smp.items()})
+    cell = smp["kind"][shot0] == "cell"
+    assert blocked[cell][0]          # the CELL lies on the far side of the robot from here
+    above = centre + np.array([0.0, 30.0, 200.0])
+    assert not pl.robot_blocked(above, {k: v[shot0] for k, v in smp.items()}).any()
+    # ball positions still inside the robot box are not samples
+    for i in np.where(smp["kind"] == "ball")[0]:
+        p, a, b = smp["targets"][i], smp["lo"][i], smp["hi"][i]
+        assert not ((p >= a).all() and (p <= b).all())
+
+
+def test_robot_box_size_extension_and_window(monkeypatch):
+    assert pl.ROBOT_BOX_IN == (18.0, 18.0, 24.0) and pl.ROBOT_WINDOW_S == 0.3
+    smp = pl._robot_samples()
+    half = 9.0 + pl.ROBOT_EXTENSION_IN
+    assert np.allclose(smp["hi"][:, 0] - smp["lo"][:, 0], 2 * half)
+    assert np.allclose(smp["hi"][:, 2], 24.0) and np.allclose(smp["lo"][:, 2], 0.0)
+    balls = smp["targets"][smp["kind"] == "ball"]
+    assert balls.shape[0] > 0
+    monkeypatch.setattr(pl, "ROBOT_EXTENSION_IN", 6.0)
+    pl._robot_samples.cache_clear()
+    try:
+        wide = pl._robot_samples()
+        assert np.allclose(wide["hi"][:, 0] - wide["lo"][:, 0], 2 * (9.0 + 6.0))
+    finally:
+        monkeypatch.undo()
+        pl._robot_samples.cache_clear()
+
+
+@pytest.mark.parametrize("option", ["gopro", "usb"])
+def test_recommended_cameras_have_free_rays(option):
+    rec = pl.recommend(option)
+    for k in ("A", "B"):
+        rv = pl.robot_view(rec["cameras"][k]["pos"])
+        assert rv["free"] >= 0.9 and rv["cell_free"] == 1.0 and rv["tag_free"] == 1.0
 
 
 def test_geometry_comes_from_field_py():

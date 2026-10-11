@@ -1,0 +1,11 @@
+# Idle-CPU realtime headroom, source app on 8765, Sat Oct 10 18:36:52 MDT 2026
+config 200
+## synth_basic
+cameras {'cam0': (164, 37, True), 'cam1': (164, 37, True)}
+timing {'detect_ms': 33.37, 'track_ms': 2.74, 'preview_ms': 8.05, 'ring_ms': 1.7, 'recon_ms': 410.49, 'offset_s': 0.0, 'offset_confidence': 0.91}
+warnings ['camera cam0 dropped 37 frames (processing too slow)', 'camera cam1 dropped 37 frames (processing too slow)'] last_shot 23
+config 200
+## synth_20
+cameras {'cam0': (1005, 556, True), 'cam1': (1005, 522, True)}
+timing {'detect_ms': 32.29, 'track_ms': 1.22, 'preview_ms': 11.39, 'ring_ms': 3.88, 'recon_ms': 594.97, 'offset_s': 0.0, 'offset_confidence': 0.88}
+warnings ['2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing', 'camera cam0 dropped 556 frames (processing too slow)', 'camera cam1 dropped 522 frames (processing too slow)'] last_shot 42

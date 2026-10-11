@@ -76,3 +76,79 @@ All checks passed!
 --- ruff
 All checks passed!
 (round9 browser smoke vs stub on 8766, WS status frames from a real backend on 8765 neutralised in-page: Run demo -> badge+Exit demo+Settings banner+Save disabled+Dashboard; Exit demo restores; stub stopped)
+=== round10: demo start/stop wait for status (Starting demo... / Exiting demo...)
+...........................FF.                                           [100%]
+================================== FAILURES ===================================
+_________________________ test_round9_demo_mode_wired _________________________
+
+    def test_round9_demo_mode_wired():
+        html = (UI / "index.html").read_text(encoding="utf-8")
+        js = (UI / "app.js").read_text(encoding="utf-8")
+        css = (UI / "styles.css").read_text(encoding="utf-8")
+        for i in ("demoBadge", "btnDemo", "demoBanner"):
+            assert f'id="{i}"' in html and f"$('{i}')" in js, i
+        # badge sits right after the title, before the other pills
+        assert html.index('class="brand"') < html.index('id="demoBadge"') < html.index('id="wsState"')
+        assert ">DEMO<" in html and ".demo-badge" in css
+        assert "Run demo" in html and "'Exit demo' : 'Run demo'" in js
+>       assert "'POST', '/api/demo/start'" in js and "'POST', '/api/demo/stop'" in js
+E       assert ("'POST', '/api/demo/start'" in "// HiveShotTracker UI. Plain ES modules; API contract: docs/api.md\nimport { ReplayViewer } from './viewer3d.js';\n\n...if (st && (st.sources_configured === false || st.calibration_loaded === false)) showTab('setup');\n  });\n}\ninit();\n")
+
+tests\test_ui_static.py:524: AssertionError
+________________________ test_stub_round9_demo_toggle _________________________
+
+    def test_stub_round9_demo_toggle():
+        srv, _ = ui_stub_server.start(0)
+        base = f"http://127.0.0.1:{srv.server_address[1]}"
+        try:
+            def status():
+                with urllib.request.urlopen(base + "/api/pipeline/status", timeout=10) as r:
+                    return json.load(r)
+    
+            def post(path):
+                req = urllib.request.Request(base + path, data=b"", method="POST")
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return json.load(r)
+    
+            ui_stub_server.DEMO_DELAY_S = 0.4
+            assert status()["demo"] is False
+            res = post("/api/demo/start")
+            assert res["ok"] is True and res["session_id"]
+            assert status()["demo"] is False, "status.demo must lag the 200 response"
+>           time.sleep(0.6)
+            ^^^^
+E           NameError: name 'time' is not defined. Did you forget to import 'time'
+
+tests\test_ui_static.py:550: NameError
+=========================== short test summary info ===========================
+FAILED tests/test_ui_static.py::test_round9_demo_mode_wired - assert ("'POST'...
+FAILED tests/test_ui_static.py::test_stub_round9_demo_toggle - NameError: nam...
+--- ruff
+F821 Undefined name `time`
+   --> tests\test_ui_static.py:550:9
+    |
+548 |         assert res["ok"] is True and res["session_id"]
+549 |         assert status()["demo"] is False, "status.demo must lag the 200 response"
+550 |         time.sleep(0.6)
+    |         ^^^^
+551 |         assert status()["demo"] is True
+552 |         assert post("/api/demo/stop")["ok"] is True
+    |
+
+F821 Undefined name `time`
+   --> tests\test_ui_static.py:554:9
+    |
+552 |         assert post("/api/demo/stop")["ok"] is True
+553 |         assert status()["demo"] is True, "status.demo stays true until the pipeline has stopped"
+554 |         time.sleep(0.6)
+    |         ^^^^
+555 |         assert status()["demo"] is False
+556 |     finally:
+    |
+
+Found 2 errors.
+=== round10 rerun
+..............................                                           [100%]
+--- ruff
+All checks passed!
+(round10 browser smoke vs stub with 2 s status lag, WS status frames neutralised: Starting demo... disabled until status.demo true then badge/Exit demo/Dashboard; Exiting demo... until false then Run demo; stub stopped)

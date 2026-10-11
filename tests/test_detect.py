@@ -145,3 +145,111 @@ def test_config_from_dict_ignores_unknown_keys():
     cfg = DetectorConfig.from_dict({"min_radius_px": 5, "pollen_hsv": [[1, 2, 3], [4, 5, 6]],
                                     "preview_fps": 15})
     assert cfg.min_radius_px == 5 and cfg.pollen_hsv == ((1, 2, 3), (4, 5, 6))
+
+
+@pytest.mark.parametrize("lr", [None, 0.001, 0, 0.0, -1])
+@pytest.mark.parametrize("use_color", [True, False])
+def test_bg_learning_rate_variants_detect(lr, use_color):
+    det = BallDetector(DetectorConfig(bg_learning_rate=lr, use_color=use_color))
+    bg = np.full((540, 960, 3), 40, np.uint8)
+    for i in range(5):
+        det.detect(bg, i, i / 60, "c")
+    out = det.detect(_scene((0, 200, 255), (480, 270)), 5, 5 / 60, "c")
+    assert len(out) == 1 and abs(out[0].u - 480) < 3
+
+
+def test_bg_without_learning_rate_kwarg_is_supported():
+    class NoLr:
+        def apply(self, img):
+            return np.full(img.shape[:2], 255, np.uint8)
+
+    det = BallDetector(DetectorConfig(use_color=False))
+    det._bg = NoLr()
+    assert isinstance(det.detect(np.zeros((100, 100, 3), np.uint8), 0, 0.0, "c"), list)
+
+
+# ---- gated (motion-bounding-box) colour path must equal the full-frame path -------------
+class _FullFrameDetector(BallDetector):
+    """Reference: the same motion & colour gating computed on the whole frame."""
+
+    def _gated_masks(self, small, motion):
+        cfg = self.cfg
+        hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
+        pol = cv2.inRange(hsv, np.array(cfg.pollen_hsv[0], np.uint8),
+                          np.array(cfg.pollen_hsv[1], np.uint8))
+        nec = cv2.inRange(hsv, np.array(cfg.nectar_hsv[0], np.uint8),
+                          np.array(cfg.nectar_hsv[1], np.uint8))
+        m = cv2.bitwise_and(motion, cv2.bitwise_or(pol, nec))
+        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, self._kernel)
+        m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, self._kernel)
+        return m, pol, nec
+
+
+def _assert_same(a, b):
+    assert len(a) == len(b)
+    key = lambda d: (round(d.u, 3), round(d.v, 3))  # noqa: E731
+    for x, y in zip(sorted(a, key=key), sorted(b, key=key), strict=True):
+        assert abs(x.u - y.u) <= 0.01 and abs(x.v - y.v) <= 0.01
+        assert abs(x.radius_px - y.radius_px) <= 0.01
+        assert x.ball_type == y.ball_type
+
+
+def _frames(fixture="synth_20", n=60):
+    cap = cv2.VideoCapture(str(FIXROOT / fixture / "cam0.mp4"))
+    for _ in range(n):
+        ok, f = cap.read()
+        if not ok:
+            break
+        yield f
+    cap.release()
+
+
+@pytest.mark.parametrize("scale", [0.5, 0.37, 1.0])
+def test_gated_path_identical_to_full_frame_on_synth_20(scale):
+    cfg = DetectorConfig(process_scale=scale)
+    gated, full = BallDetector(cfg), _FullFrameDetector(cfg)
+    total = 0
+    for i, f in enumerate(_frames()):
+        a = gated.detect(f, i, i / 60, "c")
+        b = full.detect(f, i, i / 60, "c")
+        _assert_same(a, b)
+        total += len(a)
+    assert total > 20  # the comparison is not vacuous
+
+
+def _edge_scene(balls, size=(540, 960)):
+    img = np.full((*size, 3), 40, np.uint8)
+    for (x, y, r, col) in balls:
+        cv2.circle(img, (x, y), r, col, -1, cv2.LINE_AA)
+    return img
+
+
+def test_gated_path_edge_cases_match_full_frame():
+    yellow, magenta = (0, 200, 255), (200, 40, 200)
+    cases = [
+        [],                                                     # no motion
+        [(480, 270, 20, yellow)],                               # interior
+        [(15, 15, 20, yellow)],                                 # touching top-left corner
+        [(945, 525, 20, magenta)],                              # touching bottom-right corner
+        [(0, 270, 20, yellow), (959, 270, 20, magenta)],        # left and right edges
+        [(100, 100, 20, yellow), (800, 450, 22, magenta)],      # disjoint motion regions
+        [(300, 270, 20, yellow), (325, 270, 20, magenta)],      # overlapping
+    ]
+    for scale in (0.5, 0.33):
+        for case in cases:
+            gated = BallDetector(DetectorConfig(process_scale=scale))
+            full = _FullFrameDetector(DetectorConfig(process_scale=scale))
+            bg = _edge_scene([])
+            for i in range(6):
+                gated.detect(bg, i, 0, "c")
+                full.detect(bg, i, 0, "c")
+            img = _edge_scene(case)
+            _assert_same(gated.detect(img, 6, 0, "c"), full.detect(img, 6, 0, "c"))
+
+
+def test_color_only_mode_without_motion():
+    det = BallDetector(DetectorConfig(use_motion=False))
+    img = _edge_scene([(480, 270, 20, (0, 200, 255)), (200, 100, 18, (200, 40, 200))])
+    out = det.detect(img, 0, 0, "c")
+    assert sorted(d.ball_type.value for d in out) == ["nectar", "pollen"]
+    assert det.detect(_edge_scene([]), 1, 0, "c") == []

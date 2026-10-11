@@ -60,6 +60,12 @@ def test_camera_projection():
         c, _ = field.cell_opening_plane("red", "audience", ST)
         u, v = cam.project(c)
         assert 0 <= u[0] < 1920 and 0 <= v[0] < 1080
+    c0, c1 = (-(c.R.T @ np.array(c.extr.tvec)) for c in cams)
+    assert abs(c0[0]) == pytest.approx(abs(c1[0])) and c0[0] * c1[0] < 0
+    # both cameras see the red HIVE up CELL (at +X)
+    for cam in cams:
+        u, v = cam.project(field.cell_opening_plane("red", "audience", ST)[0])
+        assert 0 <= u[0] < 1920 and 0 <= v[0] < 1080
     p = [np.array(c.extr.tvec) for c in cams]
     assert all(np.isfinite(x).all() for x in p)
     # cameras ~90 deg apart, 115 in out, 55 in high
@@ -104,10 +110,11 @@ def test_in_image_fraction_helper():
     assert synth.in_image_fraction({"intrinsics": truth["intrinsics"], "frames": []}) == 0.0
 
 
+@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst", "synth_20", "synth_240"])
 @pytest.mark.parametrize("cam_id", ["cam0", "cam1"])
-def test_fixture_in_image_fraction(cam_id):
+def test_fixture_in_image_fraction(fixture, cam_id):
     from pathlib import Path
-    p = Path(__file__).resolve().parents[1] / "fixtures" / "synth_basic" / f"{cam_id}_truth.json"
+    p = Path(__file__).resolve().parents[1] / "fixtures" / fixture / f"{cam_id}_truth.json"
     truth = json.loads(p.read_text())
     assert synth.in_image_fraction(truth) >= 0.95
 
@@ -163,3 +170,25 @@ def test_hive_tags_drawn_count():
     img = np.full((1080, 1920, 3), 40, np.uint8)
     ids = synth._draw_hive_tags(img, cams[0], {"red": "audience", "blue": "far"})
     assert {34, 35, 36, 37} <= set(ids)
+
+
+@pytest.mark.parametrize("fixture", ["synth_basic", "synth_burst", "synth_20", "synth_240"])
+def test_fixture_shots_json_matches_truth(fixture):
+    """shots.json and the per-camera truth were written by the same run: every shot's
+    launch point equals the first truth position of its ball, and t_launch its first frame."""
+    from pathlib import Path
+    d = Path(__file__).resolve().parents[1] / "fixtures" / fixture
+    shots = json.loads((d / "shots.json").read_text())
+    for cam_id in ("cam0", "cam1"):
+        truth = json.loads((d / f"{cam_id}_truth.json").read_text())
+        first = {}
+        for f in truth["frames"]:
+            for b in f["balls"]:
+                first.setdefault(b["ball"], (f["t"], b["xyz"]))
+        assert len(first) == len(shots)
+        for s in shots:
+            t0, xyz = first[s["shot"]]
+            assert np.linalg.norm(np.array(xyz) - np.array(s["launch_point"])) < 0.5, \
+                (fixture, cam_id, s["shot"])
+            assert t0 == pytest.approx(s["t_launch"], abs=1.0 / truth["fps"] + 1e-9)
+            assert truth["t_offsets"][s["shot"]] == pytest.approx(s["t_launch"])

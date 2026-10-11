@@ -7,8 +7,4 @@ collected 18 items
 
 tests\test_recon.py ..................                                   [100%]
 
-============================= slowest 3 durations =============================
-0.33s call     tests/test_recon.py::test_alias_candidate_loses_to_true_offset
-0.28s call     tests/test_recon.py::test_periodic_bursts_alias_robust[0.0]
-0.28s call     tests/test_recon.py::test_periodic_bursts_alias_robust[0.137]
-============================= 18 passed in 2.02s ==============================
+============================= 18 passed in 2.03s ==============================

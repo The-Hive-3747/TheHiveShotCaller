@@ -123,14 +123,55 @@ def test_multicapture(tmp_path):
         assert time.time() - t0 < 5  # F14: tolerant of a loaded machine
 
 
-def test_device_reconnect_backoff_reports_error():
-    ct = CaptureThread(SourceSpec("bad", SourceKind.DEVICE, 99),
-                       backoff_min=0.05, backoff_max=0.1).start()
-    time.sleep(0.5)
+def _run_with_fake_sleep(monkeypatch, cap_cls, n_sleeps):
+    """Run a device CaptureThread whose backoff sleeps are recorded, not
+    waited; the n_sleeps-th sleep requests stop. No wall-clock dependence."""
+    monkeypatch.setattr(cv2, "VideoCapture", cap_cls)
+    ct = CaptureThread(SourceSpec("bad", SourceKind.DEVICE, 99))
+    slept: list[float] = []
+
+    def fake_sleep(seconds):
+        slept.append(seconds)
+        if len(slept) >= n_sleeps:
+            ct._stop.set()
+            return True
+        return False
+
+    ct._sleep = fake_sleep
+    ct.start()
+    ct._thread.join(10)  # generous hang guard only; completion is event-driven
+    assert not ct._thread.is_alive()
+    return ct, slept
+
+
+def test_device_reconnect_backoff_reports_error(monkeypatch):
+    # Open always fails: backoff doubles 0.5 -> 5 s then stays capped, and
+    # last_error is set (deterministic: fake sleep, no timing assertions).
+    class NoOpen(_StubCap):
+        def isOpened(self):
+            return False
+
+    ct, slept = _run_with_fake_sleep(monkeypatch, NoOpen, 6)
+    assert slept == [0.5, 1.0, 2.0, 4.0, 5.0, 5.0]
     st = ct.stats()
-    assert st["is_alive"] and st["last_error"]
-    ct.stop()
-    assert not ct.stats()["is_alive"]
+    assert st["last_error"] and "cannot open" in st["last_error"]
+    assert st["reconnects"] == 0 and st["frames_read"] == 0
+    assert not st["is_alive"]
+
+
+def test_device_stream_lost_counts_reconnects(monkeypatch):
+    # Opens fine but never delivers frames: each re-open is a counted
+    # reconnect, backoff keeps growing (no frames -> no reset), error says so.
+    class NoFrames(_StubCap):
+        def read(self):
+            return False, None
+
+    ct, slept = _run_with_fake_sleep(monkeypatch, NoFrames, 5)
+    assert slept == [0.5, 1.0, 2.0, 4.0, 5.0]
+    st = ct.stats()
+    assert st["reconnects"] == 4  # 5 opens, first is not a reconnect
+    assert st["last_error"] == "no frames received"
+    assert not st["is_alive"]
 
 
 def test_rtmp_missing_binary(tmp_path):

@@ -32,6 +32,7 @@ import dataclasses
 import json
 import logging
 import queue
+import sys
 import threading
 import time
 from pathlib import Path
@@ -79,6 +80,8 @@ STOP_JOIN_S = 10.0
 SAFE_LIVE_KEYS = ("burst_gap_s", "settle_time_s", "finalize_delay_s", "stitch_gap_s",
                   "robot", "preview_fps", "session_name_template", "session_idle_end_min",
                   "autosave_csv", "hive_tags_verified")
+TAG_SCAN_WIDTH = 960           # AprilTag id scans run on a copy this wide (640 lost the
+                               # small HIVE tags of a 1080p camera in the tests)
 TAG_SCAN_PERIOD_S = 1.0       # AprilTag scans per camera at most this often (wall time)
 HIVE_TAG_PERIOD_S = 0.5       # learned-HIVE-tag scans per camera (~2 Hz)
 HIVE_VOTES = 3                # consecutive agreeing samples before a state change is committed
@@ -88,6 +91,12 @@ HIVE_MATCH_PX = 12.0          # max mean corner reprojection error to accept a l
 HIVE_MARGIN_PX = 6.0          # the runner-up state must be worse by at least this much
 PENDING_MAX_AGE_S = 10.0
 RECON_PERIOD_S = 0.2
+QUEUE_SECONDS = 0.3             # capture queue depth in seconds of video
+QUEUE_MAX_FRAMES = 96
+QUEUE_MAX_BYTES = 192 * 1024 * 1024    # per camera
+CAM_PRIORITY = 2                # Windows thread priority of capture + camera threads
+SWITCH_INTERVAL_S = 0.0005       # GIL hand-over interval while a pipeline runs
+AUX_QUEUE_MAX = 64              # frames waiting for the preview/ring helper thread
 OFFSET_REESTIMATE_S = 30.0
 OFFSET_REESTIMATE_LOW_CONF_S = 3.0   # an ambiguous estimate is revisited sooner
 OFFSET_CONFIDENT = 0.3
@@ -196,7 +205,7 @@ class _LockstepReader:
 
     def stats(self) -> dict:
         now = time.perf_counter()
-        ts = [t for t in self._times if now - t <= 2.0]
+        ts = [t for t in list(self._times) if now - t <= 2.0]     # list(): the reader appends
         fps = (len(ts) - 1) / (ts[-1] - ts[0]) if len(ts) >= 2 and ts[-1] > ts[0] else 0.0
         return {"fps": fps, "dropped": 0, "frames_read": self.frames_read,
                 "is_alive": bool(self._thread and self._thread.is_alive()),
@@ -218,15 +227,91 @@ def hive_state_key(alliance: str, up_cell: str) -> str:
 HIVE_IDS = frozenset(i for ids in APRILTAG_IDS.values() for i in ids)
 
 
-def computed_hive_defs(alliance: str, up_cell: str) -> dict[int, np.ndarray]:
-    """Computed field-frame corners {id: (4,3)} of the up CELL's four tags in state
-    (alliance, up_cell) from the field CAD (tagkit.hive_tag_defs); {} if unavailable."""
+def _queue_depth(reader, fr) -> int:
+    """Frames the capture queue may hold before it drops the oldest: about QUEUE_SECONDS of
+    video (a GIL stall in another thread must not cost frames), at least 8, and within
+    QUEUE_MAX_BYTES for this frame size."""
+    try:
+        fps = float((reader.props or {}).get("fps") or 0.0)
+    except (AttributeError, TypeError, ValueError):
+        fps = 0.0
+    fps = fps if fps > 1.0 else 30.0
+    depth = max(8, min(QUEUE_MAX_FRAMES, round(QUEUE_SECONDS * fps)))
+    return int(max(8, min(depth, QUEUE_MAX_BYTES // max(1, int(fr.image.nbytes)))))
+
+
+def _thread_priority(level: int, native_id: Optional[int] = None) -> None:
+    """Windows thread priority (-1 below normal ... +2 highest) for the calling thread, or
+    for the thread with `native_id`: camera and capture threads outrank the reconstruction,
+    clip and tag threads when the CPU is contended. No-op elsewhere."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        from ctypes import wintypes
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        k32.GetCurrentThread.restype = wintypes.HANDLE
+        k32.OpenThread.restype = wintypes.HANDLE
+        k32.OpenThread.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        k32.SetThreadPriority.argtypes = [wintypes.HANDLE, ctypes.c_int]
+        k32.CloseHandle.argtypes = [wintypes.HANDLE]
+        if native_id is None:
+            k32.SetThreadPriority(k32.GetCurrentThread(), int(level))
+            return
+        h = k32.OpenThread(0x0020, False, int(native_id))      # THREAD_SET_INFORMATION
+        if h:
+            k32.SetThreadPriority(h, int(level))
+            k32.CloseHandle(h)
+    except Exception:  # noqa: BLE001
+        log.debug("SetThreadPriority unavailable", exc_info=True)
+
+
+_TIMER_LOCK = threading.Lock()
+_TIMER_USERS = 0
+
+
+def _fine_timers(on: bool) -> None:
+    """Windows' default 15.6 ms timer tick turns every short sleep/wait into ~16 ms, which
+    batches a 240 fps stream into bursts of four frames. Ask for 1 ms while a pipeline
+    runs; a shorter GIL switch interval keeps the camera threads from queueing behind the
+    reconstruction thread."""
+    global _TIMER_USERS
+    with _TIMER_LOCK:
+        if on:
+            _TIMER_USERS += 1
+            if _TIMER_USERS == 1:
+                sys.setswitchinterval(SWITCH_INTERVAL_S)
+                if sys.platform == "win32":
+                    try:
+                        import ctypes
+                        ctypes.windll.winmm.timeBeginPeriod(1)
+                    except Exception:  # noqa: BLE001
+                        log.debug("timeBeginPeriod unavailable", exc_info=True)
+        elif _TIMER_USERS > 0:
+            _TIMER_USERS -= 1
+            if _TIMER_USERS == 0:
+                sys.setswitchinterval(0.005)
+                if sys.platform == "win32":
+                    try:
+                        import ctypes
+                        ctypes.windll.winmm.timeEndPeriod(1)
+                    except Exception:  # noqa: BLE001
+                        pass
+
+
+
+def computed_hive_defs(alliance: str, up_cell: str, up_only: bool = False
+                       ) -> dict[int, np.ndarray]:
+    """Computed field-frame corners {id: (4,3)} of the HIVE tags of `alliance` with `up_cell`
+    up, from the field CAD (tagkit.hive_tag_defs): the tags of both cells at the heights they
+    have in that state, or only the up CELL's with `up_only`. {} if unavailable."""
     try:
         from . import tagkit
-        fn = getattr(tagkit, "hive_tag_defs", None)
-        if fn is None:
-            return {}
-        out = fn(alliance, up_cell)
+        from .field import HiveState
+        if up_only:
+            out = tagkit.up_cell_tag_corners(alliance, up_cell)
+        else:
+            out = tagkit.hive_tag_defs(alliance, HiveState(alliance, up_cell))
         return {int(i): np.asarray(c, float).reshape(4, 3) for i, c in dict(out).items()}
     except Exception:  # noqa: BLE001
         log.debug("computed HIVE tag positions unavailable", exc_info=True)
@@ -281,11 +366,12 @@ class _LowResMotion:
         self.bg = bg
         self.scale = scale
 
-    def apply(self, img):
+    def apply(self, img, learningRate: float = -1.0):
         h, w = img.shape[:2]
         small = cv2.resize(img, (max(1, round(w * self.scale)), max(1, round(h * self.scale))),
                            interpolation=cv2.INTER_AREA)
-        return cv2.resize(self.bg.apply(small), (w, h), interpolation=cv2.INTER_NEAREST)
+        return cv2.resize(self.bg.apply(small, learningRate=learningRate), (w, h),
+                          interpolation=cv2.INTER_NEAREST)
 
 
 def _make_detector(cfg, motion_scale: float):
@@ -313,16 +399,24 @@ class ScaledDetector:
     def __init__(self, cfg, motion_scale: float = 1.0):
         s = float(cfg.process_scale)
         self.scale = s
+        self._small: Optional[np.ndarray] = None
         self.det = _make_detector(dataclasses.replace(
             cfg, process_scale=1.0, min_radius_px=cfg.min_radius_px * s,
             max_radius_px=cfg.max_radius_px * s), motion_scale)
         self.draw = self.det.draw
 
     def shrink(self, image: np.ndarray) -> np.ndarray:
+        """The frame downscaled once. The result is a reusable buffer, valid until the next
+        call (a fresh 0.7 MB array per frame costs page faults on every camera thread);
+        copy it to keep it."""
         if self.scale == 1.0:
             return image
-        return cv2.resize(image, None, fx=self.scale, fy=self.scale,
-                          interpolation=cv2.INTER_AREA)
+        w, h = max(1, round(image.shape[1] * self.scale)), max(1, round(image.shape[0] * self.scale))
+        buf = self._small
+        if buf is None or buf.shape[:2] != (h, w) or buf.dtype != image.dtype                 or buf.shape[2:] != image.shape[2:]:
+            buf = self._small = np.empty((h, w, *image.shape[2:]), image.dtype)
+        cv2.resize(image, (w, h), dst=buf, interpolation=cv2.INTER_AREA)
+        return buf
 
     def detect(self, small: np.ndarray, frame_idx: int, t: float, cam_id: str):
         dets = self.det.detect(small, frame_idx, t, cam_id)
@@ -404,6 +498,8 @@ class Pipeline:
         self._recon_ms: Optional[float] = None
         self._drops: dict[str, collections.deque] = {}
         self._ring_pool: dict[str, list[np.ndarray]] = {}
+        self._timers_on = False
+        self._ring_pins: dict[str, int] = {}        # clip writers reading a ring's buffers
         self._proc_times: dict[str, collections.deque] = {}
         self._ring: dict[str, collections.deque] = {}
         self._hive = HiveState(config.alliance, config.hive_up_cell)
@@ -660,6 +756,7 @@ class Pipeline:
             self._proc_times = {s.cam_id: collections.deque(maxlen=600) for s in cfg.sources}
             self._ring = {s.cam_id: collections.deque() for s in cfg.sources}
             self._ring_pool = {s.cam_id: [] for s in cfg.sources}
+            self._ring_pins = {s.cam_id: 0 for s in cfg.sources}
             self._timing = {s.cam_id: {} for s in cfg.sources}
             self._recon_ms = None
             self._offset_conf = None
@@ -701,6 +798,10 @@ class Pipeline:
                 self._session_id = self.store.create_session(
                     cfgmod.format_session_name(cfg.session_name_template))
             self._threads = []
+            for r in self._readers.values():          # capture threads: same class as the camera loops
+                th_cap = getattr(r, "_thread", None)
+                if th_cap is not None and getattr(th_cap, "native_id", None):
+                    _thread_priority(CAM_PRIORITY, th_cap.native_id)
             for cam in self._readers:
                 det = ScaledDetector(DetectorConfig.from_dict(cfg.detector.model_dump()),
                                     cfg.detector.motion_scale)
@@ -716,11 +817,16 @@ class Pipeline:
             self._tag_last = {}
             self._vote = None
             self._running = True
+            _fine_timers(True)
+            self._timers_on = True
             for th in self._threads:
                 th.start()
         except Exception:
             self._stop.set()
             self._running = False
+            if self._timers_on:
+                self._timers_on = False
+                _fine_timers(False)
             for r in self._readers.values():
                 r.stop()
             self._readers = {}
@@ -753,14 +859,25 @@ class Pipeline:
             self._readers = {}
             self._running = False
             self._stopping = False
+            if self._timers_on:
+                self._timers_on = False
+                _fine_timers(False)
             if self._rtmp_error is None:
                 self.rtmp.stop()
 
     # ----------------------------------------------------------- per-camera loop
     def _cam_loop(self, cam: str, det, trk) -> None:
+        _thread_priority(CAM_PRIORITY)
         reader = self._readers[cam]
         prev_idx: Optional[int] = None
         prev_t = 0.0
+        sized = False
+        # preview JPEG encoding runs in a helper thread per camera (cv2 releases the GIL), off
+        # the detect budget; the cheap clip-ring copy stays on this thread
+        aux_q: queue.Queue = queue.Queue(maxsize=AUX_QUEUE_MAX)
+        aux = threading.Thread(target=self._aux_loop, args=(cam, det, aux_q), daemon=True,
+                               name=f"aux-{cam}")
+        aux.start()
         try:
             while not self._stop.is_set():
                 fr = reader.get(timeout=0.1)
@@ -770,6 +887,9 @@ class Pipeline:
                     continue
                 t = fr.t_source if fr.t_source is not None else fr.t_capture
                 self._note_frame(cam, fr)
+                if not sized and hasattr(reader, "maxsize"):
+                    sized = True
+                    reader.maxsize = _queue_depth(reader, fr)
                 if prev_idx is not None and fr.frame_idx > prev_idx + 1:
                     # frames missing between two delivered ones: the reader dropped them
                     with self._lock:
@@ -791,7 +911,13 @@ class Pipeline:
                     self._proc_times[cam].append(time.perf_counter())
                     if closed:
                         self._add_closed(cam, closed, t)
-                self._after_frame(cam, fr, t, dets, det, small)
+                if self.save_clips:
+                    self._ring_frame(cam, fr.image, t, small)
+                if self._preview_due(cam):
+                    try:
+                        aux_q.put_nowait((fr, dets, small.copy()))
+                    except queue.Full:
+                        pass                 # previews are best effort
             # end of stream or stop: flush open 2D tracks so in-flight shots are not lost
             with self._lock:
                 self._add_closed(cam, trk.finish(), self._last_t)
@@ -799,7 +925,24 @@ class Pipeline:
             self.last_error = f"{cam}: {e}"
             log.exception("camera loop failed for %s", cam)
         finally:
+            try:
+                aux_q.put(None, timeout=1.0)
+                aux.join(2.0)                # the clip ring is complete before 'done'
+            except queue.Full:
+                pass
             self._done[cam] = True
+
+    def _aux_loop(self, cam: str, det, q: "queue.Queue") -> None:
+        _thread_priority(-1)
+        while True:
+            item = q.get()
+            if item is None:
+                return
+            try:
+                fr, dets, small = item
+                self._preview_frame(cam, fr, dets, det, small)
+            except Exception:  # noqa: BLE001
+                log.exception("preview failed for %s", cam)
 
     def _note_frame(self, cam: str, fr: Frame) -> None:
         size = (fr.image.shape[1], fr.image.shape[0])
@@ -839,46 +982,49 @@ class Pipeline:
             if n == 0:
                 self._jpeg.pop(cam, None)          # never serve a stale frame later
 
-    def _after_frame(self, cam: str, fr: Frame, t: float, dets, det, small) -> None:
-        img_full = fr.image
-        h, w = img_full.shape[:2]
-        now = time.perf_counter()
+    def _preview_due(self, cam: str) -> bool:
         period = 1.0 / max(self._rcfg.preview_fps, 1.0)
-        need_preview = (self._preview_clients.get(cam, 0) > 0
-                        and now - self._last_enc.get(cam, 0.0) >= period)
-        t_prev = t_ring = 0.0
-        if need_preview:
-            img = _fit_width(img_full, small, PREVIEW_WIDTH)
-            s = img.shape[1] / w
-            sd = [dataclasses.replace(d, u=d.u * s, v=d.v * s, radius_px=d.radius_px * s)
-                  for d in dets]
-            ok, buf = cv2.imencode(".jpg", det.draw(img, sd), [cv2.IMWRITE_JPEG_QUALITY, 75])
-            if ok:
-                with self._lock:
-                    self._jpeg[cam] = buf.tobytes()
-                self._last_enc[cam] = now
-            t_prev = time.perf_counter() - now
-        if self.save_clips:
-            t0 = time.perf_counter()
-            s = min(1.0, CLIP_WIDTH / w)
-            ow, oh = int(w * s), int(h * s)
-            src = small if small.shape[1] >= ow else img_full
-            pool = self._ring_pool.setdefault(cam, [])
-            dst = pool.pop() if pool and pool[-1].shape == (oh, ow, 3) else None
-            if dst is None:
-                dst = np.empty((oh, ow, 3), np.uint8)
-            cv2.resize(src, (ow, oh), dst=dst, interpolation=cv2.INTER_AREA)
+        return (self._preview_clients.get(cam, 0) > 0
+                and time.perf_counter() - self._last_enc.get(cam, 0.0) >= period)
+
+    def _preview_frame(self, cam: str, fr: Frame, dets, det, small) -> None:
+        """Encode one MJPEG preview frame (helper thread; `small` is the helper's own copy)."""
+        img_full = fr.image
+        w = img_full.shape[1]
+        now = time.perf_counter()
+        img = _fit_width(img_full, small, PREVIEW_WIDTH)
+        s = img.shape[1] / w
+        sd = [dataclasses.replace(d, u=d.u * s, v=d.v * s, radius_px=d.radius_px * s)
+              for d in dets]
+        ok, buf = cv2.imencode(".jpg", det.draw(img, sd), [cv2.IMWRITE_JPEG_QUALITY, 75])
+        if ok:
             with self._lock:
-                ring = self._ring[cam]
-                ring.append((t, dst))
-                keep_s = self._ring_seconds()
-                while ring and t - ring[0][0] > keep_s:
-                    old = ring.popleft()[1]
-                    if len(pool) < RING_POOL_MAX:
-                        pool.append(old)           # recycled as the next frame's buffer
-            t_ring = time.perf_counter() - t0
-        self._tick(cam, "preview_ms", t_prev * 1000.0)
-        self._tick(cam, "ring_ms", t_ring * 1000.0)
+                self._jpeg[cam] = buf.tobytes()
+            self._last_enc[cam] = now
+        self._tick(cam, "preview_ms", (time.perf_counter() - now) * 1000.0)
+
+    def _ring_frame(self, cam: str, img_full: np.ndarray, t: float, small) -> None:
+        """Copy the frame, 480 px wide, into the clip ring (recycled buffers). Runs on the
+        camera thread right after detection: `small` is the detector's reusable buffer."""
+        t0 = time.perf_counter()
+        h, w = img_full.shape[:2]
+        s = min(1.0, CLIP_WIDTH / w)
+        ow, oh = int(w * s), int(h * s)
+        src = small if small.shape[1] >= ow else img_full
+        pool = self._ring_pool.setdefault(cam, [])
+        dst = pool.pop() if pool and pool[-1].shape == (oh, ow, 3) else None
+        if dst is None:
+            dst = np.empty((oh, ow, 3), np.uint8)
+        cv2.resize(src, (ow, oh), dst=dst, interpolation=cv2.INTER_LINEAR)
+        with self._lock:
+            ring = self._ring[cam]
+            ring.append((t, dst))
+            keep_s = self._ring_seconds()
+            while ring and t - ring[0][0] > keep_s:
+                old = ring.popleft()[1]
+                if len(pool) < RING_POOL_MAX and not self._ring_pins.get(cam):
+                    pool.append(old)           # recycled as the next frame's buffer
+        self._tick(cam, "ring_ms", (time.perf_counter() - t0) * 1000.0)
 
     def _ring_seconds(self) -> float:
         """Clip ring length: long enough to still hold a shot's first frames when it is
@@ -890,17 +1036,19 @@ class Pipeline:
     def scan_tags(self, cam: str, image: np.ndarray, max_age_s: float = TAG_SCAN_PERIOD_S
                   ) -> list[int]:
         """Ids of the AprilTags visible in `image`, cached per camera for `max_age_s`
-        (cheap: the scan runs on a half-size copy, ids only)."""
+        (cheap: the scan runs on a TAG_SCAN_WIDTH px wide copy, ids only)."""
         now = time.monotonic()
         hit = self._tags_cache.get(cam)
         if hit is not None and now - hit[0] < max_age_s:
             return hit[1]
         from .calib import detect_apriltags
-        small = cv2.resize(image, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+        k = min(1.0, TAG_SCAN_WIDTH / max(1, image.shape[1]))
+        small = image if k >= 1.0 else cv2.resize(image, None, fx=k, fy=k,
+                                                  interpolation=cv2.INTER_AREA)
         corners: dict[int, np.ndarray] = {}
         try:
             for d in detect_apriltags(small):
-                corners.setdefault(int(d["id"]), np.asarray(d["corners"], float) * 2.0)
+                corners.setdefault(int(d["id"]), np.asarray(d["corners"], float) / k)
         except Exception:  # noqa: BLE001
             log.exception("tag scan failed for %s", cam)
         ids = sorted(corners)
@@ -969,6 +1117,7 @@ class Pipeline:
 
     def _tag_loop(self) -> None:
         """Scans the latest frames for HIVE tags off the camera threads (~2 Hz per camera)."""
+        _thread_priority(-1)
         while not self._stop.wait(0.2):
             try:
                 self._tag_tick()
@@ -994,7 +1143,7 @@ class Pipeline:
         # cheap half-size id scan first: the full-resolution detection only runs when a
         # HIVE tag is actually in view
         with_tags = {c: f for c, f in frames.items()
-                     if HIVE_IDS & set(self.scan_tags(c, f.image, HIVE_TAG_PERIOD_S * 0.9))}
+                     if HIVE_IDS & set(self.scan_tags(c, f.image, TAG_SCAN_PERIOD_S))}
         if with_tags:
             self._hive_from_calibrated(with_tags, now)
 
@@ -1133,6 +1282,7 @@ class Pipeline:
             return min(ts) if ts else self._last_t
 
     def _recon_loop(self) -> None:
+        _thread_priority(-1)
         # Cycles are paced in *source* time (RECON_PERIOD_S), so file runs faster than
         # real time behave like live ones.
         last_cycle_t = -1e9
@@ -1179,29 +1329,20 @@ class Pipeline:
             return self._offset
         if min(len(ha), len(hb)) < 2:
             return self._offset if self._offset is not None else 0.0
-        import inspect
-
-        from .recon import estimate_time_offset
-        kw = {"max_lag_s": self._offset_max_lag(), "return_confidence": True}
-        if "prior_offset_s" in inspect.signature(estimate_time_offset).parameters:
-            kw["prior_offset_s"] = 0.0
-        est, conf = estimate_time_offset(ha, hb, **kw)
-        best_off, best_key = 0.0, None
-        for cand in sorted({0.0, float(est)}):
-            rc = recon_cls(*args, time_offset_s=cand)
-            pairs = rc.match_tracks(pa, pb)
-            cost = (sum(rc.pair_cost(a, b) for a, b in pairs) / len(pairs)) if pairs else 1e9
-            key = (-len(pairs), cost)
-            if best_key is None or key < best_key:
-                best_off, best_key = cand, key
-        if best_key is not None and best_key[1] > 1.0 and best_key[0] < 0:
-            rc = recon_cls(*args, time_offset_s=best_off)
-            best_off = rc.refine_time_offset(pa, pb)
+        from .recon import offset_candidates
+        max_lag = self._offset_max_lag()
+        # candidates: correlation peaks (prior 0 = same-PC cameras) plus "no offset"; the
+        # epipolar residual of the pooled recent tracks decides, so periodic bursts whose
+        # correlation aliases at the shot period cannot lock in a wrong offset
+        peaks = offset_candidates(ha, hb, k=5, max_lag_s=max_lag, prior_offset_s=0.0)
+        cands = sorted({0.0, *(round(o, 4) for o, _ in peaks)})
+        rc = recon_cls(*args, time_offset_s=0.0)
+        best_off, _cost = rc.choose_offset_by_epipolar(ha, hb, cands)
+        conf = float(getattr(rc, "last_choice_confidence", 0.0))
         self._offset, self._offset_wall = best_off, now
-        # confidence: the estimator's when it was adopted, else how well the clocks agree
-        self._offset_conf = float(conf) if abs(best_off - float(est)) < 0.01 else 0.0
+        self._offset_conf = conf
         log.info("time offset cam B -> cam A: %.4f s (confidence %.2f, search +-%.2f s)",
-                 best_off, self._offset_conf, kw["max_lag_s"])
+                 best_off, self._offset_conf, max_lag)
         return best_off
 
     def _recon_cycle(self, final: bool = False) -> None:
@@ -1403,6 +1544,15 @@ class Pipeline:
         if extra:
             shot = dataclasses.replace(
                 shot, notes="; ".join(([shot.notes] if shot.notes else []) + extra))
+        # store the shot with its burst already assigned: a reader (UI, API) must never see
+        # the (0, 0) placeholder between the insert and the session-wide re-assignment below
+        if not any(x.shot_id == shot.shot_id for x in self.store.list_shots(sid)):
+            mine = [x for x in assign_bursts([*self.store.list_shots(sid), shot],
+                                             self._rcfg.burst_gap_s)
+                    if x.shot_id == shot.shot_id]
+            if mine:
+                shot = dataclasses.replace(shot, burst_id=mine[0].burst_id,
+                                           burst_index=mine[0].burst_index, notes=mine[0].notes)
         stored = self.store.add_shot(shot)
         if shot.result == ShotResult.MADE:
             _, entry_t = classify_track(tr3, crosses, inside, cc)
@@ -1471,42 +1621,74 @@ class Pipeline:
         if not shot.track or not shot.track.points:
             return
         clip_dir = self.data_dir / "clips"
-        first: Optional[str] = None
         cams = [c.cam_id for c in self._rcfg.sources]
         off = self._offset or 0.0      # cam B time + off = cam A time (shot times are cam A)
-        for cam, ring in self._ring.items():
+        jobs = []
+        for cam, ring in list(self._ring.items()):
             # each camera's clip window lives on that camera's own clock
             shift = -off if len(cams) > 1 and cam == cams[1] else 0.0
             t0 = shot.track.points[0].t - 0.4 + shift
             t1 = shot.track.points[-1].t + 0.4 + shift
             with self._lock:
-                frames = [f.copy() for (t, f) in ring if t0 <= t <= t1]   # buffers are recycled
-            if len(frames) < 2:
-                continue
-            shape = frames[0].shape[:2]
-            kept = [f for f in frames if f.shape[:2] == shape]
-            if len(kept) != len(frames):
-                log.warning("clip %s_%s: dropped %d frames whose size differs from %dx%d",
-                            shot.shot_id, cam, len(frames) - len(kept), shape[1], shape[0])
-            path = clip_dir / f"{shot.shot_id}_{cam}.mp4"
-            vw = None
-            try:
-                clip_dir.mkdir(parents=True, exist_ok=True)
-                h, w = shape
-                vw = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"mp4v"),
-                                     self._cam_fps(cam), (w, h))
-                if not vw.isOpened():
+                # references only (cheap): the pin stops the ring from recycling these
+                # buffers until the clip is written, so no 100 MB copy under the lock
+                frames = [f for (t, f) in ring if t0 <= t <= t1]
+                if len(frames) >= 2:
+                    self._ring_pins[cam] = self._ring_pins.get(cam, 0) + 1
+                else:
                     continue
-                for f in kept:
-                    vw.write(f)
-                first = first or str(path)
-            except Exception:  # noqa: BLE001
-                log.exception("clip write failed")
+            jobs.append((cam, frames))
+        if not jobs:
+            return
+        clip_dir.mkdir(parents=True, exist_ok=True)
+
+        def write(job) -> Optional[str]:
+            cam, frames = job
+            try:
+                return self._write_clip(shot, cam, frames, clip_dir / f"{shot.shot_id}_{cam}.mp4")
             finally:
-                if vw is not None:
-                    vw.release()
+                with self._lock:
+                    self._ring_pins[cam] = max(0, self._ring_pins.get(cam, 1) - 1)
+
+        # one writer per camera: VideoWriter.write releases the GIL, so they run in parallel
+        results: list[Optional[str]] = [None] * len(jobs)
+        threads = []
+        for i, job in enumerate(jobs[1:], start=1):
+            def run(i=i, job=job):
+                _thread_priority(-1)
+                results[i] = write(job)
+            th = threading.Thread(target=run, daemon=True, name=f"clip-{job[0]}")
+            th.start()
+            threads.append(th)
+        results[0] = write(jobs[0])
+        for th in threads:
+            th.join()
+        first = next((r for r in results if r), None)
         if first:
             self.store.set_clip_path(shot.shot_id, first)
+
+    def _write_clip(self, shot, cam: str, frames: list, path: Path) -> Optional[str]:
+        shape = frames[0].shape[:2]
+        kept = [f for f in frames if f.shape[:2] == shape]
+        if len(kept) != len(frames):
+            log.warning("clip %s_%s: dropped %d frames whose size differs from %dx%d",
+                        shot.shot_id, cam, len(frames) - len(kept), shape[1], shape[0])
+        vw = None
+        try:
+            h, w = shape
+            vw = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"mp4v"),
+                                 self._cam_fps(cam), (w, h))
+            if not vw.isOpened():
+                return None
+            for f in kept:
+                vw.write(f)
+            return str(path)
+        except Exception:  # noqa: BLE001
+            log.exception("clip write failed")
+            return None
+        finally:
+            if vw is not None:
+                vw.release()
 
     # ------------------------------------------------------------------ status
     def calibration_loaded(self) -> bool:

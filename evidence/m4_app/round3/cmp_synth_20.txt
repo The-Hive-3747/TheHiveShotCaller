@@ -1,0 +1,25 @@
+hiveshot.ingest opened cam0: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}
+hiveshot.ingest opened cam1: {'width': 1280, 'height': 720, 'fps': 60.0, 'fps_reported': 60.0, 'backend': 'ffmpeg'}
+hiveshot.pipeline time offset cam B -> cam A: -0.0000 s (confidence 0.66, search +-0.50 s)
+stored 20 of 20 truth shots; timing {'detect_ms': 6.255, 'track_ms': 0.226, 'preview_ms': 0.0, 'ring_ms': 0.0, 'recon_ms': 553.205, 'offset_s': -0.0, 'offset_confidence': 0.665}
+ 0 t=  0.00 truth_made=True  got=made       burst=1/1 speed_err= +0.03% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 1 t=  0.25 truth_made=True  got=made       burst=1/2 speed_err= +0.01% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 2 t=  0.50 truth_made=False got=miss       burst=1/3 speed_err= +0.01% dt=+0.000 notes=''
+ 3 t=  0.75 truth_made=True  got=made       burst=1/4 speed_err= +0.00% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 4 t=  3.75 truth_made=True  got=made       burst=2/1 speed_err= +0.01% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 5 t=  4.00 truth_made=False got=miss       burst=2/2 speed_err= +0.01% dt=+0.000 notes=''
+ 6 t=  4.25 truth_made=True  got=made       burst=2/3 speed_err= -0.02% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 7 t=  4.50 truth_made=True  got=made       burst=2/4 speed_err= +0.01% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 8 t=  7.50 truth_made=False got=miss       burst=3/1 speed_err= +0.00% dt=+0.000 notes=''
+ 9 t=  7.75 truth_made=True  got=made       burst=3/2 speed_err= +0.01% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+10 t=  8.00 truth_made=True  got=made       burst=3/3 speed_err= -0.02% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+11 t=  8.25 truth_made=False got=miss       burst=3/4 speed_err= +0.02% dt=+0.000 notes=''
+12 t= 11.25 truth_made=True  got=made       burst=4/1 speed_err= +0.01% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+13 t= 11.50 truth_made=True  got=made       burst=4/2 speed_err= +0.09% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+14 t= 11.75 truth_made=False got=miss       burst=4/3 speed_err= -0.00% dt=+0.000 notes=''
+15 t= 12.00 truth_made=True  got=made       burst=4/4 speed_err= -0.01% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+16 t= 15.00 truth_made=True  got=made       burst=5/1 speed_err= +0.00% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+17 t= 15.25 truth_made=False got=miss       burst=5/2 speed_err= +0.01% dt=+0.000 notes=''
+18 t= 15.50 truth_made=True  got=made       burst=5/3 speed_err= +0.00% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+19 t= 15.75 truth_made=True  got=made       burst=5/4 speed_err= -0.00% dt=+0.000 notes='track extrapolated into the up-CELL opening (ball hidden)'
+extra stored shots: []

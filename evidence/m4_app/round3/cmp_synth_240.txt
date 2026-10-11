@@ -1,0 +1,14 @@
+hiveshot.ingest opened cam0: {'width': 1280, 'height': 720, 'fps': 240.0, 'fps_reported': 240.0, 'backend': 'ffmpeg'}
+hiveshot.ingest opened cam1: {'width': 1280, 'height': 720, 'fps': 240.0, 'fps_reported': 240.0, 'backend': 'ffmpeg'}
+hiveshot.pipeline time offset cam B -> cam A: 0.0004 s (confidence 0.35, search +-0.50 s)
+hiveshot.pipeline 1 ball track(s) from cam1 found no partner in the other camera and were dropped (a shot may be missing)
+stored 8 of 8 truth shots; timing {'detect_ms': 10.142, 'track_ms': 0.58, 'preview_ms': 0.0, 'ring_ms': 0.0, 'recon_ms': 894.268, 'offset_s': 0.0004, 'offset_confidence': 0.352}
+ 0 t=  0.00 truth_made=True  got=made       burst=1/1 speed_err= -1.33% dt=+0.008 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 1 t=  0.30 truth_made=True  got=made       burst=1/2 speed_err= -0.65% dt=+0.004 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 2 t=  0.60 truth_made=False got=miss       burst=1/3 speed_err= -0.64% dt=+0.004 notes=''
+ 3 t=  0.90 truth_made=True  got=made       burst=1/4 speed_err= -0.62% dt=+0.004 notes='track extrapolated into the up-CELL opening (ball hidden)'
+ 4 t=  1.20 truth_made=True  got=made       burst=1/5 speed_err= -0.65% dt=+0.004 notes='track extrapolated into the up-CELL opening (ball hidden); b'
+ 5 t=  1.50 truth_made=False got=miss       burst=1/6 speed_err= -0.65% dt=+0.004 notes='burst exceeds 4 balls (index 6)'
+ 6 t=  1.80 truth_made=True  got=made       burst=1/7 speed_err= -0.64% dt=+0.004 notes='track extrapolated into the up-CELL opening (ball hidden); b'
+ 7 t=  2.10 truth_made=True  got=made       burst=1/8 speed_err= -0.62% dt=+0.004 notes='track extrapolated into the up-CELL opening (ball hidden); b'
+extra stored shots: []
