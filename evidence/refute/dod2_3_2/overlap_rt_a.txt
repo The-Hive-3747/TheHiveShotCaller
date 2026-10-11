@@ -1,0 +1,8 @@
+RUN overlap_rt_a idle-wait: cpu=11% after 10s
+[overlap rt] elapsed=11.8s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exact=True
+  speed n=8 max|err|=0.02089489444944137 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.06097451657581132 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=['2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', '2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=17% max=25% n=13
+  server_exit 1

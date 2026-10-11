@@ -1,0 +1,234 @@
+{
+ "init": {
+  "s": 1.96,
+  "sources_configured": true,
+  "calibration_loaded": true,
+  "warnings": [],
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras."
+  ],
+  "wizard_opens": false
+ },
+ "1_cameras": {
+  "s": 1.94,
+  "cameras": {
+   "cam0": {
+    "frames": 11,
+    "props": {
+     "width": 1920,
+     "height": 1080,
+     "fps": 30.0,
+     "fps_reported": 30.0,
+     "backend": "ffmpeg"
+    }
+   },
+   "cam1": {
+    "frames": 10,
+    "props": {
+     "width": 1920,
+     "height": 1080,
+     "fps": 30.0,
+     "fps_reported": 30.0,
+     "backend": "ffmpeg"
+    }
+   }
+  },
+  "warnings": [
+   "no calibration loaded: 3D reconstruction disabled",
+   "camera cam0 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy",
+   "camera cam1 uses default intrinsics (arducam_2.3mp_110); calibrate for accuracy"
+  ],
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras.",
+   "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+  ]
+ },
+ "t_apply": 1.0067617893218994,
+ "2_tags_pdf": {
+  "s": 0.92,
+  "tags_json_code": 200,
+  "n_tags": 4,
+  "pdf_code": 200,
+  "pdf_bytes": 164935,
+  "pdf_ct": "application/pdf",
+  "tags_seen": {
+   "cam0": [
+    100,
+    102,
+    103
+   ],
+   "cam1": [
+    31,
+    33,
+    34,
+    35,
+    100,
+    101,
+    103
+   ]
+  },
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras.",
+   "No calibration yet: print the tag sheet (Calibration tab) and press Auto-calibrate."
+  ]
+ },
+ "2_auto_all": {
+  "s": 0.23,
+  "code": 200,
+  "ok": true,
+  "max_error_in": 0.19663970793783925,
+  "per_cam": {
+   "cam0": {
+    "ok": true,
+    "rmse_in": 0.07644392805436619,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "tags_missing": [],
+    "reprojection_px": 0.599327779072509,
+    "max_corner_px": 1.382740356749833,
+    "warnings": [],
+    "error": null,
+    "status": null
+   },
+   "cam1": {
+    "ok": true,
+    "rmse_in": 0.07842434032424014,
+    "tags_used": [
+     100,
+     101,
+     102,
+     103
+    ],
+    "tags_missing": [],
+    "reprojection_px": 0.5719400163189484,
+    "max_corner_px": 0.9672946018098041,
+    "warnings": [],
+    "error": null,
+    "status": null
+   }
+  },
+  "crosscheck": {
+   "max_error_in": 0.19663970793783925,
+   "within_1_in": true,
+   "error": null,
+   "n_points": 16
+  }
+ },
+ "3_learn": {
+  "s": 1.06,
+  "audience": {
+   "code": 422,
+   "learned_ids": null,
+   "missing_ids": null,
+   "max_residual_in": null,
+   "up_cell_error_in": null,
+   "detail": "only 0 HIVE tag(s) seen by both cameras (cam0 sees [37], cam1 sees [30, 31, 32, 33, 34, 35]); need at least 2. Check the HIVE is settled, well lit, and the tags face the cameras."
+  },
+  "far": {
+   "code": 422,
+   "learned_ids": null,
+   "missing_ids": null,
+   "max_residual_in": null,
+   "up_cell_error_in": null,
+   "detail": "only 0 HIVE tag(s) seen by both cameras (cam0 sees [], cam1 sees []); need at least 2. Check the HIVE is settled, well lit, and the tags face the cameras."
+  }
+ },
+ "4_colors": {
+  "s": 0.06,
+  "code": 200,
+  "sampled_hsv": [
+   24,
+   255,
+   252
+  ],
+  "range": [
+   [
+    15,
+    100,
+    100
+   ],
+   [
+    38,
+    255,
+    255
+   ]
+  ],
+  "detail": null,
+  "click": [
+   1041.1,
+   766.7
+  ]
+ },
+ "5_finish": {
+  "s": 1.59,
+  "session": {
+   "session_id": "8ac771ea"
+  },
+  "running": true,
+  "calibration_loaded": true,
+  "hive_state_source": "tags",
+  "warnings": [],
+  "calibration_mismatch": {},
+  "recs": [
+   "The sources are video files; use the Cameras step to pick real cameras."
+  ],
+  "tags_seen": {
+   "cam0": [
+    100,
+    102,
+    103
+   ],
+   "cam1": [
+    31,
+    33,
+    34,
+    35,
+    100,
+    101,
+    103
+   ]
+  }
+ },
+ "accuracy": {
+  "s": 0.21,
+  "cams": {
+   "cam0": {
+    "pos_err_in": 0.9959052273993767,
+    "rot_err_deg": 0.03688578177629746,
+    "fx_app": 771.0,
+    "fx_true": 771.0
+   },
+   "cam1": {
+    "pos_err_in": 0.9586169064861932,
+    "rot_err_deg": 0.020603535720144353,
+    "fx_app": 771.0,
+    "fx_true": 771.0
+   }
+  },
+  "trajectory": {
+   "n": 306,
+   "mean_in": 0.977502000127385,
+   "median_in": 0.9761142988487661,
+   "p95_in": 1.0258555870778872,
+   "max_in": 1.0634437333029698
+  },
+  "reference_pts": {
+   "n": 8,
+   "mean_in": 0.9825847686990608,
+   "median_in": 0.9850487060598287,
+   "p95_in": 1.0363343936310987,
+   "max_in": 1.0572451640905514
+  },
+  "cell_opening_center_err_in": 0.9772257790517739
+ },
+ "crosscheck_after": {
+  "code": 200,
+  "max_error_in": 0.19663970793783925,
+  "within_1_in": true,
+  "detail": null
+ }
+}

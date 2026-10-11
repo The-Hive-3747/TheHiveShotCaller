@@ -1,0 +1,8 @@
+RUN lowarc_rt_a idle-wait: cpu=12% after 120s
+[lowarc rt] elapsed=11.6s recorded=6/6 matched=6 extra=0 made app/truth=3/6 rate app/truth=0.5/1.000
+  makemiss agree 3/6=50.0% results={'made': 3, 'bounce_out': 0, 'miss': 0, 'unknown': 3} hist app={'1': 1, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 0, '3': 0, '4': 0, '5': 0} exact=False
+  speed n=6 max|err|=0.8361573484647722 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.2740136900019934 csv_rows=6
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 3, 'bounce_out': 0, 'miss': 0, 'unknown': 3, 'shots': 6}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=12% max=25% n=13
+  server_exit 1

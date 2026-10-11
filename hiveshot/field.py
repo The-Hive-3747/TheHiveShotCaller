@@ -55,7 +55,6 @@ TAG_STICKER_BELOW_FLOOR = 0.12  # CAD: sticker plane sits 0.12 in outside the op
 # must agree with the CAD-recorded constant
 OPENING_CENTER_ABS_Y = BEAM_A_OPEN * _C - B_CENTER * _S
 assert abs(OPENING_CENTER_ABS_Y - C.UP_CELL_OPENING_CENTER_Y) < 0.01
-FRAME_TOP_Z = C.PIVOT_HEIGHT + 20.0  # frame box height is not in constants; assumed
 FIELD_MAX_Z = 120.0  # assumed ceiling for bounds/viewer
 
 
@@ -219,21 +218,56 @@ def point_inside_cell(p, alliance: str, which: str, state: HiveState,
     return _inset_contains(_profile(gabled), float(rel[0]), float(np.dot(rel, w)), 0.0)
 
 
-def _box_edges(lo, hi):
-    x0, y0, z0 = lo
-    x1, y1, z1 = hi
-    v = [(x, y, z) for z in (z0, z1) for y in (y0, y1) for x in (x0, x1)]
-    idx = [(0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7),
-           (0, 4), (1, 5), (2, 6), (3, 7)]
-    return [(np.array(v[i], float), np.array(v[j], float)) for i, j in idx]
+def _frame_segments():
+    """CAD A-frame (see the 'Frame (CAD-extracted)' block in field_constants): per X end a foot
+    bar on the tiles and two legs rising inward to the apex, a crossbar along X joining the
+    apexes, pivot cradles on top, and the logo panel faces."""
+    P = lambda *v: np.array(v, float)  # noqa: E731
+    segs = []
+    xo, xi, hy = C.FRAME_BASE_X_OUTER, C.FRAME_BASE_X_INNER, C.FRAME_BASE_HALF_Y
+    lx, ly, lz = C.FRAME_LEG_TOP
+    fx, fy, fz = C.FRAME_LEG_FOOT
+    cz, ch = C.FRAME_CROSSBAR_Z, C.FRAME_CROSSBAR_HALF_X
+    for sx in (-1, 1):
+        # foot bar footprint on the tiles
+        corners = [P(sx * xo, -hy, 0), P(sx * xo, hy, 0), P(sx * xi, hy, 0), P(sx * xi, -hy, 0)]
+        segs += [(corners[i], corners[(i + 1) % 4]) for i in range(4)]
+        for sy in (-1, 1):
+            segs.append((P(sx * lx, sy * ly, lz), P(sx * fx, sy * fy, fz)))      # leg
+            segs.append((P(sx * ch, 0.0, cz), P(sx * lx, sy * ly, lz)))          # crossbar end to leg top
+        top, bot = C.FRAME_PIVOT_CRADLE
+        segs.append((P(sx * top[0], 0.0, top[1]), P(sx * bot[0], 0.0, bot[1])))   # pivot cradle
+    segs.append((P(-ch, 0.0, cz), P(ch, 0.0, cz)))                                # crossbar
+    lp = C.FRAME_LOGO_PANEL
+    for sy in (-1, 1):
+        y = sy * lp["y_outer"]
+        q = [P(-lp["half_x"], y, lp["z_lo"]), P(lp["half_x"], y, lp["z_lo"]),
+             P(lp["half_x"], y, lp["z_hi"]), P(-lp["half_x"], y, lp["z_hi"])]
+        segs += [(q[i], q[(i + 1) % 4]) for i in range(4)]
+    return segs
+
+
+def frame_reference_points():
+    """Physically real, tape-measurable frame features: [(name, xyz)] for the two crossbar
+    ends (apexes, bar centerline), the crossbar midpoint and the four outer base corners
+    (foot bar outer corners on the tiles). Symmetric, so valid in either handedness."""
+    ch, cz = C.FRAME_CROSSBAR_HALF_X, C.FRAME_CROSSBAR_Z
+    pts = [("Frame crossbar end (+X apex)", np.array([ch, 0.0, cz])),
+           ("Frame crossbar end (-X apex)", np.array([-ch, 0.0, cz])),
+           ("Frame crossbar midpoint", np.array([0.0, 0.0, cz]))]
+    for sx, nx in ((1, "+X"), (-1, "-X")):
+        for sy, ny in ((1, "+Y"), (-1, "-Y")):
+            pts.append((f"Frame base corner ({nx}, {ny})",
+                        np.array([sx * C.FRAME_BASE_X_OUTER, sy * C.FRAME_BASE_HALF_Y, 0.0])))
+    return pts
 
 
 def hive_frame_wireframe(up_cells: Optional[dict] = None):
-    """Segments (p0, p1) for the frame box and both beams (and cell openings).
-    up_cells maps alliance -> up_cell (default audience for both)."""
+    """Segments (p0, p1): the CAD A-frame (base rails, four legs, crossbar, pivot cradles,
+    logo panels), both beams and the CELL openings. up_cells maps alliance -> up_cell
+    (default audience for both)."""
     up_cells = up_cells or {}
-    segs = _box_edges((-C.FRAME_WIDTH_X / 2, -C.FRAME_DEPTH_Y / 2, 0.0),
-                      (C.FRAME_WIDTH_X / 2, C.FRAME_DEPTH_Y / 2, FRAME_TOP_Z))
+    segs = _frame_segments()
     for al in ALLIANCES:
         st = HiveState(al, up_cells.get(al, "audience"))
         a_hat, _ = _beam("audience", st)
@@ -246,14 +280,17 @@ def hive_frame_wireframe(up_cells: Optional[dict] = None):
     return segs
 
 
-def field_bounds():
-    h = C.FIELD_SIZE / 2.0
+def field_bounds(field_size_in: Optional[float] = None):
+    """(min, max) corners of the field box; `field_size_in` (inside wall to inside wall, from
+    the app config) overrides the nominal FIELD_SIZE."""
+    h = (C.FIELD_SIZE if field_size_in is None else float(field_size_in)) / 2.0
     return np.array([-h, -h, 0.0]), np.array([h, h, FIELD_MAX_Z])
 
 
-def to_json(up_cells: Optional[dict] = None) -> dict:
+def to_json(up_cells: Optional[dict] = None, field_size_in: Optional[float] = None) -> dict:
     up_cells = up_cells or {}
-    lo, hi = field_bounds()
+    size = C.FIELD_SIZE if field_size_in is None else float(field_size_in)
+    lo, hi = field_bounds(size)
     hives = {}
     for al in ALLIANCES:
         st = HiveState(al, up_cells.get(al, "audience"))
@@ -271,9 +308,11 @@ def to_json(up_cells: Optional[dict] = None) -> dict:
         hives[al] = {"x": hive_x(al), "up_cell": st.up_cell,
                      "pivot": [hive_x(al), 0.0, C.PIVOT_HEIGHT], "cells": cells}
     return {
-        "field_size": C.FIELD_SIZE,
+        "field_size": size,
         "bounds": {"min": lo.tolist(), "max": hi.tolist()},
         "hives": hives,
         "wireframe": [[a.tolist(), b.tolist()] for a, b in hive_frame_wireframe(up_cells)],
+        "frame_reference_points": [{"name": n, "xyz": p.tolist()} for n, p in frame_reference_points()],
+        "field_inside_size_cad": C.FIELD_INSIDE_SIZE_CAD,
         "cell_extent": C.CELL_EXTENT_Y,
     }

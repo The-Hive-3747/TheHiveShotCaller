@@ -1,0 +1,131 @@
+### gopro / tag mounting error sigma 0.0 in per axis, 0.0 deg yaw: mount0  (seeds=30)
+- kit: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.92 p90 1.04 max 1.07 (n=30); pose pos err in median 0.13 p90 0.24 max 0.26 (n=30); rot deg median 0.08 p90 0.13 max 0.15 (n=30); tags used median 4
+    cam1: solved 30/30; reproj px median 0.77 p90 0.90 max 1.04 (n=30); pose pos err in median 0.17 p90 0.28 max 0.32 (n=30); rot deg median 0.09 p90 0.14 max 0.18 (n=30); tags used median 3
+    triangulation error opening_center (in): median 0.07 p90 0.12 max 0.17 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.08 p90 0.13 max 0.15 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.10 p90 0.13 max 0.15 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 0.26 p90 0.41 max 0.54 (n=30); fraction <1 in: 1.00
+- kit+hive: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.97 p90 1.09 max 1.18 (n=30); pose pos err in median 0.09 p90 0.17 max 0.24 (n=30); rot deg median 0.06 p90 0.09 max 0.12 (n=30); tags used median 8
+    cam1: solved 30/30; reproj px median 0.85 p90 0.93 max 1.05 (n=30); pose pos err in median 0.12 p90 0.17 max 0.25 (n=30); rot deg median 0.06 p90 0.09 max 0.15 (n=30); tags used median 5
+    triangulation error opening_center (in): median 0.06 p90 0.11 max 0.14 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.07 p90 0.11 max 0.16 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.09 p90 0.10 max 0.11 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 0.23 p90 0.35 max 0.38 (n=30); fraction <1 in: 1.00
+- hive: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.88 p90 1.02 max 1.10 (n=30); pose pos err in median 2.09 p90 2.89 max 3.66 (n=30); rot deg median 0.67 p90 1.06 max 1.18 (n=30); tags used median 4
+    cam1: solved 30/30; reproj px median 0.73 p90 0.88 max 1.06 (n=30); pose pos err in median 1.54 p90 2.91 max 125.34 (n=30); rot deg median 1.10 p90 1.70 max 93.47 (n=30); tags used median 2
+    triangulation error opening_center (in): median 0.19 p90 0.32 max 5.29 (n=30); fraction <1 in: 0.97
+    triangulation error tag_row_center (in): median 0.07 p90 0.13 max 0.16 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.82 p90 1.11 max 24.52 (n=30); fraction <1 in: 0.80
+    triangulation error flight_max (in): median 2.47 p90 4.19 max 95.12 (n=30); fraction <1 in: 0.07
+- click8: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.62 p90 2.10 max 2.47 (n=30); pose pos err in median 0.50 p90 0.81 max 0.98 (n=30); rot deg median 0.30 p90 0.45 max 0.53 (n=30)
+    cam1: solved 30/30; reproj px median 1.56 p90 2.18 max 2.88 (n=30); pose pos err in median 0.45 p90 0.77 max 0.96 (n=30); rot deg median 0.31 p90 0.43 max 0.62 (n=30)
+    triangulation error opening_center (in): median 0.22 p90 0.36 max 0.45 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.22 p90 0.34 max 0.36 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.29 p90 0.41 max 0.61 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 0.80 p90 1.64 max 2.51 (n=30); fraction <1 in: 0.70
+- click_cell4: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.90 p90 1.50 max 2.43 (n=30); pose pos err in median 1.50 p90 2.78 max 3.30 (n=30); rot deg median 1.03 p90 1.46 max 1.89 (n=30)
+    cam1: solved 30/30; reproj px median 0.87 p90 1.95 max 2.50 (n=30); pose pos err in median 1.38 p90 2.12 max 2.25 (n=30); rot deg median 0.83 p90 1.34 max 1.51 (n=30)
+    triangulation error opening_center (in): median 0.20 p90 0.39 max 0.54 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.27 p90 0.45 max 0.62 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.61 p90 0.86 max 1.15 (n=30); fraction <1 in: 0.90
+    triangulation error flight_max (in): median 2.24 p90 3.33 max 5.91 (n=30); fraction <1 in: 0.03
+- click_cell_red+bluefar: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.44 p90 2.07 max 2.47 (n=30); pose pos err in median 0.91 p90 1.33 max 1.97 (n=30); rot deg median 0.47 p90 0.72 max 0.99 (n=30)
+    cam1: solved 30/30; reproj px median 1.65 p90 1.99 max 2.31 (n=30); pose pos err in median 0.56 p90 1.08 max 1.71 (n=30); rot deg median 0.32 p90 0.62 max 0.90 (n=30)
+    triangulation error opening_center (in): median 0.23 p90 0.37 max 0.48 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.21 p90 0.33 max 0.54 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.39 p90 0.51 max 0.79 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 1.27 p90 2.64 max 4.00 (n=30); fraction <1 in: 0.37
+
+### gopro / tag mounting error sigma 0.25 in per axis, 1.0 deg yaw: mount0.25in_1deg  (seeds=30)
+- kit: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.84 p90 2.67 max 4.12 (n=30); pose pos err in median 1.00 p90 1.73 max 2.15 (n=30); rot deg median 0.53 p90 0.99 max 1.07 (n=30); tags used median 4
+    cam1: solved 30/30; reproj px median 1.03 p90 1.29 max 1.58 (n=30); pose pos err in median 1.51 p90 2.88 max 3.20 (n=30); rot deg median 0.80 p90 1.57 max 1.69 (n=30); tags used median 3
+    triangulation error opening_center (in): median 0.31 p90 0.48 max 0.52 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.32 p90 0.46 max 0.58 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.59 p90 0.97 max 1.20 (n=30); fraction <1 in: 0.90
+    triangulation error flight_max (in): median 2.02 p90 3.63 max 4.21 (n=30); fraction <1 in: 0.13
+- kit+hive: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.74 p90 2.37 max 2.97 (n=30); pose pos err in median 0.80 p90 1.55 max 1.94 (n=30); rot deg median 0.42 p90 0.86 max 0.94 (n=30); tags used median 8
+    cam1: solved 30/30; reproj px median 1.66 p90 2.36 max 2.84 (n=30); pose pos err in median 0.97 p90 1.57 max 2.13 (n=30); rot deg median 0.64 p90 0.99 max 1.21 (n=30); tags used median 5
+    triangulation error opening_center (in): median 0.14 p90 0.21 max 0.26 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.09 p90 0.18 max 0.25 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.42 p90 0.63 max 0.79 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 1.40 p90 2.50 max 2.90 (n=30); fraction <1 in: 0.27
+- hive: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.90 p90 1.05 max 1.17 (n=30); pose pos err in median 2.18 p90 3.15 max 4.34 (n=30); rot deg median 0.61 p90 1.16 max 1.36 (n=30); tags used median 4
+    cam1: solved 30/30; reproj px median 0.71 p90 0.91 max 1.03 (n=30); pose pos err in median 1.57 p90 2.66 max 3.20 (n=30); rot deg median 1.03 p90 1.82 max 2.04 (n=30); tags used median 2
+    triangulation error opening_center (in): median 0.16 p90 0.30 max 0.31 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.09 p90 0.12 max 0.13 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.81 p90 1.21 max 1.74 (n=30); fraction <1 in: 0.80
+    triangulation error flight_max (in): median 2.58 p90 4.69 max 7.71 (n=30); fraction <1 in: 0.07
+- click8: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.50 p90 2.04 max 3.74 (n=30); pose pos err in median 0.51 p90 0.84 max 1.05 (n=30); rot deg median 0.31 p90 0.45 max 0.68 (n=30)
+    cam1: solved 30/30; reproj px median 1.61 p90 1.91 max 2.04 (n=30); pose pos err in median 0.46 p90 0.70 max 0.72 (n=30); rot deg median 0.24 p90 0.42 max 0.57 (n=30)
+    triangulation error opening_center (in): median 0.24 p90 0.38 max 0.45 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.22 p90 0.31 max 0.46 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.33 p90 0.38 max 0.42 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 0.91 p90 1.48 max 1.59 (n=30); fraction <1 in: 0.60
+- click_cell4: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.81 p90 1.50 max 2.07 (n=30); pose pos err in median 1.46 p90 2.66 max 3.00 (n=30); rot deg median 0.75 p90 1.25 max 1.65 (n=30)
+    cam1: solved 30/30; reproj px median 0.65 p90 1.13 max 1.36 (n=30); pose pos err in median 1.00 p90 1.76 max 2.60 (n=30); rot deg median 0.64 p90 1.23 max 1.89 (n=30)
+    triangulation error opening_center (in): median 0.20 p90 0.31 max 0.58 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.27 p90 0.36 max 0.43 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.59 p90 0.83 max 0.88 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 2.10 p90 4.07 max 5.54 (n=30); fraction <1 in: 0.03
+- click_cell_red+bluefar: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.58 p90 1.99 max 2.40 (n=30); pose pos err in median 0.92 p90 1.63 max 2.03 (n=30); rot deg median 0.50 p90 0.85 max 1.06 (n=30)
+    cam1: solved 30/30; reproj px median 1.67 p90 2.04 max 2.76 (n=30); pose pos err in median 0.63 p90 1.16 max 1.32 (n=30); rot deg median 0.34 p90 0.66 max 0.74 (n=30)
+    triangulation error opening_center (in): median 0.19 p90 0.35 max 0.46 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.20 p90 0.35 max 0.37 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.40 p90 0.54 max 0.59 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 1.35 p90 1.99 max 2.35 (n=30); fraction <1 in: 0.23
+
+### gopro / tag mounting error sigma 1.0 in per axis, 2.0 deg yaw: mount1in_2deg  (seeds=30)
+- kit: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 6.25 p90 10.25 max 15.02 (n=30); pose pos err in median 3.95 p90 6.98 max 8.56 (n=30); rot deg median 2.05 p90 3.95 max 4.22 (n=30); tags used median 4
+    cam1: solved 30/30; reproj px median 2.41 p90 4.63 max 12.07 (n=30); pose pos err in median 5.69 p90 11.06 max 13.36 (n=30); rot deg median 3.24 p90 6.03 max 6.93 (n=30); tags used median 3
+    triangulation error opening_center (in): median 1.20 p90 1.78 max 2.13 (n=30); fraction <1 in: 0.37
+    triangulation error tag_row_center (in): median 1.27 p90 1.89 max 2.35 (n=30); fraction <1 in: 0.27
+    triangulation error flight_rms (in): median 2.33 p90 3.98 max 4.29 (n=30); fraction <1 in: 0.00
+    triangulation error flight_max (in): median 7.11 p90 13.91 max 16.80 (n=30); fraction <1 in: 0.00
+- kit+hive: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 5.79 p90 8.63 max 12.30 (n=30); pose pos err in median 3.30 p90 6.10 max 7.70 (n=30); rot deg median 1.69 p90 3.48 max 3.84 (n=30); tags used median 8
+    cam1: solved 30/30; reproj px median 6.03 p90 9.09 max 11.12 (n=30); pose pos err in median 4.00 p90 6.23 max 8.73 (n=30); rot deg median 2.54 p90 4.03 max 4.45 (n=30); tags used median 5
+    triangulation error opening_center (in): median 0.44 p90 0.82 max 0.88 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.37 p90 0.66 max 0.71 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 1.59 p90 2.40 max 3.19 (n=30); fraction <1 in: 0.13
+    triangulation error flight_max (in): median 5.39 p90 9.78 max 11.12 (n=30); fraction <1 in: 0.00
+- hive: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.88 p90 1.06 max 1.17 (n=30); pose pos err in median 2.14 p90 3.23 max 4.51 (n=30); rot deg median 0.64 p90 1.16 max 1.21 (n=30); tags used median 4
+    cam1: solved 30/30; reproj px median 0.73 p90 0.88 max 0.96 (n=30); pose pos err in median 1.42 p90 2.31 max 2.66 (n=30); rot deg median 0.96 p90 1.68 max 1.89 (n=30); tags used median 2
+    triangulation error opening_center (in): median 0.15 p90 0.29 max 0.31 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.08 p90 0.11 max 0.13 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.74 p90 1.10 max 1.42 (n=30); fraction <1 in: 0.80
+    triangulation error flight_max (in): median 2.57 p90 4.56 max 6.87 (n=30); fraction <1 in: 0.10
+- click8: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.52 p90 2.04 max 3.74 (n=30); pose pos err in median 0.45 p90 0.73 max 1.05 (n=30); rot deg median 0.24 p90 0.44 max 0.68 (n=30)
+    cam1: solved 30/30; reproj px median 1.66 p90 2.01 max 2.86 (n=30); pose pos err in median 0.53 p90 0.73 max 0.92 (n=30); rot deg median 0.28 p90 0.46 max 0.62 (n=30)
+    triangulation error opening_center (in): median 0.23 p90 0.38 max 0.45 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.23 p90 0.29 max 0.46 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.33 p90 0.38 max 0.51 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 1.03 p90 1.48 max 2.39 (n=30); fraction <1 in: 0.47
+- click_cell4: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 0.77 p90 1.37 max 2.01 (n=30); pose pos err in median 1.37 p90 2.30 max 3.00 (n=30); rot deg median 0.76 p90 1.24 max 1.65 (n=30)
+    cam1: solved 30/30; reproj px median 0.78 p90 1.26 max 1.73 (n=30); pose pos err in median 1.00 p90 1.77 max 2.49 (n=30); rot deg median 0.63 p90 1.15 max 1.89 (n=30)
+    triangulation error opening_center (in): median 0.18 p90 0.31 max 0.58 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.27 p90 0.38 max 0.50 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.59 p90 0.83 max 1.15 (n=30); fraction <1 in: 0.97
+    triangulation error flight_max (in): median 1.92 p90 4.10 max 6.60 (n=30); fraction <1 in: 0.13
+- click_cell_red+bluefar: unsolved runs 0/30
+    cam0: solved 30/30; reproj px median 1.57 p90 1.96 max 2.12 (n=30); pose pos err in median 1.01 p90 1.80 max 2.40 (n=30); rot deg median 0.52 p90 0.98 max 1.28 (n=30)
+    cam1: solved 30/30; reproj px median 1.73 p90 2.28 max 2.76 (n=30); pose pos err in median 0.62 p90 1.16 max 1.32 (n=30); rot deg median 0.31 p90 0.59 max 0.72 (n=30)
+    triangulation error opening_center (in): median 0.19 p90 0.36 max 0.62 (n=30); fraction <1 in: 1.00
+    triangulation error tag_row_center (in): median 0.22 p90 0.36 max 0.47 (n=30); fraction <1 in: 1.00
+    triangulation error flight_rms (in): median 0.40 p90 0.55 max 0.59 (n=30); fraction <1 in: 1.00
+    triangulation error flight_max (in): median 1.38 p90 2.21 max 2.35 (n=30); fraction <1 in: 0.27

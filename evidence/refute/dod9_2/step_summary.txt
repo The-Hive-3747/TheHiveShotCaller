@@ -1,0 +1,20 @@
+entities: 527790
+products: 188 nauo: 1076 with transform: 1076
+length unit: ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.) ) -> inches factor 39.37007874015748
+roots: ['am-5850 BIOBUZZ', 'Hex lock nut with nylon insert #10-32', 'am-1775: #6 x 1/2in Sheet Metal Screw', 'Pan head machine screw #10-32 x 1.75', 'Socket head cap screw #10-32 x 0.75']
+== am-5865-blue1: Blue Cell (Audience) <1>
+  Goal Ribs: world y(up) min=30.653 max=50.486  z min=6.693 max=25.044  x min=2.258 max=23.258
+  am-5888-blue1: Blue Goal April Tag (Audience): bbox center x,y,z = [12.758, 35.647, 11.394] (a,b audience-up frame) = (5.716, -12.888) size = [17.0, 2.509, 4.335]
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [12.758, 38.27, 14.636] (a,b audience-up frame) = (9.835, -12.237) size = [20.198, 12.613, 14.055]
+== am-5865-blue2: Blue Cell (Scoring) <1>
+  Goal Ribs: world y(up) min=46.100 max=65.934  z min=-20.063 max=-1.712  x min=2.258 max=23.258
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [12.758, 53.789, -12.244] (a,b audience-up frame) = (-5.684, 14.643) size = [20.198, 12.613, 14.055]
+  am-5888-blue2: Blue Goal April Tag (Scoring): bbox center x,y,z = [12.758, 49.666, -12.887] (a,b audience-up frame) = (-8.303, 11.394) size = [17.0, 2.509, 4.335]
+== am-5865-red1: Red Cell (Audience) <1>
+  Goal Ribs: world y(up) min=46.100 max=65.934  z min=1.712 max=20.063  x min=-23.242 max=-2.242
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [-12.742, 53.789, 12.244] (a,b audience-up frame) = (15.523, 2.399) size = [20.198, 12.613, 14.055]
+  am-5888-red1: Red Goal April Tag (Audience): bbox center x,y,z = [-12.742, 49.666, 12.887] (a,b audience-up frame) = (14.019, -1.493) size = [17.0, 2.509, 4.335]
+== am-5865-red2: Red Cell (Scoring) <1>
+  Goal Ribs: world y(up) min=30.653 max=50.486  z min=-25.044 max=-6.693  x min=-23.242 max=-2.242
+  am-5888-red2: Red Goal April Tag (Scoring): bbox center x,y,z = [-12.742, 35.647, -11.394] (a,b audience-up frame) = (-14.019, -1.493) size = [17.0, 2.509, 4.335]
+  am-5888: Hive Goal Bottom Skin: bbox center x,y,z = [-12.742, 38.27, -14.636] (a,b audience-up frame) = (-15.515, 2.399) size = [20.198, 12.613, 14.055]

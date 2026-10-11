@@ -46,11 +46,18 @@ def test_camera_from_pose_centers_look_at_and_fov():
 
 
 def test_candidates_outside_wall():
-    c = pl.candidate_positions(78, (36, 58), range(0, 360, 30))
+    r = pl.MIN_RADIUS_IN
+    c = pl.candidate_positions(r, (36, 58), range(0, 360, 30))
     assert len(c) == 24
-    assert all(max(abs(x), abs(y)) >= 78 - 1e-9 for x, y, _ in c)
+    assert all(max(abs(x), abs(y)) >= r - 1e-9 for x, y, _ in c)
+    # the coordinate that sets the distance from the wall is exactly the radius
+    assert all(max(abs(x), abs(y)) == r for x, y, _ in c)
     with pytest.raises(ValueError):
         pl.candidate_positions(70, (36,), (0,))
+    # lens plumb spot 12 in from the OUTSIDE face of a 1.5 in wall; legs of a ~20 in radius
+    # tripod with one leg pointing away from the wall put the nearest feet 10 in toward it
+    assert pl.MIN_RADIUS_IN - pl.WALL_HALF - pl.WALL_THICKNESS_IN == pytest.approx(12.0)
+    assert 12.0 > 20.0 / 2
 
 
 def test_occlusion_detects_frame():
@@ -78,7 +85,7 @@ def test_map_files_exist_and_agree(tmp_path, option, stem):
     for k in ("A", "B"):
         yaw, pitch = pl.aim_angles(rec["cameras"][k])
         assert f"aim yaw {yaw:.0f} deg" in text and f"pitch {pitch:+.0f} deg" in text
-    # tag reader is marked, kit tags 100-105 are drawn with their ids (104/105 optional)
+    # tag reader(s) marked, kit tags 100-103 drawn from the real frame positions with their ids
     reader = rec["tag_reader"]
     assert reader in ("A", "B", "both")
     for k in ("A", "B"):
@@ -87,7 +94,9 @@ def test_map_files_exist_and_agree(tmp_path, option, stem):
     assert "TAG READER" in text
     for tid in range(100, 104):
         assert f">{tid}</text>" in text
-    assert ">104 opt</text>" in text and ">105 opt</text>" in text
+    assert ">104" not in text and "opt</text>" not in text      # no optional bar tags any more
+    # the frame is the CAD A-frame (foot bars, legs, crossbar), not a box
+    assert text.count("<line ") > 20
     # regenerating gives the same SVG (map and recommend() cannot drift apart)
     pl.write_map(option, tmp_path / "m.svg", tmp_path / "m.png")
     assert (tmp_path / "m.svg").read_text(encoding="utf-8") == text
@@ -193,10 +202,13 @@ def test_recommendation_meets_the_hard_constraints(option):
     sc = rec["pair_score"]
     # tier: arc + triangulation >= 75, robot-free rays, >= 1 tag reader, printed kit readable,
     # 8 reference points, not both cameras on the audience wall, (both read tags: preferred)
-    assert all(sc["tier"][:6]), sc["tier"]
+    assert all(sc["tier"][:5]), sc["tier"]
+    # both cameras on the audience wall is accepted only because no pair with a side-wall
+    # camera satisfies rules 1-5 (flagged, and stated in docs/camera_placement.md)
+    assert sc["tier"][5] == (not sc["both_on_audience_wall"])
     assert sc["frac_in_both"] >= 0.9
     assert pl.MIN_TRI_DEG <= sc["mean_angle_deg"] <= 120.0
-    assert not sc["both_on_audience_wall"] and sc["kit_both"]
+    assert sc["kit_both"]
     assert all(c["height_in"] >= 20.0 for c in rec["cameras"].values())
     _, centre, normal = pl._up_tag_geometry()
     # the sticker normal is (0, sin30, -cos30): faces down and toward the audience
@@ -220,21 +232,22 @@ def test_recommendation_meets_the_hard_constraints(option):
 
 
 @pytest.mark.parametrize("option", ["gopro", "usb"])
-def test_both_tags_alternative_is_reported_not_recommended(option):
+def test_both_tags_alternative_is_reported(option):
     rec = pl.recommend(option)
     alt = rec["both_tags_alternative"]
-    assert alt["tag_reader"] == "both" and alt["pair_score"]["tags_both"]
     for k in ("A", "B"):
-        assert alt["tags"][k]["sees"] and alt["tags"][k]["angle_deg"] < pl.TAG_MAX_ANGLE_DEG
         assert alt["cameras"][k]["height_in"] >= 20.0
         assert alt["robot"][k]["free"] >= pl.ROBOT_MIN_FREE
-    # it is only ever chosen over the recommendation if it is no worse on the hard
-    # constraints; the recommendation must not give up triangulation angle for tag reading
-    assert rec["pair_score"]["mean_angle_deg"] >= pl.MIN_TRI_DEG
-    assert alt["pair_score"]["both_on_audience_wall"] or alt["pair_score"]["mean_angle_deg"] <= \
-        rec["pair_score"]["mean_angle_deg"] + 1e-9
-    assert (alt["cameras"]["A"]["pos"], alt["cameras"]["B"]["pos"]) != (
-        rec["cameras"]["A"]["pos"], rec["cameras"]["B"]["pos"])
+        assert "angle_deg" in alt["tags"][k]
+    # with sticker tags required to be >= TAG_MIN_EDGE_PX no pair has BOTH cameras reading the
+    # CELL tags while meeting the other hard rules, so the best "both read" pair is the
+    # recommendation itself and exactly one camera (B, `cam1`) is the tag reader
+    assert rec["tag_reader"] in ("A", "B", "both")
+    if not alt["pair_score"]["tags_both"]:
+        assert (alt["cameras"]["A"]["pos"], alt["cameras"]["B"]["pos"]) == (
+            rec["cameras"]["A"]["pos"], rec["cameras"]["B"]["pos"])
+    # it must never beat the recommendation on triangulation angle
+    assert alt["pair_score"]["mean_angle_deg"] <= rec["pair_score"]["mean_angle_deg"] + 1e-9
 
 
 @pytest.mark.parametrize("option", ["gopro", "usb"])
@@ -372,3 +385,42 @@ def test_geometry_comes_from_field_py():
     _, centre, _ = pl._up_tag_geometry()
     assert centre[0] == pytest.approx(fc.RED_HIVE_X)
     assert centre[1] == pytest.approx(13.10, abs=0.05) and centre[2] == pytest.approx(49.79, abs=0.05)
+
+
+# ------------------------------------------------ real frame, tripod feet, kit geometry
+def test_frame_is_the_cad_a_frame_and_kit_uses_real_features():
+    from hiveshot import field, tagkit
+
+    segs = field._frame_segments()
+    assert max(max(a[2], b[2]) for a, b in segs) <= 44.4          # no 64 in box, ridge/cradles only
+    lines = pl._frame_lines()
+    assert len(lines) >= 12 and all(len(p) == 2 for seg in lines for p in seg)
+    feats = dict(field.frame_reference_points())
+    assert len(feats) == 7
+    # kit tags are anchored on those features: crossbar ends and audience-side base corners
+    for tid, name in ((100, "Frame crossbar end (-X apex)"), (101, "Frame crossbar end (+X apex)")):
+        assert tagkit.tag_center_xyz(tid)[0] == pytest.approx(feats[name][0])
+    for tid, name in ((102, "Frame base corner (-X, +Y)"), (103, "Frame base corner (+X, +Y)")):
+        assert abs(tagkit.tag_corners_xyz(tid)[:, 0]).max() == pytest.approx(abs(feats[name][0]))
+    # nothing recommended overlaps the CELL sticker in the picture
+    for option in ("gopro", "usb"):
+        rec = pl.recommend(option)
+        for k in ("A", "B"):
+            kit = rec["tags"][k]["kit"]["tags"]
+            assert not any(d["overlaps_sticker"] for d in kit.values() if d["ok"])
+            assert rec["tags"][k]["kit"]["n_ok"] >= pl.KIT_MIN_TAGS
+
+
+def test_doc_states_tripod_feet_field_size_and_tag_tolerance():
+    place = (DOCS / "camera_placement.md").read_text(encoding="utf-8")
+    cal = (DOCS / "calibration.md").read_text(encoding="utf-8")
+    assert "one leg pointing straight away from the wall" in place
+    assert "12.0 in out from the OUTSIDE face" in place or "12 in out from the OUTSIDE face" in place
+    assert "`field_size` setting defaults to 144 in" in place and "wall to wall" in place
+    assert "141.35" in place
+    assert "within 0.25 in" in place and "within 0.25 in" in cal
+    assert "Cross-check" in cal and "out-of-sample" in cal and "in-sample" in cal
+    for needle in ("0.25 in, 0.5 deg", "0.5 in, 1 deg", "1 in, 2 deg"):
+        assert needle in place and needle in cal
+    # no leftover mention of the non-existent box frame as a target
+    assert "frame top corner" not in cal.replace("frame \"top corners\" (a box", "")

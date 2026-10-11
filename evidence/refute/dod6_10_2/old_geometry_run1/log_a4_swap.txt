@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "C:\Users\3747h\Documents\HiveShotTracker\evidence\refute\dod6_10_2\run_s.py", line 275, in <module>
+    r = run(name, port)
+        ^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\evidence\refute\dod6_10_2\run_s.py", line 101, in run
+    truth = S.truth_cams("usb", fx=P.get("fx"), dist=P.get("dist", (0, 0, 0, 0, 0)), swap=P.get("swap", False))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\evidence\refute\dod6_10_2\simlib.py", line 37, in truth_cams
+    rec = placement.recommend(option)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\placement.py", line 386, in recommend
+    main, alt = _joint_pairs()
+                ^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\placement.py", line 483, in _joint_pairs
+    caches = [[_entry(p, aim, h, pts) for p in _candidates()] for h in HFOV_DEG.values()]
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\placement.py", line 502, in _entry
+    tv["kit"] = kit_view(vc, p)
+                ^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\placement.py", line 229, in kit_view
+    c = tagkit.tag_corners_xyz(t)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\tagkit.py", line 128, in tag_corners_xyz
+    cx, y, cz = tag_center_xyz(t)
+                ^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\tagkit.py", line 116, in tag_center_xyz
+    c = _anchor_xyz(t).copy()
+        ^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\tagkit.py", line 97, in _anchor_xyz
+    pts = dict(calib_targets.field_reference_points())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\calib_targets.py", line 161, in field_reference_points
+    for n, p in zip(FRAME_TOP_NAMES, frame_top_corners(), strict=True):
+                                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\3747h\Documents\HiveShotTracker\hiveshot\calib_targets.py", line 145, in frame_top_corners
+    if abs(s[0][2] - field.FRAME_TOP_Z) < 1e-9 and abs(s[1][2] - field.FRAME_TOP_Z) < 1e-9
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'hiveshot.field' has no attribute 'FRAME_TOP_Z'

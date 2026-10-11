@@ -1,50 +1,53 @@
-"""Printed AprilTag calibration kit: 36h11 tags on the HIVE frame top corners.
+"""Printed AprilTag calibration kit: four 36h11 tags on real features of the HIVE frame.
 
-The operator prints the sheet (`write_tag_sheet_pdf`), cuts the tags out, tapes one at each
-top corner of the HIVE frame "label up", and the app solves each camera's pose from the
-detected tag corners (`calib.solve_extrinsics_from_tags`). No clicking.
+The operator prints the sheet (`write_tag_sheet_pdf`), cuts the tags out, tapes them on the
+HIVE frame as described below, and the app solves each camera's pose from the detected tag
+corners (`calib.solve_extrinsics_from_tags`). No clicking.
+
+The official frame is NOT a box (CAD, `field_constants` block "Frame (CAD-extracted)"): at each
+X end an A-frame, two legs rising inward from a foot bar on the tiles to an apex, the two apexes
+joined by a 24 in crossbar along X at height 41.45 in, with a logo panel on the audience and
+the far face of the crossbar region. The kit uses features that exist on that structure.
 
 Size: the default tag size is DEFAULT_TAG_SIZE_IN = 6.0 in (the black square), one tag per
-letter page. Every function takes `size_in` to override it. (4.0 in tags left each camera
-with only two reliably readable tags at the recommended poses; 6.0 in gives three.)
+letter page. Every function takes `size_in` to override it (up to 8 in fits a page).
 
-Geometry conventions (field frame, inches; +Y toward the audience, Z up)
-------------------------------------------------------------------------
-* Tag ids 100..103 correspond to `calib_targets.field_reference_points()` entries 5..8,
-  the HIVE frame top corners: 100 = (-X,+Y), 101 = (+X,+Y), 102 = (-X,-Y), 103 = (+X,-Y).
-* Optional extra tags 104 and 105 (`kit_tags(extended=True)`) sit on the audience-side top
-  bar at its midpoint -12 in and +12 in (the bar ends come from
-  `field.hive_frame_wireframe` via `calib_targets.frame_top_corners`); the tag hangs down
-  from the top edge of the bar. They are not part of the default kit: at the recommended
-  poses both cameras already read three of the four corner tags.
-* **Every tag lies in a vertical plane (constant Y) and faces +Y**, i.e. toward the
-  audience side where the cameras stand. For the +Y corners this is the outward face of
-  the audience-side top bar. For the -Y corners it is the face of the far-side top bar
-  that looks toward the audience (a tag facing -Y would show its back to both cameras).
-* The tag is mounted **flush with its frame corner**: the tag's outer top corner sits on
-  the frame corner point and the tag hangs down and inward, so its center is
-  (corner_x -/+ size/2 toward the frame center, corner_y, corner_z - size/2). A tag
-  centered on the corner point itself would hang half in the air. Set FLUSH_MOUNT = False
-  to center the tag on the anchor point instead (then it needs a bracket).
-* "Label up" means the tag's upright direction is +Z. Seen by a person standing on the
-  audience side looking at the frame (looking toward -Y), the tag's right side is toward
-  -X and its left side toward +X.
-* Corner order of `tag_corners_xyz` is the cv2.aruco order, top-left, top-right,
-  bottom-right, bottom-left of the tag as it looks when read upright (label up) from the
-  front. Hence for a tag centered at (cx, y, cz) with half size s:
-      TL = (cx + s, y, cz + s)   TR = (cx - s, y, cz + s)
-      BR = (cx - s, y, cz - s)   BL = (cx + s, y, cz - s)
-  The detector's corners are the corners of the outer black square (the tag size).
+Tags (field frame, inches; +Y toward the audience, Z up; positions from
+`field.frame_reference_points()` and the CAD frame constants)
+------------------------------------------------------------------------------------------
+* 100 and 101, "crossbar tags": 100 at the -X crossbar end, 101 at the +X crossbar end
+  (x = -12.0 and +12.0, the apexes). The tag is taped on the **audience (+Y) face of the logo
+  panel**, which stands in front of the crossbar (panel face y = 4.28, top edge z = 40.02, 30.1
+  in wide); a tag hung directly from the 1 in crossbar at y = 0.5 would be hidden behind the
+  panel. Its top edge is flush with the panel's top edge (z = 40.02) and it is centered on the
+  crossbar end x = +-12.0; the tag is vertical and faces +Y, label up (a 6 in tag fills the 5.95
+  in panel height and spans x = 9 to 15 of the panel's +-15.07).
+* 102 and 103, "base tags": 102 at the (-X, +Y) and 103 at the (+X, +Y) audience-side outer base
+  corner of the frame (foot bar outer corner (+-24.73, 19.47, 0) on the tiles). The tag **stands on
+  the tile leaning back by BASE_TILT_DEG = 20 deg**: its bottom edge lies on the tile at
+  y = 19.47 + 2.15 tan(20 deg) = 20.25 in (so the tag rests against the top edge of the foot bar
+  end, 2.15 in high), its outer edge is flush with the foot bar's outer face (x = +-24.73), and its
+  top leans toward the frame (-Y). The face normal is (0, cos 20, sin 20): facing the audience and
+  tilted up so that cameras at 20 to 30 in lens height look at it nearly square.
+* "Label up" means the tag's upright direction (bottom edge to top edge) points up: +Z for 100 and
+  101, (0, -sin 20, cos 20) for 102 and 103. A person standing on the audience side looking at the
+  frame sees the tag's right side toward -X.
+* Corner order of `tag_corners_xyz` is the cv2.aruco order, top-left, top-right, bottom-right,
+  bottom-left of the tag as it looks when read upright from the front. With u = upright direction,
+  n = face normal, r = u x n (right), half size s: TL = c + s u - s r, TR = c + s u + s r,
+  BR = c - s u + s r, BL = c - s u - s r. The detector's corners are the corners of the outer
+  black square (the tag size).
 * Print scale: the tag size is the black square. Leave the white margin printed around it
   (at least QUIET_IN = 0.5 in) when cutting; the detector needs the white quiet zone.
 
-All frame dimensions are CAD guesses (VERIFY, see calib_targets). If the tags are taped
-where the real frame corners are but the model is off, the solved pose is off by the same
-amount: tape-measure the real corner positions first.
+Tolerance: the solved pose is only as good as the tape placement. Measure each tag's position with
+a tape measure to within 0.25 in (and its tilt to 1 deg) before calibrating; see docs/calibration.md
+for the pose error to expect from 0.5 in / 1 deg and 1 in / 2 deg mounting errors.
 """
 
 from __future__ import annotations
 
+import math
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,98 +55,105 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from hiveshot import calib, calib_targets, field
+from hiveshot import calib, field
 from hiveshot import field_constants as fc
 
 DICT_NAME = "DICT_APRILTAG_36h11"
 DEFAULT_TAG_SIZE_IN = 6.0
 TAG_SIZE_IN = DEFAULT_TAG_SIZE_IN
-FLUSH_MOUNT = True
+BASE_TILT_DEG = 20.0             # base tags lean back this far from vertical
 DPI = 300
 PAGE_IN = (8.5, 11.0)            # letter, portrait; one tag per page
 QUIET_IN = 0.5                   # white margin kept around each printed tag
-BAR_TAG_OFFSET_IN = 12.0         # tags 104 / 105: audience-side top bar midpoint -/+ this
 
 
 @dataclass(frozen=True)
 class KitTag:
     id: int
-    point_name: str              # name of the reference point (corner) or of the bar position
+    point_name: str              # the frame feature the tag belongs to
     size_in: float = DEFAULT_TAG_SIZE_IN
-    bar_dx: float | None = None  # None: on a frame top corner; else offset along the bar
+    kind: str = "crossbar"       # "crossbar": on the logo panel at a crossbar end; "base": on the tiles
 
 
-_FRAME_NAMES = calib_targets.FRAME_TOP_NAMES   # (-X,+Y), (+X,+Y), (-X,-Y), (+X,-Y)
-
-
-def kit_tags(size_in: float | None = None, extended: bool = False) -> tuple[KitTag, ...]:
-    """The kit: ids 100-103 on the frame top corners (plus 104, 105 on the audience-side top
-    bar at midpoint -/+ BAR_TAG_OFFSET_IN when `extended`), at `size_in` (default 6.0 in)."""
+def kit_tags(size_in: float | None = None) -> tuple[KitTag, ...]:
+    """The kit at `size_in` (default 6.0 in): 100/101 on the audience logo panel at the -X/+X
+    crossbar ends, 102/103 standing at the -X/+X audience-side base corners."""
     s = DEFAULT_TAG_SIZE_IN if size_in is None else float(size_in)
-    out = [KitTag(100 + i, n, s) for i, n in enumerate(_FRAME_NAMES)]
-    if extended:
-        out += [KitTag(104, f"HIVE frame top bar, midpoint -{BAR_TAG_OFFSET_IN:g} in", s,
-                       -BAR_TAG_OFFSET_IN),
-                KitTag(105, f"HIVE frame top bar, midpoint +{BAR_TAG_OFFSET_IN:g} in", s,
-                       BAR_TAG_OFFSET_IN)]
-    return tuple(out)
+    return (
+        KitTag(100, "Frame crossbar end (-X apex), audience logo panel", s, "crossbar"),
+        KitTag(101, "Frame crossbar end (+X apex), audience logo panel", s, "crossbar"),
+        KitTag(102, "Frame base corner (-X, +Y), standing tilted back 20 deg", s, "base"),
+        KitTag(103, "Frame base corner (+X, +Y), standing tilted back 20 deg", s, "base"),
+    )
 
 
 KIT_TAGS: tuple[KitTag, ...] = kit_tags()
-
-
-def _anchor_xyz(tag: KitTag) -> np.ndarray:
-    if tag.bar_dx is None:
-        pts = dict(calib_targets.field_reference_points())
-        return np.asarray(pts[tag.point_name], float)
-    a, b = calib_targets.frame_top_corners()[:2]       # audience-side top bar ends
-    mid = 0.5 * (np.asarray(a, float) + np.asarray(b, float))
-    return mid + np.array([tag.bar_dx, 0.0, 0.0])
+_FEATURE = {100: "Frame crossbar end (-X apex)", 101: "Frame crossbar end (+X apex)",
+            102: "Frame base corner (-X, +Y)", 103: "Frame base corner (+X, +Y)"}
 
 
 def _by_id(tag, size_in: float | None = None) -> KitTag:
     if isinstance(tag, KitTag):
         return tag
-    for t in kit_tags(size_in, extended=True):
+    for t in kit_tags(size_in):
         if t.id == int(tag):
             return t
-    raise KeyError(f"unknown kit tag id {tag!r}; kit ids are {[t.id for t in kit_tags(size_in, True)]}")
+    raise KeyError(f"unknown kit tag id {tag!r}; kit ids are {[t.id for t in kit_tags(size_in)]}")
+
+
+def _frame_point(tag_id: int) -> np.ndarray:
+    return np.asarray(dict(field.frame_reference_points())[_FEATURE[tag_id]], float)
+
+
+def _pose(tag: KitTag) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(center, upright direction u, face normal n) of a kit tag in the field frame."""
+    a = _frame_point(tag.id)
+    h = tag.size_in / 2.0
+    if tag.kind == "crossbar":
+        lp = fc.FRAME_LOGO_PANEL
+        u, n = np.array([0.0, 0.0, 1.0]), np.array([0.0, 1.0, 0.0])
+        c = np.array([a[0], lp["y_outer"], lp["z_hi"] - h])      # top edge on the panel top edge
+    else:
+        t = math.radians(BASE_TILT_DEG)
+        u = np.array([0.0, -math.sin(t), math.cos(t)])
+        n = np.array([0.0, math.cos(t), math.sin(t)])
+        y_b = a[1] + fc.FRAME_BASE_HEIGHT * math.tan(t)           # leans on the foot bar end
+        bottom = np.array([a[0] - math.copysign(h, a[0]), y_b, 0.0])
+        c = bottom + h * u
+    return c, u, n
 
 
 def tag_center_xyz(tag, size_in: float | None = None) -> np.ndarray:
     """Center of the tag square in the field frame."""
-    t = _by_id(tag, size_in)
-    c = _anchor_xyz(t).copy()
-    if FLUSH_MOUNT:
-        h = t.size_in / 2.0
-        if t.bar_dx is None:
-            c[0] -= np.sign(c[0]) * h  # corner tag: inward, toward the frame center
-        c[2] -= h                      # hanging down from the top edge
-    return c
+    return _pose(_by_id(tag, size_in))[0]
+
+
+def tag_normal_xyz(tag, size_in: float | None = None) -> np.ndarray:
+    """Unit normal of the tag face (pointing toward the viewer)."""
+    return _pose(_by_id(tag, size_in))[2]
 
 
 def tag_corners_xyz(tag, size_in: float | None = None) -> np.ndarray:
     """(4,3) field-frame corners in cv2.aruco order (TL, TR, BR, BL of the upright tag)."""
     t = _by_id(tag, size_in)
-    cx, y, cz = tag_center_xyz(t)
-    s = t.size_in / 2.0
-    return np.array([[cx + s, y, cz + s],
-                     [cx - s, y, cz + s],
-                     [cx - s, y, cz - s],
-                     [cx + s, y, cz - s]], float)
+    c, u, n = _pose(t)
+    r = np.cross(u, n)
+    h = t.size_in / 2.0
+    return np.array([c + h * u - h * r, c + h * u + h * r, c - h * u + h * r, c - h * u - h * r])
 
 
-def tag_defs(size_in: float | None = None, extended: bool = False) -> dict[int, np.ndarray]:
+def tag_defs(size_in: float | None = None) -> dict[int, np.ndarray]:
     """{tag id: (4,3) corners}, the form `calib.solve_extrinsics_from_tags` takes."""
-    return {t.id: tag_corners_xyz(t) for t in kit_tags(size_in, extended)}
+    return {t.id: tag_corners_xyz(t) for t in kit_tags(size_in)}
 
 
-def tags_json(size_in: float | None = None, extended: bool = False) -> list[dict]:
+def tags_json(size_in: float | None = None) -> list[dict]:
     """Payload of GET /api/calib/tags."""
-    return [{"id": t.id, "size_in": t.size_in, "name": t.point_name,
+    return [{"id": t.id, "size_in": t.size_in, "name": t.point_name, "kind": t.kind,
              "xyz_center": [float(v) for v in tag_center_xyz(t)],
+             "normal": [float(v) for v in tag_normal_xyz(t)],
              "corners_xyz": [[float(v) for v in p] for p in tag_corners_xyz(t)]}
-            for t in kit_tags(size_in, extended)]
+            for t in kit_tags(size_in)]
 
 
 def render_marker(tag_id: int, px: int) -> np.ndarray:
@@ -156,12 +166,20 @@ def _arrow_up(img: np.ndarray, x: int, y_top: int, y_bot: int) -> None:
     cv2.arrowedLine(img, (x, y_bot), (x, y_top), 0, 6, cv2.LINE_AA, tipLength=0.12)
 
 
-def render_tag_pages(size_in: float | None = None, extended: bool = False) -> list[np.ndarray]:
+_HOW = {
+    "crossbar": ("Tape on the AUDIENCE face of the logo panel, top edge on the panel's top edge,",
+                 "centered on the crossbar end (12.0 in from the panel's center line)."),
+    "base": ("Stand it on the tile at the audience-side base corner, outer edge flush with the",
+             "foot bar's outer face, leaning back 20 deg against the end of the foot bar."),
+}
+
+
+def render_tag_pages(size_in: float | None = None) -> list[np.ndarray]:
     """One portrait letter page (300 dpi gray) per tag: the tag (`size_in`, default 6.0 in)
-    with a white margin of at least QUIET_IN, its label and frame corner, an arrow "this
+    with a white margin of at least QUIET_IN, its label and frame feature, an arrow "this
     edge up", taping instructions and a print-scale ruler line of the same length as the
     tag."""
-    tags = kit_tags(size_in, extended)
+    tags = kit_tags(size_in)
     size = tags[0].size_in
     if size + 2 * QUIET_IN > PAGE_IN[0]:
         raise ValueError(f"a {size:g} in tag plus its {QUIET_IN} in quiet zone does not fit on "
@@ -176,21 +194,21 @@ def render_tag_pages(size_in: float | None = None, extended: bool = False) -> li
         img[y0:y0 + px, x0:x0 + px] = render_marker(t.id, px)
         cv2.putText(img, f"TAG {t.id}   ({size:g} in)", (x0, int(0.8 * DPI)), font, 1.8, 0, 4,
                     cv2.LINE_AA)
-        cv2.putText(img, t.point_name, (x0, int(1.3 * DPI)), font, 1.0, 0, 2, cv2.LINE_AA)
-        cv2.putText(img, "Tape label up on a vertical face that looks toward the audience.",
-                    (x0, int(1.75 * DPI)), font, 0.75, 0, 2, cv2.LINE_AA)
+        cv2.putText(img, t.point_name, (x0, int(1.3 * DPI)), font, 0.8, 0, 2, cv2.LINE_AA)
+        cv2.putText(img, "Label up: the arrow points to the top edge.", (x0, int(1.75 * DPI)),
+                    font, 0.75, 0, 2, cv2.LINE_AA)
         ax = max(int(0.35 * DPI), x0 - int(0.45 * DPI))
         _arrow_up(img, ax, y0 + int(0.2 * DPI), y0 + px // 2)
         cv2.putText(img, "THIS", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.3 * DPI)),
                     font, 0.6, 0, 2, cv2.LINE_AA)
         cv2.putText(img, "EDGE UP", (max(5, ax - int(0.3 * DPI)), y0 + px // 2 + int(0.5 * DPI)),
                     font, 0.6, 0, 2, cv2.LINE_AA)
-        how = ("outer top corner on the frame corner." if t.bar_dx is None
-               else "top edge on the top edge of the bar.")
-        cv2.putText(img, f"Place it with its {how}", (x0, y0 + px + int(0.45 * DPI)), font, 0.7, 0,
-                    2, cv2.LINE_AA)
-        cv2.putText(img, f"Cut leaving the white border ({QUIET_IN:g} in or more).",
-                    (x0, y0 + px + int(0.75 * DPI)), font, 0.7, 0, 2, cv2.LINE_AA)
+        for i, line in enumerate(_HOW[t.kind]):
+            cv2.putText(img, line, (x0, y0 + px + int((0.45 + 0.3 * i) * DPI)), font, 0.62, 0, 2,
+                        cv2.LINE_AA)
+        cv2.putText(img, f"Cut leaving the white border ({QUIET_IN:g} in or more). Measure the "
+                    "placement with a tape to 0.25 in.", (x0, y0 + px + int(1.1 * DPI)), font, 0.62,
+                    0, 2, cv2.LINE_AA)
         # print-scale check: a line as long as the tag, with end ticks
         ly = H - int(1.0 * DPI)
         cv2.line(img, (x0, ly), (x0 + px, ly), 0, 5)
@@ -236,20 +254,19 @@ def _build_pdf_pages(pages: list[np.ndarray], page_in: tuple[float, float]) -> b
     return bytes(out)
 
 
-def tag_sheet_pdf_bytes(size_in: float | None = None, extended: bool = False) -> bytes:
-    return _build_pdf_pages(render_tag_pages(size_in, extended), PAGE_IN)
+def tag_sheet_pdf_bytes(size_in: float | None = None) -> bytes:
+    return _build_pdf_pages(render_tag_pages(size_in), PAGE_IN)
 
 
-def write_tag_sheet_pdf(path: str | Path, size_in: float | None = None,
-                        extended: bool = False) -> Path:
-    """Write the printable tag sheet: one portrait letter page per tag (4 pages for ids
-    100-103, 6 with `extended`), each tag `size_in` (default 6.0 in) with its quiet zone,
-    labeled with its frame corner, an "edge up" arrow and a ruler line of the tag's length
-    for the print-scale check. Also writes page PNGs next to it (<stem>_p1.png, ...).
-    Returns the PDF path."""
+def write_tag_sheet_pdf(path: str | Path, size_in: float | None = None) -> Path:
+    """Write the printable tag sheet: one portrait letter page per tag (4 pages, ids
+    100-103), each tag `size_in` (default 6.0 in) with its quiet zone, labeled with its frame
+    feature, an "edge up" arrow, taping instructions and a ruler line of the tag's length for
+    the print-scale check. Also writes page PNGs next to it (<stem>_p1.png, ...). Returns the
+    PDF path."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    pages = render_tag_pages(size_in, extended)
+    pages = render_tag_pages(size_in)
     path.write_bytes(_build_pdf_pages(pages, PAGE_IN))
     for i, g in enumerate(pages, 1):
         cv2.imwrite(str(path.with_name(f"{path.stem}_p{i}.png")), g)

@@ -1,0 +1,129 @@
+RUN s8_240_7_lockstep_a idle-wait: cpu=8% after 30s
+[s8_240_7 lockstep] elapsed=8.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3326765276482577 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.15800778245041158 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=['1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', '1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0004
+  system CPU during run (whole machine, incl. server): mean=17% max=38% n=10
+  server_exit 1
+RUN s8_240_7_rt_a idle-wait: cpu=6% after 10s
+[s8_240_7 rt] elapsed=9.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3326765276482577 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.15800778245041158 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=['1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', '1 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0004
+  system CPU during run (whole machine, incl. server): mean=16% max=31% n=11
+  server_exit 1
+RUN s8_240_99_lockstep_a idle-wait: cpu=6% after 10s
+[s8_240_99 lockstep] elapsed=8.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.318093267728171 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.1691273396845645 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=16% max=38% n=10
+  server_exit 1
+RUN s8_240_99_rt_a idle-wait: cpu=3% after 10s
+[s8_240_99 rt] elapsed=9.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.318093267728171 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.1691273396845645 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=15% max=29% n=11
+  server_exit 1
+RUN s8_240_555_lockstep_a idle-wait: cpu=3% after 10s
+[s8_240_555 lockstep] elapsed=7.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3702612325929509 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.24660686165071866 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=15% max=40% n=9
+  server_exit 1
+RUN s8_240_555_rt_a idle-wait: cpu=14% after 20s
+[s8_240_555 rt] elapsed=10.9s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3702612325929509 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.24660686165071866 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 27, 'cam1': 26} max_dropped_seen={'cam0': 27, 'cam1': 26} warnings_final=['camera cam0 dropped 27 frames (processing too slow)', 'camera cam1 dropped 26 frames (processing too slow)'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', 'camera cam0 dropped 15 frames (processing too slow)', 'camera cam1 dropped 14 frames (processing too slow)', 'camera cam0 dropped 27 frames (processing too slow)', 'camera cam1 dropped 26 frames (processing too slow)'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=37% max=74% n=12
+  server_exit 1
+RUN overlap_lockstep_a idle-wait: cpu=12% after 10s
+[overlap lockstep] elapsed=7.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exact=True
+  speed n=8 max|err|=0.02089489444944137 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.06097451657581132 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=['2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', '2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=14% max=45% n=9
+  server_exit 1
+RUN overlap_rt_a idle-wait: cpu=11% after 10s
+[overlap rt] elapsed=11.8s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exact=True
+  speed n=8 max|err|=0.02089489444944137 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.06097451657581132 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=['2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', '2 ball track(s) could not be paired between the cameras and were dropped: shots may be missing'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=17% max=25% n=13
+  server_exit 1
+RUN burst6_lockstep_a idle-wait: cpu=12% after 20s
+[burst6 lockstep] elapsed=9.8s recorded=9/9 matched=9 extra=0 made app/truth=6/6 rate app/truth=0.6666666666666666/0.667
+  makemiss agree 9/9=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 3, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 2, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 2, '4': 0, '5': 1} exact=True
+  speed n=9 max|err|=0.025710143774415606 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.07581631241576758 csv_rows=9
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 3, 'unknown': 0, 'shots': 9}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=45% max=79% n=11
+  server_exit 1
+RUN burst6_rt_a idle-wait: cpu=9% after 60s
+[burst6 rt] elapsed=13.8s recorded=9/9 matched=9 extra=0 made app/truth=6/6 rate app/truth=0.6666666666666666/0.667
+  makemiss agree 9/9=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 3, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 2, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 2, '4': 0, '5': 1} exact=True
+  speed n=9 max|err|=0.025710143774415606 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.07581631241576758 csv_rows=9
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 3, 'unknown': 0, 'shots': 9}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=34% max=76% n=15
+  server_exit 1
+RUN lowarc_lockstep_a idle-wait: cpu=5% after 50s
+[lowarc lockstep] elapsed=6.5s recorded=6/6 matched=6 extra=0 made app/truth=3/6 rate app/truth=0.5/1.000
+  makemiss agree 3/6=50.0% results={'made': 3, 'bounce_out': 0, 'miss': 0, 'unknown': 3} hist app={'1': 1, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 0, '3': 0, '4': 0, '5': 0} exact=False
+  speed n=6 max|err|=0.8361573484647722 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.2740136900019934 csv_rows=6
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 3, 'bounce_out': 0, 'miss': 0, 'unknown': 3, 'shots': 6}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=16% max=38% n=8
+  server_exit 1
+RUN lowarc_rt_a idle-wait: cpu=12% after 120s
+[lowarc rt] elapsed=11.6s recorded=6/6 matched=6 extra=0 made app/truth=3/6 rate app/truth=0.5/1.000
+  makemiss agree 3/6=50.0% results={'made': 3, 'bounce_out': 0, 'miss': 0, 'unknown': 3} hist app={'1': 1, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 0, '3': 0, '4': 0, '5': 0} exact=False
+  speed n=6 max|err|=0.8361573484647722 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.2740136900019934 csv_rows=6
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 3, 'bounce_out': 0, 'miss': 0, 'unknown': 3, 'shots': 6}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=12% max=25% n=13
+  server_exit 1
+RUN late20_lockstep_a idle-wait: cpu=12% after 10s
+[late20 lockstep] elapsed=13.0s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.0947299826882686 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08807481809076023 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=32% max=55% n=15
+  server_exit 1
+RUN late20_rt_a idle-wait: cpu=13% after 10s
+[late20 rt] elapsed=24.0s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.0947299826882686 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08807481809076023 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=20% max=26% n=26
+  server_exit 1
+RUN mixed_lockstep_a idle-wait: cpu=4% after 10s
+[mixed lockstep] elapsed=7.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exact=True
+  speed n=8 max|err|=0.04547443876172785 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.03784296940310128 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 3, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 4}, 'nectar': {'made': 3, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 4}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=15% max=35% n=9
+  server_exit 1
+RUN mixed_rt_a idle-wait: cpu=7% after 10s
+[mixed rt] elapsed=12.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exact=True
+  speed n=8 max|err|=0.04547443876172785 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.03784296940310128 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 3, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 4}, 'nectar': {'made': 3, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 4}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=7% max=12% n=14
+  server_exit 1
+BATCH_DONE

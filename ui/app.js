@@ -3,19 +3,11 @@ import { ReplayViewer } from './viewer3d.js';
 
 const $ = (id) => document.getElementById(id);
 const IN_TO_M = 0.0254;
-// Fallback ONLY: mirrors hiveshot/calib_targets.reference_point_names(). The live list comes from
-// GET /api/calib/points when the Calibration tab opens (see loadCalibPoints).
-const FALLBACK_CALIB_NAMES = [
-  'Red HIVE up-CELL opening, high-left corner',
-  'Red HIVE up-CELL opening, high-right corner',
-  'Red HIVE up-CELL opening, low-right corner',
-  'Red HIVE up-CELL opening, low-left corner',
-  'HIVE frame top corner (-X, +Y)',
-  'HIVE frame top corner (+X, +Y)',
-  'HIVE frame top corner (-X, -Y)',
-  'HIVE frame top corner (+X, -Y)',
-];
-let calibPoints = FALLBACK_CALIB_NAMES.map((name) => ({ name, xyz: null }));
+// Reference points come ONLY from GET /api/calib/points (names + xyz, click order), loaded when the
+// Calibration tab opens (see loadCalibPoints). The UI deliberately encodes no field geometry: if the
+// request fails the list stays empty and clicking is disabled, because guessed names would be rejected
+// or, worse, silently wrong.
+let calibPoints = [];
 
 const state = { config: null, sessionId: null, shots: [], stats: null, status: null, geometry: null, viewer: null, sessions: [], shotFilter: 'all', tips: [], rtmpUrls: {}, demo: false, demoPending: null, demoPosted: false, demoSession: null, demoPoll: null };
 
@@ -489,6 +481,7 @@ $('calibCams').addEventListener('click', (ev) => {
   calibClicks[id] = calibClicks[id] || [];
   const out = el.querySelector('.result');
   if (ev.target.tagName === 'IMG') {
+    if (!calibPoints.length) { toast('Reference points are not loaded; reopen the Calibration tab'); return; }
     if (calibClicks[id].length >= calibPoints.length) { toast(`All ${calibPoints.length} points set; undo or clear to change`); return; }
     const img = ev.target; const r = img.getBoundingClientRect();
     const k = img.naturalWidth / r.width;   // click in native image pixels
@@ -502,7 +495,7 @@ $('calibCams').addEventListener('click', (ev) => {
     else if (act === 'undo') { calibClicks[id].pop(); paintCalib(id); }
     else if (act === 'clear') { calibClicks[id] = []; paintCalib(id); out.textContent = ''; }
     else if (act === 'solve') {
-      if (calibClicks[id].length !== calibPoints.length) { toast(`Need ${calibPoints.length} points (have ${calibClicks[id].length})`); return; }
+      if (!calibPoints.length || calibClicks[id].length !== calibPoints.length) { toast(`Need ${calibPoints.length} points (have ${calibClicks[id].length})`); return; }
       const r = await api('POST', `/api/calib/extrinsics/${encodeURIComponent(id)}`, { points: calibClicks[id] });
       out.innerHTML = `RMSE <b>${fmt(r.rmse_in, 3)} in</b><br>` +
         (r.per_point || []).map((p) => `${esc(p.name)}: ${fmt(p.err_px, 2)} px`).join('<br>');
@@ -547,8 +540,8 @@ async function loadCalibPoints() {
   if (list) {
     warn.style.display = 'none'; warn.textContent = '';
   } else {
-    list = FALLBACK_CALIB_NAMES.map((name) => ({ name, xyz: null }));
-    warn.textContent = 'Could not load reference points from the server; showing built-in names that may be out of date. Check docs/calibration.md before clicking.';
+    list = [];
+    warn.textContent = 'Could not load the reference points from the server, so point clicking is disabled. Check that the app is running, then reopen this tab.';
     warn.style.display = '';
   }
   const changed = list.length !== calibPoints.length || list.some((p, i) => p.name !== calibPoints[i].name);
@@ -596,6 +589,9 @@ async function renderSettings() {
     ${field('preview_fps', inp('preview_fps', c.preview_fps))}
     ${field('burst_gap_s', inp('burst_gap_s', c.burst_gap_s))}
     ${field('settle_time_s', inp('settle_time_s', c.settle_time_s))}</fieldset>
+  <fieldset><legend>Field</legend>
+    ${field('Field size (in)', inp('field_size_in', c.field_size_in ?? 144))}
+    <span class="muted">Measure your field wall to wall; the official CAD says 141.35, the manual says about 144. Allowed range 60 to 400.</span></fieldset>
   <fieldset><legend>Robot (in)</legend>
     ${['length', 'width', 'height', 'launch_exit_height'].map((k) => field(k, inp('robot.' + k, r[k]))).join('')}</fieldset>
   <fieldset><legend>Detector</legend>
@@ -693,6 +689,7 @@ $('settingsForm').addEventListener('submit', (ev) => {
     for (const el of $('settingsForm').querySelectorAll('[data-path]')) {
       let v = el.value; const ty = el.dataset.type;
       if (ty === 'number') v = v === '' ? null : Number(v);
+      if (el.dataset.path === 'field_size_in' && !(v >= 60 && v <= 400)) throw new Error('Field size must be between 60 and 400 in');
       else if (ty === 'json') { try { v = JSON.parse(v); } catch (e) { throw new Error(`${el.dataset.path}: invalid JSON`); } }
       setPath(merged, el.dataset.path, v);
     }
@@ -706,9 +703,6 @@ $('settingsForm').addEventListener('submit', (ev) => {
 // ---------- setup wizard ----------
 // Contract: docs/api.md "Setup, auto-calibration and tuning". Steps: Cameras -> Tags -> Colors -> Done.
 const FALLBACK_PROFILE = { width: 1920, height: 1080, fps_hint: 90 };
-const FALLBACK_TAG_NAMES = [
-  'frame top corner (-X,+Y)', 'frame top corner (+X,+Y)', 'frame top corner (-X,-Y)', 'frame top corner (+X,-Y)',
-];
 const setup = { status: null, step: 'cameras', statusTimer: null, previewTimer: null, previews: [], assigned: false };
 
 function plainError(e) {
@@ -842,8 +836,8 @@ async function loadTagInfo() {
     const t = await api('GET', '/api/calib/tags');
     if (Array.isArray(t) && t.length) items = t.map((x) => `${x.name} (tag id ${x.id}, ${fmt(x.size_in, 1)} in square)`);
   } catch (e) { console.error(e); }
-  if (!items) items = FALLBACK_TAG_NAMES.map((n) => `${n} (tag names are printed under each tag)`);
-  $('tagsInfo').innerHTML = `<div>Print the sheet, cut the tags out and tape one at each corner of the HIVE frame:</div>
+  if (!items) items = ['(could not load the tag list; every tag on the sheet is labeled with where it goes)'];
+  $('tagsInfo').innerHTML = `<div>Print the sheet, cut the tags out and place each one at the spot named below:</div>
     <ul>${items.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
     <div>Each camera must see at least 2 tags. Then press Auto-calibrate.</div>`;
 }

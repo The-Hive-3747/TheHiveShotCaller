@@ -112,3 +112,29 @@ TAG_REF_HOLE_DIAMETER = 0.5
 # sticker exterior normal (0, +sin30, -cos30): faces the tiles and the audience side.
 # (The earlier hand derivation gave y=21.54 because it assumed the opening at y=24.25.)
 HIVE_TAG_ROW_CENTER_UP = (13.10, 49.79)   # (y, z) for the audience-up cell; x = hive x
+
+# ---- Frame (CAD-extracted) ---------------------------------------------------------------
+# Extracted from the official STEP (product am-5854 Frame, am-5878/5876/5875/5863/5877) with
+# tools/step_extract.py --frame --perimeter on 2026-10-10; tables in evidence/m1_field/step_extract.md.
+# The frame is NOT a box: two leaning A-frames at the +-X ends. Each has a Sheet Metal Foot Bar on the
+# tiles (along Y, FRAME_BASE_X_INNER..OUTER wide, 38.94 long) and two legs that run from the foot-bar
+# ends up and INWARD in X to an apex near the pivot; the two apexes are joined by a 24 in crossbar
+# along X (A-Frame Top Bar) with the Axle Holders (pivot cradles) on top. FRAME_WIDTH_X / FRAME_DEPTH_Y
+# above are the foot-bar footprint (CAD: 49.46 x 38.94), not a crossbar length. Symmetric in X and Y,
+# so the CAD-to-field axis flip does not matter. (x, |y|, z) tuples below are for one quadrant.
+FRAME_BASE_X_OUTER = 24.73           # foot bar outer face
+FRAME_BASE_X_INNER = 22.75           # foot bar inner face
+FRAME_BASE_HALF_Y = 19.47            # foot bar half length (along Y)
+FRAME_BASE_HEIGHT = 2.15             # foot bar height above the tiles
+FRAME_LEG_TOP = (12.60, 0.52, 41.05)    # leg centerline at the apex end (x, |y|, z)
+FRAME_LEG_FOOT = (23.81, 18.56, 0.53)   # leg centerline at the foot end (x, |y|, z)
+FRAME_CROSSBAR_HALF_X = 12.0         # A-Frame Top Bar spans x = +-12.0 (24 in long), centered y = 0
+FRAME_CROSSBAR_Z = 41.45             # crossbar centerline height (bar is 1.0 x 1.0 in)
+FRAME_PIVOT_CRADLE = ((12.0, 44.27), (11.15, 41.57))  # Axle Holder (x, z) top and bottom, mirrored in X
+FRAME_LOGO_PANEL = {"half_x": 15.07, "z_lo": 34.07, "z_hi": 40.02, "y_outer": 4.28, "y_inner": 1.55}
+FRAME_UNDER_TILE_BAR = {"half_x": 23.89, "abs_y": 16.53, "z": -0.68}  # 47.5 in CC bars below the tiles
+# Perimeter (CAD): glass inner face |x|,|y| = 70.674 -> 141.35 in inside size; tiles +-70.585 (141.17);
+# outer rails +-71.65 (143.3). The manual says approximately 144 in (FIELD_SIZE stays the nominal).
+FIELD_INSIDE_SIZE_CAD = 141.35
+FIELD_TILE_SPAN_CAD = 141.17
+FIELD_PERIMETER_OUTER_CAD = 143.30

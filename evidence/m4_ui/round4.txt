@@ -152,3 +152,62 @@ Found 2 errors.
 --- ruff
 All checks passed!
 (round10 browser smoke vs stub with 2 s status lag, WS status frames neutralised: Starting demo... disabled until status.demo true then badge/Exit demo/Dashboard; Exiting demo... until false then Run demo; stub stopped)
+=== round11: stub + UI made geometry-agnostic (generic 'point N'/'tag N', no hardcoded fallback names)
+.................F............                                           [100%]
+================================== FAILURES ===================================
+_______________________ test_stub_calibration_endpoints _______________________
+
+    def test_stub_calibration_endpoints():
+        from hiveshot import calib_targets
+    
+        srv, _ = ui_stub_server.start(0)
+        base = f"http://127.0.0.1:{srv.server_address[1]}"
+        try:
+            with urllib.request.urlopen(base + "/api/calib/points", timeout=10) as r:
+                pts = json.load(r)
+>           assert [p["name"] for p in pts] == calib_targets.reference_point_names()
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_ui_static.py:325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+hiveshot\calib_targets.py:168: in reference_point_names
+    return [n for n, _ in field_reference_points()]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+hiveshot\calib_targets.py:161: in field_reference_points
+    for n, p in zip(FRAME_TOP_NAMES, frame_top_corners(), strict=True):
+                                     ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def frame_top_corners() -> list[tuple[float, float, float]]:
+        """Top corners of the HIVE frame box, order of FRAME_TOP_NAMES.
+    
+        Taken from field.hive_frame_wireframe(): the audience-side top bar is the segment
+        from (-FRAME_WIDTH_X/2, +FRAME_DEPTH_Y/2, FRAME_TOP_Z) to
+        (+FRAME_WIDTH_X/2, +FRAME_DEPTH_Y/2, FRAME_TOP_Z); the far-side top bar is the same
+        with -FRAME_DEPTH_Y/2. Looked up in the wireframe so the numbers cannot drift.
+        """
+        segs = field.hive_frame_wireframe()
+        top = [s for s in segs
+>              if abs(s[0][2] - field.FRAME_TOP_Z) < 1e-9 and abs(s[1][2] - field.FRAME_TOP_Z) < 1e-9
+                                ^^^^^^^^^^^^^^^^^
+               and abs(abs(s[0][1]) - fc.FRAME_DEPTH_Y / 2) < 1e-9
+               and abs(s[0][1] - s[1][1]) < 1e-9 and abs(abs(s[0][0]) - fc.FRAME_WIDTH_X / 2) < 1e-9]
+E       AttributeError: module 'hiveshot.field' has no attribute 'FRAME_TOP_Z'
+
+hiveshot\calib_targets.py:145: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_ui_static.py::test_stub_calibration_endpoints - AttributeEr...
+--- ruff
+All checks passed!
+=== round11 rerun
+..............................                                           [100%]
+--- ruff
+All checks passed!
+=== round12: Settings 'Field size (in)' input (config.field_size_in)
+................................                                         [100%]
+--- ruff
+All checks passed!
+=== round12 rerun
+................................                                         [100%]
+--- ruff
+All checks passed!

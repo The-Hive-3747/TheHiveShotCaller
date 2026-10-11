@@ -1,0 +1,24 @@
+parts under Frame: 31
+FRAME overall CAD (x lateral, y UP, z beam) min [-24.73  -0.84 -19.48] max [24.73 44.31 19.48]
+  am-1629: Elevator Bolt, 1/4-20 x 1.25in                      count=4 min=[-24.23  -0.84 -17.02] max=[24.23  0.41 16.66]
+  am-5874: A-Frame Top Corner                                  count=2 min=[-13.74  39.49  -1.52] max=[13.76 44.21  1.52]
+  am-5878: Sheet Metal Foot Bar                                count=2 min=[-24.73  -0.   -19.47] max=[24.73  2.15 19.47]
+  am-5876: A-Frame Leg                                         count=4 min=[-24.28   0.22 -19.07] max=[24.3  41.4  19.07]
+  am-5883: Panel Sticker                                       count=2 min=[-15.06  34.12  -4.29] max=[15.07 40.02  4.29]
+  am-5875: A-Frame Top Bar                                     count=1 min=[-11.99  40.95  -0.5 ] max=[12.01 41.95  0.5 ]
+  am-5879-B: Frame Foot B                                      count=2 min=[-24.64   0.07 -19.48] max=[24.65  2.13 19.48]
+  am-5879-A: Frame Foot A                                      count=2 min=[-24.64   0.07 -19.48] max=[24.65  2.13 19.48]
+  am-1705: 1/4-20 Wing Nut                                     count=4 min=[-24.09   0.07 -17.03] max=[24.09  0.57 17.09]
+  am-5863: Axle Holder                                         count=2 min=[-12.11  41.76  -0.66] max=[12.12 44.31  0.66]
+  am-5880: 47.5in CC Under Tile Bar                            count=2 min=[-23.89  -0.74 -17.28] max=[23.89 -0.63 17.28]
+  am-5877: ACM Panel                                           count=2 min=[-15.06  34.07  -4.28] max=[15.07 40.02  4.28]
+  am-1483: 10-32 Wing Nut                                      count=2 min=[-11.41  42.56  -0.22] max=[11.39 42.96  0.22]
+top vertices (within 3 in of max y): n= 5162  x range -13.74 13.76  z range -0.91 0.91
+vertices above y= 63.95 : 0 
+vertices above y= 50 : 0 
+vertices above y= 45 : 0 
+modelled corner 100 (-X,+Y) (-24.73, 19.475, 63.95): nearest CAD frame vertex [-13.71, 0.4, 43.98] at 29.7 in
+modelled corner 101 (+X,+Y) (24.73, 19.475, 63.95): nearest CAD frame vertex [13.69, 0.4, 43.98] at 29.7 in
+modelled corner 102 (-X,-Y) (-24.73, -19.475, 63.95): nearest CAD frame vertex [-13.71, -0.4, 43.98] at 29.7 in
+modelled corner 103 (+X,-Y) (24.73, -19.475, 63.95): nearest CAD frame vertex [13.69, -0.4, 43.98] at 29.7 in
+CAD frame highest vertex z: 44.31  model FRAME_TOP_Z 63.95

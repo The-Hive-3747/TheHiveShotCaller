@@ -63,24 +63,28 @@ export class ReplayViewer {
     this._loop = this._loop.bind(this);
   }
 
-  _buildStatic() {
+  _buildStatic(size = 144) {
+    // size = inside wall to inside wall (config field_size_in, served as geometry.field_size)
     const g = this.staticGroup;
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(144, 144),
+    while (g.children.length) g.remove(g.children[0]);
+    this._fieldSize = size;
+    const h = size / 2;
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial({ color: 0x1a2230, side: THREE.DoubleSide }));
     floor.position.z = -0.05;
     g.add(floor);
     const pts = [];
-    for (let v = -72; v <= 72; v += 24) {
-      pts.push(new THREE.Vector3(v, -72, 0), new THREE.Vector3(v, 72, 0));
-      pts.push(new THREE.Vector3(-72, v, 0), new THREE.Vector3(72, v, 0));
+    for (let v = -h; v <= h + 1e-6; v += 24) {
+      pts.push(new THREE.Vector3(v, -h, 0), new THREE.Vector3(v, h, 0));
+      pts.push(new THREE.Vector3(-h, v, 0), new THREE.Vector3(h, v, 0));
     }
     g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),
       new THREE.LineBasicMaterial({ color: 0x3a465a })));
     const axis = (dir, color, text) => {
-      const a = new THREE.ArrowHelper(dir, new THREE.Vector3(-72, -72, 0), 36, color, 6, 3);
+      const a = new THREE.ArrowHelper(dir, new THREE.Vector3(-h, -h, 0), 36, color, 6, 3);
       g.add(a);
       const s = label(text, '#' + color.toString(16).padStart(6, '0'));
-      s.position.copy(dir.clone().multiplyScalar(44)).add(new THREE.Vector3(-72, -72, 0));
+      s.position.copy(dir.clone().multiplyScalar(44)).add(new THREE.Vector3(-h, -h, 0));
       g.add(s);
     };
     axis(new THREE.Vector3(1, 0, 0), 0xff5555, 'X (audience)');
@@ -92,6 +96,7 @@ export class ReplayViewer {
     const g = this.fieldGroup;
     while (g.children.length) g.remove(g.children[0]);
     if (!geom) return;
+    if (geom.field_size && geom.field_size !== this._fieldSize) this._buildStatic(geom.field_size);
     const pos = [];
     for (const [a, b] of geom.wireframe || []) pos.push(new THREE.Vector3(...a), new THREE.Vector3(...b));
     g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pos),

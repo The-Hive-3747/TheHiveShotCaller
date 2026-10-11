@@ -1,83 +1,88 @@
-# DoD 9 fixes (response to evidence/refute/dod8_9_1.md, DoD 9 section), current state
+# DoD 9 fixes (response to evidence/refute/dod8_9_1.md and dod9_2.md), current state
 
-This file replaces the first version, which described the early -X layout. It reflects the
-CAD-based field (red HIVE at +X, up-CELL opening center (+12.75, 15.77, 59.55), CELL tag row
-(+12.75, 13.10, 49.79)), the printed tag kit, and the constrained placement search.
+This file replaces earlier versions. It reflects the CAD-based field (red HIVE at +X, up-CELL opening center (+12.75, 15.77, 59.55), CELL tag row (+12.75, 13.10, 49.79)) and the real CAD HIVE frame (A-frame, see below), the printed tag kit, the constrained placement search and the round-2 refutation (dod9_2.md).
 
-Owned files: hiveshot/calib_targets.py, hiveshot/placement.py, hiveshot/tagkit.py (earlier task),
-docs/calibration.md, docs/camera_placement.md/.svg/.png, tests/test_calib.py, tests/test_placement.py,
-tests/test_tagkit.py. hiveshot/field.py is the single source of geometry and is not edited by this worker.
+Owned files: hiveshot/calib_targets.py, hiveshot/placement.py, hiveshot/tagkit.py, docs/calibration.md, docs/camera_placement.md/.svg/.png and camera_placement_gopro.svg/.png, tests/test_calib.py, tests/test_placement.py, tests/test_tagkit.py, evidence/refute/dod9_kit_mounting_sim.py/.json. hiveshot/field.py and field_constants.py (single source of geometry) are not edited by this worker.
 
-## Original findings and where they stand
+## Round 2 (dod9_2.md): what was wrong and what changed
 
-| # | Finding | Fix | Evidence (tests) |
-|---|---|---|---|
-| 1 | calib_targets used its own CELL geometry (opening center y=15.44) that disagreed with field.py (24.25 at the time) | `calib_targets.up_cell_opening_corners()` returns corners of `field.cell_opening_polygon`; no separate derivation | `test_calib.py::test_cell_reference_points_equal_field_polygon` (within 1e-6, center = `field.cell_opening_plane`) |
-| 2 | only 4 of 8 reference points visible from the recommended poses | 8 points = 4 up-CELL corners + 4 HIVE frame top corners (floor points are out of frame at these poses); `reference_point_names()` added | `test_placement.py::test_all_reference_points_inside_both_images[gopro,usb]` (20 px margin), `test_extrinsics_from_reference_points_at_recommended_poses` |
-| 3 | sheet text said "X toward the audience" | now "+Y toward the audience, X along the red/blue axis (red at +12.75)" | `test_calib.py::test_point_sheet_axes_match_field_py` |
-| 4 | calibration.md was Python calls | app-only procedure; tag-kit method primary, 8-click fallback; percent-of-image table checked by a test | `test_placement.py::test_calibration_doc_pixel_table_matches_recommend` |
-| 5 | camera_placement.md gaps (cam0/cam1, hub advice, yaw/pitch, wall face, roll check) | cam0 = A, cam1 = B, direct PC port per USB camera, yaw and pitch per camera, inside-face convention with 1.5 in wall assumption (VERIFY), in-frame roll check by expected bar slope | `test_placement.py::test_placement_doc_matches_recommend`, `test_aim_angles_and_outer_face_measurements` |
-| 6 | SVG/PNG must equal recommend() | regenerated with `placement.write_map` (see hashes below) | `test_placement.py::test_map_files_exist_and_agree` |
+| dod9_2 finding | Fix | Evidence |
+|---|---|---|
+| The kit tags (100-103) and click points 5-8 sat on frame "top corners" at (+-24.73, +-19.475, 63.95) that do not exist: the CAD frame is an A-frame whose highest point is 44.3 in | `calib_targets.frame_top_corners` and `FRAME_TOP_NAMES` are gone. Kit tags use real features from `field.frame_reference_points()`: 100/101 on the audience face of the logo panel at the crossbar ends (x = -12/+12, top edge flush with the panel top at z 40.02; hung from the 1 in crossbar they would sit behind the panel at y 1.55-4.28), 102/103 standing on the tiles at the audience-side base corners (foot bar outer corners (+-24.73, 19.47, 0)) leaning back 20 deg against the foot bar end. 6 in tags | `test_tagkit.py::test_kit_definition`, `test_placement.py::test_frame_is_the_cad_a_frame_and_kit_uses_real_features` |
+| Click points 5-8 not physical | The 8 click points are the 8 corners of the red audience up-CELL opening and the blue far up-CELL opening (match-start state); names "Red HIVE up-CELL opening, ..." and "Blue HIVE far-CELL opening, high-left corner" style; `reference_point_names()` is the single source (the UI fetches `GET /api/calib/points`) | `test_calib.py::test_cell_reference_points_equal_field_polygon`, `test_placement.py::test_all_reference_points_inside_both_images`, `test_extrinsics_from_reference_points_at_recommended_poses` |
+| Tag 102 overlapped the CELL sticker in cam B | `placement.kit_view` marks a kit tag not readable if its picture quad overlaps the CELL sticker's tag row (6 px gap); none of the recommended readable tags overlaps | `test_frame_is_the_cad_a_frame_and_kit_uses_real_features` |
+| In-frame roll check used the nonexistent top bar | Replaced by the line through the centers of tags 100 and 101 (same panel line, 24 in apart): about 10 deg below horizontal going left in cam A, 10 deg above in cam B | docs/camera_placement.md section 2 step 5 |
+| Tripod feet never placed (4.5 in out puts a foot on or over the wall) | `TRIPOD_CLEARANCE_IN` 13.5: lens plumb spot 12.0 in from the OUTSIDE face (1.5 in wall); rule stated: one leg pointing straight away from the wall, other feet 10 in toward it for a ~20 in leg radius, so 12 in clears every foot by 2 in; general rule R/2 + 2 in | `test_candidates_outside_wall`, `test_doc_states_tripod_feet_field_size_and_tag_tolerance` |
+| Wall numbers vs CAD (inside size 141.35 in, not 144) | The docs say: measure your field wall to wall, the app's `field_size` setting defaults to 144 in (backend adds it), tape numbers are measured from the wall (12.0 in out, along from the corner) so they hold for any size | same test |
+| 2 px gate fails for realistic tag taping errors | Study of mounting error (below); docs demand each tag be tape-measured to 0.25 in and tilt to 0.5 deg, and warn that 1.5 to 3 px with good-looking tags means a mis-taped tag | `test_tagkit.py::test_kit_pose_error_vs_tag_mounting_error`, `dod9_kit_mounting_sim.py` |
+| calibration.md said the cross-check has no button | Describes the **Cross-check** button on the Calibration tab: out-of-sample by default (tags no solve used), per-point rows, green under 1 in, in-sample fallback with warning, 409/422 meaning | `test_doc_states_tripod_feet_field_size_and_tag_tolerance` |
+| Occlusion wireframe and map used the box frame | `placement.occluded` uses `field.hive_frame_wireframe()` (now the A-frame with logo panels); the map draws the A-frame (`_frame_lines`) and the kit tags in top view | `test_map_files_exist_and_agree[usb,gopro]` |
 
-## Placement constraints now implemented (hiveshot/placement.py)
+## Kit mounting error study (evidence/refute/dod9_kit_mounting_sim.py, .json)
 
-`recommend(option)` searches lens heights 20, 24, 30, 36, 48, 58 in (UBeesize MT60 practical minimum 20 in) on the ring outside the wall plus every 12 in along the audience wall, jointly for both lens options so one set of tape marks serves both. Tiers, compared lexicographically:
+Synthetic 1920x1080 frames at the recommended poses (noise 2 gray levels, 3x3 blur), each tag displaced by a vector of fixed magnitude (random direction) and tilted by a fixed angle (random axis); the solver uses the model corners. 20 runs per case, two cameras, Arducam option (GoPro within 0.2 in / 0.5 px):
 
-1. arc coverage >= 90 % in both cameras and mean triangulation angle 75..120 deg (hard)
-2. robot-free rays >= 90 % per camera (hard): robot box 18 x 18 x 24 in plus 3 in extension on every horizontal side, centered on each of the six sample launch points; targets = ball positions of the first 0.3 s of that shot (positions still inside the box are skipped), the up-CELL opening center and the tag row center
-3. at least one camera reads the CELL tags (sticker < 55 deg off normal, all four tags inside the picture with 60 px margin, tag edge >= 14 px, tag-row ray free of the robot from every launch point), the "tag reader"
-4. printed kit readable in both (>= 3 of the 4 six-inch tags, < 55 deg, >= 28 px)
-5. all 8 click points in view (60 px margin)
+| Tag mounting error | Camera position error median / max | Rotation error median / max | Reprojection shown | Runs under 2 px | CELL opening center error median / max |
+|---|---|---|---|---|---|
+| exact | 0.14 / 0.21 in | 0.08 / 0.11 deg | 0.8 px | 20/20 | 0.04 / 0.04 in |
+| 0.25 in, 0.5 deg | 1.0 / 2.0 in | 0.55 / 1.0 deg | 1.0 px | 20/20 | 0.28 / 0.54 in |
+| 0.5 in, 1 deg | 2.1 / 4.1 in | 1.1 / 2.0 deg | 1.7 px | 9/20 | 0.51 / 1.1 in |
+| 1 in, 2 deg | 4.2 / 8.0 in | 2.0 / 3.9 deg | 3.2 px | 0/20 | 1.1 / 2.3 in |
+
+(GoPro: 0.25 in: 18/20 under 2 px, 0.5 in: 6/20, 1 in: 0/20.) This confirms the refuter's finding that the 2 px gate only holds with tags placed to about 0.25 in; the kit is therefore defined with tape-measurable positions and the docs require the 0.25 in check.
+
+## Placement constraints (hiveshot/placement.py)
+
+`recommend(option)` searches lens heights 20, 24, 30, 36, 48, 58 in (UBeesize MT60 practical minimum assumed 20 in, VERIFY) on the ring 12 in outside the wall plus every 12 in along the audience wall, jointly for both lens options (one set of tape marks). The nominal aim height is `AIM_Z_IN` = 40 in (the old trajectory-centroid aim at about 60 in put the base tags and the tiles out of the picture, and cost arc coverage), re-centered per camera afterwards. Tiers, compared lexicographically:
+
+1. arc coverage >= 90 % in both and mean triangulation angle 75..120 deg (hard)
+2. robot-free rays >= 90 % per camera (hard): robot box 18 x 18 x 24 in + 3 in extension, six sample launch points; targets = ball positions of the first 0.3 s, the up-CELL opening center and the tag row center
+3. at least one camera reads the CELL tags (sticker < 55 deg off normal, all four tags inside with 60 px margin, tag edge >= 20 px, tag row ray free of the robot from every launch point): the "tag reader"
+4. printed kit readable in both: >= 3 of the 4 six-inch tags (< 55 deg, >= 28 px, inside the picture, not overlapping the CELL sticker)
+5. all 8 click points (CELL corners) in view with a 60 px margin
 6. not both cameras on the audience wall (allowed only if nothing satisfies 1 to 5)
-7. both cameras read the tags (preferred, never traded against 1)
+7. both cameras read the CELL tags (preferred, never traded against 1)
 
-Value within a tier: pair score x tag quality x corner preference (cameras on the audience wall prefer |x| large, the drive team stands at the wall center). Afterwards each camera is re-aimed to the middle of the aim range that keeps its kit, reference points (and tags for the reader) in view.
-The best "both cameras read the tags" pair is returned as `recommend()["both_tags_alternative"]` (triangulation relaxed to 60..120 deg) and is not the recommendation.
+## Result (same positions for GoPro and Arducam)
 
-## Result (same positions for GoPro and Arducam options)
+| | Recommended |
+|---|---|
+| A (`cam0`) | (-72, +85.5), lens 20 in; outside the audience wall in the -X corner; tag angle 57 deg, not a reader; reads kit tags 100-103 (Arducam, GoPro) |
+| B (`cam1`) | (+72, +85.5), lens 20 in; audience wall, +X corner; tag angle 51 deg, **tag reader**; kit tags 100-103 (Arducam), 100, 101, 102 (GoPro) |
+| Triangulation | 97 deg (both options) |
+| Robot-free rays A / B | 100 % / 98 % (extension 12 in: 98 % / 93 %) |
+| Both on the audience wall | yes: no pair with a side-wall camera meets rules 1-5 (a side-wall camera sees the far base tag at 64 deg or more, so cannot read three kit tags). Stated in docs/camera_placement.md rule 6. The corners are used, the drive team stands between them |
 
-| | Recommended | Best "both cameras read tags" (reported only) |
-|---|---|---|
-| A (`cam0`) | (-78, +65), lens 30 in; tag angle 66 deg, not a reader; reads kit tags 100, 102, 103 | (-48, +78), lens 20 in; tag angle 52 deg |
-| B (`cam1`) | (+65, +78), lens 20 in; tag angle 49 deg, **tag reader**; reads kit tags 101, 102, 103 | (+72, +78), lens 20 in; tag angle 51 deg |
-| Mean triangulation angle | 105 deg (GoPro) / 106 deg (Arducam) | 91 deg / 91 deg |
-| Both on the audience wall | no | yes |
-| Robot-free rays A / B | 100 % / 97 % (CELL and tag rays 100 %) | 98 % / 98 % |
+Aims (yaw from +X toward +Y / pitch / aim point): A GoPro 327 / +9 / (11, 32, 35), A Arducam 329 / +10 / (12, 35, 38); B GoPro 215 / +11 / (9, 41, 35), B Arducam 218 / +13 / (12, 38, 37). Aim slack at least 4 deg (GoPro B pitch), more elsewhere.
+Camera C (optional exit-speed): (+13, +85.5), lens 58 in, 270 deg / -38 deg.
+The best "both cameras read the CELL tags" pair does not exist with the 20 px sticker-tag size rule (A sees the sticker 57 deg off normal, 16 to 18 px tag edges), so `both_tags_alternative` equals the recommendation. Earlier results (before the real frame): corner-hung tags at 64 in, A (-78,+65) / B (+65,+78), aim at 60 in, 105 deg.
 
-Aims (yaw from +X toward +Y / pitch / aim point): A GoPro 340 / +16 / (12, 32, 58), A Arducam 343 / +16 / (13, 37, 58), B both 218 / +31 / (13, 37, 60). Aim slack at least 5 deg (GoPro A yaw), more elsewhere.
-Camera C (optional exit-speed): (+13, +78), lens 58 in, 269 deg / -45 deg.
+## Earlier history (round 1, dod8_9_1.md), kept for reference
 
-Sensitivity of the robot model (B, GoPro): extension 0 in: 98 % free; 3 in: 97 %; 6 in: 95 %; 9 in: 86 % (fails the 90 % rule; CELL/tag rays 83 %); 12 in: 75 %.
+| # | Finding | Fix | Evidence |
+|---|---|---|---|
+| 1 | calib_targets used its own CELL geometry that disagreed with field.py | CELL corners read from `field.cell_opening_polygon` | `test_calib.py::test_cell_reference_points_equal_field_polygon` |
+| 3 | sheet text said "X toward the audience" | now "+Y toward the audience, X along the red/blue axis" | `test_calib.py::test_point_sheet_axes_match_field_py` |
+| 4 | calibration.md was Python calls | app-only procedure; tag-kit method primary, click method fallback; percent-of-image table checked by a test | `test_placement.py::test_calibration_doc_pixel_table_matches_recommend` |
+| 5 | camera_placement.md gaps | cam0 = A, cam1 = B, direct PC port per USB camera, yaw/pitch per camera, inside-face convention with 1.5 in wall assumption (VERIFY) | `test_placement.py::test_placement_doc_matches_recommend` |
+| 6 | SVG/PNG must equal recommend() | default map = Arducam option with kit tags, A-frame and tag reader marked; GoPro map in camera_placement_gopro.*; both regenerated from `placement.write_map(option, ...)` | `test_map_files_exist_and_agree[usb,gopro]` |
 
-## Kit size follow-up (4 in to 6 in tags), before / after
+## Tradeoffs and limits (stated in the docs)
 
-The default kit tag size is now a parameter (`size_in`, default `DEFAULT_TAG_SIZE_IN` = 6.0 in; one tag per portrait letter page, 4 pages, 0.5 in quiet zone or more, ruler line as long as the tag). Placement rule: at least 3 readable kit tags per camera (`KIT_MIN_TAGS = 3`; readable = under 55 deg off normal, inside the picture, shortest edge >= 28 px). The recommended tripod spots did not change (A (-78, +65) lens 30 in, B (+65, +78) lens 20 in, 105 deg); only the aim points moved slightly (A: GoPro 340 / +16 / (12, 32, 58), Arducam 343 / +16 / (13, 37, 58); B: 218 / +31 / (13, 37, 60) for both).
-
-| Camera | Before: 4 in tags | After: 6 in tags |
-|---|---|---|
-| A (`cam0`) | readable 100, 102 (2 of 4); pose from those two: up to 0.86 in / 0.39 deg (GoPro), 1.13 in / 0.73 deg (Arducam) | readable 100, 102, 103 (3 of 4); up to 0.21 in / 0.05 deg (GoPro), 0.12 in / 0.13 deg (Arducam) |
-| B (`cam1`) | readable 101, 103 (2 of 4); up to 1.34 in / 0.53 deg (GoPro), 2.85 in / 1.95 deg (Arducam) | readable 101, 102, 103 (3 of 4); up to 0.13 in / 0.07 deg (GoPro), 0.21 in / 0.05 deg (Arducam) |
-| All four tags rendered | up to 0.11 in / 0.04 deg | up to 0.11 in / 0.08 deg |
-
-Method: synthetic 1920x1080 frames (tags warped through the virtual camera at the recommended pose, 2 gray levels of noise, 3x3 blur), 8 noise seeds per case, `calib.solve_extrinsics_from_tags`; pose error = camera position distance and rotation angle. Test: `tests/test_tagkit.py::test_each_camera_reads_three_kit_tags_and_solves_accurately[gopro,usb]` (< 0.5 in / 0.3 deg).
-Extra tags 104 / 105 (audience-side top bar midpoint -/+ 12 in, derived from `field.hive_frame_wireframe`) were NOT added to the default kit because 6 in tags already give every camera three readable tags; they are available with `extended=True` (`test_optional_bar_tags_add_readable_tags_for_cam1`: with 105, cam1 has four). With 6 in tags + 104/105 the readable counts would be A 3, B 4.
-Caveat: the readable tags include far-side kit tags 102 and 103 for both cameras, which can be partly hidden behind the CELL in reality (not modeled).
-
-Tradeoffs and limits (stated in docs/camera_placement.md):
-- Only `cam1` reads the CELL tags; `cam0` sees the sticker at 66 deg.
-- Each camera reads three of the four 6 in kit tags (A: 100, 102, 103; B: 101, 102, 103).
-- Kit tags 17 to 24 px or beyond 60 deg were detected in raw frames but lost in the mp4 test videos, hence the 28 px / 55 deg rule.
-- The far-side kit tags can be hidden behind the CELL; this is not modeled.
-- Robot box, wall thickness (1.5 in), and every frame dimension are assumptions (VERIFY).
+- Only `cam1` reads the CELL tags; `cam0` sees the sticker at 57 deg (16 to 18 px tag edges).
+- Kit readability is judged by geometry (angle, size, inside the picture, not over the sticker), not by detection on a real field; kit tags below 28 px or beyond 55 deg were lost in the mp4 test videos in earlier synthetic runs.
+- The base tags (102, 103) need a small stand and an empty field (a robot would hide them); the mounting tolerance (0.25 in, 0.5 deg) is demanding for a tag leaning on a foot bar end.
+- The crossbar tags sit on the logo panel (assumed flat, 5.95 in tall, x +-15.07); a 6 in tag overhangs its bottom edge by 0.05 in.
+- Robot box, wall thickness (1.5 in), tripod leg radius (20 in at 20 in lens height) and the MT60's 20 in minimum lens height are assumptions (VERIFY). Positions are exact only for a 144 in field; tape numbers are measured from the wall.
+- Not mine, from the refuter: PURCHASE_LIST.md / operator_guide.md staleness (backend worker), `tests/ui_stub_server.py` still lists the old points (UI worker).
 
 ## Outputs
 
 ```
 $ .venv\Scripts\python.exe -m pytest tests/test_calib.py tests/test_placement.py tests/test_tagkit.py -q
-59 passed, 0 failed (the project's addopts "-q" suppresses the summary line)
+(0 failed; the project's addopts "-q" suppresses the summary line)
 $ .venv\Scripts\python.exe -m ruff check hiveshot tests
 All checks passed!
 ```
 
-The default map (docs/camera_placement.svg/png) is the Arducam option (the purchased cameras), with the kit tag squares (100-103, dashed 104/105 optional) and the tag reader marked; the GoPro alternative is docs/camera_placement_gopro.svg/png. Both are produced by `placement.write_map(option, ...)`; `test_map_files_exist_and_agree[usb,gopro]` regenerates them from `recommend()` and compares SVG text and PNG pixels.
-Not mine: tests/test_setup.py::test_hive_tags_computed_positions_calibrate_without_the_kit assumes both cameras read the up-CELL tags (cam0 sees the sticker at 66 deg here and is not a tag reader), and test_setup_status_reports_tags_seen should expect at least three kit tags per camera ({cam0: 100, 102, 103; cam1: 101, 102, 103}).
+Map regeneration: `placement.write_map('usb'|'gopro', ...)` into temp dirs equals docs/camera_placement.svg/.png and camera_placement_gopro.svg/.png (`test_map_files_exist_and_agree` compares SVG text and PNG pixels).

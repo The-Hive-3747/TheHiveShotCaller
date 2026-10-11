@@ -174,6 +174,10 @@ def main(argv=None) -> int:
                     help="also print world-frame vertex bounding boxes (inches)")
     ap.add_argument("--summary", action="store_true",
                     help="print per-CELL derived numbers: rib extents, tag centers, beam coords")
+    ap.add_argument("--frame", action="store_true",
+                    help="print the HIVE frame (am-5854) part extents and centerline endpoints")
+    ap.add_argument("--perimeter", action="store_true",
+                    help="print perimeter / glass / tile extents (field inside size)")
     ap.add_argument("--names", action="store_true", help="only list distinct PRODUCT names")
     a = ap.parse_args(argv)
     ents = load(a.zip)
@@ -226,8 +230,60 @@ def main(argv=None) -> int:
     sys.setrecursionlimit(10000)
     if a.summary:
         return summary(ents, by, pd_name, children, roots, xf, U)
+    if a.frame or a.perimeter:
+        return frame_report(ents, by, pd_name, children, roots, xf, U, a.frame, a.perimeter)
     for r in roots:
         walk(r, np.eye(4), [])
+    return 0
+
+
+def _axis_endpoints(w: np.ndarray):
+    """Principal-axis centerline endpoints of a roughly bar-like vertex cloud (world units)."""
+    c = w.mean(0)
+    _, _, vt = np.linalg.svd(w - c, full_matrices=False)
+    ax = vt[0]
+    t = (w - c) @ ax
+    return c + ax * t.min(), c + ax * t.max(), ax
+
+
+def frame_report(ents, by, pd_name, children, roots, xf, U, do_frame, do_perim) -> int:
+    """CAD frame (x lateral, y up, z along the beam), inches."""
+    rows = []
+
+    def walk(pd, M, path):
+        name = pd_name[pd]
+        v = part_vertices(ents, by, pd)
+        if len(v):
+            w = ((M[:3, :3] @ v.T).T + M[:3, 3]) * U
+            rows.append((path, name, w))
+        for n, c in children.get(pd, []):
+            T = idt_matrix(ents, xf[n]) if xf.get(n) else np.eye(4)
+            walk(c, M @ T, path + [name])
+
+    for r in roots:
+        if "BIOBUZZ" in pd_name[r]:
+            walk(r, np.eye(4), [])
+    if do_frame:
+        print("== HIVE frame (am-5854) parts: world min / max / centerline endpoints / axis")
+        for path, name, w in rows:
+            if not any(p.startswith("am-5854") for p in path):
+                continue
+            if not any(k in name for k in ("Leg", "Foot", "Top Bar", "Top Corner", "Axle", "Under Tile",
+                                           "Panel", "Sticker")):
+                continue
+            a0, a1, ax = _axis_endpoints(w)
+            print(f"{name}: min={w.min(0).round(2).tolist()} max={w.max(0).round(2).tolist()} "
+                  f"end0={a0.round(2).tolist()} end1={a1.round(2).tolist()} axis={ax.round(3).tolist()}")
+    if do_perim:
+        print("== perimeter / glass / tiles: world min / max (inches)")
+        groups = defaultdict(list)
+        for path, name, w in rows:
+            for key in ("Perimeter", "Riveted FTC Panel", "Side Glass", "Soft Tiles", "FTC Rail", "Panel Link"):
+                if key in name or any(key in p for p in path):
+                    groups[key].append(w)
+        for key, ws in groups.items():
+            allw = np.vstack(ws)
+            print(f"{key}: parts={len(ws)} min={allw.min(0).round(3).tolist()} max={allw.max(0).round(3).tolist()}")
     return 0
 
 

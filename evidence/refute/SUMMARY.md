@@ -13,3 +13,11 @@
 | 9 placement yields calibration | REFUTED | dod8_9_1.md | geometry conflict fixed (single source of truth), 8 visible reference points, docs rewritten; re-refute pending |
 
 Re-refute after the fixes land: 2, 3 (synthetic part), 6, 9, and the new 10 (wizard).
+
+# Refuter pass 2 (2026-10-10 evening, on commit "Phase 2")
+
+| DoD | Verdict | Report | Follow-up |
+|---|---|---|---|
+| 9 placement yields calibration | REFUTED again | dod9_2.md | Modeled frame "top corners" (z=63.95) do not exist: the official frame is an A-frame with apex ~44 in + crossbar. Kit anchors, click points, roll check and occlusion wireframe all move to real CAD features (field worker -> tagkit/placement worker). Also: wall inside face CAD ±70.7 vs manual ±72 (field_size setting + measure), crosscheck must be out-of-sample, tripod feet placement, stale numbers in PURCHASE_LIST/operator guide. Map/doc/recommend consistency and CELL/tag geometry (0.02 in) held. |
+| 2, 3 | running | dod2_3_2.md | |
+| 6, 10 | running | dod6_10_2.md | |

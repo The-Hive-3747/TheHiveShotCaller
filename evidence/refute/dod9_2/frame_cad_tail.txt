@@ -1,0 +1,6 @@
+vertices above y= 45 : 0 
+modelled corner 100 (-X,+Y) (-24.73, 19.475, 63.95): nearest CAD frame vertex [-13.71, 0.4, 43.98] at 29.7 in
+modelled corner 101 (+X,+Y) (24.73, 19.475, 63.95): nearest CAD frame vertex [13.69, 0.4, 43.98] at 29.7 in
+modelled corner 102 (-X,-Y) (-24.73, -19.475, 63.95): nearest CAD frame vertex [-13.71, -0.4, 43.98] at 29.7 in
+modelled corner 103 (+X,-Y) (24.73, -19.475, 63.95): nearest CAD frame vertex [13.69, -0.4, 43.98] at 29.7 in
+CAD frame highest vertex z: 44.31  model FRAME_TOP_Z 63.95

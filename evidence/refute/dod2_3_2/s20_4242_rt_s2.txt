@@ -1,0 +1,9 @@
+RUN s20_4242_rt_s2 idle-wait: cpu=55% after 150s
+[s20_4242 rt stress] elapsed=26.7s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.0947299826882686 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08807481809076023 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 17} max_dropped_seen={'cam0': 0, 'cam1': 17} warnings_final=['camera cam1 dropped 17 frames (processing too slow)'] warnings_seen=['camera cam1 dropped 17 frames (processing too slow)'] offset=0.0
+  stress: mjpg_bytes=[1966080, 2621440] mjpg_err=["cam0: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)", "cam1: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"] stats_calls=150 stats_err=0 stats_max_ms=1507
+  system CPU during run (whole machine, incl. server): mean=55% max=78% n=30
+  server_exit 1

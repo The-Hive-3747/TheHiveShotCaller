@@ -1,41 +1,45 @@
 # Camera placement (draft, from `hiveshot/placement.py`)
 
-Map: `docs/camera_placement.png` (same content as `camera_placement.svg`) shows **Option B, the Arducam USB cameras that were purchased** (numbers and title for HFOV 95 deg); the GoPro alternative is `docs/camera_placement_gopro.png` / `.svg`. Top-down, X right, Y up, **audience side (the red up CELL) at the top**. Origin = field center. Wall = +-72 in, which is the **INSIDE face** of the wall (see section 2). Tiles 24 in. The map draws the printed kit tags 100 to 103 (dark squares at the frame top corners; dashed squares 104 and 105 are the optional bar tags) and labels the **tag reader** camera (CAM B). Regenerate: `.venv\Scripts\python.exe -c "from hiveshot import placement as p; p.write_map('usb','docs/camera_placement.svg','docs/camera_placement.png'); p.write_map('gopro','docs/camera_placement_gopro.svg','docs/camera_placement_gopro.png')"`.
+Map: `docs/camera_placement.png` (same content as `camera_placement.svg`) shows **Option B, the Arducam USB cameras that were purchased** (numbers and title for HFOV 95 deg); the GoPro alternative is `docs/camera_placement_gopro.png` / `.svg`. Top-down, X right, Y up, **audience side (the red up CELL) at the top**. Origin = field center. Wall = +-72 in, the **INSIDE face** of the wall for a field that is 144 in wall to wall (see "Your field" below). Tiles 24 in. The map draws the real frame (CAD A-frame: foot bars, legs, crossbar) and the four printed kit tags (dark bars; 100/101 on the audience logo panel at the crossbar ends, 102/103 standing at the audience-side base corners) and labels the **tag reader** camera. Regenerate: `.venv\Scripts\python.exe -c "from hiveshot import placement as p; p.write_map('usb','docs/camera_placement.svg','docs/camera_placement.png'); p.write_map('gopro','docs/camera_placement_gopro.svg','docs/camera_placement_gopro.png')"`.
 
-All field geometry (CELL opening, tag rows, frame, beams) is read from `hiveshot/field.py`, which follows the official CAD: the red up-CELL opening center is at (+12.75, 15.77, 59.55) and its AprilTag row at (+12.75, 13.10, 49.79). **Red is the +X HIVE, blue the -X HIVE.**
+All field geometry (CELL opening, tag rows, frame, beams) is read from `hiveshot/field.py`, which follows the official CAD: the red up-CELL opening center is at (+12.75, 15.77, 59.55) and its AprilTag row at (+12.75, 13.10, 49.79). **Red is the +X HIVE, blue the -X HIVE.** The HIVE frame is **not a box**: at each X end an A-frame (a foot bar on the tiles at x = +-24.73, y = +-19.47, legs leaning inward to an apex) and a 24 in crossbar along X at height 41.45 in joining the two apexes (x = +-12.0); the highest point of the frame is the pivot cradles at 44.3 in. An earlier version of this document and of the calibration points used "frame top corners" at 64 in that do not exist; they are gone.
+
+## Your field (measure it)
+
+The numbers below assume a field 144 in wall to wall. The CAD field is 141.35 in between the inside faces of the perimeter glass, and real fields vary. **Measure your field wall to wall (inside face to inside face) and write it down; the app's `field_size` setting defaults to 144 in: set it to your measurement.** All tripod spots are given as tape-measure distances from the wall you can touch (12 in out from the OUTSIDE face of the wall, and so many inches along the wall from a corner); use those, not the (x, y) coordinates, which are only exact for 144 in. Field center is the middle between opposite walls. Check the wall thickness too: **1.5 in is assumed (VERIFY)**; if your wall is thicker, 12 in from the OUTSIDE face is still the rule.
 
 ## How the positions were chosen (hard constraints)
 
-`placement.recommend()` searches lens heights 20 to 58 in and tripod spots on a ring just outside the wall (plus every 12 in along the audience wall). The recommendation has to satisfy all of these:
+`placement.recommend()` searches lens heights 20 to 58 in (the UBeesize MT60's practical minimum is assumed to be 20 in, VERIFY) and aim heights, on a ring outside the wall (plus every 12 in along the audience wall). The recommendation has to satisfy all of these:
 
 1. **Triangulation angle at least 75 deg** (mean over the sample ball arcs; at most 120 deg), and 90 % of the arcs seen by both cameras.
-2. **Lens height at least 20 in** (practical minimum of the UBeesize MT60 tripod).
-3. **At least one camera reads the CELL's AprilTags** (the "tag reader"): sticker under 55 deg off its normal, all four tags inside the picture, shortest tag edge at least 14 px, and no robot in the way. The printed kit calibrates both cameras, so one reader is enough for the HIVE state; two is preferred but never traded against the triangulation angle.
+2. **Lens height at least 20 in.**
+3. **At least one camera reads the CELL's AprilTags** (the "tag reader"): sticker under 55 deg off its normal, all four tags inside the picture, shortest tag edge at least 20 px, and no robot in the way. The printed kit calibrates both cameras, so one reader is enough for the HIVE state.
 4. **The robot does not block the view**: a box 18 x 18 x 24 in (grown by 3 in on every side to allow for an intake or arm) is centered on each sample launch point; rays from the camera to the ball in the first 0.3 s of the flight, to the up-CELL opening center and to the tag row center must be free for at least 90 % of the samples. Ball positions still inside the box are not counted.
-5. The printed kit is readable in both cameras: at least 3 of the 4 kit tags (6 in tags, see calibration.md) under 55 deg off their normal and at least 28 px (smaller or more oblique tags were lost in compressed video in the synthetic tests; with 4 in tags only 2 per camera were readable), and all 8 click calibration points are in frame (60 px margin).
-6. Cameras on the audience wall prefer the corners over the wall center (the drive team stands at the audience wall), and **both cameras on the audience wall are accepted only if nothing else satisfies 1 to 5.** Something else does, so the recommendation has one camera on the audience wall corner and one on the side wall.
+5. **The printed kit is readable in both cameras**: at least 3 of the 4 six-inch kit tags under 55 deg off their normal, inside the picture, at least 28 px, and not overlapping the CELL sticker in the picture (the base tags 102 and 103 stand on the tiles, so the cameras must be aimed low enough to see them), and all 8 click calibration points (the corners of the two CELL openings) are in frame (60 px margin).
+6. Cameras on the audience wall prefer the corners over the wall center (the drive team stands at the audience wall), and **both cameras on the audience wall are accepted only if nothing else satisfies 1 to 5.** Here nothing else does: a camera on a side wall sees the base tag on the far side of the frame at 64 deg or more and cannot read three kit tags. So **both cameras are on the audience wall, in its two corners.** This is the case the rule allowed; the drive team stands between them.
 
-One set of tripod spots serves both lens options.
+Triangulation angle, tag reading and kit readability are only judged by geometry, not by a detection test on a real field. One set of tripod spots serves both lens options.
 
-## Recommendation, and the best "both cameras read the tags" alternative
+## Recommendation
 
-| | **Recommended** | Best alternative with BOTH cameras reading the tags (not recommended) |
-|---|---|---|
-| A (`cam0`) | **(-78, +65), lens 30 in**, outside the -X wall near the audience corner. Tag angle **66 deg: not a tag reader** (reads kit tags 100, 102, 103) | (-48, +78), lens 20 in, on the audience wall. Tag angle 52 deg (readable) |
-| B (`cam1`) | **(+65, +78), lens 20 in**, outside the audience wall in the +X corner. Tag angle **49 deg: the tag reader** (reads kit tags 101, 102, 103) | (+72, +78), lens 20 in. Tag angle 51 deg (readable) |
-| Mean triangulation angle | **105 deg** (Option A) / 106 deg (Option B) | 91 deg (Option A) / 91 deg (Option B) |
-| Ball arcs seen by both | 93 % / 94 % | 94 % / 96 % |
-| Robot-free rays (all samples), A / B | 100 % / 97 %; CELL and tag rays 100 % | 98 % / 98 % |
-| Both cameras on the audience wall | no | yes (excluded by rule 6) |
+| | Recommended (Arducam and GoPro) |
+|---|---|
+| A (`cam0`) | **(-72, +85.5), lens 20 in**, outside the audience wall in the -X corner. Tag angle **57 deg: not a tag reader**; reads all four kit tags (Arducam), all four (GoPro) |
+| B (`cam1`) | **(+72, +85.5), lens 20 in**, outside the audience wall in the +X corner. Tag angle **51 deg: the tag reader** (CELL sticker readable); reads all four kit tags (Arducam) or 100, 101, 102 (GoPro) |
+| Mean triangulation angle | **97 deg** (both options) |
+| Ball arcs seen by both | 97 % (Option A) / 100 % (Option B) |
+| Robot-free rays (all samples), A / B | 100 % / 98 %; CELL and tag rays 100 % |
+| Both cameras on the audience wall | yes (rule 6: no other pair meets rules 1 to 5) |
 
-The alternative also meets 75 deg, but it puts both cameras on the audience wall in front of the drive team and has a 14 deg smaller triangulation angle; it is reported for comparison and is not the recommendation. For reference, the first draft (A (+78, +65) and B (-65, +78), lens 36 in) had 63 deg and 64 deg to the sticker normal and could not read the tags. A camera that is not a tag reader still sees the sticker as small squares; the app uses the tag reader (`cam1`, B) for state and the kit for calibration.
+The best pair in which BOTH cameras read the CELL's tags (stricter than rule 3) does not exist with the 20 px tag-size rule: A sees the sticker 57 deg off its normal (15.8 to 18.4 px tag edges), so the CELL tags are read by `cam1` only; `cam0` is calibrated from the kit, and the HIVE state comes from `cam1`. The alternative reported by `recommend()` is the same pair.
 
 ## 0. Which camera is which
 
 | Label | App source id | Role | Where it stands | Looks toward |
 |---|---|---|---|---|
-| **A** | **`cam0`** | primary, wide base | outside the -X wall, near the audience (+Y) corner, lens 30 in | across the field toward +X (a little toward -Y), tilted up 16 deg |
-| **B** | **`cam1`** | primary and **tag reader** | outside the audience (+Y) wall, in the +X corner, lens 20 in | toward -X and -Y, tilted up 31 deg |
+| **A** | **`cam0`** | primary | outside the audience wall in the **-X corner**, lens 20 in | across the field toward +X and -Y (away from the audience), level (pitch +9 to +10 deg) |
+| **B** | **`cam1`** | primary and **tag reader** | outside the audience wall in the **+X corner**, lens 20 in | toward -X and -Y, pitch +11 to +13 deg |
 | C (optional, exit speed) | `cam2` (not needed for the two-camera pipeline) | exit speed | outside the +Y wall, x = +13, lens 58 in | down at the launch zone |
 
 Field axes (same as the app and the 3-D viewer): origin at field center, Z up, **+Y toward the audience**, X along the red/blue axis, **red HIVE at X = +12.75 (the +X half), blue at -12.75**. Standing at the audience wall facing the field, +X (red) is on your **left**. The map is drawn with the audience at the top and +X to the right, so it looks mirrored compared with what you see standing at the audience wall; use the labels and the table below, not "left" and "right". Check once at the field that the red HIVE is the one on your left when you stand at the audience wall (VERIFY: if the real layout is the other way round, mirror every X in this document and tell the developer).
@@ -49,44 +53,46 @@ Option A (GoPro over RTMP): publish camera A to `rtmp://<PC-IP>:1935/cam0` and c
 | Cameras | 2x GoPro HERO12/13 + Media Mod | 2x Arducam 2.3 MP global shutter (USB 2.0) |
 | Link | micro-HDMI 10 ft to Cam Link 4K | 16 ft active USB extension, **straight into its own USB port on the PC** (no hub) |
 | Power | USB-C wall power (battery ~1 h) | USB bus power from the PC port |
-| Mount | tripod with the lens at 30 in (A) and 20 in (B) + 1/4-20 adapter (UBeesize MT60: lowest practical lens height 20 in) | same, + board case |
+| Mount | tripod with the lens at 20 in (A and B) + 1/4-20 adapter (UBeesize MT60: lowest practical lens height assumed 20 in, VERIFY) | same, + board case |
 | Exit-speed camera C | optional 3rd camera (USB Arducam on 16 ft ext.) at 58 in on a 60 in tripod | same, optional 3rd Arducam |
-| Also | painter's tape, tape measure, phone level app, plumb line, string, checkerboard and the 6 in tag kit, 4 pages (see calibration.md) | same |
+| Also | painter's tape, tape measure, phone level app, plumb line, string, checkerboard and the 6 in tag kit, 4 pages (see calibration.md), a small stand or card easel for tags 102 and 103 | same |
 
-## 2. Camera positions (inches; tripods are 6 in beyond the INSIDE face of the wall)
+## 2. Camera positions (inches; the lens is 12 in outside the wall)
 
 Tripod spots are the same for both lens options; only the FOV and a small aim difference apply.
 
-**What the numbers mean.** The coordinates and the "+-72 in" wall are the **inside face** of the perimeter wall (the face the robot sees). A person outside the field can only reach the outside face. The FTC perimeter wall is assumed to be **1.5 in thick (VERIFY with a tape on your wall and use the real number)**. So:
+**What the numbers mean.** The coordinates and the "+-72 in" wall are the **inside face** of the perimeter wall (the face the robot sees) for a 144 in field. A person outside the field can only reach the outside face. The FTC perimeter wall is assumed to be **1.5 in thick (VERIFY with a tape on your wall and use the real number)**. So:
 
-- Distance from the **outside face** to the lens = 6 in (clearance from the inside face) minus the wall thickness = **4.5 in** for a 1.5 in wall (in general 6 - t).
-- The lens position is the spot **under the lens** (drop a plumb line from the lens). The tripod feet are not the reference; draw the foot triangle around the plumb spot.
-- Distance along a wall is measured **parallel to the wall from the outer edge of the adjacent perpendicular wall** (the corner): inside-face distance 7 in + wall thickness 1.5 in = **8.5 in** for A and B (C: 59 + 1.5 = **60.5 in**).
+- The lens plumb spot is **12 in out from the OUTSIDE face** of the wall (13.5 in from the inside face, which is y = 85.5 in a 144 in field).
+- The lens position is the spot **under the lens** (drop a plumb line from the lens).
+- Distance along a wall is measured **parallel to the wall from the outer edge of the adjacent perpendicular wall** (the corner): the corner cameras A and B are **1.5 in** from the outer edge of the -X / +X wall (their plumb spot is above the inside face of that side wall). Camera C: 60.5 in along from the +X wall's outer edge.
+
+**Tripod feet (where they go).** A 3-leg tripod stands with **one leg pointing straight away from the wall** (toward the audience side, away from the field) and the other two legs 60 deg either side, pointing toward the wall. With a leg radius of about 20 in at the lens height (center to foot, measure yours with a tape; a lens at 20 in is a low, narrower stance), those two feet are 10 in from the plumb spot toward the wall, so **12 in out from the outside face keeps every foot at least 2 in clear of the wall.** If your tripod's leg radius R is larger, the lens must be at least R/2 + 2 in out from the outside face. Never let a foot rest on or over the wall; mark all three foot spots with tape before you set the tripod, with the plumb spot at the center of the three.
 
 | Cam | App id | From field center (x, y) | Lens height | Tape: out from the OUTSIDE face / along the wall from the corner's outer edge | Aim, Option A (GoPro): yaw / pitch / aim point | Aim, Option B (Arducam): yaw / pitch / aim point | Tag angle (limit 55) |
 |---|---|---|---|---|---|---|---|
-| A | `cam0` | (-78, +65) | 30 in | 4.5 in out from the -X wall; 8.5 in along it from the +Y wall's outer edge (corner (-72,+72) on the inside face) | **340 deg**, **+16 deg** up, (+12, +32, 58) | **343 deg**, **+16 deg** up, (+13, +37, 58) | 66 deg, not a reader |
-| B | `cam1` | (+65, +78) | 20 in | 4.5 in out from the +Y wall; 8.5 in along it from the +X wall's outer edge (corner (+72,+72) on the inside face) | **218 deg**, **+31 deg** up, (+13, +37, 60) | **218 deg**, **+31 deg** up, (+13, +37, 60) | **49 deg, tag reader** |
-| C (optional) | `cam2` | (+13, +78) | 58 in | 4.5 in out from the +Y wall; 60.5 in along it from the +X wall's outer edge | 269 deg, -45 deg down, (+12.75, +50, 30) the launch zone | same | n/a |
+| A | `cam0` | (-72, +85.5) | 20 in | 12.0 in out from the +Y wall; 1.5 in along it from the -X wall's outer edge (corner (-72,+72) on the inside face) | **327 deg**, **+9 deg** up, (+11, +32, 35) | **329 deg**, **+10 deg** up, (+12, +35, 38) | 57 deg, not a reader |
+| B | `cam1` | (+72, +85.5) | 20 in | 12.0 in out from the +Y wall; 1.5 in along it from the +X wall's outer edge (corner (+72,+72) on the inside face) | **215 deg**, **+11 deg** up, (+9, +41, 35) | **218 deg**, **+13 deg** up, (+12, +38, 37) | **51 deg, tag reader** |
+| C (optional) | `cam2` | (+13, +85.5) | 58 in | 12.0 in out from the +Y wall; 60.5 in along it from the +X wall's outer edge | 270 deg, -38 deg down, (+12.75, +50, 30) the launch zone | same | n/a |
 
-Yaw is a bearing in **field coordinates**: 0 deg = toward +X, 90 deg = toward +Y (the audience), 180 deg = toward -X, 270 deg = toward -Y. A (340 to 343 deg) looks across the field toward +X and a little toward -Y; B (218 deg) looks toward -X and -Y. A phone compass is useless indoors; use the aiming method below.
+Yaw is a bearing in **field coordinates**: 0 deg = toward +X, 90 deg = toward +Y (the audience), 180 deg = toward -X, 270 deg = toward -Y. A (327 to 329 deg) looks across the field toward +X and -Y; B (215 to 218 deg) looks toward -X and -Y. A phone compass is useless indoors; use the aiming method below. The aim heights (35 to 38 in) are low on purpose: the kit tags 102 and 103 stand on the tiles at the frame base and must be in the picture, and the whole ball arc stays in view; the CELL openings (53.5 to 65.6 in) are in the upper part of the picture.
 
 **Aiming method (no software, about 2 minutes per camera).**
 
-1. **Floor mark.** Put a tape cross on the field floor at the (x, y) of the camera's aim point in the table: **A (+12, +32)** for Option A or **A (+13, +37)** for Option B, and **B (+13, +37)** for both. It is the point on the floor straight below the aim point.
+1. **Floor mark.** Put a tape cross on the field floor at the (x, y) of the camera's aim point in the table: **A (+11, +32)** and **B (+9, +41)** for Option A, **A (+12, +35)** and **B (+12, +38)** for Option B. It is the point on the floor straight below the aim point.
 2. **Yaw.** Stretch a string from the plumb spot under the lens to the cross, or sight over the lens, and turn the tripod head until the lens points along the string. Tolerance about 3 deg.
 3. **Pitch and roll.** Lay a phone with a level app on top of the camera body (or use the tripod's own level). Set the pitch from the table, +-2 deg. Roll must read 0 deg, +-1 deg.
 4. **Check in the app preview** (Calibration tab, **Refresh image**). This is the real acceptance test:
-   - The **up-CELL opening** (the tilted 20 in wide opening of the red HIVE nearest the audience) is near the middle: its center at about **58 % from the left and 50 % from the top** in A (59 / 50 for the Arducam), and about **40 % from the left and 58 % from the top** in B (41 / 57).
-   - The **four AprilTags under the up CELL** (ids 34 to 37) show as a short row of small squares just below the opening: in A at about 57 to 61 % across and 58 to 60 % down (Arducam 59 to 62 % and 57 to 59 %), in B at about 35 to 41 % across and 66 to 70 % down (Arducam 37 to 43 % and 64 to 67 %). In B they are readable; in A they are seen too obliquely (66 deg) to decode.
-   - The **four printed kit tags** (6 in), if taped on (calibration.md), are at about (percent from the left / from the top, GoPro; the Arducam is within 5 %): A: 100 at 67/37, 101 at 54/51, 102 at 87/43, 103 at 69/54; B: 100 at 54/66, 101 at 37/51, 102 at 41/73, 103 at 24/63. Each camera reads three of them reliably (A: 100, 102, 103; B: 101, 102, 103; the rest are too oblique). Tags 102 and 103 are on the far-side top bar and can be partly hidden behind the CELL in these views (not modeled); if one is hidden, Auto-calibrate uses the remaining ones and `cam1` adds the CELL tags. Optional tags 104 and 105 on the audience-side top bar (midpoint -12 / +12 in) give `cam1` a fourth readable tag (calibration.md).
-   - **All 8 calibration points are visible, at least 20 px inside the image edge** (the four corners of that opening and the four top corners of the HIVE frame; calibration.md shows where each appears). The aim table is centered in the range that keeps the kit, the points and (for B) the tags in view. It stays true if the camera is off by up to **3 deg in yaw or pitch** (computed minimum slack: 5 deg, A yaw toward +X, for the GoPro; more for the others). Aim within 3 deg, and if a tag or point is cut off, turn the camera back toward the table value.
-   - The **launch area is mostly outside the picture, on purpose**: the cameras look up at the HIVE, and the ball flies into view early in the flight. Do not tilt down to get the launch zone in frame.
+   - The **up-CELL opening** (the tilted 20 in wide opening of the red HIVE nearest the audience) is in the upper part of the picture: its center at about **56 % from the left and 31 % from the top** in A (56 / 36 for the Arducam), and about **37 % from the left and 28 % from the top** in B (41 / 34).
+   - The **four AprilTags under the up CELL** (ids 34 to 37) show as a short row of small squares just below the opening: in A at about 55 to 59 % across and 38 to 40 % down (Arducam 56 to 59 % and 42 to 44 %), in B at about 33 to 39 % across and 36 to 39 % down (Arducam 38 to 43 % and 41 to 43 %). In B they are readable (tag edges 22 to 27 px); in A they are seen 57 deg off their normal, too oblique to decode.
+   - The **four printed kit tags** (6 in) are at about (percent from the left / from the top, GoPro; the Arducam is within 3 %): A: 100 at 70/47, 101 at 61/50, 102 at 70/87, 103 at 52/79; B: 100 at 42/54, 101 at 33/52, 102 at 50/84, 103 at 32/91. With the Arducam all four are inside the picture in both cameras; with the GoPro tag 103 in B is at 91 % from the top, too close to the bottom edge to count (B then reads 100, 101, 102). Tags 102 and 103 must be in the picture: if one is cut off, tilt the camera down a little.
+   - **All 8 calibration points are visible, at least 20 px inside the image edge**: the four corners of the red up-CELL opening and the four corners of the blue far-CELL opening (calibration.md shows where each appears). The aim table is centered in the range that keeps the kit, the points and (for B) the tags in view. It stays true if the camera is off by up to **3 deg in yaw or pitch** (computed minimum slack: 4 deg, B pitch up, for the GoPro; more for the others). Aim within 3 deg, and if a tag or point is cut off, turn the camera back toward the table value.
+   - The **launch area is mostly outside the picture, on purpose**: the ball flies into view early in the flight. Do not tilt up to get the CELL high in frame at the cost of the base tags.
 
    The extrinsic calibration measures each camera's true pose, so the tolerances above are about keeping the 8 points, the tags and the ball paths in frame, not about hitting the table values to the degree.
-5. **In-frame roll check.** The frame's audience-side top bar (calibration points 5 and 6) is **not** level in the picture: it runs along the line of sight, so perspective tilts it. With the camera leveled it looks like this: in A it runs from the upper right down to the lower left, about **34 deg below horizontal** (for every 100 px it moves left it drops about 68 to 70 px); in B it runs from the lower right up to the upper left, about **28 deg above horizontal** (100 px left, 54 px up). If the bar's slope differs from this by more than about 3 deg, the camera is rolled or aimed wrong: re-check the level and the yaw.
+5. **In-frame roll check.** Tags 100 and 101 are on the same horizontal line of the logo panel 24 in apart, so the line through their centers is horizontal in the field but **not** in the picture (perspective). With the camera leveled it looks like this: in A it runs from tag 100 (right) to tag 101 (left) and drops about 18 px per 100 px going left (about 10 deg below horizontal); in B it rises about 17 px per 100 px going left (about 10 deg above horizontal). If the slope differs from this by more than about 3 deg, the camera is rolled or aimed wrong: re-check the level and the yaw.
 
-Aim point: the middle of the image is on the aim point in the table (55 to 60 in high).
+Aim point: the middle of the image is on the aim point in the table (35 to 41 in high).
 
 Lens: Option A GoPro Linear lens, **86 deg HFOV**. Option B Arducam **110 deg diagonal, treated as 95 deg HFOV** (assumption, lens dependent; the intrinsics calibration measures the real one, see calibration.md section 2).
 
@@ -102,18 +108,19 @@ Lens: Option A GoPro Linear lens, **86 deg HFOV**. Option B Arducam **110 deg di
 
 ## 4. Step by step
 
-1. Clear the field. Set the HIVE in its normal state with the red up CELL toward +Y (audience side).
-2. From each corner named in the table, measure along the wall (from the outer corner edge), then out from the **outside face** of the wall (4.5 in for a 1.5 in wall; section 2). Mark the spot under the lens with a painter's tape cross and the three tripod feet as a triangle around it. Label it A, B, C and write the app id (`cam0`, `cam1`) next to it.
-3. Set each tripod so the lens is at the height in the table (30 in for A, 20 in for B). Lens centered over the tape cross (plumb line).
+1. Clear the field (no robot, nobody inside the walls). Set the HIVE in its match-start state: red HIVE audience CELL up, blue HIVE far CELL up.
+2. Measure the field wall to wall, set the app's `field_size`, and measure the wall thickness. From the corner named in the table, measure along the wall (from the outer corner edge), then out from the **outside face** of the wall (**12.0 in**). Mark the plumb spot with a painter's tape cross and the three tripod feet around it (one foot straight away from the wall, section 2). Label it A, B, C and write the app id (`cam0`, `cam1`) next to it.
+3. Set each tripod so the lens is at 20 in (A and B). Lens centered over the tape cross (plumb line).
 4. Put the floor crosses on the field and aim each camera with the aiming method in section 2: yaw by string, pitch and roll with the level app.
-5. Check the preview against section 2 step 4 and step 5. All 8 calibration points must be visible; the four CELL tags must be readable in `cam1`.
+5. Check the preview against section 2 step 4 and step 5. All 8 calibration points and the four kit tags must be visible; the four CELL tags must be readable in `cam1`.
 6. Cable: run all cables along the floor outside the wall, tape them down, and keep them out of the tripod legs. **Option B (two USB 2.0 Arducam cameras): each camera, through its own extension, goes directly into its own USB port on the PC.** Two cameras must not share one hub link (no hub, powered or not, between a camera and the PC): two 1080p90 MJPEG streams starve a single USB 2.0 hub link and fps drops. If front-panel ports share one internal hub, use one front and one rear port, then confirm fps in the app. Option A: each Cam Link into its own USB 3 port.
-7. Open the app preview (Calibration tab). Confirm in `cam0` (A) and `cam1` (B) that the CELL opening and all 8 reference points are in frame.
-8. Run the calibration (docs/calibration.md). Write the date next to the tape marks. Keep the drive team's station away from `cam1` (it is in the audience-wall corner) and keep people out of the line between each camera and the HIVE.
+7. Open the app preview (Calibration tab). Confirm in `cam0` (A) and `cam1` (B) that the CELL openings and the kit tags are in frame.
+8. Run the calibration (docs/calibration.md). Write the date next to the tape marks. Keep the drive team's station away from the corner tripods and keep people out of the line between each camera and the HIVE.
 
 ## 5. Pre-session checklist
 
-- [ ] Tripod feet on tape, legs locked, camera tight on its mount.
+- [ ] Field measured wall to wall, `field_size` set, wall thickness checked.
+- [ ] Tripod feet on tape (one leg pointing away from the wall, no foot over the wall), legs locked, camera tight on its mount.
 - [ ] Lens height, yaw and pitch match the table; level app reads roll 0; HyperSmooth OFF; Linear lens (Option A).
 - [ ] `cam0` is A and `cam1` is B (hand in front of A shows on the `cam0` card).
 - [ ] Option B: the two cameras are in two different PC ports, no hub.
@@ -121,27 +128,38 @@ Lens: Option A GoPro Linear lens, **86 deg HFOV**. Option B Arducam **110 deg di
 - [ ] Batteries topped up or USB-C power connected (Option A).
 - [ ] All cameras show live video at the expected fps (60 / 90) with no dropped frames.
 - [ ] Lighting: no window or bright light **behind** the HIVE (it silhouettes the ball). Light from above or from the audience side is best. Keep the orange/yellow ball in even light.
-- [ ] Calibration error under 2 px at every one of the 8 points or with the tag kit (calibration.md); a test ball ends its track at the CELL opening.
+- [ ] Kit tags taped on and **each tag's position tape-measured to within 0.25 in** (calibration.md), then the calibration error is under 2 px and the Cross-check button shows green (under 1 in).
 - [ ] Ball test: throw 3 balls; each is tracked in both cameras for the whole flight.
 
 ## 6. Expected numbers (pollen ball, 2.8 in, 1080p; from the simulated sample shots)
 
 | | Option A (86 deg) | Option B (95 deg) |
 |---|---|---|
-| Ball diameter, cam A | 24 to 54 px (mean 30) | 21 to 47 px (mean 25) |
-| Ball diameter, cam B | 29 to 114 px (mean 38) | 25 to 97 px (mean 33) |
-| Ball diameter, cam C (first 0.2 s) | 55 to 125 px | 47 to 111 px |
-| Mean triangulation angle A/B | 105 deg (hard limit 75 to 120) | 106 deg |
-| Sample points seen by both A and B | 93 % | 94 % |
-| Points where the HIVE frame blocks a ray | 4 % | 4 % |
-| Rays free of the robot (box 18 x 18 x 24 in + 3 in), A / B | 100 % / 97 % | 100 % / 97 % |
-| Angle to the CELL sticker normal, A / B | 66 / 49 deg (B reads the tags) | 66 / 49 deg |
-| Shortest CELL tag edge in the picture, B | 29 px | 25 px |
-| Printed kit tags (6 in) readable (under 55 deg, 28 px or more), A / B | 3 / 3 of 4 (A: 100, 102, 103; B: 101, 102, 103) | 3 / 3 of 4 |
-| Pose from the readable kit tags (synthetic, 0.5 px class noise), A / B | within 0.21 in / 0.13 in and 0.05 / 0.07 deg | within 0.12 in / 0.21 in and 0.13 / 0.05 deg |
+| Ball diameter, cam A | 24 to 53 px (mean 29) | 20 to 45 px (mean 25) |
+| Ball diameter, cam B | 29 to 87 px (mean 37) | 24 to 76 px (mean 31) |
+| Ball diameter, cam C (first 0.2 s) | 51 to 98 px | 44 to 86 px |
+| Mean triangulation angle A/B | 97 deg (hard limit 75 to 120) | 97 deg |
+| Sample points seen by both A and B | 97 % | 100 % |
+| Points where the HIVE frame blocks a ray | 0 % | 0 % |
+| Rays free of the robot (box 18 x 18 x 24 in + 3 in), A / B | 100 % / 98 % | 100 % / 98 % |
+| Angle to the CELL sticker normal, A / B | 57 / 51 deg (B reads the tags) | 57 / 51 deg |
+| Shortest CELL tag edge in the picture, B | 27 px | 22 px |
+| Printed kit tags (6 in) readable (under 55 deg, 28 px or more, not over the sticker), A / B | 4 / 3 of 4 | 4 / 4 of 4 |
+| Pose from the kit with exact taping (synthetic, noise and blur), max | 0.14 in / 0.10 deg | 0.21 in / 0.11 deg |
 
-If the ball is under 10 px or the triangulation angle is outside 75 to 120 deg, the cameras are off their marks. The robot box is a model: with a 6 in extension B still has 95 % free rays, with 9 in it drops to 86 % (the CELL and tag rays are then blocked from some launch points). If your robot is bigger than 24 x 24 in (including intake) or the drive team stands in the line of `cam1`, expect gaps in the tracks and consider the alternative.
+If the ball is under 10 px or the triangulation angle is outside 75 to 120 deg, the cameras are off their marks. The robot box is a model: even with a 12 in extension B still has 92 % free rays (A 98 %); a robot bigger than 24 x 24 in or the drive team standing in the line of `cam1` will leave gaps in the tracks.
+
+**What taping error does** (kit solve, this placement, 20 synthetic runs per case, Arducam; GoPro the same within 0.2 in; evidence/refute/dod9_kit_mounting_sim.json): each tag displaced by the error vector and rotated by the angle error, the solver still using the model positions:
+
+| Tag mounting error | Camera position error (median / max) | Rotation error (median / max) | Reprojection RMSE the app shows | Runs under 2 px | Up-CELL opening center error (median / max) |
+|---|---|---|---|---|---|
+| exact | 0.14 / 0.21 in | 0.08 / 0.11 deg | 0.8 px | 20 / 20 | 0.04 / 0.04 in |
+| 0.25 in, 0.5 deg | 1.0 / 2.0 in | 0.55 / 1.0 deg | 1.0 px | 20 / 20 | 0.28 / 0.54 in |
+| 0.5 in, 1 deg | 2.1 / 4.1 in | 1.1 / 2.0 deg | 1.7 px | 9 / 20 | 0.51 / 1.1 in |
+| 1 in, 2 deg | 4.2 / 8.0 in | 2.0 / 3.9 deg | 3.2 px | 0 / 20 | 1.1 / 2.3 in |
+
+The camera pose follows the taping error, so **each tag's position must be tape-measured to within 0.25 in (and its tilt to 0.5 deg) before calibrating.** With 0.5 in the 2 px gate already fails in most runs and with 1 in it always does.
 
 ## 7. Assumptions
 
-Shots are lobs of 230 in/s from 12 in height, 50 to 66 in from field center along +Y, x within 30 in of the red HIVE; the ball is cut where it crosses the opening. The robot is a box 18 x 18 x 24 in on the floor centered on the launch point, plus 3 in of extension on every horizontal side; occlusion by people or the audience barrier is not modeled. Pinhole camera, no distortion. A tripod head can stand 6 in beyond the inside face of the wall (4.5 in from the outside face for a 1.5 in wall, VERIFY). The CELL tag positions come from the official CAD (`field.hive_tag_corners`, docs/research_apriltags.md): the sticker lies on the CELL floor, 7.19 in behind the opening, facing down and toward the audience. Tag readability is judged by angle (under 55 deg), size and being inside the picture, not by a detection test on a real field (VERIFY with the first footage). Occlusion of the sticker by the CELL rim is not modeled. The HIVE frame size and top height used for calibration points 5 to 8 and the kit tags are CAD guesses (VERIFY). This is a draft for M1 test footage; finalize after the first footage.
+Shots are lobs of 230 in/s from 12 in height, 50 to 66 in from field center along +Y, x within 30 in of the red HIVE; the ball is cut where it crosses the opening. The robot is a box 18 x 18 x 24 in on the floor centered on the launch point, plus 3 in of extension on every horizontal side; occlusion by people or the audience barrier is not modeled. Pinhole camera, no distortion. The tripod leg radius (about 20 in at the lens height) and the UBeesize MT60's 20 in minimum lens height are assumptions (VERIFY). A 144 in field with 1.5 in walls; see "Your field". The CELL tag positions come from the official CAD (`field.hive_tag_corners`, docs/research_apriltags.md): the sticker lies on the CELL floor, 7.19 in behind the opening, facing down and toward the audience. The frame is the CAD A-frame (`field.frame_reference_points`, the "Frame (CAD-extracted)" constants); the logo panels (y 1.55 to 4.28 in, x +-15.07, z 34.07 to 40.02) are why the crossbar tags are taped on the panel face and not hung from the 1 in crossbar. Tag readability is judged by angle (under 55 deg), size and being inside the picture, not by a detection test on a real field (VERIFY with the first footage). Occlusion of the sticker by the CELL rim is not modeled; during calibration the field is empty, so robots do not block the base tags.

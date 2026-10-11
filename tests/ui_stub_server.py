@@ -26,6 +26,7 @@ CONFIG = {
     "detector": {"min_radius_px": 4, "max_radius_px": 60, "pollen_hsv": [[0, 0, 0], [1, 1, 1]],
                  "nectar_hsv": [[0, 0, 0], [1, 1, 1]], "motion_thresh": 25},
     "preview_fps": 15,
+    "field_size_in": 144,
     "session_name_template": "Practice {date} {time}",
     "profiles": {"arducam_1080p90": {"width": 1920, "height": 1080, "fps_hint": 90, "backend": "auto"}},
 }
@@ -42,17 +43,9 @@ UNKNOWN_SHOT = dict(SHOT, shot_id=2, result="unknown", exit_speed_ips=None, exit
                     launch_angle_deg=None, launch_azimuth_deg=None, apex_z_in=None, equation=None,
                     dropped_during_flight=0)
 FULL_UNKNOWN_SHOT = dict(UNKNOWN_SHOT, track=[], parabola=None, drag=None, launch_point=None)
-# Mirrors hiveshot.calib_targets.field_reference_points() (names and approximate xyz, inches).
-CALIB_POINTS = [
-    ("Red HIVE up-CELL opening, high-left corner", [-22.75, 20.73, 65.6]),
-    ("Red HIVE up-CELL opening, high-right corner", [-2.75, 20.73, 65.6]),
-    ("Red HIVE up-CELL opening, low-right corner", [-2.75, 27.76, 53.5]),
-    ("Red HIVE up-CELL opening, low-left corner", [-22.75, 27.76, 53.5]),
-    ("HIVE frame top corner (-X, +Y)", [-24.73, 19.48, 63.95]),
-    ("HIVE frame top corner (+X, +Y)", [24.73, 19.48, 63.95]),
-    ("HIVE frame top corner (-X, -Y)", [-24.73, -19.48, 63.95]),
-    ("HIVE frame top corner (+X, -Y)", [24.73, -19.48, 63.95]),
-]
+# STUB ONLY: generic placeholders. Names and xyz deliberately encode NO real field geometry, so the UI
+# tests stay geometry-agnostic; the UI must render whatever names/xyz /api/calib/points returns.
+CALIB_POINTS = [(f"point {i}", [float(i), float(10 * i), float(100 + i)]) for i in range(1, 9)]
 CROSSCHECK = {"max_error_in": 1.6, "points": [
     {"name": n, "xyz_measured": [round(v + 0.2, 2) for v in xyz], "xyz_expected": xyz,
      "error_in": 0.35 if i < 7 else 1.6} for i, (n, xyz) in enumerate(CALIB_POINTS)]}
@@ -79,10 +72,10 @@ ROUTES = {
                              {"index": 1, "width": 1920, "height": 1080, "fps": 90}],
         "sources_configured": False, "calibration_loaded": False,
         "tags_seen": {"cam0": [100, 101], "cam1": []}, "pipeline_running": False,
-        "recommendations": ["Plug both cameras into USB 3 ports.", "Tape the tags flat on the HIVE frame corners."]},
-    "/api/calib/tags": [{"id": 100 + i, "size_in": 4.0, "name": n, "xyz_center": [0, 0, 0], "corners_xyz": []}
-                        for i, n in enumerate(["frame top corner (-X,+Y)", "frame top corner (+X,+Y)",
-                                               "frame top corner (-X,-Y)", "frame top corner (+X,-Y)"])],
+        "recommendations": ["Plug both cameras into USB 3 ports.", "Tape the tags down flat."]},
+    # STUB ONLY: generic tag placeholders (no geometry)
+    "/api/calib/tags": [{"id": 100 + i, "size_in": 4.0, "name": f"tag {i + 1}", "xyz_center": [0, 0, 0],
+                         "corners_xyz": []} for i in range(4)],
     "/api/devices": [{"index": 0, "width": 1280, "height": 720, "fps": 30}],
     "/api/pipeline/status": {"running": False, "detector_fps": 0, "last_shot_id": None,
                              "cameras": {"cam0": {"fps": 60.0, "dropped": 3, "is_alive": True, "ended": False}},

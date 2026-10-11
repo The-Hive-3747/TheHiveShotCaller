@@ -13,7 +13,7 @@ Prices are Amazon US list prices seen on 2026-10-10 and may move. Quantities are
 | 3 | UBeesize MT60 60 in tripod | 2 | https://www.amazon.com/UBeesize-MT60-Aluminum-Lightweight-Professional/dp/B07NQJ4BDS | ~35 | ~70 | One per camera, 1/4-20 screw head. |
 | 4 | Bracket hardware for the 3D-printed mount: M2 x 12 mm screws with nuts (assorted pack; 10 mm minimum to pass board, standoff and plate), 1/4-20 hex nuts (x2) | 1 set | https://www.amazon.com/s?k=m2+screws+nuts+assortment ; any hardware store for 1/4-20 nuts | ~10 | ~10 | The bracket itself is printed on your Bambu X1C from docs/camera_bracket.stl (supplied). Four M2 screws hold the board, the 1/4-20 nut drops into the base pocket for the tripod screw. |
 | 5 | USB-C to USB-A adapter, 2-pack | 1 | https://www.amazon.com/s?k=usb+c+to+usb+a+adapter+2+pack | ~8 | ~8 | Only needed if the PC has fewer than two free USB-A ports. Cheap insurance. |
-| 6 | Foam board 20 x 30 in, white | 1 | any office or craft store | ~5 | ~5 | Backing for the printed checkerboard calibration target (PDF supplied by the app, print at 100%). |
+| 6 | Foam board 20 x 30 in, white | 1 | any office or craft store | ~5 | ~5 | Backing for the printed checkerboard calibration target (PDF supplied by the app, print at 100%); offcuts also stiffen the four printed 6 in kit tags. |
 | 7 | Painter's tape | 1 | any | ~5 | ~5 | Mark tripod feet positions on the floor. |
 | | **Total** | | | | **~370** | |
 
@@ -22,7 +22,7 @@ Prices are Amazon US list prices seen on 2026-10-10 and may move. Quantities are
 - GoPro, Media Mod, capture cards: not needed with USB cameras. Live GoPro output is 30 to 60 fps and would give worse numbers at three times the cost.
 - Powered USB hub: both cameras go straight into the PC on separate ports. Two 1080p90 MJPEG streams would starve on one shared USB 2.0 hub link.
 - The Arducam ABS case previously listed: it fits 25 x 24 mm boards, not this 34 x 34 mm board.
-- Third camera: optional later. The two-camera setup already gives a 117° triangulation angle. Add a third only if real footage shows the CELL entry is often occluded.
+- Third camera: optional later. The two-camera setup already gives a 105° triangulation angle (docs/camera_placement.md). Add a third only if real footage shows the CELL entry is often occluded.
 
 ## Setup plan after the parts arrive
 
@@ -30,9 +30,9 @@ Prices are Amazon US list prices seen on 2026-10-10 and may move. Quantities are
 |---|---|---|---|
 | 1 | Unzip the app build, run it, open http://127.0.0.1:8765 | 10 min | Dashboard loads with the built-in demo video |
 | 2 | Plug cameras in (separate PC ports), Settings tab: pick device indexes, set 1920x1080, 90 fps, MJPG | 15 min | Both previews show LIVE at 85 to 90 fps, dropped 0 |
-| 3 | Place tripods per docs/camera_placement.md (cam A: 6 in outside the -X wall, 7 in from the +Y corner, lens 36 in high; cam B: 6 in outside the +Y wall, 7 in from the +X corner, lens 36 in high), aim at the up CELL, tape the feet | 20 min | Up CELL and launch area visible in both previews |
-| 4 | Print the checkerboard PDF at 100%, glue to foam board, record 20 s per camera in the Calibration tab | 15 min | Reprojection RMSE under 2 px per camera |
-| 5 | Click the 8 reference points per camera (list in docs/calibration.md) | 15 min | Known point within 1 in; status shows no calibration mismatch |
+| 3 | Place tripods per docs/camera_placement.md (cam A = `cam0`: lens plumb spot 4.5 in outside the -X wall and 8.5 in along it from the +Y wall's outer edge, i.e. (-78, +65) from field center, lens 30 in high; cam B = `cam1`: 4.5 in outside the +Y wall and 8.5 in from the +X wall's outer edge, i.e. (+65, +78), lens 20 in high), aim with the floor-cross method in that document, tape the feet | 20 min | Up CELL and launch area visible in both previews |
+| 4 | Print the checkerboard PDF at 100%, glue to foam board, record 20 s per camera in the Calibration tab (intrinsics) | 15 min | Reprojection RMSE under 2 px per camera |
+| 5 | Print the 4-page tag kit (`/api/calib/tags.pdf`, 6 in tags, 100% scale), tape the tags where docs/calibration.md section 3A says, press **Auto-calibrate all** in the Setup wizard or Calibration tab. Fallback if a tag cannot be placed: click the 8 reference points per camera (docs/calibration.md section 3B) | 10 min | Crosscheck on held-out tags within 1 in; status shows no calibration mismatch |
 | 6 | Shoot 10 balls by hand or with the robot; check detections, tune the POLLEN/NECTAR color ranges in Settings if balls are missed | 30 min | Recall above 95 percent on the live preview |
 | 7 | Run a 20-shot session, export CSV, open replays | 20 min | Definition of Done items 2 and 4 verified on real hardware |
 

@@ -5,9 +5,12 @@ Map convention in the docs: X to the right, Y up (audience CELL at the top).
 Wall coordinates of +-72 in are the INSIDE face of the wall (see WALL_THICKNESS_IN).
 
 Assumptions (documented in docs/camera_placement.md):
-* Tripods stand outside the 144 in wall; the nearest a tripod head can be is
-  WALL_HALF + TRIPOD_CLEARANCE_IN (6 in) from field center along X or Y.
-  Candidate "radius" is the half-side of a square ring.
+* Tripods stand outside the 144 in wall (the CAD inside size is 141.35 in: measure your field);
+  the lens plumb spot is WALL_HALF + TRIPOD_CLEARANCE_IN from field center along X or Y,
+  i.e. 12 in from the OUTSIDE face of a 1.5 in wall. A 3-leg tripod with a leg radius of about
+  20 in, one leg pointing straight away from the wall, has its two other feet 10 in toward the
+  wall, so 12 in keeps every foot outside the wall. Candidate "radius" is the half-side of a
+  square ring.
 * GoPro Linear lens, 16:9 1080p: HFOV 86 deg. Arducam 2.3 MP, 110 deg diagonal
   lens: treated as 95 deg HFOV at 1920x1080 (lens dependent).
 * Launch area: the robot launches from 12 in height, y 50-66 in (inside the
@@ -31,7 +34,7 @@ from . import field_constants as C
 from .synth import VirtualCamera, aim_for_cell, simulate_trajectory
 
 WALL_HALF = C.FIELD_SIZE / 2.0          # 72
-TRIPOD_CLEARANCE_IN = 6.0
+TRIPOD_CLEARANCE_IN = 13.5       # lens plumb spot 12 in from the outside face (1.5 in wall)
 # FTC perimeter wall thickness (VERIFY on the real field). Coordinates of +-72 in are the
 # INSIDE face of the wall; tapes are measured from the OUTSIDE face = inside face + this.
 WALL_THICKNESS_IN = 1.5
@@ -60,7 +63,7 @@ WALL_STEP_IN = 12                  # extra candidates every 12 in along the audi
 # to the tag row and the sticker normal is under this, all four tags are inside the image
 # and the shortest projected tag edge is at least TAG_MIN_EDGE_PX.
 TAG_MAX_ANGLE_DEG = 55.0
-TAG_MIN_EDGE_PX = 14.0
+TAG_MIN_EDGE_PX = 20.0
 TAG_MARGIN_PX = 60                 # tags must be this far inside the picture
 REF_MARGIN_PX = 60                 # calibration reference points must be this far inside
 # Printed calibration kit (tagkit.KIT_TAGS, 4 in tags on the frame top corners, facing +Y): a
@@ -73,11 +76,12 @@ REF_MARGIN_PX = 60                 # calibration reference points must be this f
 KIT_MIN_TAGS = 3
 KIT_MIN_EDGE_PX = 28.0
 KIT_MAX_ANGLE_DEG = 55.0
+KIT_STICKER_GAP_PX = 6.0           # a kit tag may not overlap the CELL sticker's tag row in the picture
 
 
 def candidate_positions(radius_in, heights_in, angles_deg):
     """(x, y, z) on a square ring of half-side radius_in. angle 0 = +X, 90 = +Y.
-    radius_in may be a scalar or a list; values below 78 in are rejected."""
+    radius_in may be a scalar or a list; values below MIN_RADIUS_IN are rejected."""
     radii = [radius_in] if np.isscalar(radius_in) else list(radius_in)
     out = []
     for r, h, a in itertools.product(radii, heights_in, angles_deg):
@@ -85,8 +89,12 @@ def candidate_positions(radius_in, heights_in, angles_deg):
             raise ValueError(f"radius {r} is inside the tripod limit {MIN_RADIUS_IN}")
         d = np.array([math.cos(math.radians(a)), math.sin(math.radians(a))])
         d = d / np.abs(d).max()
-        # whole inches so an operator can tape-measure the spot
-        out.append((float(round(r * d[0])), float(round(r * d[1])), float(h)))
+        # whole inches along the wall so an operator can tape-measure the spot; the coordinate
+        # that sets the distance from the wall stays exactly r
+        x = r * d[0] if abs(d[0]) < 1.0 - 1e-9 else math.copysign(r, d[0])
+        y = r * d[1] if abs(d[1]) < 1.0 - 1e-9 else math.copysign(r, d[1])
+        out.append((float(round(x)) if abs(d[0]) < 1.0 - 1e-9 else float(x),
+                    float(round(y)) if abs(d[1]) < 1.0 - 1e-9 else float(y), float(h)))
     return out
 
 
@@ -225,10 +233,11 @@ def kit_view(cam: VirtualCamera, pos) -> dict:
     out = {}
     w, h = cam.intr.width, cam.intr.height
     m = TAG_MARGIN_PX
+    st_u, st_v = cam.project(_up_tag_geometry()[0].reshape(-1, 3))
+    sticker = (float(st_u.min()), float(st_v.min()), float(st_u.max()), float(st_v.max()))
     for t in tagkit.KIT_TAGS:
         c = tagkit.tag_corners_xyz(t)
-        n = np.cross(c[1] - c[0], c[0] - c[3])
-        n /= np.linalg.norm(n)
+        n = tagkit.tag_normal_xyz(t)
         ray = np.asarray(pos, float) - c.mean(axis=0)
         ray /= np.linalg.norm(ray)
         ang = math.degrees(math.acos(float(np.clip(ray @ n, -1, 1))))
@@ -237,8 +246,13 @@ def kit_view(cam: VirtualCamera, pos) -> dict:
         edge = float(np.linalg.norm(uv - np.roll(uv, -1, axis=0), axis=1).min())
         inimg = bool((cam.depth(c) > 1.0).all() and (u >= m).all() and (u < w - m).all()
                      and (v >= m).all() and (v < h - m).all())
+        gap = KIT_STICKER_GAP_PX
+        overlap = not (u.max() + gap < sticker[0] or u.min() - gap > sticker[2]
+                       or v.max() + gap < sticker[1] or v.min() - gap > sticker[3])
         out[t.id] = {"angle_deg": ang, "min_edge_px": edge, "in_image": inimg,
-                     "ok": bool(ang < KIT_MAX_ANGLE_DEG and inimg and edge >= KIT_MIN_EDGE_PX)}
+                     "overlaps_sticker": bool(overlap),
+                     "ok": bool(ang < KIT_MAX_ANGLE_DEG and inimg and edge >= KIT_MIN_EDGE_PX
+                                and not overlap)}
     n_ok = sum(1 for d in out.values() if d["ok"])
     return {"tags": out, "n_ok": n_ok, "ok": n_ok >= KIT_MIN_TAGS}
 
@@ -305,9 +319,15 @@ def score_pair(camA, camB, trajectories) -> dict:
     return _combine(pa, pb, _per_camera(camA, pa, pts), _per_camera(camB, pb, pts), pts)
 
 
+AIM_Z_IN = 40.0    # nominal aim height: low enough that the kit tags standing on the tiles at the
+                   # frame base and the whole ball arc are in view, high enough for the CELL openings
+
+
 def _aim_point(trajectories):
+    """Nominal aim: x, y of the sample-trajectory centroid, height AIM_Z_IN (the centroid's own
+    height, about 60 in, put the tiles and the frame base corners out of the picture)."""
     c = _stack(trajectories).mean(axis=0)
-    return tuple(float(round(v)) for v in c)
+    return (float(round(c[0])), float(round(c[1])), AIM_Z_IN)
 
 
 @functools.lru_cache(maxsize=1)
@@ -415,7 +435,7 @@ def _build(option, pa0, pb0, with_third=True) -> dict:
         rob = {"A": rob["B"], "B": rob["A"]}
     reader = "both" if ta["sees"] and tb["sees"] else ("A" if ta["sees"] else
                                                        ("B" if tb["sees"] else None))
-    both_wall = pa[1] == MIN_RADIUS_IN and pb[1] == MIN_RADIUS_IN
+    both_wall = _on_audience_wall(pa) and _on_audience_wall(pb)
     sc = dict(sc, tags_both=bool(ta["sees"] and tb["sees"]), tier=tier,
               kit_both=bool(ta["kit"]["ok"] and tb["kit"]["ok"]),
               both_on_audience_wall=bool(both_wall))
@@ -503,10 +523,15 @@ def _entry(p, aim, hfov, pts):
     return (p, _per_camera(vc, p, pts), tv, refs_in_view(vc), robot_view(p))
 
 
+def _on_audience_wall(p) -> bool:
+    """On the audience (+Y) side of the tripod ring (not a side wall)."""
+    return bool(p[1] >= MIN_RADIUS_IN - 0.5 and p[1] >= abs(p[0]))
+
+
 def _corner_factor(p) -> float:
     """Prefer corners over the wall center for cameras on the audience wall (the drive team
     stands there): 1.0 for |x| >= 48 in, down to 0.85 at the center."""
-    if p[1] != MIN_RADIUS_IN:
+    if not _on_audience_wall(p):
         return 1.0
     return 0.85 + 0.15 * min(1.0, abs(p[0]) / 48.0)
 
@@ -537,7 +562,7 @@ def _eval_pair(ea, eb, pts):
     read_b = tb["sees"] and bb["tag_free"] >= 1.0 - 1e-9
     kit_ok = ta["kit"]["ok"] and tb["kit"]["ok"]
     refs_ok = ra and rb
-    both_wall = pa[1] == MIN_RADIUS_IN and pb[1] == MIN_RADIUS_IN
+    both_wall = _on_audience_wall(pa) and _on_audience_wall(pb)
     tier = (arc_ok, occ_ok, read_a or read_b, kit_ok, refs_ok, not both_wall, read_a and read_b)
     best_cos = max(math.cos(math.radians(t["angle_deg"])) if r else 0.0
                    for t, r in ((ta, read_a), (tb, read_b)))
@@ -679,7 +704,8 @@ def label_lines(name, cam):
     return [
         f"CAM {name} - {role}: x={x:+.0f} y={y:+.0f} in from center, "
         f"lens height {z:.0f} in",
-        f"{m['out_from_wall_in']:.0f} in out from the {m['wall']} wall's INSIDE face, "
+        f"{m['out_from_wall_in']:.1f} in out from the {m['wall']} wall's INSIDE face "
+        f"({m['out_from_outer_face_in']:.1f} from the outside face), "
         f"{m['along_wall_from_corner_in']:.0f} in along the wall from corner "
         f"({m['corner'][0]:+.0f},{m['corner'][1]:+.0f})",
         f"aim yaw {yaw:.0f} deg (from +X toward +Y), pitch {pitch:+.0f} deg; "
@@ -688,29 +714,35 @@ def label_lines(name, cam):
 
 
 OPTION_LABEL = {"gopro": "GOPRO (GoPro Linear lens)", "usb": "USB (Arducam global shutter)"}
-MAP_NOTE = ("Squares: printed kit tags 100-103 on the frame top corners (dashed 104/105 optional). "
-            "TAG READER = camera that reads the CELL's own AprilTags.")
+MAP_NOTE = ("Dark bars: printed kit tags (top view): 100/101 on the audience logo panel at the crossbar "
+            "ends, 102/103 standing at the audience-side base corners. TAG READER = camera that "
+            "reads the CELL's own AprilTags.")
 
 
 def _kit_marks():
-    """(id, x, y, half-size in map px, optional) of every kit tag, from tagkit (top view)."""
+    """(id, x0, y0, x1, y1) in inches of every kit tag in the top view (a vertical tag is a thin
+    bar; at least 3 in thick so it stays visible), from tagkit."""
     from . import tagkit
 
     out = []
-    for t in tagkit.kit_tags(extended=True):
-        c = tagkit.tag_center_xyz(t)
-        out.append((t.id, float(c[0]), float(c[1]), t.size_in * SCALE / 2.0, t.id >= 104))
+    for t in tagkit.KIT_TAGS:
+        c = tagkit.tag_corners_xyz(t)
+        x0, x1 = float(c[:, 0].min()), float(c[:, 0].max())
+        y0, y1 = float(c[:, 1].min()), float(c[:, 1].max())
+        if y1 - y0 < 3.0:
+            y0, y1 = 0.5 * (y0 + y1) - 1.5, 0.5 * (y0 + y1) + 1.5
+        out.append((t.id, x0, y0, x1, y1))
     return out
 
 
-def _kit_label_pos(tid, kx, ky, mx, my, hp, optional):
-    """Label spot for a kit tag square: audience-side corner tags above, optional bar tags
-    below, far-side tags to the right (keeps the crowded audience bar readable)."""
-    if optional:
-        return mx, my - hp - 34, "middle"
-    if ky > 0:
-        return mx, my - hp - 8, "middle"
-    return mx + hp + 6, my + 8, "start"
+def _frame_lines():
+    """Top-down line segments of the CAD A-frame (foot bars, legs, crossbar, logo panels)."""
+    out = []
+    for a, b in field._frame_segments():
+        seg = (tuple(float(v) for v in a[:2]), tuple(float(v) for v in b[:2]))
+        if seg[0] != seg[1] and seg not in out and (seg[1], seg[0]) not in out:
+            out.append(seg)
+    return out
 
 
 def _is_reader(rec, k):
@@ -732,7 +764,7 @@ def write_map(option: str, svg_path, png_path) -> None:
 
 def _svg(option, rec):
     h = WALL_HALF
-    fw, fd = C.FRAME_WIDTH_X / 2, C.FRAME_DEPTH_Y / 2
+    fd = C.FRAME_BASE_HALF_Y
     cell, _ = field.cell_opening_plane("red", "audience", field.HiveState("red", "audience"))
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{S}" height="{S}" '
          f'viewBox="0 0 {S} {S}" font-family="Arial, sans-serif">',
@@ -752,10 +784,10 @@ def _svg(option, rec):
              f'fill-opacity="0.7" stroke="#c08000" stroke-width="3" stroke-dasharray="14 8"/>')
     o.append(f'<text x="{lx+10:.1f}" y="{ly+30:.1f}" font-size="26" fill="#805000">'
              f'LAUNCH AREA (y 44..70)</text>')
-    fx0, fy0 = _m(-fw, fd)
-    o.append(f'<rect x="{fx0:.1f}" y="{fy0:.1f}" width="{2*fw*SCALE:.1f}" '
-             f'height="{2*fd*SCALE:.1f}" fill="#999999" fill-opacity="0.5" stroke="#333" '
-             f'stroke-width="4"/>')
+    for a, b in _frame_lines():
+        (ax, ay), (bx, by) = _m(*a), _m(*b)
+        o.append(f'<line x1="{ax:.1f}" y1="{ay:.1f}" x2="{bx:.1f}" y2="{by:.1f}" '
+                 f'stroke="#333" stroke-width="5" stroke-linecap="round"/>')
     for label, col, hx in (("RED beam", "#d02020", C.RED_HIVE_X),
                            ("BLUE beam", "#2040d0", C.BLUE_HIVE_X)):
         (ax, ay), (bx, by) = _m(hx, -field.OPENING_CENTER_ABS_Y), _m(hx, field.OPENING_CENTER_ABS_Y)
@@ -769,15 +801,12 @@ def _svg(option, rec):
              f'stroke-width="5"/>')
     o.append(f'<text x="{cx+60:.1f}" y="{cy+70:.1f}" font-size="26">'
              f'UP CELL (red, audience, +Y)</text>')
-    for tid, kx, ky, hp, optional in _kit_marks():
-        mx, my = _m(kx, ky)
-        dash = ' stroke-dasharray="6 4"' if optional else ""
-        o.append(f'<rect x="{mx-hp:.1f}" y="{my-hp:.1f}" width="{2*hp:.1f}" height="{2*hp:.1f}" '
-                 f'fill="{"#ffffff" if optional else "#303030"}" fill-opacity="0.85" '
-                 f'stroke="#000" stroke-width="3"{dash}/>')
-        lx, ly, anc = _kit_label_pos(tid, kx, ky, mx, my, hp, optional)
-        o.append(f'<text x="{lx:.1f}" y="{ly:.1f}" font-size="22" font-weight="bold" '
-                 f'text-anchor="{anc}">{tid}{" opt" if optional else ""}</text>')
+    for tid, x0, y0, x1, y1 in _kit_marks():
+        (ax, ay), (bx, by) = _m(x0, y1), _m(x1, y0)
+        o.append(f'<rect x="{ax:.1f}" y="{ay:.1f}" width="{bx-ax:.1f}" height="{by-ay:.1f}" '
+                 f'fill="#303030" fill-opacity="0.9" stroke="#000" stroke-width="2"/>')
+        o.append(f'<text x="{(ax+bx)/2:.1f}" y="{ay-8:.1f}" font-size="22" font-weight="bold" '
+                 f'text-anchor="middle">{tid}</text>')
     for k in ("A", "B", "C"):
         cam = rec["cameras"][k]
         col = _hex(COLORS[k])
@@ -811,7 +840,7 @@ def _svg(option, rec):
 
 def _png(option, rec):
     h = WALL_HALF
-    fw, fd = C.FRAME_WIDTH_X / 2, C.FRAME_DEPTH_Y / 2
+    fd = C.FRAME_BASE_HALF_Y
     cell, _ = field.cell_opening_plane("red", "audience", field.HiveState("red", "audience"))
     font = cv2.FONT_HERSHEY_SIMPLEX
     img = np.full((S, S, 3), 255, np.uint8)
@@ -837,8 +866,8 @@ def _png(option, rec):
     lx, ly = P(lr[0], lr[3])
     cv2.putText(img, "LAUNCH AREA (y 44..70)", (lx + 10, ly + 30), font, 0.7, (0, 80, 128), 2,
                 cv2.LINE_AA)
-    blend(lambda o: cv2.rectangle(o, P(-fw, fd), P(fw, -fd), (153, 153, 153), -1), 0.5)
-    cv2.rectangle(img, P(-fw, fd), P(fw, -fd), (51, 51, 51), 4)
+    for a, b in _frame_lines():
+        cv2.line(img, P(*a), P(*b), (51, 51, 51), 5, cv2.LINE_AA)
     for label, col, hx in (("RED beam", (32, 32, 208), C.RED_HIVE_X),
                            ("BLUE beam", (208, 64, 32), C.BLUE_HIVE_X)):
         cv2.line(img, P(hx, -field.OPENING_CENTER_ABS_Y), P(hx, field.OPENING_CENTER_ABS_Y), col, 14)
@@ -849,28 +878,13 @@ def _png(option, rec):
     cv2.circle(img, (cx, cy), 16, (0, 0, 0), 5)
     cv2.putText(img, "UP CELL (red, audience, +Y)", (cx + 60, cy + 70), font, 0.7, (0, 0, 0), 2,
                 cv2.LINE_AA)
-    for tid, kx, ky, hp, optional in _kit_marks():
-        a, b = P(kx, ky)
-        hp_i = int(round(hp))
-        if optional:
-            cv2.rectangle(img, (a - hp_i, b - hp_i), (a + hp_i, b + hp_i), (255, 255, 255), -1)
-            for i in range(0, 2 * hp_i, 10):                  # dashed outline
-                cv2.line(img, (a - hp_i + i, b - hp_i), (a - hp_i + min(i + 5, 2 * hp_i), b - hp_i),
-                         (0, 0, 0), 2)
-                cv2.line(img, (a - hp_i + i, b + hp_i), (a - hp_i + min(i + 5, 2 * hp_i), b + hp_i),
-                         (0, 0, 0), 2)
-                cv2.line(img, (a - hp_i, b - hp_i + i), (a - hp_i, b - hp_i + min(i + 5, 2 * hp_i)),
-                         (0, 0, 0), 2)
-                cv2.line(img, (a + hp_i, b - hp_i + i), (a + hp_i, b - hp_i + min(i + 5, 2 * hp_i)),
-                         (0, 0, 0), 2)
-        else:
-            cv2.rectangle(img, (a - hp_i, b - hp_i), (a + hp_i, b + hp_i), (48, 48, 48), -1)
-            cv2.rectangle(img, (a - hp_i, b - hp_i), (a + hp_i, b + hp_i), (0, 0, 0), 3)
-        lx, ly, anc = _kit_label_pos(tid, kx, ky, a, b, hp, optional)
-        txt = f"{tid}{' opt' if optional else ''}"
-        tw = cv2.getTextSize(txt, font, 0.6, 2)[0][0]
-        cv2.putText(img, txt, (int(lx - (tw // 2 if anc == "middle" else 0)), int(ly)), font, 0.6,
-                    (0, 0, 0), 2, cv2.LINE_AA)
+    for tid, x0, y0, x1, y1 in _kit_marks():
+        (ax, ay), (bx, by) = P(x0, y1), P(x1, y0)
+        cv2.rectangle(img, (ax, ay), (bx, by), (48, 48, 48), -1)
+        cv2.rectangle(img, (ax, ay), (bx, by), (0, 0, 0), 2)
+        tw = cv2.getTextSize(str(tid), font, 0.6, 2)[0][0]
+        cv2.putText(img, str(tid), ((ax + bx) // 2 - tw // 2, ay - 8), font, 0.6, (0, 0, 0), 2,
+                    cv2.LINE_AA)
     for k in ("A", "B", "C"):
         cam = rec["cameras"][k]
         col = COLORS[k]

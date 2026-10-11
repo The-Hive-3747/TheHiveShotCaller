@@ -1,0 +1,8 @@
+RUN mixed_rt_a idle-wait: cpu=7% after 10s
+[mixed rt] elapsed=12.6s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exp={'1': 0, '2': 1, '3': 1, '4': 0, '5': 0} exact=True
+  speed n=8 max|err|=0.04547443876172785 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.03784296940310128 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 3, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 4}, 'nectar': {'made': 3, 'bounce_out': 0, 'miss': 1, 'unknown': 0, 'shots': 4}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=7% max=12% n=14
+  server_exit 1

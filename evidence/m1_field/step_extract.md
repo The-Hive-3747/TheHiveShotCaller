@@ -68,3 +68,38 @@ Blue Scoring (12.758, 49.666, -12.887).
 4. Assumptions in the extractor: geometry representation shares the local frame of its parent
    SHAPE_REPRESENTATION (checked: sticker local extents are 17 x 5 x 0.01 as published); vertices only
    (no curve sampling), so extents are those of B-rep vertices.
+
+# HIVE frame and field perimeter (CAD, added after the DoD 9 refutation)
+Command: `.venv/Scripts/python.exe -I tools/step_extract.py --frame --perimeter`; raw output
+`evidence/m1_field/step_frame_out.txt` (includes the per-part min/max and SVD centerline endpoints).
+CAD axes here (x lateral, y = field Y with audience at +, z up in the table below are FIELD axes: the CAD's
+y-up and z-beam were relabeled to field z-up and field y; the frame is symmetric in X and Y).
+
+**The frame is not a box and not 49.46 in at the apexes.** Product `am-5854: Frame` = two leaning A-frames,
+one at each X end, with a 24 in crossbar between the apexes.
+
+| Feature (CAD part) | Field-frame vertices (inches) |
+|---|---|
+| Foot bar, 4 outer corners on the tiles (`am-5878 Sheet Metal Foot Bar`, x 22.75..24.73, 2.15 high) | (+-24.73, +-19.47, 0) |
+| Foot bar inner corners | (+-22.75, +-19.47, 0); bar top at z = 2.15 |
+| Leg foot ends, centerline (`am-5876 A-Frame Leg`, 4x) | (+-23.81, +-18.56, 0.53) |
+| Leg apex ends, centerline | (+-12.60, +-0.52, 41.05) |
+| Crossbar (`am-5875 A-Frame Top Bar`, 24 in long, 1.0 x 1.0 in) | from (-12.0, 0, 41.45) to (+12.0, 0, 41.45) (bar spans z 40.95..41.95) |
+| Pivot cradle (`am-5863 Axle Holder`) | (+-12.0, 0, 44.27) top, (+-11.15, 0, 41.57) bottom; max z 44.31 |
+| Top corner block (`am-5874`) | x 10.51..13.76, z 39.49..44.21 (each side) |
+| Logo panel (`am-5877 ACM Panel` + `am-5883 Panel Sticker`, both faces) | x +-15.07, z 34.07..40.02, y = +-1.55 .. +-4.29 |
+| Under-tile bars (`am-5880`, 47.5 in CC) | x +-23.89, y = +-16.53, z -0.74..-0.63 |
+
+Apex heights: crossbar 41.45 (top 41.95), pivot cradle 44.31, tallest frame point 44.31. The manual's
+49.46 x 38.95 are the foot-bar footprint (CAD 49.46 x 38.94). The old "top corners" at (+-24.73, +-19.475,
+63.95) do not exist.
+
+## Field perimeter
+| CAD item | extent |
+|---|---|
+| Side glass inner face | |x|, |y| = 70.674 (glass 70.674..70.792) -> **inside size 141.35 in** |
+| Soft tiles | +-70.585 -> 141.17 in |
+| Perimeter rails / panels / links (outer) | +-71.65 -> 143.30 in; panel inner flanges from 67.16 |
+Manual nominal "approximately 144 in" (+-72) is about 2.65 in larger than the CAD inside faces.
+Constants added: `FIELD_INSIDE_SIZE_CAD = 141.35`, `FIELD_TILE_SPAN_CAD = 141.17`,
+`FIELD_PERIMETER_OUTER_CAD = 143.30` (FIELD_SIZE stays 144.0).

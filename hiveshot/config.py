@@ -106,6 +106,9 @@ class AppConfig(BaseModel):
     autosave_csv: bool = True                      # write data/exports/<session>.csv when it ends idle
     profiles: dict[str, dict[str, Any]] = Field(default_factory=_default_profiles)
     default_intrinsics: dict[str, dict[str, Any]] = Field(default_factory=_default_intrinsics)
+    # inside wall to inside wall, measured on the real field ("measure wall to wall");
+    # drives the field bounds in /api/field/geometry and the 3D viewer
+    field_size_in: float = Field(144.0, ge=60.0, le=400.0)
     hive_tags_verified: bool = False               # trust the HIVE AprilTag layout (up CELL from tags)
 
     @field_validator("session_name_template")

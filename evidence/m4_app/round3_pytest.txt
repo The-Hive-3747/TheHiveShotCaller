@@ -1,58 +1,217 @@
-................................F..F.Fs................................. [ 19%]
-......................................ss..................s............. [ 39%]
-........................................................................ [ 59%]
-........................................................................ [ 79%]
-........................................................................ [ 99%]
-..                                                                       [100%]
+........................................................................ [ 19%]
+...............................................ss..................s.... [ 38%]
+......................................F.FF.....FFFFF....F............... [ 57%]
+........................................................................ [ 76%]
+........................................................................ [ 95%]
+................                                                         [100%]
 ================================== FAILURES ===================================
-_____________ test_vc_runtime_dlls_ship_with_bundle[msvcp140.dll] _____________
+________________________ test_candidates_outside_wall _________________________
 
-dll = 'msvcp140.dll'
+    def test_candidates_outside_wall():
+>       r = pl.MIN_RADIUS_IN
+            ^^^^^^^^^^^^^^^^^
 
-    @pytest.mark.parametrize("dll", ["msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"])
-    def test_vc_runtime_dlls_ship_with_bundle(dll):
-        """App-local VC++ runtime so a PC without the redistributable can start the exe."""
-        f = _find_ci(dll)
->       assert f is not None, f"{dll} missing from {BUNDLE} (root or _internal)"
-E       AssertionError: msvcp140.dll missing from C:\Users\3747h\Documents\HiveShotTracker\dist\HiveShotTracker (root or _internal)
-E       assert None is not None
+tests\test_placement.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-tests\test_build_smoke.py:108: AssertionError
-______________________ test_bundle_ships_docs_and_readme ______________________
+radius_in = 78, heights_in = (36, 58), angles_deg = range(0, 360, 30)
 
-    def test_bundle_ships_docs_and_readme():
-        """build.ps1 copies docs/ and writes README.txt next to the exe (run the test after build.ps1)."""
-        docs = BUNDLE / "docs"
-        for name in ("operator_guide.md", "troubleshooting.md", "calibration.md", "clean_machine_test.md",
-                     "camera_placement.md", "camera_placement.png", "camera_placement.svg",
-                     "camera_bracket.md", "camera_bracket.stl", "camera_bracket.png"):
->           assert (docs / name).is_file(), f"docs/{name} missing from bundle"
-E           AssertionError: docs/operator_guide.md missing from bundle
-E           assert False
-E            +  where False = is_file()
-E            +    where is_file = (WindowsPath('C:/Users/3747h/Documents/HiveShotTracker/dist/HiveShotTracker/docs') / 'operator_guide.md').is_file
+    def candidate_positions(radius_in, heights_in, angles_deg):
+        """(x, y, z) on a square ring of half-side radius_in. angle 0 = +X, 90 = +Y.
+        radius_in may be a scalar or a list; values below MIN_RADIUS_IN are rejected."""
+        radii = [radius_in] if np.isscalar(radius_in) else list(radius_in)
+        out = []
+        for r, h, a in itertools.product(radii, heights_in, angles_deg):
+            if r < MIN_RADIUS_IN - 1e-9:
+>               raise ValueError(f"radius {r} is inside the tripod limit {MIN_RADIUS_IN}")
+E               ValueError: radius 78 is inside the tripod limit 85.5
 
-tests\test_build_smoke.py:118: AssertionError
-____________________ test_fixture_dirs_in_bundle[synth_20] ____________________
+hiveshot\placement.py:89: ValueError
+____________ test_map_files_exist_and_agree[usb-camera_placement] _____________
 
-name = 'synth_20'
+tmp_path = WindowsPath('C:/Users/3747h/AppData/Local/Temp/pytest-of-3747h/pytest-226/test_map_files_exist_and_agree0')
+option = 'usb', stem = 'camera_placement'
 
-    @pytest.mark.parametrize("name", ["synth_basic", "synth_20"])
-    def test_fixture_dirs_in_bundle(name):
-        """Demo videos ship in the bundle. synth_20 is required only if the repo has it."""
-        src = Path(__file__).resolve().parent.parent / "fixtures" / name
-        if name != "synth_basic" and not src.is_dir():
-            pytest.skip(f"fixtures/{name} not present in the repo, so not bundled")
-        dst = None
-        for d in (BUNDLE / "_internal" / "fixtures" / name, BUNDLE / "fixtures" / name):
-            if d.is_dir():
-                dst = d
-                break
->       assert dst is not None, f"fixtures/{name} missing from {BUNDLE} (root or _internal)"
-E       AssertionError: fixtures/synth_20 missing from C:\Users\3747h\Documents\HiveShotTracker\dist\HiveShotTracker (root or _internal)
-E       assert None is not None
+        # A ray running through the beam (x=RED_HIVE_X, z=46 crosses it near y=1) is blocked;
+        # the same point seen from beside the launch area is clear.
+        pts = np.array([[fc.RED_HIVE_X, 10.0, 46.0]])
+        assert pl.occluded((fc.RED_HIVE_X, -78.0, 46.0), pts)[0]
+        assert not pl.occluded((-78.0, 65.0, 36.0), np.array([[fc.RED_HIVE_X, 60.0, 40.0]]))[0]
+    
+    
+    @pytest.mark.parametrize("option,stem", [("usb", "camera_placement"),
+                                              ("gopro", "camera_placement_gopro")])
+    def test_map_files_exist_and_agree(tmp_path, option, stem):
+        """The default map is the Arducam (usb) option, the GoPro alternative has its own pair."""
+        svg, png = DOCS / f"{stem}.svg", DOCS / f"{stem}.png"
+        assert svg.exists() and png.exists()
+        text = svg.read_text(encoding="utf-8")
+        for label in ("CAM A", "CAM B", "CAM C"):
+            assert label in text
+        rec = pl.recommend(option)
+        assert pl.OPTION_LABEL[option] in text and f"HFOV {rec['hfov_deg']:.0f} deg" in text
+        for c in rec["cameras"].values():
+            x, y, z = c["pos"]
+            assert f"x={x:+.0f} y={y:+.0f}" in text and f"lens height {z:.0f} in" in text
+        for k in ("A", "B"):
+            yaw, pitch = pl.aim_angles(rec["cameras"][k])
+            assert f"aim yaw {yaw:.0f} deg" in text and f"pitch {pitch:+.0f} deg" in text
+        # tag reader(s) marked, kit tags 100-103 drawn from the real frame positions with their ids
+        reader = rec["tag_reader"]
+>       assert reader in ("A", "B", "both")
+E       assert ('>104 opt</text>' in '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" font-family="Arial, sans-s...3 standing at the audience-side base corners. TAG READER = camera that reads the CELL\'s own AprilTags.</text>\n</svg>')
 
-tests\test_build_smoke.py:137: AssertionError
+tests\test_placement.py:90: AssertionError
+________ test_map_files_exist_and_agree[gopro-camera_placement_gopro] _________
+
+tmp_path = WindowsPath('C:/Users/3747h/AppData/Local/Temp/pytest-of-3747h/pytest-226/test_map_files_exist_and_agree1')
+option = 'gopro', stem = 'camera_placement_gopro'
+
+        # A ray running through the beam (x=RED_HIVE_X, z=46 crosses it near y=1) is blocked;
+        # the same point seen from beside the launch area is clear.
+        pts = np.array([[fc.RED_HIVE_X, 10.0, 46.0]])
+        assert pl.occluded((fc.RED_HIVE_X, -78.0, 46.0), pts)[0]
+        assert not pl.occluded((-78.0, 65.0, 36.0), np.array([[fc.RED_HIVE_X, 60.0, 40.0]]))[0]
+    
+    
+    @pytest.mark.parametrize("option,stem", [("usb", "camera_placement"),
+                                              ("gopro", "camera_placement_gopro")])
+    def test_map_files_exist_and_agree(tmp_path, option, stem):
+        """The default map is the Arducam (usb) option, the GoPro alternative has its own pair."""
+        svg, png = DOCS / f"{stem}.svg", DOCS / f"{stem}.png"
+        assert svg.exists() and png.exists()
+        text = svg.read_text(encoding="utf-8")
+        for label in ("CAM A", "CAM B", "CAM C"):
+            assert label in text
+        rec = pl.recommend(option)
+        assert pl.OPTION_LABEL[option] in text and f"HFOV {rec['hfov_deg']:.0f} deg" in text
+        for c in rec["cameras"].values():
+            x, y, z = c["pos"]
+            assert f"x={x:+.0f} y={y:+.0f}" in text and f"lens height {z:.0f} in" in text
+        for k in ("A", "B"):
+            yaw, pitch = pl.aim_angles(rec["cameras"][k])
+            assert f"aim yaw {yaw:.0f} deg" in text and f"pitch {pitch:+.0f} deg" in text
+        # tag reader(s) marked, kit tags 100-103 drawn from the real frame positions with their ids
+        reader = rec["tag_reader"]
+>       assert reader in ("A", "B", "both")
+E       assert ('>104 opt</text>' in '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" font-family="Arial, sans-s...3 standing at the audience-side base corners. TAG READER = camera that reads the CELL\'s own AprilTags.</text>\n</svg>')
+
+tests\test_placement.py:90: AssertionError
+____________________ test_placement_doc_matches_recommend _____________________
+
+>   ???
+E   AssertionError: assert ('322 deg' in '# Camera placement (draft, from `hiveshot/placement.py`)\n\nMap: `docs/camera_placement.png` (same content as `camera... 8 and the kit tags are CAD guesses (VERIFY). This is a draft for M1 test footage; finalize after the first footage.\n')
+
+tests\test_placement.py:173: AssertionError
+____________ test_recommendation_meets_the_hard_constraints[gopro] ____________
+
+option = 'gopro'
+
+        yaw_a, _ = pl.aim_angles(pl.recommend("usb")["cameras"]["A"])
+        assert f"aim yaw {yaw_a:.0f} deg" in svg
+    
+    
+    # ------------------------------------------------ tag visibility term
+    # recommendation before the tag term (drawn for red at -X), mirrored in X for red at +X
+>   OLD_POSES = {"A": (78.0, 65.0, 36.0), "B": (-65.0, 78.0, 36.0)}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: (True, True, True, True, True, False, ...)
+E   assert False
+E    +  where False = all((True, True, True, True, True, False))
+
+tests\test_placement.py:196: AssertionError
+_____________ test_recommendation_meets_the_hard_constraints[usb] _____________
+
+option = 'usb'
+
+        yaw_a, _ = pl.aim_angles(pl.recommend("usb")["cameras"]["A"])
+        assert f"aim yaw {yaw_a:.0f} deg" in svg
+    
+    
+    # ------------------------------------------------ tag visibility term
+    # recommendation before the tag term (drawn for red at -X), mirrored in X for red at +X
+>   OLD_POSES = {"A": (78.0, 65.0, 36.0), "B": (-65.0, 78.0, 36.0)}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: (True, True, True, True, True, False, ...)
+E   assert False
+E    +  where False = all((True, True, True, True, True, False))
+
+tests\test_placement.py:196: AssertionError
+________ test_both_tags_alternative_is_reported_not_recommended[gopro] ________
+
+option = 'gopro'
+
+            tv = rec["tags"][k]
+            assert tv["angle_deg"] == pytest.approx(ang, abs=1e-6)
+            if tv["sees"]:
+                readers.append(k)
+                assert ang < pl.TAG_MAX_ANGLE_DEG and tv["in_image"]
+                assert tv["min_edge_px"] >= pl.TAG_MIN_EDGE_PX
+            rv = rec["robot"][k]
+            assert rv["free"] >= pl.ROBOT_MIN_FREE and rv["tag_free"] == 1.0
+            assert rv == pl.robot_view(c["pos"])
+        assert readers and rec["tag_reader"] == ("both" if len(readers) == 2 else readers[0])
+    
+    
+    @pytest.mark.parametrize("option", ["gopro", "usb"])
+    def test_both_tags_alternative_is_reported(option):
+>       rec = pl.recommend(option)
+E       assert ((-60.0, 85.5, 20.0), (72.0, 85.5, 20.0)) != ((-60.0, 85.5, 20.0), (72.0, 85.5, 20.0))
+
+tests\test_placement.py:236: AssertionError
+_________ test_both_tags_alternative_is_reported_not_recommended[usb] _________
+
+option = 'usb'
+
+            tv = rec["tags"][k]
+            assert tv["angle_deg"] == pytest.approx(ang, abs=1e-6)
+            if tv["sees"]:
+                readers.append(k)
+                assert ang < pl.TAG_MAX_ANGLE_DEG and tv["in_image"]
+                assert tv["min_edge_px"] >= pl.TAG_MIN_EDGE_PX
+            rv = rec["robot"][k]
+            assert rv["free"] >= pl.ROBOT_MIN_FREE and rv["tag_free"] == 1.0
+            assert rv == pl.robot_view(c["pos"])
+        assert readers and rec["tag_reader"] == ("both" if len(readers) == 2 else readers[0])
+    
+    
+    @pytest.mark.parametrize("option", ["gopro", "usb"])
+    def test_both_tags_alternative_is_reported(option):
+>       rec = pl.recommend(option)
+E       assert ((-60.0, 85.5, 20.0), (72.0, 85.5, 20.0)) != ((-60.0, 85.5, 20.0), (72.0, 85.5, 20.0))
+
+tests\test_placement.py:236: AssertionError
+_____________ test_calibration_doc_pixel_table_matches_recommend ______________
+
+        for option in ("gopro", "usb"):
+            rec = pl.recommend(option)
+            for k in ("A", "B"):
+                cam = _cam(rec["cameras"][k], k)
+                for c in tags.values():
+                    u, v = cam.project(c)
+                    assert (u >= 10).all() and (u <= 1910).all() and (v >= 10).all() and (v <= 1070).all()
+    
+    
+    def test_calibration_doc_pixel_table_matches_recommend():
+        """The percent-of-image positions in calibration.md equal the recomputed projections."""
+        import re
+    
+        from hiveshot import calib_targets
+    
+        text = (DOCS / "calibration.md").read_text(encoding="utf-8")
+        pts = [p for _, p in calib_targets.field_reference_points()]
+        rows = {}
+        for ln in text.splitlines():
+            m = re.match(r"\| ([1-8]) \| .*`cam0`: (\d+)/(\d+) or (\d+)/(\d+)\. `cam1`: (\d+)/(\d+) or "
+                         r"(\d+)/(\d+) \|", ln)
+            if m:
+>               rows[int(m.group(1))] = [int(g) for g in m.groups()[1:]]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: ('gopro', 'A', 1)
+E               assert np.float64(1.7334844194527435) <= 1.0
+E                +  where np.float64(1.7334844194527435) = abs((((100 * np.float64(1157.1170991465074)) / 1920) - 62))
+
+tests\test_placement.py:298: AssertionError
 ============================== warnings summary ===============================
 tests/test_setup.py::test_detector_sample_widens_range_persists_and_applies_live
 tests/test_setup.py::test_detector_sample_applied_to_running_detectors
@@ -61,7 +220,13 @@ tests/test_setup.py::test_detector_sample_applied_to_running_detectors
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ===========================
-FAILED tests/test_build_smoke.py::test_vc_runtime_dlls_ship_with_bundle[msvcp140.dll]
-FAILED tests/test_build_smoke.py::test_bundle_ships_docs_and_readme - Asserti...
-FAILED tests/test_build_smoke.py::test_fixture_dirs_in_bundle[synth_20] - Ass...
-3 failed, 355 passed, 4 skipped, 2 warnings in 175.80s (0:02:55)
+FAILED tests/test_placement.py::test_candidates_outside_wall - ValueError: ra...
+FAILED tests/test_placement.py::test_map_files_exist_and_agree[usb-camera_placement]
+FAILED tests/test_placement.py::test_map_files_exist_and_agree[gopro-camera_placement_gopro]
+FAILED tests/test_placement.py::test_placement_doc_matches_recommend - Assert...
+FAILED tests/test_placement.py::test_recommendation_meets_the_hard_constraints[gopro]
+FAILED tests/test_placement.py::test_recommendation_meets_the_hard_constraints[usb]
+FAILED tests/test_placement.py::test_both_tags_alternative_is_reported_not_recommended[gopro]
+FAILED tests/test_placement.py::test_both_tags_alternative_is_reported_not_recommended[usb]
+FAILED tests/test_placement.py::test_calibration_doc_pixel_table_matches_recommend
+9 failed, 364 passed, 3 skipped, 2 warnings in 236.25s (0:03:56)

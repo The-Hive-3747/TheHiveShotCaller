@@ -1,0 +1,8 @@
+RUN s8_240_555_rt_a idle-wait: cpu=14% after 20s
+[s8_240_555 rt] elapsed=10.9s recorded=8/8 matched=8 extra=0 made app/truth=6/6 rate app/truth=0.75/0.750
+  makemiss agree 8/8=100.0% results={'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0} hist app={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exp={'1': 0, '2': 0, '3': 1, '4': 0, '5': 1} exact=True
+  speed n=8 max|err|=1.3702612325929509 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.24660686165071866 csv_rows=8
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 6, 'bounce_out': 0, 'miss': 2, 'unknown': 0, 'shots': 8}} wrong=[]
+  dropped={'cam0': 27, 'cam1': 26} max_dropped_seen={'cam0': 27, 'cam1': 26} warnings_final=['camera cam0 dropped 27 frames (processing too slow)', 'camera cam1 dropped 26 frames (processing too slow)'] warnings_seen=['camera cam0: connected but no frames received yet', 'camera cam1: connected but no frames received yet', 'camera cam0 dropped 15 frames (processing too slow)', 'camera cam1 dropped 14 frames (processing too slow)', 'camera cam0 dropped 27 frames (processing too slow)', 'camera cam1 dropped 26 frames (processing too slow)'] offset=0.0
+  system CPU during run (whole machine, incl. server): mean=37% max=74% n=12
+  server_exit 1

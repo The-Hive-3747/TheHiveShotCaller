@@ -126,13 +126,18 @@ def test_auto_extrinsics_from_rendered_tags_and_crosscheck(kit_rig):
     assert st["calibration_loaded"] is False                             # intrinsics only
     s, one = c.j("POST", "/api/calib/extrinsics/cam0/auto")
     assert s == 200, one
-    assert one["tags_used"] == [100, 101, 102, 103] and one["reprojection_px"] < 1.5
+    KIT = {100, 101, 102, 103}
+    # how many kit tags a camera reads depends on the placement/frame geometry: at least two
+    assert 2 <= len(one["tags_used"]) and set(one["tags_used"]) <= KIT
+    assert one["reprojection_px"] < 1.5
     assert one["rmse_in"] < 0.5
     s, j = c.j("POST", "/api/calib/auto_all")
     assert s == 200 and j["ok"] is True, j
     assert j["max_error_in"] is not None and j["max_error_in"] < 1.0
     assert j["crosscheck"]["within_1_in"] is True
-    assert len(j["crosscheck"]["points"]) == 16                          # 4 tags x 4 corners
+    both_seen = set(j["results"]["cam0"]["tags_used"]) & set(j["results"]["cam1"]["tags_used"])
+    assert len(j["crosscheck"]["points"]) == 4 * len(both_seen)          # 4 corners per tag
+    assert j["crosscheck"]["out_of_sample"] is False                     # no spare tag in view
     assert {p["name"] for p in j["crosscheck"]["points"]} >= {"tag 100 corner 0"}
     assert c.j("GET", "/api/pipeline/status")[1]["calibration_loaded"] is True
     # solved pose is close to the camera the frames were rendered with
@@ -153,7 +158,8 @@ def test_auto_extrinsics_source_modes(kit_rig):
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
     assert s == 200 and j["source"] == "kit" and j["warnings"] == [] and not j["hive_tags_used"]
     s, j = c.j("POST", "/api/calib/extrinsics/cam1/auto")           # default: both
-    assert s == 200 and j["source"] == "both" and j["tags_used"] == [100, 101, 102, 103]
+    assert s == 200 and j["source"] == "both"
+    assert 2 <= len(j["tags_used"]) and set(j["tags_used"]) <= {100, 101, 102, 103}
     assert j["warnings"] == []
     # "hive" with no HIVE tag in view: plain-language 422
     s, j = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "hive"})
@@ -238,8 +244,8 @@ def test_setup_status_reports_tags_seen(kit_rig):
     assert set(seen) == {"cam0", "cam1"}
     for ids in seen.values():
         assert ids == sorted(ids) and set(ids) <= {100, 101, 102, 103}
-    assert {100, 102, 103} <= set(seen["cam0"])
-    assert {101, 102, 103} <= set(seen["cam1"])
+    assert len(seen["cam0"]) >= 2 and len(seen["cam1"]) >= 2
+    assert len(set(seen["cam0"]) | set(seen["cam1"])) >= 3
     assert any("Auto-calibrate" in x for x in j["recommendations"])
 
 
@@ -653,3 +659,67 @@ def test_setup_status_lists_free_devices_and_flags_dropped_frames_while_running(
         assert hs.recent_drops({**real, "running": True, "cameras": state["cams"]}) == {}
     finally:
         _shutdown(server, th)
+
+
+# ------------------------------------------------- out-of-sample crosscheck (held-out tags)
+@pytest.fixture()
+def kit_and_hive_rig(tmp_path):
+    """Two cameras on the audience side that both see kit tags (100 plus 103 / 102) and the
+    computed HIVE tags of the current state (audience CELL up)."""
+    from hiveshot import placement as pl
+    from hiveshot import tagkit
+    from hiveshot.field import HiveState
+    from hiveshot.synth import VirtualCamera
+    hive = tagkit.hive_tag_defs("red", HiveState("red", "audience"))
+    cams = {f"cam{i}": VirtualCamera(*pl.camera_from_pose(pos, (0.0, 10.0, 30.0), 60.0, W, H,
+                                                          f"cam{i}"))
+            for i, pos in enumerate(((-30.0, 100.0, 60.0), (30.0, 100.0, 60.0)))}
+    frames = {cid: render_tag_dict(cam, {**tagkit.tag_defs(), **hive}, seed=5)
+              for cid, cam in cams.items()}
+    rig = Rig(tmp_path, frames, cams=cams)
+    c = rig.serve()
+    rig.start()
+    yield rig, c
+    rig.close()
+
+
+def test_crosscheck_holds_out_the_hive_tags_after_a_kit_solve(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    for cam in ("cam0", "cam1"):
+        s, j = c.j("POST", f"/api/calib/extrinsics/{cam}/auto", {"source": "kit"})
+        assert s == 200 and all(100 <= t <= 103 for t in j["tags_used"]), j
+    s, x = c.j("POST", "/api/calib/crosscheck")
+    assert s == 200 and x["out_of_sample"] is True and x["held_out"] == "HIVE tags", x
+    assert x["points"] and all(p["kind"] == "hive" and p["name"].startswith("hive tag ")
+                               for p in x["points"])
+    assert x["max_error_in"] == max(p["error_in"] for p in x["points"]) < 1.5
+    assert set(x["points"][0]) >= {"name", "xyz_measured", "xyz_expected", "error_in"}
+
+
+def test_crosscheck_never_uses_a_tag_either_solve_used(kit_and_hive_rig):
+    """cam0 is solved from kit + HIVE tags, cam1 from the kit only: the HIVE tags were used by
+    cam0's solve, so they are not held out (the answer falls back to the labelled in-sample
+    re-measurement); with both cameras on the kit alone they are held out."""
+    r, c = kit_and_hive_rig
+    s, j0 = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "both"})
+    assert s == 200 and any(t >= 30 and t < 100 for t in j0["tags_used"]), j0
+    s, j1 = c.j("POST", "/api/calib/extrinsics/cam1/auto", {"source": "kit"})
+    assert s == 200
+    s, x = c.j("POST", "/api/calib/crosscheck")
+    assert s == 200 and x["out_of_sample"] is False and "in-sample" in x["warning"], x
+    assert all(p["name"].startswith("tag 1") for p in x["points"])        # the clicked kit corners
+    s, j0 = c.j("POST", "/api/calib/extrinsics/cam0/auto", {"source": "kit"})
+    assert s == 200
+    x = c.j("POST", "/api/calib/crosscheck")[1]
+    assert x["out_of_sample"] is True and x["held_out"] == "HIVE tags"
+
+
+def test_auto_all_uses_the_kit_so_the_crosscheck_has_held_out_features(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    s, j = c.j("POST", "/api/calib/auto_all")
+    assert s == 200 and j["ok"] is True, j
+    assert all(res["source"] == "kit" and not res["hive_tags_used"]
+               for res in j["results"].values())
+    xc = j["crosscheck"]
+    assert xc["out_of_sample"] is True and xc["held_out"] == "HIVE tags"
+    assert j["max_error_in"] == xc["max_error_in"] < 1.5

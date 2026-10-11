@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 import pytest
 
-from hiveshot import calib, calib_targets, field, tagkit
+from hiveshot import calib, field, tagkit
+from hiveshot import field_constants as fc
 from hiveshot import placement as pl
 from hiveshot.synth import VirtualCamera
 
@@ -61,25 +62,47 @@ def test_kit_definition():
     assert [t.id for t in tagkit.KIT_TAGS] == [100, 101, 102, 103]
     assert tagkit.DEFAULT_TAG_SIZE_IN == 6.0
     assert all(t.size_in == 6.0 for t in tagkit.KIT_TAGS)
-    names = [n for n, _ in calib_targets.field_reference_points()][4:]
-    assert [t.point_name for t in tagkit.KIT_TAGS] == names
-    ref = dict(calib_targets.field_reference_points())
+    feats = dict(field.frame_reference_points())
+    lp = fc.FRAME_LOGO_PANEL
     for t in tagkit.KIT_TAGS:
         c = tagkit.tag_corners_xyz(t)
-        assert c.shape == (4, 3)
-        # vertical plane facing +Y: constant y equal to the frame corner's y
-        assert np.allclose(c[:, 1], ref[t.point_name][1])
-        # square of 6.0 in, edges follow the aruco order TL, TR, BR, BL (upright = +Z)
+        n = tagkit.tag_normal_xyz(t)
+        assert c.shape == (4, 3) and np.linalg.norm(n) == pytest.approx(1.0)
+        # square of 6.0 in, corner order TL, TR, BR, BL; the face normal is (TR-TL) x (TL-BL)
         assert np.allclose(np.linalg.norm(c[1] - c[0]), 6.0)
         assert np.allclose(np.linalg.norm(c[2] - c[1]), 6.0)
-        assert c[0, 2] == pytest.approx(c[1, 2]) and c[0, 2] > c[3, 2]
-        assert c[1, 0] < c[0, 0]            # right side of the tag is toward -X
-        # flush mount: the outer top corner of the tag is the frame corner point
-        outer = c[0] if ref[t.point_name][0] > 0 else c[1]
-        assert np.allclose(outer, ref[t.point_name])
+        assert np.allclose(np.cross(c[1] - c[0], c[0] - c[3]) / 36.0, n)
+        assert n[1] > 0                      # every tag faces the audience side (+Y)
+        up = c[0] - c[3]
+        assert up[2] > 0                     # label up
+        assert c[1, 0] < c[0, 0]             # right side of the tag is toward -X
+    # 100 / 101: on the audience face of the logo panel, vertical, at the crossbar ends
+    for tid, sx in ((100, -1), (101, 1)):
+        c = tagkit.tag_corners_xyz(tid)
+        end = feats["Frame crossbar end (+X apex)" if sx > 0 else "Frame crossbar end (-X apex)"]
+        assert np.allclose(c[:, 1], lp["y_outer"])
+        assert np.allclose(tagkit.tag_normal_xyz(tid), [0, 1, 0])
+        assert c[:, 0].mean() == pytest.approx(end[0])        # centered on the crossbar end
+        assert c[:, 2].max() == pytest.approx(lp["z_hi"])     # top edge on the panel top edge
+        assert c[:, 0].max() - c[:, 0].min() <= 2 * lp["half_x"]
+        assert abs(c[:, 0]).max() <= lp["half_x"] + 1e-9      # inside the panel
+    # 102 / 103: standing on the tile at the audience-side base corners, tilted back 20 deg
+    t20 = np.radians(20.0)
+    for tid, sx in ((102, -1), (103, 1)):
+        c = tagkit.tag_corners_xyz(tid)
+        corner = feats["Frame base corner (+X, +Y)" if sx > 0 else "Frame base corner (-X, +Y)"]
+        assert c[:, 2].min() == pytest.approx(0.0, abs=1e-9)  # bottom edge on the tiles
+        assert np.allclose(tagkit.tag_normal_xyz(tid), [0, np.cos(t20), np.sin(t20)])
+        assert abs(c[:, 0]).max() == pytest.approx(abs(corner[0]))   # outer edge flush with the foot bar
+        # the plane touches the top edge of the foot bar end (y = 19.47, z = 2.15)
+        n = tagkit.tag_normal_xyz(tid)
+        assert np.dot(np.array([c[2][0], corner[1], fc.FRAME_BASE_HEIGHT]) - c[2], n) == pytest.approx(
+            0.0, abs=1e-9)
+        # leaning back: the top edge is nearer the frame (smaller y) than the bottom edge
+        assert c[0][1] < c[3][1]
     js = tagkit.tags_json()
     assert [j["id"] for j in js] == [100, 101, 102, 103]
-    assert set(js[0]) >= {"id", "size_in", "name", "xyz_center", "corners_xyz"}
+    assert set(js[0]) >= {"id", "size_in", "name", "xyz_center", "corners_xyz", "normal", "kind"}
     assert np.allclose(js[0]["corners_xyz"], tagkit.tag_corners_xyz(100))
 
 
@@ -108,29 +131,20 @@ def test_tag_sheet_pdf(tmp_path):
         assert np.linalg.norm(c[1] - c[0]) == pytest.approx(1800, abs=2)
 
 
-def test_kit_size_is_a_parameter_and_extended_tags(tmp_path):
+def test_kit_size_is_a_parameter(tmp_path):
     four = tagkit.tag_defs(size_in=4.0)
     six = tagkit.tag_defs()
     for tid in four:
         assert np.linalg.norm(four[tid][1] - four[tid][0]) == pytest.approx(4.0)
-        # the outer top corner (frame corner) is the same for any size
-        outer4 = four[tid][0] if four[tid][0][0] > 0 else four[tid][1]
-        outer6 = six[tid][0] if six[tid][0][0] > 0 else six[tid][1]
-        assert np.allclose(outer4, outer6)
+    # the anchors do not move with the size: top edge of the panel tags, outer edge of base tags
+    for tid in (100, 101):
+        assert four[tid][:, 2].max() == pytest.approx(six[tid][:, 2].max())
+    for tid in (102, 103):
+        assert abs(four[tid][:, 0]).max() == pytest.approx(abs(six[tid][:, 0]).max())
+        assert four[tid][:, 2].min() == pytest.approx(0.0, abs=1e-9)
     assert tagkit.tags_json(4.0)[0]["size_in"] == 4.0
-    ext = tagkit.tag_defs(extended=True)
-    assert sorted(ext) == [100, 101, 102, 103, 104, 105]
-    # tags 104/105: audience-side top bar (from the wireframe) midpoint -/+ 12 in, hanging down
-    a, b = calib_targets.frame_top_corners()[:2]
-    mid = 0.5 * (np.asarray(a) + np.asarray(b))
-    for tid, dx in ((104, -12.0), (105, 12.0)):
-        c = ext[tid]
-        assert np.allclose(c[:, 1], mid[1])
-        assert c[:, 0].mean() == pytest.approx(mid[0] + dx)
-        assert c[0][2] == pytest.approx(mid[2])            # top edge flush with the bar top
-        assert np.linalg.norm(c[1] - c[0]) == pytest.approx(6.0)
-    p = tagkit.write_tag_sheet_pdf(tmp_path / "ext.pdf", extended=True)
-    assert p.read_bytes().count(b"/Type /Page ") == 6
+    p = tagkit.write_tag_sheet_pdf(tmp_path / "big.pdf", size_in=7.5)
+    assert p.read_bytes().count(b"/Type /Page ") == 4
     with pytest.raises(ValueError):
         tagkit.render_tag_pages(size_in=7.8)               # no room for the quiet zone
 
@@ -158,30 +172,28 @@ def test_detect_and_solve_recovers_pose(option):
     assert np.linalg.norm(np.asarray(xyz).reshape(-1)[:3] - truth) < 1.0
 
 
-def test_three_tags_still_solve_one_tag_raises():
+def test_fewer_tags_still_solve_one_tag_raises():
+    rec = pl.recommend("gopro")
     cam = _vcam("gopro", "B")
     defs = tagkit.tag_defs()
-    img3 = render_tags(cam, hide=(102,), seed=2)
-    ext, info = calib.solve_extrinsics_from_tags(cam.intr, img3, defs, "cam1")
-    assert info["tags_used"] == [100, 101, 103] and info["tags_missing"] == [102]
-    assert np.linalg.norm(_pos(ext) - _pos(cam.extr)) < 1.0
-    assert _rot_deg(ext, cam.extr) < 0.6
+    readable = sorted(t for t, d in rec["tags"]["B"]["kit"]["tags"].items() if d["ok"])
+    assert len(readable) >= 3
+    show = lambda ids: render_tags(cam, hide=tuple(set(defs) - set(ids)), seed=2)  # noqa: E731
+    ext, info = calib.solve_extrinsics_from_tags(cam.intr, show(readable), defs, "cam1")
+    assert info["tags_used"] == readable
+    assert np.linalg.norm(_pos(ext) - _pos(cam.extr)) < 0.5 and _rot_deg(ext, cam.extr) < 0.3
 
-    img2 = render_tags(cam, hide=(102, 103), seed=2)
-    ext2, info2 = calib.solve_extrinsics_from_tags(cam.intr, img2, defs, "cam1")
-    assert info2["tags_used"] == [100, 101]
+    two = readable[:2]
+    ext2, info2 = calib.solve_extrinsics_from_tags(cam.intr, show(two), defs, "cam1")
+    assert info2["tags_used"] == two
 
-    img1 = render_tags(cam, hide=(101, 102, 103), seed=2)
-    with pytest.raises(ValueError, match=r"only 1 tag visible: 100; need 2"):
-        calib.solve_extrinsics_from_tags(cam.intr, img1, defs, "cam1")
+    with pytest.raises(ValueError, match=rf"only 1 tag visible: {readable[0]}; need 2"):
+        calib.solve_extrinsics_from_tags(cam.intr, show(readable[:1]), defs, "cam1")
     with pytest.raises(ValueError, match="no known tags visible"):
-        calib.solve_extrinsics_from_tags(cam.intr, render_tags(cam, hide=(100, 101, 102, 103)),
-                                         defs, "cam1")
+        calib.solve_extrinsics_from_tags(cam.intr, show([]), defs, "cam1")
     # min_tags is respected
-    ext1, _ = calib.solve_extrinsics_from_tags(cam.intr, img2, defs, "cam1", min_tags=2)
     with pytest.raises(ValueError, match="need 3"):
-        calib.solve_extrinsics_from_tags(cam.intr, img2, defs, "cam1", min_tags=3)
-    assert ext1 is not None
+        calib.solve_extrinsics_from_tags(cam.intr, show(two), defs, "cam1", min_tags=3)
 
 
 def test_calibration_doc_describes_tag_kit():
@@ -197,7 +209,6 @@ def test_calibration_doc_describes_tag_kit():
 
 
 # ------------------------------------------------------------------ HIVE tags: learn + infer
-from hiveshot import field_constants as fc  # noqa: E402
 
 
 def _row_tags(cluster, y, z, hive_x=fc.RED_HIVE_X, upside_down=False):
@@ -452,13 +463,42 @@ def test_each_camera_reads_three_kit_tags_and_solves_accurately(option):
             assert _rot_deg(ext, cam.extr) < 0.3, (option, k, seed)
 
 
-def test_optional_bar_tags_add_readable_tags_for_cam1():
-    """Tags 104/105 (not in the default kit) would give cam1 a fourth readable tag."""
-    rec = pl.recommend("gopro")
-    cam = _vcam("gopro", "B")
-    defs = tagkit.tag_defs(extended=True)
-    readable = sorted(t for t, d in rec["tags"]["B"]["kit"]["tags"].items() if d["ok"])
-    img = render_tag_dict(cam, {t: defs[t] for t in readable + [105]}, seed=2)
-    ext, info = calib.solve_extrinsics_from_tags(cam.intr, img, defs, cam.cam_id)
-    assert 105 in info["tags_used"] and len(info["tags_used"]) >= 4
-    assert np.linalg.norm(_pos(ext) - _pos(cam.extr)) < 0.5 and _rot_deg(ext, cam.extr) < 0.3
+# ------------------------------------------------------------------ tag mounting error
+def _perturbed(corners, mag, ang_deg, rng):
+    c = corners.mean(axis=0)
+    d = rng.normal(size=3)
+    d *= mag / np.linalg.norm(d)
+    ax = rng.normal(size=3)
+    ax /= np.linalg.norm(ax)
+    R = cv2.Rodrigues(ax * np.radians(ang_deg))[0]
+    return (corners - c) @ R.T + c + d
+
+
+@pytest.mark.parametrize("mag,ang,max_pos,max_cell,min_reproj_med", [
+    (0.25, 0.5, 3.0, 1.0, 0.0),      # tape-measured to 0.25 in / 0.5 deg: usable
+    (1.0, 2.0, 9.0, 3.0, 2.0),       # 1 in / 2 deg: the 2 px reprojection gate fails
+])
+def test_kit_pose_error_vs_tag_mounting_error(mag, ang, max_pos, max_cell, min_reproj_med):
+    """The solve assumes the tags are exactly where the model says; the pose error follows the
+    taping error (docs/calibration.md demands a tape check to 0.25 in). Small seed count: the
+    full study is evidence/refute/dod9_kit_mounting_sim.py."""
+    cams = {k: _vcam("usb", k) for k in "AB"}
+    defs = tagkit.tag_defs()
+    truth, _ = field.cell_opening_plane("red", "audience", field.HiveState("red", "audience"))
+    pos_err, reproj, cell_err = [], [], []
+    for sd in range(4):
+        rng = np.random.default_rng(1000 + sd)
+        true_tags = {t: _perturbed(c, mag, ang, rng) for t, c in defs.items()}
+        ests = {}
+        for k, cam in cams.items():
+            img = render_tag_dict(cam, true_tags, seed=sd)
+            ext, info = calib.solve_extrinsics_from_tags(cam.intr, img, defs, cam.cam_id)
+            ests[k] = ext
+            pos_err.append(float(np.linalg.norm(_pos(ext) - _pos(cam.extr))))
+            reproj.append(info["reprojection_px"])
+        ua = np.array([a[0] for a in cams["A"].project(truth)])
+        ub = np.array([a[0] for a in cams["B"].project(truth)])
+        xyz, _ = calib.triangulate(cams["A"].intr, ests["A"], ua, cams["B"].intr, ests["B"], ub)
+        cell_err.append(float(np.linalg.norm(np.asarray(xyz).reshape(-1)[:3] - truth)))
+    assert max(pos_err) < max_pos and max(cell_err) < max_cell
+    assert float(np.median(reproj)) >= min_reproj_med

@@ -130,7 +130,7 @@ def test_checkerboard_pdf_and_png(tmp_path):
 def test_field_point_sheet(tmp_path):
     p = calib_targets.write_field_point_sheet(tmp_path / "pts.md")
     text = p.read_text(encoding="utf-8")
-    assert "VERIFY" in text and text.count("\n| ") >= 8
+    assert "Blue HIVE far-CELL opening" in text and text.count("\n| ") >= 8
 
 
 def test_real_corner_detection_on_warped_board(tmp_path):
@@ -149,50 +149,38 @@ def test_real_corner_detection_on_warped_board(tmp_path):
 
 # ---------------------------------------------------------------- reference points (DoD 9)
 def test_cell_reference_points_equal_field_polygon():
-    """Every reference point that claims to be a CELL corner is a corner of the polygon in
-    hiveshot.field (single source of truth), including the 8.8 in y offset the old,
-    independently derived sheet had."""
+    """The 8 click points are the corners of two physically real CELL openings, read from
+    hiveshot.field (single source of truth): the red audience CELL and the blue far CELL, both
+    up in the match-start state."""
     from hiveshot import field
 
-    st = field.HiveState("red", "audience")
-    poly = field.cell_opening_polygon("red", "audience", st)
     pts = dict(calib_targets.field_reference_points())
-    cell = {n: p for n, p in pts.items() if "up-CELL opening" in n}
-    assert len(cell) == 4
-    for name, p in cell.items():
-        d = np.linalg.norm(poly - np.asarray(p), axis=1)
-        assert d.min() < 1e-6, f"{name} {p} is not a field.py CELL corner (min dist {d.min()})"
-    # all four polygon corners are covered exactly once
-    used = {int(np.argmin(np.linalg.norm(poly - np.asarray(p), axis=1))) for p in cell.values()}
-    assert used == {0, 1, 2, 3}
-    centre = np.mean(list(cell.values()), axis=0)
-    c_field, _ = field.cell_opening_plane("red", "audience", st)
-    assert np.allclose(centre, c_field, atol=1e-6)
-    assert centre[1] == pytest.approx(field.OPENING_CENTER_ABS_Y)
-    # named corners: left = -X, high = larger z
-    assert cell["Red HIVE up-CELL opening, high-left corner"][0] < cell[
-        "Red HIVE up-CELL opening, high-right corner"][0]
-    assert cell["Red HIVE up-CELL opening, high-left corner"][2] > cell[
-        "Red HIVE up-CELL opening, low-left corner"][2]
-
-
-def test_frame_reference_points_are_wireframe_corners():
-    from hiveshot import field
-
-    segs = field.hive_frame_wireframe()
-    ends = [np.asarray(e) for s in segs for e in s]
-    pts = calib_targets.field_reference_points()
     assert len(pts) == 8
-    for n, p in pts[4:]:
-        assert "frame top corner" in n
-        assert min(np.linalg.norm(e - np.asarray(p)) for e in ends) < 1e-9
-    # both audience-side (+Y) and far-side (-Y), both +-X
-    assert {(np.sign(p[0]), np.sign(p[1])) for _, p in pts[4:]} == {(-1, 1), (1, 1), (-1, -1),
-                                                                    (1, -1)}
-    # audience-side top bar is a horizontal wireframe segment between the first two
-    a, b = np.asarray(pts[4][1]), np.asarray(pts[5][1])
-    assert any((np.allclose(s[0], a) and np.allclose(s[1], b))
-               or (np.allclose(s[0], b) and np.allclose(s[1], a)) for s in segs)
+    for prefix, (alliance, which) in (("Red HIVE up-CELL opening, ", ("red", "audience")),
+                                      ("Blue HIVE far-CELL opening, ", ("blue", "far"))):
+        st = field.HiveState(alliance, which)
+        poly = field.cell_opening_polygon(alliance, which, st)
+        cell = {n: p for n, p in pts.items() if n.startswith(prefix)}
+        assert len(cell) == 4
+        for name, p in cell.items():
+            d = np.linalg.norm(poly - np.asarray(p), axis=1)
+            assert d.min() < 1e-6, f"{name} {p} is not a field.py CELL corner (min dist {d.min()})"
+        # all four polygon corners are covered exactly once
+        used = {int(np.argmin(np.linalg.norm(poly - np.asarray(p), axis=1))) for p in cell.values()}
+        assert used == {0, 1, 2, 3}
+        centre = np.mean(list(cell.values()), axis=0)
+        c_field, _ = field.cell_opening_plane(alliance, which, st)
+        assert np.allclose(centre, c_field, atol=1e-6)
+        assert abs(centre[1]) == pytest.approx(field.OPENING_CENTER_ABS_Y)
+        # named corners: left = -X, high = larger z
+        assert cell[prefix + "high-left corner"][0] < cell[prefix + "high-right corner"][0]
+        assert cell[prefix + "high-left corner"][2] > cell[prefix + "low-left corner"][2]
+    # red opening on the +X / audience side, blue far opening on the -X / far side
+    assert all(p[0] > 0 and p[1] > 0 for n, p in pts.items() if n.startswith("Red"))
+    assert all(p[0] < 0 and p[1] < 0 for n, p in pts.items() if n.startswith("Blue"))
+    # the old, non-existent frame "top corners" are gone
+    assert not hasattr(calib_targets, "frame_top_corners")
+    assert all("frame" not in n.lower() for n in pts)
 
 
 def test_reference_point_names_helper():

@@ -1,0 +1,57 @@
+===== usb
+-- mount0
+  kit                      reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  kit+hive                 reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  hive                     reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  click8                   reproj<2px both cams 27/30; opening-center err<1in 30/30; both criteria 27/30
+  click_cell4              reproj<2px both cams 29/30; opening-center err<1in 30/30; both criteria 29/30
+  click_cell_red+bluefar   reproj<2px both cams 20/30; opening-center err<1in 30/30; both criteria 20/30
+  click8: cam-runs with max per-point error < 2 px: 10 / 60
+  kit-only max_px<2 across cam-runs: 51 / 60
+-- mount0.25in_1deg
+  kit                      reproj<2px both cams 23/30; opening-center err<1in 30/30; both criteria 23/30
+  kit+hive                 reproj<2px both cams 21/30; opening-center err<1in 30/30; both criteria 21/30
+  hive                     reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  click8                   reproj<2px both cams 23/30; opening-center err<1in 30/30; both criteria 23/30
+  click_cell4              reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  click_cell_red+bluefar   reproj<2px both cams 19/30; opening-center err<1in 30/30; both criteria 19/30
+  click8: cam-runs with max per-point error < 2 px: 6 / 60
+  kit-only max_px<2 across cam-runs: 22 / 60
+-- mount1in_2deg
+  kit                      reproj<2px both cams 1/30; opening-center err<1in 10/30; both criteria 1/30
+  kit+hive                 reproj<2px both cams 0/30; opening-center err<1in 30/30; both criteria 0/30
+  hive                     reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  click8                   reproj<2px both cams 24/30; opening-center err<1in 30/30; both criteria 24/30
+  click_cell4              reproj<2px both cams 29/30; opening-center err<1in 30/30; both criteria 29/30
+  click_cell_red+bluefar   reproj<2px both cams 14/30; opening-center err<1in 30/30; both criteria 14/30
+  click8: cam-runs with max per-point error < 2 px: 8 / 60
+  kit-only max_px<2 across cam-runs: 0 / 60
+===== gopro
+-- mount0
+  kit                      reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  kit+hive                 reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  hive                     reproj<2px both cams 30/30; opening-center err<1in 29/30; both criteria 29/30
+  click8                   reproj<2px both cams 23/30; opening-center err<1in 30/30; both criteria 23/30
+  click_cell4              reproj<2px both cams 25/30; opening-center err<1in 30/30; both criteria 25/30
+  click_cell_red+bluefar   reproj<2px both cams 23/30; opening-center err<1in 30/30; both criteria 23/30
+  click8: cam-runs with max per-point error < 2 px: 8 / 60
+  kit-only max_px<2 across cam-runs: 56 / 60
+  hive-only gross outlier: seed 1 cam 1 {'used': [34, 35], 'reproj_px': 0.8022190477912016, 'max_px': 1.0361038404042668, 'pos_err_in': 125.34494026765617, 'rot_err_deg': 93.46612276011048}
+-- mount0.25in_1deg
+  kit                      reproj<2px both cams 19/30; opening-center err<1in 30/30; both criteria 19/30
+  kit+hive                 reproj<2px both cams 15/30; opening-center err<1in 30/30; both criteria 15/30
+  hive                     reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  click8                   reproj<2px both cams 26/30; opening-center err<1in 30/30; both criteria 26/30
+  click_cell4              reproj<2px both cams 28/30; opening-center err<1in 30/30; both criteria 28/30
+  click_cell_red+bluefar   reproj<2px both cams 23/30; opening-center err<1in 30/30; both criteria 23/30
+  click8: cam-runs with max per-point error < 2 px: 10 / 60
+  kit-only max_px<2 across cam-runs: 24 / 60
+-- mount1in_2deg
+  kit                      reproj<2px both cams 0/30; opening-center err<1in 11/30; both criteria 0/30
+  kit+hive                 reproj<2px both cams 0/30; opening-center err<1in 30/30; both criteria 0/30
+  hive                     reproj<2px both cams 30/30; opening-center err<1in 30/30; both criteria 30/30
+  click8                   reproj<2px both cams 24/30; opening-center err<1in 30/30; both criteria 24/30
+  click_cell4              reproj<2px both cams 29/30; opening-center err<1in 30/30; both criteria 29/30
+  click_cell_red+bluefar   reproj<2px both cams 23/30; opening-center err<1in 30/30; both criteria 23/30
+  click8: cam-runs with max per-point error < 2 px: 9 / 60
+  kit-only max_px<2 across cam-runs: 0 / 60

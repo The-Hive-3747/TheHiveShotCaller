@@ -216,3 +216,61 @@ def test_constants_are_the_single_source():
     assert far[2] == pytest.approx(C.DOWN_CELL_OPENING_CENTER_Z, abs=0.01)
     lo = field.cell_opening_polygon("red", "far", ST)[:, 2]
     assert (lo.min(), lo.max()) == pytest.approx(C.DOWN_CELL_OPENING_Z_RANGE, abs=0.05)
+
+
+# ---- CAD frame (values typed from evidence/m1_field/step_extract.md, not from field_constants)
+def _frame_pts(segs):
+    return np.array([p for s in segs for p in s])
+
+
+def test_frame_wireframe_matches_cad_vertices():
+    segs = field.hive_frame_wireframe()
+    pts = _frame_pts(segs)
+
+    def has(p, tol=0.1):
+        return np.min(np.linalg.norm(pts - np.array(p), axis=1)) <= tol
+
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            assert has((sx * 24.73, sy * 19.47, 0.0))               # foot bar outer corners
+            assert has((sx * 22.75, sy * 19.47, 0.0))               # foot bar inner corners
+            assert has((sx * 12.60, sy * 0.52, 41.05))              # leg tops (apex end)
+            assert has((sx * 23.81, sy * 18.56, 0.53))              # leg feet
+        assert has((sx * 12.0, 0.0, 41.45))                         # crossbar ends
+        assert has((sx * 12.0, 0.0, 44.27)) and has((sx * 11.15, 0.0, 41.57))  # pivot cradle
+        assert has((sx * 15.07, 4.28, 34.07)) and has((sx * 15.07, -4.28, 40.02))  # logo panel
+    # crossbar is a segment from -12 to +12 in X at 41.45
+    assert any(np.allclose(sorted([a[0], b[0]]), [-12.0, 12.0], atol=0.1)
+               and abs(a[2] - 41.45) < 0.1 and abs(b[2] - 41.45) < 0.1
+               and abs(a[1]) < 0.1 and abs(b[1]) < 0.1 for a, b in segs)
+    # no leftover box "top corners": nothing but the CELLs rises above the pivot cradle (44.3)
+    # outside the openings; and nothing at the old 63.95 / (+-24.73, +-19.475) location
+    assert not has((24.73, 19.475, 63.95), tol=1.0)
+    assert not hasattr(field, "FRAME_TOP_Z")
+
+
+def test_frame_reference_points_are_cad_features():
+    refs = dict(field.frame_reference_points())
+    assert len(refs) == 7
+    assert np.allclose(refs["Frame crossbar end (+X apex)"], [12.0, 0, 41.45], atol=0.1)
+    assert np.allclose(refs["Frame crossbar end (-X apex)"], [-12.0, 0, 41.45], atol=0.1)
+    assert np.allclose(refs["Frame crossbar midpoint"], [0, 0, 41.45], atol=0.1)
+    corners = {n: p for n, p in refs.items() if "base corner" in n}
+    assert len(corners) == 4
+    for p in corners.values():
+        assert abs(abs(p[0]) - 24.73) <= 0.1 and abs(abs(p[1]) - 19.47) <= 0.1 and p[2] == 0.0
+    segs = field.hive_frame_wireframe()
+    pts = _frame_pts(segs)
+    for p in refs.values():  # every reference is on the drawn frame
+        assert np.min(np.linalg.norm(pts - p, axis=1)) < 1e-6 or abs(p[0]) < 1e-9
+
+
+def test_frame_to_json_and_perimeter():
+    j = field.to_json()
+    assert len(j["wireframe"]) == len(field.hive_frame_wireframe())
+    assert len(j["frame_reference_points"]) == 7
+    top = max(max(a[2], b[2]) for a, b in j["wireframe"])
+    assert top < 66.0                                  # CELLs only; the frame peaks at 44.3
+    assert C.FIELD_INSIDE_SIZE_CAD == pytest.approx(141.35, abs=0.05)   # CAD glass inner faces
+    assert C.FIELD_SIZE == 144.0                       # manual nominal kept
+    assert j["field_inside_size_cad"] == C.FIELD_INSIDE_SIZE_CAD

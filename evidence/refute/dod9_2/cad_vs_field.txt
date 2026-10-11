@@ -1,0 +1,12 @@
+['am-5866-red: Red Goal Rib', 'am-5888-red1: Red Goal April Tag (Audience)']
+CAD sticker bbox center (field frame): [12.742 12.887 49.666]
+CAD-derived tag row center: [12.742 13.104 49.791]  field.py: [12.75  13.102 49.79 ]  diff in: 0.009
+tag ids -> centers (field.py): {34: [19.25, 13.1, 49.79], 35: [15.5, 13.1, 49.79], 36: [10.0, 13.1, 49.79], 37: [6.25, 13.1, 49.79]}
+rib origin(CAD) [-12.742  58.756   2.423] local z axis (normal) [ 0.    -0.5   -0.866] local extents min [-10.5   -14.582  -1.938] max [10.5    1.446  0.062]
+rib origin(CAD) [-12.742  64.702  12.722] local z axis (normal) [-0.     0.5    0.866] local extents min [-10.5   -14.582  -1.938] max [10.5    1.446  0.062]
+plane z_loc=0.0: official-height opening center (CAD) [12.742 15.697 59.55 ]; field.py center [12.75  15.767 59.55 ]
+   corner diffs (in): [0.065 0.065 0.079 0.079]  per-axis max |d|: [0.008 0.078 0.012]
+plane z_loc=0.06: official-height opening center (CAD) [12.742 15.766 59.55 ]; field.py center [12.75  15.767 59.55 ]
+   corner diffs (in): [0.016 0.016 0.017 0.017]  per-axis max |d|: [0.008 0.008 0.012]
+rib (outer) world bbox field frame min [ 2.24 11.32 51.12] max [23.24 20.06 65.93]
+field.py HIVE_X 12.75 CAD red hive x = 12.742

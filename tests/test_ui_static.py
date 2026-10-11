@@ -302,26 +302,26 @@ def test_calibration_points_dynamic_not_hardcoded():
     assert 'href="/api/calib/checkerboard.pdf"' in html and "Download checkerboard PDF" in html
 
 
-def test_calibration_fallback_names_match_backend():
-    sys.path.insert(0, str(ROOT))
-    from hiveshot import calib_targets
-
+def test_ui_encodes_no_field_geometry():
+    """Point/tag names and coordinates come only from the API; the UI source must not hardcode them."""
     js = (UI / "app.js").read_text(encoding="utf-8")
-    block = re.search(r"FALLBACK_CALIB_NAMES = \[(.*?)\];", js, re.S).group(1)
-    names = re.findall(r"'([^']+)'", block)
-    assert names == calib_targets.reference_point_names()
+    html = (UI / "index.html").read_text(encoding="utf-8")
+    assert "FALLBACK_CALIB_NAMES" not in js and "FALLBACK_TAG_NAMES" not in js
+    for text in (js, html):
+        assert not re.search(r"top corner|63\.95|24\.73|19\.48", text), "field geometry hardcoded in the UI"
+    # when /api/calib/points fails the list is empty, a warning is shown and clicking is blocked
+    assert "list = [];" in js and "point clicking is disabled" in js
+    assert "if (!calibPoints.length)" in js
 
 
 def test_stub_calibration_endpoints():
-    from hiveshot import calib_targets
-
     srv, _ = ui_stub_server.start(0)
     base = f"http://127.0.0.1:{srv.server_address[1]}"
     try:
         with urllib.request.urlopen(base + "/api/calib/points", timeout=10) as r:
             pts = json.load(r)
-        assert [p["name"] for p in pts] == calib_targets.reference_point_names()
         assert len(pts) == 8 and all(len(p["xyz"]) == 3 for p in pts)
+        assert [p["name"] for p in pts] == [f"point {i}" for i in range(1, 9)]  # generic stub-only data
         with urllib.request.urlopen(base + "/api/calib/checkerboard.pdf", timeout=10) as r:
             assert r.headers["Content-Type"] == "application/pdf"
             assert r.read().startswith(b"%PDF")
@@ -574,3 +574,24 @@ def test_round10_demo_transition_waits_for_status():
     onclick = js[js.index("$('btnDemo').onclick"):]
     onclick = onclick[:onclick.index("};")]
     assert "reloadAfterModeChange" not in onclick and "refreshSessions" not in onclick
+
+
+def test_round12_field_size_setting():
+    js = (UI / "app.js").read_text(encoding="utf-8")
+    assert "inp('field_size_in', c.field_size_in ?? 144)" in js and "'Field size (in)'" in js
+    assert "Measure your field wall to wall; the official CAD says 141.35" in js
+    assert "141.35" in js and "about 144" in js
+    # saved through the generic [data-path] loop, with a client-side 60-400 check
+    assert "setPath(merged, el.dataset.path, v)" in js
+    assert "el.dataset.path === 'field_size_in' && !(v >= 60 && v <= 400)" in js
+
+
+def test_stub_config_has_field_size():
+    srv, _ = ui_stub_server.start(0)
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        with urllib.request.urlopen(base + "/api/config", timeout=10) as r:
+            assert json.load(r)["field_size_in"] == 144
+    finally:
+        srv.shutdown()
+        srv.server_close()

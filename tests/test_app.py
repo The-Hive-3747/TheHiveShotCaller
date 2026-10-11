@@ -398,6 +398,10 @@ def test_crosscheck_reports_small_error_for_clean_clicks_and_persists_them(clien
             sum((m - e) ** 2 for m, e in zip(p["xyz_measured"], p["xyz_expected"], strict=True)) ** 0.5)
     assert j["max_error_in"] == pytest.approx(max(p["error_in"] for p in j["points"]))
     assert j["max_error_in"] < 0.5 and j["within_1_in"] is True
+    # nothing was held out (no frames, no tags): the answer is labelled in-sample
+    assert j["out_of_sample"] is False and "in-sample" in j["warning"]
+    s, j2 = client.j("POST", "/api/calib/crosscheck", {"in_sample": True})
+    assert s == 200 and j2["out_of_sample"] is False and "warning" not in j2
     saved = json.loads((tmp_path / "data" / "calibration.json").read_text())
     assert {c: [(p["name"], round(p["u"], 3)) for p in v] for c, v in saved["clicks"].items()} \
         == {c: [(p["name"], round(p["u"], 3)) for p in v] for c, v in clicks.items()}
@@ -439,3 +443,17 @@ def test_status_reports_calibration_loaded_and_warnings(tmp_path):
 def test_status_with_embedded_fixture_calibration_has_no_calibration_warning(client):
     st = client.j("GET", "/api/pipeline/status")[1]
     assert st["calibration_loaded"] is True and st["warnings"] == []
+
+
+def test_field_size_in_config_and_geometry(client):
+    cfg = client.j("GET", "/api/config")[1]
+    assert cfg["field_size_in"] == 144.0
+    geo = client.j("GET", "/api/field/geometry")[1]
+    assert geo["field_size"] == 144.0 and geo["bounds"]["max"][:2] == [72.0, 72.0]
+    s, cfg = client.j("PUT", "/api/config", {"field_size_in": 141.5})
+    assert s == 200 and cfg["field_size_in"] == 141.5
+    geo = client.j("GET", "/api/field/geometry")[1]
+    assert geo["field_size"] == 141.5
+    assert geo["bounds"]["min"][:2] == [-70.75, -70.75] and geo["bounds"]["max"][:2] == [70.75, 70.75]
+    assert client.j("PUT", "/api/config", {"field_size_in": 10})[0] == 422     # not a field
+    assert client.j("GET", "/api/config")[1]["field_size_in"] == 141.5

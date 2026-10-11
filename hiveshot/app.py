@@ -110,6 +110,11 @@ class AppState:
         self._dev_cache: Optional[tuple[float, set, list]] = None
         # last extrinsics click set per camera: {cam_id: [{name, u, v}]} (image pixels)
         self.clicks: dict[str, list[dict]] = self._load_clicks()
+        # tags each camera's last tag-based extrinsics solve used: {cam: {source, tags_used}}
+        # (a click-based solve stores {source: "clicks", tags_used: []}); the out-of-sample
+        # crosscheck holds out every tag a solve did not use
+        self.solve_tags: dict[str, dict] = {str(k): dict(v) for k, v in
+                                            self._load_extra("solve_tags").items()}
         # learned HIVE tag corners per state: {"red_audience": {"34": [[x,y,z] x4]}}
         self.hive_tags: dict[str, dict[str, list]] = self._load_extra("hive_tags")
 
@@ -215,11 +220,11 @@ class AppState:
                 store = Store(demo_dir / "hiveshot.db")
                 self._user = {"cfg": self.cfg, "pipeline": self.pipeline, "store": self.store,
                               "data_dir": self.data_dir, "clicks": self.clicks,
-                              "hive_tags": self.hive_tags}
+                              "hive_tags": self.hive_tags, "solve_tags": self.solve_tags}
                 self.cfg, self.store, self.data_dir = cfg, store, demo_dir
                 self.pipeline = Pipeline(cfg, store, demo_dir, on_event=self.on_event,
                                          demo=True)
-                self.clicks, self.hive_tags = {}, {}
+                self.clicks, self.hive_tags, self.solve_tags = {}, {}, {}
                 self.demo = True
             else:
                 self.pipeline.stop()        # demo already active: restart it
@@ -243,6 +248,7 @@ class AppState:
                 self.cfg, self.pipeline, self.store = u["cfg"], u["pipeline"], u["store"]
                 self.data_dir, self.clicks, self.hive_tags = (
                     u["data_dir"], u["clicks"], u["hive_tags"])
+                self.solve_tags = u["solve_tags"]
             self.demo = False
             self.pipeline.demo = False
 
@@ -282,6 +288,9 @@ class AppState:
             data["clicks"] = self.clicks
         if self.hive_tags:
             data["hive_tags"] = self.hive_tags
+        self.solve_tags = {c: v for c, v in self.solve_tags.items() if c in ext}
+        if self.solve_tags:
+            data["solve_tags"] = self.solve_tags
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
         self.pipeline.reload_calibration()
 
@@ -559,19 +568,73 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
 
     @app.post("/api/calib/crosscheck")
     def calib_crosscheck(body: dict = _OPT):
-        """Triangulate every reference point clicked in both cameras (from the last
-        extrinsics solves) and compare with its known field position."""
-        return _crosscheck()
+        """Out-of-sample check of the two cameras' calibration: triangulate AprilTag corners
+        that no extrinsics solve used and compare them with their known field positions.
+        `{"in_sample": true}` re-measures the clicked/solved points instead."""
+        return _crosscheck(in_sample=bool(body.get("in_sample")))
 
-    def _crosscheck() -> dict:
+    def _held_out_points(cams, intr, ext) -> tuple[list[dict], str]:
+        """Held-out features visible in the latest frame of both cameras: the HIVE tags
+        (computed CAD corners for the current HIVE state) and the kit tags that neither
+        camera's solve used. Returns (points, what) or ([], reason)."""
+        a, b = cams
+        fa, fb = st.pipeline.latest_frame(a), st.pipeline.latest_frame(b)
+        if fa is None or fb is None:
+            return [], "the pipeline is not running (no frames)"
+        info = [st.solve_tags.get(c) for c in cams]
+        if not all(info):
+            return [], "it is not known which tags the extrinsics solves used"
+        used = {int(t) for i in info for t in i.get("tags_used", [])}
+        expected: dict[int, tuple[np.ndarray, str]] = {}
+        try:
+            from . import tagkit
+            for tid, c4 in tagkit.tag_defs().items():
+                expected[int(tid)] = (np.asarray(c4, float).reshape(4, 3), "kit")
+        except ImportError:
+            pass
+        hs = st.pipeline.hive_state()
+        for tid, c4 in computed_hive_defs(hs.alliance, hs.up_cell).items():
+            expected[int(tid)] = (c4, "hive")
+        da = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fa.image)}
+        db = {int(d["id"]): d["corners"] for d in calib.detect_apriltags(fb.image)}
+        ids = sorted(i for i in set(da) & set(db) if i in expected and i not in used)
+        if not ids:
+            return [], "no tag outside the solves is visible in both cameras"
+        uv_a = np.vstack([np.asarray(da[i], float).reshape(4, 2) for i in ids])
+        uv_b = np.vstack([np.asarray(db[i], float).reshape(4, 2) for i in ids])
+        xyz, resid = calib.triangulate(intr[a], ext[a], uv_a, intr[b], ext[b], uv_b)
+        pts = []
+        for n, (tid, k) in enumerate((i, k) for i in ids for k in range(4)):
+            exp, kind = expected[tid]
+            m = np.asarray(xyz[n], float)
+            pts.append({"name": f"{'hive tag' if kind == 'hive' else 'tag'} {tid} corner {k}",
+                        "kind": kind, "xyz_measured": [float(v) for v in m],
+                        "xyz_expected": [float(v) for v in exp[k]],
+                        "error_in": float(np.linalg.norm(m - exp[k])),
+                        "residual_in": float(resid[n])})
+        kinds = sorted({p["kind"] for p in pts})
+        what = " and ".join({"hive": "HIVE tags", "kit": "kit tags"}[k] for k in kinds)
+        return pts, what
+
+    def _crosscheck(in_sample: bool = False) -> dict:
         cams = [s.cam_id for s in st.cfg.sources][:2]
         intr, ext = st.pipeline.calibration()
         if len(cams) < 2 or not all(c in intr and c in ext for c in cams):
             raise HTTPException(409, "need intrinsics and extrinsics for both cameras")
+        why = "in-sample re-measurement was requested"
+        if not in_sample:
+            pts, what = _held_out_points(cams, intr, ext)
+            if pts:
+                worst = max(p["error_in"] for p in pts)
+                return {"points": pts, "max_error_in": worst, "within_1_in": worst <= 1.0,
+                        "out_of_sample": True, "held_out": what}
+            why = what
         missing = [c for c in cams if not st.clicks.get(c)]
         if missing:
-            raise HTTPException(409, "no stored extrinsics clicks for " + ", ".join(missing)
-                                + "; solve the extrinsics of both cameras first")
+            lead = "" if in_sample else f"no held-out feature to check ({why}) and "
+            raise HTTPException(
+                409, lead + "no stored extrinsics clicks for " + ", ".join(missing)
+                + "; solve the extrinsics of both cameras first")
         a, b = cams
         ca = {c["name"]: c for c in st.clicks[a]}
         cb = {c["name"]: c for c in st.clicks[b]}
@@ -589,7 +652,12 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                         "xyz_expected": [float(v) for v in e],
                         "error_in": float(np.linalg.norm(m - e)), "residual_in": float(r)})
         worst = max(p["error_in"] for p in pts)
-        return {"points": pts, "max_error_in": worst, "within_1_in": worst <= 1.0}
+        out = {"points": pts, "max_error_in": worst, "within_1_in": worst <= 1.0,
+               "out_of_sample": False}
+        if not in_sample:
+            out["warning"] = ("in-sample: these are the points the extrinsics were solved from, "
+                              "so the error is optimistic (no held-out feature: " + why + ")")
+        return out
 
     # --------------------------------------------- setup wizard, tags, auto-calibration
     def _tagkit():
@@ -654,6 +722,9 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
             st.clicks[cam_id] = [
                 {"name": f"tag {tid} corner {k}", "u": float(u), "v": float(v)}
                 for tid in kit_ids for k, (u, v) in enumerate(corners[tid])]
+        else:
+            st.clicks.pop(cam_id, None)          # the old kit clicks belong to an older pose
+        st.solve_tags[cam_id] = {"source": source, "tags_used": [int(t) for t in info["tags_used"]]}
         warnings = []
         if not kit_ids:
             warnings.append("calibrated from HIVE tags only: expect 2-3x lower accuracy than "
@@ -680,7 +751,21 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         results: dict[str, dict] = {}
         for cam in cams:
             try:
-                results[cam] = {"ok": True, **_auto_solve(cam, body)}
+                if body.get("source") or body.get("use_hive_tags"):
+                    results[cam] = {"ok": True, **_auto_solve(cam, body)}
+                else:
+                    # kit first, so the HIVE tags stay out of the solve and can be held out
+                    # by the crosscheck; a camera that cannot read the kit uses the HIVE tags
+                    try:
+                        results[cam] = {"ok": True, **_auto_solve(cam, {**body, "source": "kit"})}
+                    except HTTPException as first:
+                        if first.status_code != 422:
+                            raise
+                        try:
+                            results[cam] = {"ok": True,
+                                            **_auto_solve(cam, {**body, "source": "hive"})}
+                        except HTTPException:
+                            raise first from None
             except HTTPException as e:
                 results[cam] = {"ok": False, "status": e.status_code, "error": e.detail}
         check = None
@@ -881,7 +966,8 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
     @app.get("/api/field/geometry")
     def field_geometry():
         return field.to_json({st.pipeline.hive_state().alliance:
-                              st.pipeline.hive_state().up_cell})
+                              st.pipeline.hive_state().up_cell},
+                             field_size_in=st.cfg.field_size_in)
 
     @app.post("/api/calib/intrinsics/{cam_id}/start")
     def intr_start(cam_id: str, body: dict = _OPT):
@@ -949,6 +1035,7 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         rep = calib.reprojection_report(old_i[cam_id], ext, np.array(img), np.array(fld))
         st.clicks[cam_id] = [{"name": n, "u": float(u), "v": float(v)}
                              for n, (u, v) in zip(names, img, strict=True)]
+        st.solve_tags[cam_id] = {"source": "clicks", "tags_used": []}
         st.save_calib(old_i, {**old_e, cam_id: ext},
                       st.pipeline.stale_extrinsics() - {cam_id})
         return {"rmse_in": ext.rmse_in,

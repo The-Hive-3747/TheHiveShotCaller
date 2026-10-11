@@ -108,14 +108,14 @@ def write_checkerboard_pdf(
 
 CELL_CORNER_NAMES = ("high-left", "high-right", "low-right", "low-left")
 # "left"/"right" refer to the field X axis: left = the -X side of the opening, right = +X.
+# "high" = the upper edge of the tilted opening (z 65.6 in), "low" = the lower edge (53.5 in).
 # (Seen from the recommended tripod spots the -X side appears on the image RIGHT.)
-CELL_NAME_PREFIX = "Red HIVE up-CELL opening, "
-FRAME_TOP_NAMES = (
-    "HIVE frame top corner (-X, +Y)",
-    "HIVE frame top corner (+X, +Y)",
-    "HIVE frame top corner (-X, -Y)",
-    "HIVE frame top corner (+X, -Y)",
-)
+RED_CELL_PREFIX = "Red HIVE up-CELL opening, "
+BLUE_CELL_PREFIX = "Blue HIVE far-CELL opening, "
+CELL_NAME_PREFIX = RED_CELL_PREFIX         # kept for callers of the old name
+# Match-start state (Field Setup Guide 11.1): red HIVE audience CELL up, blue HIVE far CELL up.
+# The 8 click points are the corners of these two physically real openings.
+CALIB_HIVE_STATES = (("red", "audience"), ("blue", "far"))
 # polygon order in field.cell_opening_polygon is low-left, low-right, high-right, high-left
 _POLY_INDEX = {"high-left": 3, "high-right": 2, "low-right": 1, "low-left": 0}
 
@@ -132,34 +132,16 @@ def up_cell_opening_corners(alliance: str = "red", which: str = "audience"
     return [tuple(float(v) for v in poly[_POLY_INDEX[n]]) for n in CELL_CORNER_NAMES]
 
 
-def frame_top_corners() -> list[tuple[float, float, float]]:
-    """Top corners of the HIVE frame box, order of FRAME_TOP_NAMES.
-
-    Taken from field.hive_frame_wireframe(): the audience-side top bar is the segment
-    from (-FRAME_WIDTH_X/2, +FRAME_DEPTH_Y/2, FRAME_TOP_Z) to
-    (+FRAME_WIDTH_X/2, +FRAME_DEPTH_Y/2, FRAME_TOP_Z); the far-side top bar is the same
-    with -FRAME_DEPTH_Y/2. Looked up in the wireframe so the numbers cannot drift.
-    """
-    segs = field.hive_frame_wireframe()
-    top = [s for s in segs
-           if abs(s[0][2] - field.FRAME_TOP_Z) < 1e-9 and abs(s[1][2] - field.FRAME_TOP_Z) < 1e-9
-           and abs(abs(s[0][1]) - fc.FRAME_DEPTH_Y / 2) < 1e-9
-           and abs(s[0][1] - s[1][1]) < 1e-9 and abs(abs(s[0][0]) - fc.FRAME_WIDTH_X / 2) < 1e-9]
-    bars = {}
-    for a, b in top:
-        lo, hi = (a, b) if a[0] < b[0] else (b, a)
-        bars[1 if a[1] > 0 else -1] = (tuple(float(v) for v in lo), tuple(float(v) for v in hi))
-    return [bars[1][0], bars[1][1], bars[-1][0], bars[-1][1]]
-
-
 def field_reference_points() -> list[tuple[str, tuple[float, float, float]]]:
-    """The 8 points to click, in click order. All are in the air on the HIVE, because from
-    the recommended tripod spots (aim z=61 in) the floor is out of frame."""
+    """The 8 points to click, in click order: the four corners of the red HIVE's audience
+    CELL opening (up at match start) and the four corners of the blue HIVE's far CELL opening
+    (also up at match start). All are physical corners of the CELL openings, in the air on
+    the HIVE (from the recommended tripod spots the floor is out of frame)."""
     pts: list[tuple[str, tuple[float, float, float]]] = []
-    for n, p in zip(CELL_CORNER_NAMES, up_cell_opening_corners(), strict=True):
-        pts.append((CELL_NAME_PREFIX + n + " corner", p))
-    for n, p in zip(FRAME_TOP_NAMES, frame_top_corners(), strict=True):
-        pts.append((n, p))
+    for prefix, (alliance, which) in zip((RED_CELL_PREFIX, BLUE_CELL_PREFIX), CALIB_HIVE_STATES,
+                                         strict=True):
+        for n, p in zip(CELL_CORNER_NAMES, up_cell_opening_corners(alliance, which), strict=True):
+            pts.append((prefix + n + " corner", p))
     return pts
 
 
@@ -177,44 +159,37 @@ def write_field_point_sheet(path: str | Path) -> Path:
         f"| {i} | {name} | {x:.2f} | {y:.2f} | {z:.2f} |"
         for i, (name, (x, y, z)) in enumerate(pts, 1)
     )
-    cell = [p for _, p in pts[:4]]
-    ys = sorted({round(p[1], 2) for p in cell})
-    zs = sorted({round(p[2], 2) for p in cell})
     text = f"""# Field reference points for extrinsic calibration
 
 All coordinates are inches in the field frame: origin at field center on the tile
 surface, Z up, **+Y toward the audience side (the audience-side CELL)**, X along the
 red/blue axis (red HIVE at X = {fc.RED_HIVE_X}, blue HIVE at X = {fc.BLUE_HIVE_X}).
-**VERIFY every row against the official CAD / a tape measure before trusting it.**
-Click the same physical point in each camera, in this order.
+Click the same physical point in each camera, in this order. Set the HIVE to the match-start
+state first: red HIVE audience CELL up, blue HIVE far CELL up.
 
 | # | Point | X | Y | Z |
 |---|-------|---|---|---|
 {rows}
 
-"left" / "right" in the CELL names mean the -X / +X side of the opening. "high" is the
-upper edge of the tilted opening, "low" the lower edge.
+"left" / "right" in the names mean the -X / +X side of the opening. "high" is the upper edge
+of the tilted opening, "low" the lower edge (for the far CELL the high edge is the one nearer
+the pivot).
 
-## Derivation (VERIFY)
+## Derivation
 
-- Points 1-4, up-CELL opening corners: taken directly from
-  `hiveshot.field.cell_opening_polygon("red", "audience", HiveState("red", "audience"))`,
-  the same model used for scoring and the 3-D viewer. The opening is
+- Points 1-4: the corners of the red HIVE's audience-CELL opening, points 5-8: the corners
+  of the blue HIVE's far-CELL opening, both taken directly from
+  `hiveshot.field.cell_opening_polygon(alliance, which, HiveState(alliance, which))` (the model
+  used for scoring and the 3-D viewer, which follows the official CAD). Each opening is
   {fc.CELL_OPENING_WIDTH} in wide (X) by {fc.CELL_OPENING_HEIGHT} in tall in its own plane,
-  centered at y = {field.OPENING_CENTER_ABS_Y:.2f} (OPENING_CENTER_ABS_Y), z = {fc.UP_CELL_OPENING_CENTER_Z},
-  plane {fc.OPENING_PLANE_FROM_HORIZONTAL_DEG} deg from horizontal. Corner y values
-  {ys}, z values {zs}.
-- Points 5-8, HIVE frame top corners: the corners of the two horizontal top bars of the
-  frame box in `field.hive_frame_wireframe()`. Audience-side bar (points 5, 6): from
-  (-{fc.FRAME_WIDTH_X / 2:.2f}, +{fc.FRAME_DEPTH_Y / 2:.2f}, {field.FRAME_TOP_Z:.2f}) to
-  (+{fc.FRAME_WIDTH_X / 2:.2f}, +{fc.FRAME_DEPTH_Y / 2:.2f}, {field.FRAME_TOP_Z:.2f}). Far-side
-  bar (points 7, 8): the same with Y = -{fc.FRAME_DEPTH_Y / 2:.2f}. FRAME_TOP_Z
-  (= PIVOT_HEIGHT + 20) is an ASSUMED frame height and FRAME_WIDTH_X / FRAME_DEPTH_Y are
-  VERIFY: tape-measure the real top corners and correct field.py / field_constants.py.
-- Red HIVE X = {fc.RED_HIVE_X} (HIVE_CENTER_SPACING_X / 2, VERIFY). The sheet assumes the
-  audience-side CELL is the up CELL. Set the HIVE that way before calibrating.
-- Floor features (tile seams, frame base corners) are NOT used: from the recommended
-  camera poses (aimed at z = 61 in) the floor is outside the image.
+  plane {fc.OPENING_PLANE_FROM_HORIZONTAL_DEG} deg from horizontal, spanning z
+  {fc.UP_CELL_OPENING_Z_RANGE[0]} to {fc.UP_CELL_OPENING_Z_RANGE[1]} in (official figure 9-9).
+- The openings of the blue far CELL face away from the audience: from the camera spots you see
+  its rim from behind. Click the corners of the opening rim (the corners of the 20 x 14 in
+  opening, where the CELL walls end), not the corners of the CELL body behind it.
+- Points are real physical corners; the earlier frame "top corners" do not exist on the CAD A-frame
+  and are no longer used. Floor features (tile seams, frame base corners) are not used either:
+  from the recommended camera poses the floor is outside the image.
 """
     path.write_text(text, encoding="utf-8")
     return path

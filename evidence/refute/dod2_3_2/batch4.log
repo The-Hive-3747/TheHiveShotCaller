@@ -1,0 +1,45 @@
+RUN s20_4242_rt_s1 idle-wait: cpu=3% after 10s
+[s20_4242 rt stress] elapsed=22.4s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.0947299826882686 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08807481809076023 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  stress: mjpg_bytes=[4128768, 3932160] mjpg_err=[] stats_calls=179 stats_err=0 stats_max_ms=75
+  system CPU during run (whole machine, incl. server): mean=9% max=19% n=24
+  server_exit 1
+RUN s20_2718_rt_s1 idle-wait: cpu=3% after 10s
+[s20_2718 rt stress] elapsed=23.3s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.02131408837522386 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08832460217135463 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  stress: mjpg_bytes=[4128768, 3997696] mjpg_err=["cam0: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"] stats_calls=189 stats_err=0 stats_max_ms=35
+  system CPU during run (whole machine, incl. server): mean=8% max=12% n=25
+  server_exit 1
+RUN s20_31337_rt_s1 idle-wait: cpu=6% after 10s
+[s20_31337 rt stress] elapsed=23.3s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.020695284632410438 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.09822550125939244 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  stress: mjpg_bytes=[4194304, 4063232] mjpg_err=["cam0: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"] stats_calls=188 stats_err=0 stats_max_ms=73
+  system CPU during run (whole machine, incl. server): mean=16% max=41% n=24
+  server_exit 1
+RUN s20_2718_rt_s2 idle-wait: cpu=50% after 151s
+[s20_2718 rt stress] elapsed=29.8s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.02131408837522386 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08832460217135463 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 0} max_dropped_seen={'cam0': 0, 'cam1': 0} warnings_final=[] warnings_seen=[] offset=0.0
+  stress: mjpg_bytes=[1769472, 1703936] mjpg_err=[] stats_calls=150 stats_err=0 stats_max_ms=2626
+  system CPU during run (whole machine, incl. server): mean=63% max=85% n=30
+  server_exit 1
+RUN s20_4242_rt_s2 idle-wait: cpu=55% after 150s
+[s20_4242 rt stress] elapsed=26.7s recorded=20/20 matched=20 extra=0 made app/truth=14/14 rate app/truth=0.7/0.700
+  makemiss agree 20/20=100.0% results={'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0} hist app={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exp={'1': 1, '2': 2, '3': 2, '4': 1, '5': 0} exact=True
+  speed n=20 max|err|=0.0947299826882686 >5%:0 >10%:0 none:0 noeq:0 angle max err=0.08807481809076023 csv_rows=20
+  unmatched truth=[] burst mismatch=[] ball_type={'pollen': {'made': 14, 'bounce_out': 0, 'miss': 6, 'unknown': 0, 'shots': 20}} wrong=[]
+  dropped={'cam0': 0, 'cam1': 17} max_dropped_seen={'cam0': 0, 'cam1': 17} warnings_final=['camera cam1 dropped 17 frames (processing too slow)'] warnings_seen=['camera cam1 dropped 17 frames (processing too slow)'] offset=0.0
+  stress: mjpg_bytes=[1966080, 2621440] mjpg_err=["cam0: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)", "cam1: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"] stats_calls=150 stats_err=0 stats_max_ms=1507
+  system CPU during run (whole machine, incl. server): mean=55% max=78% n=30
+  server_exit 1
