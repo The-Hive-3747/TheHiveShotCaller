@@ -630,7 +630,7 @@ $('btnAutoAll').onclick = () => recalibrateBoth($('crosscheckOut'));
 $('btnRecalBoth').onclick = () => recalibrateBoth($('crosscheckOut'));
 // Reset wipes the saved calibration, so it asks first.
 $('btnCalReset').onclick = () => guarded(async () => {
-  if (!window.confirm('Reset calibration for ALL cameras? The saved intrinsics and poses are removed and you will need to calibrate again.')) return;
+  if (!window.confirm('Reset calibration for ALL cameras? This removes the saved camera poses only; the lens (intrinsics) calibration is kept. You will need to run Auto-calibrate again.')) return;
   await api('POST', '/api/calib/reset', { cam_id: 'all' });
   for (const k of Object.keys(calibClicks)) calibClicks[k] = [];
   state.calib = null;
@@ -1056,21 +1056,16 @@ $('lensCams').addEventListener('click', (ev) => {
     renderLensCams();
   })();
 });
-// Learn HIVE tags: one POST per physical HIVE state (audience CELL up, then far CELL up).
-setup.learned = { audience: false, far: false };
+// Verify HIVE tags: a single audience-up check. The far-up tags are not visible from the audience-side
+// cameras, so there is no second (far-up) learn and nothing to tip.
+setup.learned = { audience: false };
 function renderLearnSummary() {
-  const both = (setup.learned.audience && setup.learned.far)
-    || [state.status, setup.status].some((s) => s && s.hive_state_source === 'tags');
-  const todo = ['audience', 'far'].filter((k) => !setup.learned[k]);
-  const finished = both || setup.farExpected;
+  const auto = [state.status, setup.status].some((s) => s && s.hive_state_source === 'tags');
+  const finished = setup.learned.audience || auto;
   document.querySelector('#setupStepBtns [data-step=hivetags]').classList.toggle('done', !!finished);
-  if (setup.farExpected && !both) {
-    $('learnSummary').innerHTML = '<div class="xc-ok">Step done: the far-up tags are not visible from these cameras, which is expected. The HIVE state stays manual unless both states are learned.</div>';
-    return;
-  }
-  $('learnSummary').innerHTML = both
-    ?'<div class="xc-ok">Both HIVE states are learned. From now on the HIVE state (and tips) are detected automatically from the tags; you do not need to set it by hand.</div>'
-    : `<div class="muted">Learned: ${['audience', 'far'].filter((k) => setup.learned[k]).join(', ') || 'none yet'}. Still to do: ${todo.join(', ')}.</div>`;
+  $('learnSummary').innerHTML = finished
+    ? `<div class="xc-ok">Audience-up check done.${auto ? ' The HIVE state (and tips) are now detected automatically from the tags; you do not need to set it by hand.' : ''}</div>`
+    : '<div class="muted">Not run yet. This step is optional.</div>';
 }
 function renderLearnResult(r, upCell) {
   const ids = (a) => (Array.isArray(a) && a.length ? a.join(', ') : 'none');
@@ -1087,24 +1082,12 @@ function renderLearnResult(r, upCell) {
     </tbody></table>`;
 }
 $('btnLearn').onclick = async () => {
-  const upCell = $('learnState').value;
   const alliance = $('selAlliance').value || (state.config && state.config.alliance) || 'red';
-  $('learnOut').textContent = 'Learning...';
+  $('learnOut').textContent = 'Checking...';
   try {
-    const r = await api('POST', '/api/calib/hive_tags/learn', { state: { alliance, up_cell: upCell } });
-    // far-up with nothing visible but the backend reporting complete: the audience-side cameras simply cannot
-    // see the far CELL's tags. That is a normal outcome, not a failure.
-    const vis = r.visible_per_camera || {};
-    const visTotal = (Array.isArray(vis) ? vis : Object.values(vis)).reduce((a, v) => a + (Array.isArray(v) ? v.length : Number(v) || 0), 0);
-    const farExpected = upCell === 'far' && r.complete === true && visTotal === 0 && !(r.learned_ids || []).length;
-    if (farExpected) {
-      setup.farExpected = true;
-      $('learnOut').innerHTML = '<div class="xc-ok">far-up tags are not visible from these cameras; this is expected.</div>';
-    } else {
-      renderLearnResult(r, upCell);
-    }
-    setup.learned[upCell] = true;
-    if (!setup.learned[upCell === 'audience' ? 'far' : 'audience']) $('learnState').value = upCell === 'audience' ? 'far' : 'audience';
+    const r = await api('POST', '/api/calib/hive_tags/learn', { state: { alliance, up_cell: 'audience' } });
+    renderLearnResult(r, 'audience');
+    setup.learned.audience = true;
     pollSetup();
   } catch (e) { $('learnOut').innerHTML = `<div class="xc-bad">${esc(plainError(e))}</div>`; }
   renderLearnSummary();

@@ -29,3 +29,4 @@ desktop.ini
 auto.crt
 auto.key
 *.pem
+*.stackdump

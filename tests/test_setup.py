@@ -675,7 +675,7 @@ _REC_POS = ((-30.0, 100.0, 60.0), (30.0, 100.0, 60.0))
 
 
 def _kit_hive_rig(tmp_path, red="audience", blue=None, hive_shift=(0.0, 0.0, 0.0),
-                  positions=_REC_POS, hive_cams=("cam0", "cam1")):
+                  positions=_REC_POS, hive_cams=("cam0", "cam1"), blue_flip=False):
     """Two cameras on the audience side that both see kit tags (100 plus 103 / 102) and the
     computed HIVE tags of the given states (`red` / `blue` = the up cell; blue None = the blue
     HIVE's tags are not in the picture). Returns (rig, client)."""
@@ -687,6 +687,10 @@ def _kit_hive_rig(tmp_path, red="audience", blue=None, hive_shift=(0.0, 0.0, 0.0
     if blue is not None:
         hive.update(tagkit.hive_tag_defs("blue", HiveState("blue", blue)))
     hive = {i: np.asarray(c) + np.asarray(hive_shift) for i, c in hive.items()}
+    if blue_flip:                       # the blue audience stickers hang upside down
+        for i in (38, 39, 40, 41):
+            if i in hive:
+                hive[i] = hive[i][[2, 3, 0, 1]]
     tmp_path.mkdir(parents=True, exist_ok=True)
     cams = {f"cam{i}": VirtualCamera(*pl.camera_from_pose(pos, (0.0, 10.0, 30.0), 60.0, W, H,
                                                           f"cam{i}"))
@@ -925,21 +929,38 @@ def _advice(c):
     return [x for x in c.j("GET", "/api/setup/status")[1]["recommendations"] if "Tip both HIVEs" in x]
 
 
-def test_advice_to_tip_both_hives_when_the_tags_say_otherwise(tmp_path):
-    # red tipped the wrong way: its audience tags read upside down
-    rig, c = _kit_hive_rig(tmp_path, red="far", blue="audience")
+def test_advice_when_blue_audience_tags_are_seen_upside_down(tmp_path):
+    # (a): works without any calibration
+    rig, c = _kit_hive_rig(tmp_path, red="audience", blue="audience", blue_flip=True)
     try:
         advice = _advice(c)
         assert len(advice) == 1
         assert "so both audience CELLs are up before calibrating" in advice[0]
-        assert "red" in advice[0]
+        assert "blue audience CELL tags upside down" in advice[0]
     finally:
         rig.close()
-    # blue's tags are not in the picture at all while red's are
-    rig, c = _kit_hive_rig(tmp_path / "b", red="audience", blue=None)
+
+
+def test_advice_when_a_camera_sees_red_but_not_the_blue_tags_in_its_view(tmp_path):
+    # (c): needs the camera's calibration; the blue sticker is in the picture by geometry but
+    # no blue tag is visible (the blue HIVE is tipped the other way: its audience tags are
+    # low and hidden)
+    rig, c = _kit_hive_rig(tmp_path / "c", red="audience", blue="far")
     try:
+        assert _advice(c) == []                       # not calibrated: cannot know, do not fire
+        assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
         advice = _advice(c)
-        assert len(advice) == 1 and "no blue audience CELL tag is visible" in advice[0]
+        assert len(advice) == 1 and "sees the red audience CELL up but no blue audience tag" in advice[0]
+    finally:
+        rig.close()
+
+
+def test_no_advice_from_a_camera_that_cannot_read_the_stickers(tmp_path):
+    # cam0 reads no HIVE tag at all, cam1 reads red and blue: nothing to complain about
+    rig, c = _kit_hive_rig(tmp_path, red="audience", blue="audience", hive_cams=("cam1",))
+    try:
+        assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+        assert _advice(c) == []
     finally:
         rig.close()
 
@@ -1108,5 +1129,44 @@ def test_learn_with_one_tag_reading_camera_in_the_kit_world(tmp_path):
                    {"state": {"alliance": "red", "up_cell": "audience"}})
         assert s == 200 and j["single_camera"] is True and j["camera"] == "cam1", j
         assert j["pnp_error_in"] and all(v < 3.0 for v in j["pnp_error_in"].values())
+    finally:
+        rig.close()
+
+
+# ------------------------------------------------ finish: mismatch, pair_stale, few tags
+def test_finish_refuses_a_frame_size_mismatch_and_warns_about_a_two_tag_solve(kit_and_hive_rig):
+    r, c = kit_and_hive_rig
+    assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+    saved = json.loads((r.data / "calibration.json").read_text())
+    assert all(len(v["tags_used"]) < 3 for v in saved["solve_tags"].values())   # 2-tag kit solves
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 200
+    assert sum("was solved from only 2 tag(s)" in w for w in j["warnings"]) == 2
+    # the calibration says 1280x720 while the camera delivers 1920x1080
+    c.j("POST", "/api/pipeline/stop")
+    def small(d):
+        for i in d["intrinsics"]:
+            i["width"], i["height"] = 1280, 720
+    _patch_calibration_json(r, small)
+    assert c.j("PUT", "/api/config", json.loads(r.cfg_path.read_text()))[0] == 200
+    r.start()
+    s, j = c.j("POST", "/api/setup/finish")
+    assert s == 409 and set(j["calibration_mismatch"]) == {"cam0", "cam1"}
+    assert "delivers a different picture size" in j["detail"]
+
+
+def test_single_camera_learn_estimates_each_cluster_jointly_from_all_its_tags(tmp_path):
+    rig, c = _kit_hive_rig(tmp_path, hive_cams=("cam1",))
+    try:
+        assert c.j("POST", "/api/calib/auto_all")[1]["ok"] is True
+        s, j = c.j("POST", "/api/calib/hive_tags/learn",
+                   {"state": {"alliance": "red", "up_cell": "audience"}})
+        assert s == 200 and j["single_camera"] is True and j["camera"] == "cam1"
+        up = j["cluster_error_in"]["red_audience"]
+        assert up == j["up_cell_error_in"] and up < 1.0 and j["complete"] is True, j
+        # the joint estimate is the same number for every tag of the cluster's seen tags
+        errs = [j["pnp_error_in"][str(i)] for i in (34, 35, 36, 37) if str(i) in j["pnp_error_in"]]
+        assert len(errs) >= 3 and max(errs) < 1.5
+        print("single-camera learn, red audience cluster error on the rig: %.3f in" % up)
     finally:
         rig.close()

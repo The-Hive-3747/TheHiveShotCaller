@@ -270,3 +270,11 @@ All checks passed!
 ......................................                                   [100%]
 --- ruff
 All checks passed!
+=== round17: Reset confirm text (poses only), step 4 text (no tipping)
+......................................                                   [100%]
+--- ruff
+All checks passed!
+=== round18: Verify HIVE tags is audience-up only (no far option, no auto switch, no far-expected branch)
+......................................                                   [100%]
+--- ruff
+All checks passed!

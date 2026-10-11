@@ -1041,27 +1041,67 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
     def _learn_single_camera(hs, cam: str, tags: dict, visible: dict, intr: dict, ext: dict,
                              want: set, audience_key: str) -> dict:
         """Only one calibrated camera reads the HIVE tags (the other cannot see them): nothing
-        can be triangulated, so check each visible tag's single-camera PnP position against
-        the computed (CAD) one instead."""
-        from . import tagkit
-        centers = tagkit._observed_centers(
-            {cam: [{"id": i, "corners": c} for i, c in tags.items()]}, {cam: (intr[cam], ext[cam])})
-        expected = computed_hive_defs(hs.alliance, hs.up_cell)
-        err = {int(i): float(np.linalg.norm(centers[i] - expected[i].mean(axis=0)))
-               for i in centers if i in expected}
+        can be triangulated. Each visible cluster's pose is estimated jointly from ALL its
+        visible tags (one PnP over every corner) and compared with the computed (CAD)
+        corners; a single tag alone is too noisy at this distance."""
         from .field_constants import APRILTAG_IDS as _AI
-        up_ids = set(_AI[(hs.alliance, hs.up_cell)])
-        up_errs = [e for i, e in err.items() if i in up_ids]
-        up_err = float(np.mean(up_errs)) if up_errs else None
+        expected = computed_hive_defs(hs.alliance, hs.up_cell)
+        err: dict[int, float] = {}
+        cluster_err: dict[str, float] = {}
+        for (al, cell), ids in _AI.items():
+            seen = [i for i in ids if i in tags and i in expected]
+            if not seen:
+                continue
+            est = _cluster_corners(intr[cam], ext[cam], seen, tags, expected)
+            if est is None:
+                continue
+            for i in seen:
+                err[int(i)] = float(np.mean(np.linalg.norm(est[i] - expected[i], axis=1)))
+            cluster_err[f"{al}_{cell}"] = float(np.mean([err[int(i)] for i in seen]))
+        up_key = f"{hs.alliance}_{hs.up_cell}"
+        up_err = cluster_err.get(up_key)
         complete = audience_key in st.hive_tags or (
             hs.up_cell == "audience" and up_err is not None and up_err < 1.0)
-        return {"state": f"{hs.alliance}_{hs.up_cell}", "single_camera": True, "camera": cam,
+        return {"state": up_key, "single_camera": True, "camera": cam,
                 "learned": False, "learned_ids": [], "missing_ids": sorted(want - set(visible[cam])),
                 "max_residual_in": None, "visible_per_camera": visible,
                 "pnp_error_in": {str(i): e for i, e in sorted(err.items())},
+                "cluster_error_in": cluster_err,
                 "up_cell_error_in": up_err, "complete": bool(complete),
-                "reason": f"only {cam} sees HIVE tags: nothing can be triangulated, the tags were "
-                          "checked against the computed positions (single-camera PnP)"}
+                "reason": f"only {cam} sees HIVE tags: nothing can be triangulated, each tag "
+                          "cluster was checked against the computed positions (one joint PnP "
+                          "over all its visible corners)"}
+
+    def _cluster_corners(intr_c, ext_c, ids: list, dets: dict, expected: dict):
+        """Field-frame corners {id: (4,3)} of the tags in `ids` as seen by one calibrated
+        camera: the cluster (a planar group of tags) is treated as a rigid body whose shape
+        is the computed corners, its pose is solved with a single PnP over all corners, and the
+        corners are mapped into the field with the camera's extrinsics."""
+        import cv2 as _cv2
+        obj = np.vstack([np.asarray(expected[i], float).reshape(4, 3) for i in ids])
+        img = np.vstack([np.asarray(dets[i], float).reshape(4, 2) for i in ids])
+        centre = obj.mean(axis=0)
+        # local frame: x along the row of tags, z = plane normal, y = z x x
+        u, sv, vt = np.linalg.svd(obj - centre)
+        x_ax, n_ax = vt[0], vt[2]
+        y_ax = np.cross(n_ax, x_ax)
+        basis = np.vstack([x_ax, y_ax, n_ax])               # rows: local axes in field coords
+        local = (obj - centre) @ basis.T
+        local[:, 2] = 0.0                                    # planar by construction
+        K, D = calib.camera_matrix(intr_c), calib.dist_coeffs(intr_c)
+        flag = _cv2.SOLVEPNP_IPPE if len(ids) >= 1 else _cv2.SOLVEPNP_ITERATIVE
+        ok, rvec, tvec = _cv2.solvePnP(local, img, K, D, flags=flag)
+        if not ok:
+            return None
+        Rl = _cv2.Rodrigues(rvec)[0]
+        cam_pts = (Rl @ local.T).T + tvec.reshape(3)         # local corners in camera frame
+        R, t = calib._rt(ext_c)
+        field_pts = (R.T @ (cam_pts - t).T).T                # camera -> field
+        out, k = {}, 0
+        for i in ids:
+            out[i] = field_pts[k:k + 4]
+            k += 4
+        return out
 
     def _learn_state(hs, only_alliance: Optional[str] = None) -> dict:
         cams = [c.cam_id for c in st.cfg.sources][:2]
@@ -1147,28 +1187,49 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
         return {"alliance": al, "states": states, "ready": ready,
                 "hive_state_source": st.pipeline.hive_state_source()}
 
-    def _hive_state_advice(roll: dict, tags: dict) -> list[str]:
-        """Calibration needs both audience CELLs up (field.CALIBRATION_STATE): say so when the
-        visible HIVE tags suggest another state."""
+    def _blue_audience_in_view(cam: str, intr: dict, ext: dict) -> bool:
+        """True when the computed blue audience-CELL tags lie inside the picture of `cam`
+        (in front of the camera, 20 px margin) by its calibration; False without one."""
+        if cam not in intr or cam not in ext:
+            return False
         from .field_constants import APRILTAG_IDS as _AI
-        up = calibration_state()
+        ids = set(_AI[("blue", "audience")])
+        defs = {i: c for i, c in calibration_hive_defs().items() if i in ids}
+        if not defs:
+            return False
+        i_c, e_c = intr[cam], ext[cam]
+        R, t = calib._rt(e_c)
+        for c4 in defs.values():
+            pts = np.asarray(c4, float).reshape(4, 3)
+            if np.any((R @ pts.T).T[:, 2] + t[2] <= 1.0):
+                return False
+            uv = calib.project(i_c, e_c, pts)
+            if np.any(uv[:, 0] < 20) or np.any(uv[:, 0] > i_c.width - 20) \
+                    or np.any(uv[:, 1] < 20) or np.any(uv[:, 1] > i_c.height - 20):
+                return False
+        return True
+
+    def _hive_state_advice(roll: dict, tags: dict) -> list[str]:
+        """Calibration needs both audience CELLs up (field.CALIBRATION_STATE). Say so only
+        when the scanned tags show the blue HIVE in another state: (a) a blue audience tag
+        upside down, (b) the blue far cluster upright, or (c) a camera that sees the red
+        audience cluster upright but no blue audience tag although the blue audience cluster
+        is inside its view by geometry (needs that camera's calibration). A camera that cannot
+        read the stickers at all never triggers it."""
         why: list[str] = []
-        clusters: dict[str, set] = {}          # cluster -> signs seen over the cameras
-        for per_cam in roll.values():
-            for name, v in per_cam.items():
-                clusters.setdefault(name, set()).add(int(v.get("sign", 0)))
-        for al, cell in up.items():
-            wrong = "far" if cell == "audience" else "audience"
-            if clusters.get(f"{al}_{cell}") == {-1}:
-                why.append(f"the {al} {cell} CELL tags are upside down")
-            elif clusters.get(f"{al}_{wrong}") == {1}:
-                why.append(f"the {al} {wrong} CELL is up")
-        seen = {int(i) for ids in tags.values() for i in ids}
-        for al, cell in up.items():
-            ids = set(_AI[(al, cell)])
-            others_up = [a for a in up if a != al and set(_AI[(a, up[a])]) & seen]
-            if others_up and not (ids & seen) and not any(al in w for w in why):
-                why.append(f"no {al} {cell} CELL tag is visible while {others_up[0]}'s are")
+        intr, ext = st.pipeline.calibration()
+        for cam, per in sorted(roll.items()):
+            if per.get("blue_audience", {}).get("sign") == -1:
+                why.append(f"{cam} sees the blue audience CELL tags upside down")
+            if per.get("blue_far", {}).get("sign") == 1:
+                why.append(f"{cam} sees the blue far CELL up")
+            if per.get("red_audience", {}).get("sign") == 1:
+                seen = {int(i) for i in tags.get(cam, [])}
+                from .field_constants import APRILTAG_IDS as _AI
+                if not (seen & set(_AI[("blue", "audience")])) \
+                        and _blue_audience_in_view(cam, intr, ext):
+                    why.append(f"{cam} sees the red audience CELL up but no blue audience tag "
+                               "although they are in its view")
         if not why:
             return []
         return ["Tip both HIVEs so both audience CELLs are up before calibrating ("
@@ -1276,6 +1337,11 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
             r = intr_now[c].reprojection_rmse_px if c in intr_now else 0.0
             reasons.append(f"camera {c} lens calibration is poor (RMSE {r:.1f} px): re-run the "
                            "Lens step closer, 1.5-3 ft")
+        mismatch = status["calibration_mismatch"]
+        numbers["calibration_mismatch"] = mismatch
+        for c, msg in sorted(mismatch.items()):
+            reasons.append(f"camera {c} delivers a different picture size than its lens was "
+                           f"measured at ({msg}): fix the camera resolution or redo the Lens step")
         stale = sorted(c for c, v in status["cameras"].items() if v.get("pair_stale"))
         numbers["pair_stale_cameras"] = stale
         for c in stale:
@@ -1300,6 +1366,13 @@ def create_app(config_path: Optional[Path | str] = None, data_dir: Optional[Path
                 per_cam[c] = None if fr is None or c not in ext_now else _oos_camera_error(
                     intr_now[c], ext_now[c], fr.image, used)
             numbers["oos_error_in_per_camera"] = per_cam
+            for c in per_cam:
+                used = (st.solve_tags.get(c) or {}).get("tags_used", [])
+                if 0 < len(used) < 3:
+                    warnings.append(
+                        f"camera {c} was solved from only {len(used)} tag(s) "
+                        f"({', '.join(str(t) for t in used)}): a third tag makes the pose much "
+                        "less sensitive to a mis-taped tag; add one to its view if you can")
             for c, v in per_cam.items():
                 if v is None:
                     warnings.append(

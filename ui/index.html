@@ -99,12 +99,8 @@
         <h3>4. Verify HIVE tags (optional)</h3>
         <div class="hints"></div>
         <p>The tags on the up CELL are already known from the manual. This step checks them against what the
-          cameras see and learns the tags on the down CELL, so the HIVE state can then be detected automatically.</p>
-        <p>Make sure the audience CELL is up. Press Learn. Then tip the HIVE by hand so the far CELL is up,
-          wait until it settles, press Learn again.</p>
-        <label>HIVE state being learned
-          <select id="learnState"><option value="audience">audience CELL up</option>
-            <option value="far">far CELL up</option></select></label>
+          cameras see, so the HIVE state can then be detected automatically.</p>
+        <p>Make sure the audience CELL is up, then press Learn. The far-up tags are not visible from the audience-side cameras, so only the audience-up check runs; no tipping needed here.</p>
         <button id="btnLearn">Learn</button>
         <div id="learnOut" style="margin-top:8px"></div>
         <div id="learnSummary" style="margin-top:8px"></div>

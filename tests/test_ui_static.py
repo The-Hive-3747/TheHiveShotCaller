@@ -451,15 +451,18 @@ def test_round7_learn_hive_tags_wired():
     # step sits between Tags and Colors
     order = [html.index(f'data-step="{k}"') for k in ("tags", "hivetags", "colors")]
     assert order == sorted(order)
-    assert "Make sure the audience CELL is up. Press Learn." in html
-    assert "tip the HIVE by hand so the far CELL is up" in html and "press Learn again" in html
-    assert 'id="learnState"' in html and 'id="btnLearn"' in html and 'id="learnOut"' in html
-    # default is audience-up first (first option), far-up second
-    assert re.search(r'id="learnState"><option value="audience">.*?<option value="far">', html, re.S)
-    assert "'POST', '/api/calib/hive_tags/learn'" in js and "state: { alliance, up_cell: upCell }" in js
+    assert "Make sure the audience CELL is up, then press Learn." in html
+    assert ("The far-up tags are not visible from the audience-side cameras, so only the audience-up check runs; "
+            "no tipping needed here.") in html
+    assert "tip the HIVE by hand" not in html and "press Learn again" not in html
+    assert 'id="btnLearn"' in html and 'id="learnOut"' in html
+    # audience-up only: no state selector, no far option, no automatic switch to far
+    assert 'id="learnState"' not in html and 'value="far"' not in html and "learnState" not in js
+    assert "'POST', '/api/calib/hive_tags/learn'" in js and "state: { alliance, up_cell: 'audience' }" in js
+    assert "'far'" not in js[js.index("setup.learned = "):js.index("function renderLearnResult")]
     for k in ("learned_ids", "missing_ids", "visible_per_camera", "max_residual_in"):
         assert k in js, k
-    assert "setup.learned" in js and "detected automatically from the tags" in js
+    assert "setup.learned" in js and "detected automatically from the tags" in js and "setup.learned.far" not in js
     # top bar shows "auto (tags)" when the HIVE state comes from tags
     assert "'auto (tags)'" in js and "st.hive_state_source" in js
 
@@ -488,7 +491,7 @@ def test_round8_tag_source_and_verify_step():
     assert "r.warning" in js  # backend warning text is shown
     # renamed, optional verify step explains the manual-known up CELL
     assert "Verify HIVE tags (optional)" in html and "Learn HIVE tags" not in html
-    assert "known from the manual" in html and "learns the tags on the down CELL" in html
+    assert "known from the manual" in html and "down CELL" not in html
     assert "up_cell_error_in" in js and "Number(r.up_cell_error_in) < CROSSCHECK_OK_IN" in js
 
 
@@ -627,9 +630,8 @@ def test_round13_refuter_fixes_wired():
     assert "Undo last sample" in html and "Reset to defaults" in html
     assert "fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1" in js and "colorHist[key].push(before)" in js
     assert "'PUT', '/api/config', { detector }" in js
-    # (7) far-up learn with nothing visible but complete
-    assert "far-up tags are not visible from these cameras; this is expected" in js
-    assert "r.complete === true" in js and "classList.toggle('done'" in js
+    # (7) superseded: Verify step is audience-up only (no far-up learn); step still gets a done mark
+    assert "farExpected" not in js and "classList.toggle('done'" in js
     # (8) exact tape positions in plain words plus the tolerance note
     assert "function describeTag" in js and "x.xyz_center" in js and "x.normal" in js
     assert "within 0.25 in" in js
@@ -722,6 +724,8 @@ def test_round15_recalibrate_stale_poor_lens_finish_warnings():
     assert ">Auto-calibrate all<" in html and ">Recalibrate both<" in html and ">Reset calibration<" in html
     reset = js[js.index("$('btnCalReset').onclick"):]
     assert reset.index("window.confirm(") < reset.index("'POST', '/api/calib/reset'")
+    assert "removes the saved camera poses only; the lens (intrinsics) calibration is kept" in reset
+    assert "saved intrinsics and poses are removed" not in js
     # per-camera 409: hint plus both follow-up actions; force_single only on request
     assert "force_single: true" in js and "Force this camera only" in js and 'data-act="recalboth"' in js
     assert "/ 409 /.test(" in js and "reasonLines(e).join(' ')" in js

@@ -1,10 +1,32 @@
-........................................................................ [ 16%]
-..........................................................ss............ [ 32%]
-......s................................................................. [ 48%]
-........................................................................ [ 65%]
-........................................................................ [ 81%]
-........................................................................ [ 97%]
-..........                                                               [100%]
+........................................................................ [ 15%]
+..........................................................ss............ [ 31%]
+......s...............F................................................. [ 47%]
+........................................................................ [ 63%]
+........................................................................ [ 79%]
+........................................................................ [ 95%]
+...................                                                      [100%]
+================================== FAILURES ===================================
+__________________ test_stitching_disabled_gives_same_shots ___________________
+
+tmp_path = WindowsPath('C:/Users/3747h/AppData/Local/Temp/pytest-of-3747h/pytest-320/test_stitching_disabled_gives_0')
+
+    @pytest.mark.timing
+    @pytest.mark.xfail(not HAVE_MODULES, reason="detect/track2d/recon not present yet", strict=False)
+    def test_stitching_disabled_gives_same_shots(tmp_path):
+        # real-time playback: "promptly" is about source time, which a lockstep run (as fast as
+        # the CPU allows) would stretch by its speed-up factor
+        store, sid, pl = _run_fixture("synth_basic", tmp_path, realtime=True, stitch_gap_s=0.0)
+        try:
+            shots = store.list_shots(sid)
+            assert len(shots) == 6
+            assert sum(s.result.value == "made" for s in shots) == 4
+            # promptness: finalized within ~finalize_delay_s + one recon cycle of source time
+            lags = [r["since_closed_s"] for r in pl.finalize_log]
+>           assert max(lags) < 1.2
+E           assert 1.2 < 1.2
+E            +  where 1.2 = max([0.7666666666666668, 1.2, 0.7333333333333332, 0.8999999999999999, 0.7666666666666664, 0.1166666666666667])
+
+tests\test_pipeline.py:136: AssertionError
 ============================== warnings summary ===============================
 tests/test_setup.py::test_detector_sample_widens_range_persists_and_applies_live
 tests/test_setup.py::test_detector_sample_applied_to_running_detectors
@@ -12,4 +34,6 @@ tests/test_setup.py::test_detector_sample_applied_to_running_detectors
     lhs /= scale
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-439 passed, 3 skipped, 2 warnings in 296.54s (0:04:56)
+=========================== short test summary info ===========================
+FAILED tests/test_pipeline.py::test_stitching_disabled_gives_same_shots - ass...
+1 failed, 447 passed, 3 skipped, 2 warnings in 342.86s (0:05:42)

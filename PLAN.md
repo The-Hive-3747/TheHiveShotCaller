@@ -190,8 +190,8 @@ After each Definition of Done item is claimed complete, the lead launches an ind
 | 3 accuracy targets | NOT REFUTED on synthetic (round 2) | dod2_3_2.md | real labeled footage |
 | 4 3D replay | NOT REFUTED | dod4_5_1.md | - |
 | 5 persistence, CSV | NOT REFUTED | dod4_5_1.md | - |
-| 6 recalibration < 10 min | REFUTED narrow (round 3) | dod6_10_3.md | pair-gate lock-out, poor-lens acceptance, in-sample finish (fixes in progress) |
+| 6 recalibration < 10 min | NOT REFUTED (round 4, 2026-10-11) | dod6_10_4.md | real-field timing when hardware arrives |
 | 7 tests + live E2E evidence | REFUTED | dod2_3_7_1.md | live-camera run (hardware) |
 | 8 clean-machine smoke | REFUTED | dod8_9_1.md | owner runs docs/clean_machine_test.md |
 | 9 placement -> calibration target | NOT REFUTED (round 5, 2026-10-11) | dod9_5.md | real-field verification when hardware arrives |
-| 10 wizard-only setup < 15 min | REFUTED on time (round 3) | dod6_10_3.md | 18-26 min with Lens step; QUESTIONS.md #9 |
+| 10 wizard-only setup < 15 min | mechanics NOT REFUTED; time REFUTED (round 4) | dod6_10_4.md | 17-24 min prepared; owner decision QUESTIONS.md #9 (shipped lens profile removes the Lens step) |
