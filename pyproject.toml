@@ -17,6 +17,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "ruff"]
 
+[tool.setuptools]
+packages = ["hiveshot"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"

@@ -30,3 +30,4 @@ auto.crt
 auto.key
 *.pem
 *.stackdump
+*.egg-info/

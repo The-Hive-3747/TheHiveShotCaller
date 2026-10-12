@@ -1621,6 +1621,10 @@ class Pipeline:
         a, b = cams[0], cams[1]
         intr, ext = self._calib
         t_cycle = time.perf_counter()
+        # Pending tracks are aged against the slowest running camera, not the furthest-ahead
+        # one: while a camera is stalled (or a file source is read far ahead of the other),
+        # the healthy camera's clock must not expire tracks the slow camera has yet to reach.
+        t_age = self._clock()
         with self._lock:
             pa, pb = list(self._pending[a]), list(self._pending[b])
             closed_at = dict(self._closed_at)
@@ -1657,7 +1661,7 @@ class Pipeline:
                     gone, keep = self._pending[c], []
                 else:
                     keep = [t for t in self._pending[c] if t.detections
-                            and t_now - t.detections[-1].t <= PENDING_MAX_AGE_S]
+                            and t_age - t.detections[-1].t <= PENDING_MAX_AGE_S]
                     gone = [t for t in self._pending[c] if id(t) not in {id(k) for k in keep}]
                 n_lost = 0
                 for t in gone:
