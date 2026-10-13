@@ -9,13 +9,13 @@ Prices were checked on 2026-10-12 (Amazon.com product pages and Home Depot store
 | # | Item | Qty | Link | Unit USD | Line USD | Why |
 |---|---|---|---|---|---|---|
 | 1 | Arducam 2.3 MP USB camera, global shutter, 110° lens, 1080p at 90 fps, USB 2.0 (5 V, 1.2 W, ~240 mA; board 34 x 34 mm) | 2 | https://www.amazon.com/dp/B0FLX2DSSS | 99.99 | 199.98 | The two tracking cameras. Global shutter and 90 fps are what make the speed and arc numbers trustworthy. In stock 2026-10-12. |
-| 2 | Tripp Lite USB 3.0 active extension cable, 16 ft (U330-05M), 770 mA to the device, USB 2.0 backward compatible | 2 | https://www.amazon.com/dp/B008VOPDOU | 40.21 | 80.42 | Camera cables are 1 m. Each camera gets its own run back to the PC. The USB 2.0 U026-016 was rejected on 2026-10-10: it supplies only 150 mA, below the camera's 240 mA draw. Amazon showed "only 2 left" on 2026-10-12; 35 other sellers from 39.91. |
+| 2 | CableCreation active USB 3.0 extension cable, 16.4 ft, signal booster (B0179MXKU8) | 2 | https://www.amazon.com/dp/B0179MXKU8 | 19.99 | 39.98 | Camera cables are 1 m. Each camera gets its own run back to the PC. Chosen 2026-10-12 over the Tripp Lite U330-05M (40.21, not arriving until 2026-10-20): half the price, arrives 2026-10-14. The listing does not state downstream current (the Tripp Lite states 770 mA; the camera draws ~240 mA), so plug each into a blue USB 3.0 port on the PC and confirm the camera enumerates at 90 fps on first use. The USB 2.0 U026-016 was rejected on 2026-10-10: only 150 mA. |
 | 3 | Amazon Basics 50 in lightweight tripod, 16.1 to 50 in, 3-way head with bubble level, 1/4-20 screw | 2 | https://www.amazon.com/dp/B00XI87KV8 | 16.99 | 33.98 | One per camera. The placement plan needs lens heights of only 36 in (camera A) and 20 in (camera B); a 60 in tripod is needed only for the optional third camera (58 in). Replaces the UBeesize MT60 (B07NQJ4BDS), unavailable since 2026-10-12 and with a 19 in minimum that barely reached camera B's height anyway. Measure the leg radius at 20 in and 36 in when it arrives (docs/camera_placement.md section 2 assumes about 20 in). |
 | 4 | M2 screw and nut kit (must include M2 x 12 screws and M2 nuts; 8 of each are used) | 1 | https://www.amazon.com/dp/B0GCHWGXNS (981 pc stainless, 3.99) or the Mywish kit https://www.amazon.com/dp/B0CTJY6G5K (9.99) | 3.99 | 3.99 | Four M2 x 12 screws and nuts hold each camera board to the printed bracket (docs/camera_bracket.md: 10 mm minimum, 12 mm preferred). No local store carries M2 x 12 in small packs, so a kit is the cheapest route. The 3.99 kit was found by price sort and not vetted; check reviews or use the Mywish kit. |
-| 5 | 1/4-20 hex nut, zinc | 2 | Home Depot Everbilt 1/4-20 hex nut, 0.14 each (model 801736) or 10-pack 1.57 (model 825831); any hardware store | 0.14 | 0.28 | One drops into the base pocket of each printed bracket for the tripod screw. A standard 7/16 in across-flats nut fits the 11.2 mm pocket. Replaces the 50-pack (B0CJ9FFH2Y, 4.99). |
-| 6 | Foam board 20 x 30 in, white, 3/16 in | 1 to 2 | Walmart Pen+Gear single sheet https://www.walmart.com/ip/5347546821 (1.92); Dollar Tree usually 1.25 | 1.92 | 3.84 | Backing for the printed checkerboard calibration target (PDF supplied by the app, print at 100%); offcuts stiffen the four printed 6 in kit tags. One sheet does the job; two gives a spare. Replaces the 10-sheet pack (B074QZMLQF, 31.42). If you want it in the same Amazon order, UCreate 22 x 28 in 5-pack is 22.33 (B00IWSHEB0). |
+| 5 | 1/4-20 hex nut | 2 (ordered a 50 pack) | https://www.amazon.com/dp/B0CJ9FFH2Y (Bates stainless, 50 pack, 5.15) or Home Depot Everbilt 801736 at 0.14 each | 5.15 | 5.15 | One drops into the base pocket of each printed bracket for the tripod screw. A standard 7/16 in across-flats nut fits the 11.2 mm pocket. The 50 pack was kept in the 2026-10-12 order to avoid a store trip. |
+| 6 | Foam board, white, 3/16 in: UCreate 22 x 28 in, 5 sheets (B00IWSHEB0) | 1 pack | https://www.amazon.com/dp/B00IWSHEB0 | 22.33 | 22.33 | Backing for the printed checkerboard (one sheet), the four 6 in kit tag cards and the two tag wedges (offcuts). One or two sheets are enough; Walmart Pen+Gear 20 x 30 single sheets are 1.92 (https://www.walmart.com/ip/5347546821) if you would rather not have spares. The 5 pack was kept in the 2026-10-12 order to ship everything together. |
 | 7 | Painter's tape, 1.88 in x 60 yd | 1 | FrogTape green https://www.amazon.com/dp/B002YCGNXA (7.21) or ScotchBlue https://www.amazon.com/dp/B00004Z4DU (7.79); any brand or a roll from the shop | 7.21 | 7.21 | Mark tripod feet positions on the floor and tape cables down. Low-tack so it peels cleanly from the tiles and glass wall. |
-| | **Total** | | | | **~330** | Down from ~411 in the 2026-10-10 cart (tripods, hardware and foam board swapped). |
+| | **Total** | | | | **312.62** | Amazon cart subtotal on 2026-10-12 before tax, down from 411.41 in the 2026-10-10 cart. |
 
 ## Do not buy
 
@@ -47,6 +47,21 @@ Total first-day setup: about 2 hours.
 - 1/4-20 nuts: Home Depot Everbilt 801736 (0.14 each), 825831 (10-pack 1.57); M2 x 12 screws and M2 nuts are not stocked there in small packs
 - Foam board: Walmart Pen+Gear 20 x 30 https://www.walmart.com/ip/5347546821, 1.92; UCreate 22 x 28 5-pack https://www.amazon.com/dp/B00IWSHEB0, 22.33
 - Tape: FrogTape https://www.amazon.com/dp/B002YCGNXA, 7.21; ScotchBlue https://www.amazon.com/dp/B00004Z4DU, 7.79
+
+## Order status (2026-10-12, cart reviewed in the owner's Amazon account)
+
+| Item | Qty | Line USD | Arrives |
+|---|---|---|---|
+| Arducam B0FLX2DSSS | 2 | 199.98 | Thu 2026-10-15 |
+| CableCreation active USB 3.0 16.4 ft (B0179MXKU8) | 2 | 39.98 | Wed 2026-10-14 |
+| Amazon Basics 50 in tripod (B00XI87KV8) | 2 | 33.98 | Tue 2026-10-13 |
+| UCreate foam board 22 x 28 in, 5 sheets (B00IWSHEB0) | 1 | 22.33 | Tue 2026-10-13 |
+| FrogTape 1.88 in x 60 yd (B002YCGNXA) | 1 | 7.21 | Wed 2026-10-14 |
+| Bates 1/4-20 stainless hex nuts, 50 pack (B0CJ9FFH2Y) | 1 | 5.15 | Tue 2026-10-13 |
+| LUKAISEN 981 pc M2 screw and nut kit (B0GCHWGXNS) | 1 | 3.99 | Thu 2026-10-15 |
+| **Subtotal, 10 items, before tax** | | **312.62** | |
+
+Everything in the Buy now table is covered; nothing is duplicated. The M2 kit is from an unreviewed seller; the Mywish kit (B0CTJY6G5K, 9.99) is the one-day fallback if it disappoints. Earliest full setup: Thursday 2026-10-15 evening; the bracket, nuts and checkerboard target can be built from Tuesday's deliveries.
 
 ## Order status (2026-10-10, from the owner's purchasing agent)
 
