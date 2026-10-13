@@ -14,7 +14,7 @@ Session statistics (make rate, failure order histogram, per ball type) update li
 ## What you need
 
 - A Windows PC (the app is a single download, no Python or other runtime required)
-- Two USB global-shutter cameras at 1080p 90 fps, two 16 ft USB extension cables, and two 60 in tripods. The exact parts we use are in [PURCHASE_LIST.md](PURCHASE_LIST.md), about 370 USD total.
+- Two USB global-shutter cameras at 1080p 90 fps, two 16 ft USB extension cables, and two light tripods that reach 20 to 36 in. The exact parts we use are in [PURCHASE_LIST.md](PURCHASE_LIST.md), about 330 USD total.
 - A 3D printer for the camera bracket ([docs/camera_bracket.stl](docs/camera_bracket.stl)), or any bracket with a 1/4-20 tripod nut
 - A printer for the four-page AprilTag calibration sheet and the checkerboard lens target (the app generates both)
 
