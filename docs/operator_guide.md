@@ -1,6 +1,6 @@
 # Operator guide
 
-Start here. The other guides are in the same `docs` folder: [camera_placement.md](camera_placement.md), [calibration.md](calibration.md), [troubleshooting.md](troubleshooting.md), [camera_bracket.md](camera_bracket.md), and [clean_machine_test.md](clean_machine_test.md) (checklist for verifying a new PC).
+Start here. Building the camera rig for the first time? Use [builder_setup.md](builder_setup.md): where every part goes and how to wire it, with pictures. The other guides are in the same `docs` folder: [camera_placement.md](camera_placement.md), [calibration.md](calibration.md), [troubleshooting.md](troubleshooting.md), [camera_bracket.md](camera_bracket.md), and [clean_machine_test.md](clean_machine_test.md) (checklist for verifying a new PC).
 
 ## 1. Install on a fresh PC
 The packaged app is self-contained: **no Python, Node.js or other runtime needs to be installed**, and no internet is needed. The needed Visual C++ runtime DLLs are inside the folder.

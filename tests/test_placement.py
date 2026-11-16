@@ -1,4 +1,5 @@
 import math
+import re
 from pathlib import Path
 
 import cv2
@@ -191,6 +192,39 @@ def test_placement_doc_matches_recommend():
     svg = (DOCS / "camera_placement.svg").read_text(encoding="utf-8")
     yaw_a, _ = pl.aim_angles(pl.recommend("usb")["cameras"]["A"])
     assert f"aim yaw {yaw_a:.0f} deg" in svg
+
+
+def test_builder_setup_guide_matches_recommend():
+    """docs/builder_setup.md and its map quote tape distances, lens heights and floor aim
+    points for the people placing the tripods: they must be the optimizer's (Arducam option)."""
+    text = (DOCS / "builder_setup.md").read_text(encoding="utf-8")
+    svg = (DOCS / "builder_field_map.svg").read_text(encoding="utf-8")
+    rec = pl.recommend("usb")
+    for k, side in (("A", "BLUE"), ("B", "RED")):
+        c = rec["cameras"][k]
+        m = pl.operator_measurements(c["pos"])
+        _, pitch = pl.aim_angles(c)
+        out, along = m["out_from_outer_face_in"], m["along_from_outer_edge_in"]
+        # the side wall the tape starts from: A is nearer the -X (blue) wall, B the +X (red)
+        assert (c["pos"][0] < 0) == (side == "BLUE")
+        assert f"{along:.1f} in along from the {side}-side wall's outer edge" in text
+        assert f"**{along:.1f} in along**" in text and f"{out:.1f} in out" in text
+        assert f"**{c['pos'][2]:.0f} in**" in text and f"(+{pitch:.0f} deg)" in text
+        ax, ay = c["look_at"][0], c["look_at"][1]
+        assert ax > 0 and ay > 0                      # "toward RED", "toward the audience"
+        cross = f"**{ax:.0f} in toward RED** and **{ay:.0f} in toward the audience**"
+        assert f"Floor cross {k}: from field center, {cross}" in text
+        assert f"lens {c['pos'][2]:.0f} in above the floor" in svg
+        assert f"{along:.1f} in from the {side}-side" in svg
+        assert f"{ax:.0f} in toward RED and {ay:.0f} in toward the audience" in svg
+    # the map is drawn from the audience wall: +X (red, camera B) is on the LEFT of the page
+    cx = {k: float(re.search(r"<circle cx='([\d.]+)'[^>]*/>\s*<text[^>]*>" + k + "</text>",
+                             svg).group(1)) for k in ("A", "B")}
+    assert cx["B"] < cx["A"]
+    assert "`cam0`" in text and "`cam1`" in text and "RED HIVE should be on your LEFT" in text
+    for name in ("builder_field_map.png", "builder_wiring.png", "camera_bracket.stl",
+                 "kit_tag_positions.png"):
+        assert name in text and (DOCS / name).exists()
 
 
 # ------------------------------------------------ tag visibility term

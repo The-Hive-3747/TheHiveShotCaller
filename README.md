@@ -40,6 +40,8 @@ Your browser opens at http://127.0.0.1:8765 with a demo session running on bundl
 6. Click a ball in each preview so the app learns your ball colors.
 7. Start a session and shoot.
 
+Building the rig for the first time? The [builder setup guide](docs/builder_setup.md) shows where every part goes and how to wire it, with a field map and a wiring diagram.
+
 The whole setup takes about 15 minutes the first time and a couple of minutes after that. Full details are in the [operator guide](docs/operator_guide.md) and [troubleshooting](docs/troubleshooting.md).
 
 ## How it works

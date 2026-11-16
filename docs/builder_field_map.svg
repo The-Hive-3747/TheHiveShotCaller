@@ -1,0 +1,92 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1240 1250' width='1240' height='1250'>
+<rect width='1240' height='1250' fill='#ffffff'/>
+<text x='30.0' y='42.0' font-size='26' fill='#111111' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >Where everything goes: field map for builders</text>
+<text x='30.0' y='68.0' font-size='15' fill='#111111' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >Drawn as you see it standing outside the AUDIENCE wall, looking into the field. The RED HIVE is on your LEFT.</text>
+<text x='30.0' y='90.0' font-size='15' fill='#111111' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >Floor tiles are 24 in. All tape distances are from the OUTSIDE of the field wall. Two cameras, two cables, one PC.</text>
+<rect x='260.0' y='140.0' width='720.0' height='720.0' fill='#ececec'/>
+<line x1='860.0' y1='140.0' x2='860.0' y2='860.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='260.0' y1='260.0' x2='980.0' y2='260.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='740.0' y1='140.0' x2='740.0' y2='860.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='260.0' y1='380.0' x2='980.0' y2='380.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='620.0' y1='140.0' x2='620.0' y2='860.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='260.0' y1='500.0' x2='980.0' y2='500.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='500.0' y1='140.0' x2='500.0' y2='860.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='260.0' y1='620.0' x2='980.0' y2='620.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='380.0' y1='140.0' x2='380.0' y2='860.0' stroke='#b5b5b5' stroke-width='1.2' />
+<line x1='260.0' y1='740.0' x2='980.0' y2='740.0' stroke='#b5b5b5' stroke-width='1.2' />
+<rect x='256.2' y='136.2' width='727.5' height='727.5' fill='none' stroke='#111111' stroke-width='7.5'/>
+<text x='620.0' y='124.0' font-size='15' fill='#666666' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >FAR SIDE</text>
+<text x='234.0' y='500.0' font-size='17' fill='#d02020' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' transform='rotate(-90 234.0 500.0)'>RED side (+X)</text>
+<text x='1018.0' y='500.0' font-size='17' fill='#2040d0' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' transform='rotate(90 1018.0 500.0)'>BLUE side (-X)</text>
+<circle cx='503.0' cy='159.3' r='19.3' fill='#f2a8cc' stroke='#b03070' stroke-width='2.5'/>
+<circle cx='737.0' cy='840.7' r='19.3' fill='#f2a8cc' stroke='#b03070' stroke-width='2.5'/>
+<circle cx='279.3' cy='617.0' r='19.3' fill='#f2a8cc' stroke='#b03070' stroke-width='2.5'/>
+<circle cx='960.7' cy='383.0' r='19.3' fill='#f2a8cc' stroke='#b03070' stroke-width='2.5'/>
+<text x='711.0' y='844.7' font-size='12' fill='#b03070' text-anchor='end' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >FLOWER</text>
+<rect x='496.4' y='402.6' width='247.3' height='194.7' fill='#ffffff' fill-opacity='0.6' stroke='#444' stroke-width='4'/>
+<line x1='556.2' y1='402.6' x2='556.2' y2='597.4' stroke='#d02020' stroke-width='9' stroke-linecap='round'/>
+<circle cx='556.2' cy='578.9' r='12' fill='#ffffff' stroke='#d02020' stroke-width='4'/>
+<line x1='683.8' y1='402.6' x2='683.8' y2='597.4' stroke='#2040d0' stroke-width='9' stroke-linecap='round'/>
+<circle cx='683.8' cy='578.9' r='12' fill='#ffffff' stroke='#2040d0' stroke-width='4'/>
+<text x='620.0' y='390.6' font-size='14' fill='#111111' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >HIVE (both audience CELLs tipped UP for calibration)</text>
+<rect x='555.0' y='508.5' width='30' height='12' fill='#222'/>
+<text x='546.0' y='519.5' font-size='13' fill='#111111' text-anchor='end' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >tag 101</text>
+<rect x='655.0' y='508.5' width='30' height='12' fill='#222'/>
+<text x='694.0' y='519.5' font-size='13' fill='#111111' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >tag 100</text>
+<rect x='496.4' y='589.3' width='30' height='12' fill='#222'/>
+<text x='511.4' y='619.3' font-size='13' fill='#111111' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >tag 103</text>
+<rect x='713.6' y='589.3' width='30' height='12' fill='#222'/>
+<text x='728.6' y='619.3' font-size='13' fill='#111111' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >tag 102</text>
+<line x1='865.0' y1='927.5' x2='570.0' y2='670.0' stroke='#1a5fd0' stroke-width='3' stroke-dasharray='10 7'/>
+<line x1='561.0' y1='661.0' x2='579.0' y2='679.0' stroke='#1a5fd0' stroke-width='4' />
+<line x1='561.0' y1='679.0' x2='579.0' y2='661.0' stroke='#1a5fd0' stroke-width='4' />
+<line x1='865.0' y1='927.5' x2='865.0' y2='1027.5' stroke='#888' stroke-width='3' />
+<circle cx='865.0' cy='1027.5' r='6' fill='#888'/>
+<line x1='865.0' y1='927.5' x2='951.6' y2='877.5' stroke='#888' stroke-width='3' />
+<circle cx='951.6' cy='877.5' r='6' fill='#888'/>
+<line x1='865.0' y1='927.5' x2='778.4' y2='877.5' stroke='#888' stroke-width='3' />
+<circle cx='778.4' cy='877.5' r='6' fill='#888'/>
+<line x1='260.0' y1='927.5' x2='565.0' y2='695.0' stroke='#1e8a2e' stroke-width='3' stroke-dasharray='10 7'/>
+<line x1='556.0' y1='686.0' x2='574.0' y2='704.0' stroke='#1e8a2e' stroke-width='4' />
+<line x1='556.0' y1='704.0' x2='574.0' y2='686.0' stroke='#1e8a2e' stroke-width='4' />
+<line x1='260.0' y1='927.5' x2='260.0' y2='1027.5' stroke='#888' stroke-width='3' />
+<circle cx='260.0' cy='1027.5' r='6' fill='#888'/>
+<line x1='260.0' y1='927.5' x2='346.6' y2='877.5' stroke='#888' stroke-width='3' />
+<circle cx='346.6' cy='877.5' r='6' fill='#888'/>
+<line x1='260.0' y1='927.5' x2='173.4' y2='877.5' stroke='#888' stroke-width='3' />
+<circle cx='173.4' cy='877.5' r='6' fill='#888'/>
+<text x='586.0' y='662.0' font-size='13' fill='#1a5fd0' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >floor cross A</text>
+<text x='547.0' y='693.0' font-size='13' fill='#1e8a2e' text-anchor='end' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >floor cross B</text>
+<line x1='380.0' y1='927.5' x2='745.0' y2='927.5' stroke='#555' stroke-width='1.6' stroke-dasharray='4 6'/>
+<line x1='470.0' y1='867.5' x2='470.0' y2='927.5' stroke='#333' stroke-width='1.6' /><line x1='463.0' y1='867.5' x2='477.0' y2='867.5' stroke='#333' stroke-width='1.6' /><line x1='463.0' y1='927.5' x2='477.0' y2='927.5' stroke='#333' stroke-width='1.6' /><text x='480.0' y='902.5' font-size='14' fill='#333' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >12 in out from the outside of the wall</text>
+<line x1='865.0' y1='1035.5' x2='865.0' y2='1069.5' stroke='#1a5fd0' stroke-width='1.2' />
+<line x1='987.5' y1='867.5' x2='987.5' y2='1069.5' stroke='#1a5fd0' stroke-width='1.2' stroke-dasharray='3 5'/>
+<line x1='865.0' y1='1061.5' x2='987.5' y2='1061.5' stroke='#1a5fd0' stroke-width='1.6' /><line x1='865.0' y1='1054.5' x2='865.0' y2='1068.5' stroke='#1a5fd0' stroke-width='1.6' /><line x1='987.5' y1='1054.5' x2='987.5' y2='1068.5' stroke='#1a5fd0' stroke-width='1.6' /><text x='926.2' y='1053.5' font-size='14' fill='#1a5fd0' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >24.5 in</text>
+<text x='1040.0' y='897.5' font-size='17' fill='#1a5fd0' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >CAMERA A  =  cam0</text>
+<text x='1040.0' y='918.5' font-size='15' fill='#1a5fd0' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >lens 36 in above the floor</text>
+<text x='1040.0' y='939.5' font-size='15' fill='#1a5fd0' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >12 in out from the wall,</text>
+<text x='1040.0' y='960.5' font-size='15' fill='#1a5fd0' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >24.5 in from the BLUE-side</text>
+<text x='1040.0' y='981.5' font-size='15' fill='#1a5fd0' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >wall's outer edge</text>
+<text x='1040.0' y='1002.5' font-size='15' fill='#1a5fd0' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >aim: level, at floor cross A</text>
+<text x='24.0' y='989.5' font-size='17' fill='#1e8a2e' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >CAMERA B  =  cam1</text>
+<text x='24.0' y='1010.5' font-size='15' fill='#1e8a2e' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >lens 20 in above the floor</text>
+<text x='24.0' y='1031.5' font-size='15' fill='#1e8a2e' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >12 in out from the wall,</text>
+<text x='24.0' y='1052.5' font-size='15' fill='#1e8a2e' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >1.5 in from the RED-side</text>
+<text x='24.0' y='1073.5' font-size='15' fill='#1e8a2e' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >wall's outer edge (at the corner)</text>
+<text x='24.0' y='1094.5' font-size='15' fill='#1e8a2e' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >aim: tilted up 12 deg, floor cross B</text>
+<rect x='455.0' y='1075.0' width='330.0' height='60.0' rx='8' fill='#fff6d8' stroke='#8a6d00' stroke-width='3'/>
+<text x='620.0' y='1101.0' font-size='17' fill='#5c4800' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >PC TABLE</text>
+<text x='620.0' y='1122.0' font-size='13' fill='#5c4800' text-anchor='middle' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >behind the cameras, within cable reach</text>
+<polyline points='865.0,927.5 825.0,982.5 825.0,1117.0 785.0,1117.0' fill='none' stroke='#1a5fd0' stroke-width='4'/>
+<polyline points='260.0,927.5 300.0,982.5 300.0,1117.0 455.0,1117.0' fill='none' stroke='#1e8a2e' stroke-width='4'/>
+<text x='797.0' y='1139.0' font-size='14' fill='#1a5fd0' text-anchor='start' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >cable A to PC port 1</text>
+<text x='443.0' y='1139.0' font-size='14' fill='#1e8a2e' text-anchor='end' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >cable B to PC port 2</text>
+<circle cx='865.0' cy='927.5' r='19' fill='#1a5fd0' stroke='#fff' stroke-width='3'/>
+<text x='865.0' y='934.5' font-size='20' fill='#ffffff' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >A</text>
+<circle cx='260.0' cy='927.5' r='19' fill='#1e8a2e' stroke='#fff' stroke-width='3'/>
+<text x='260.0' y='934.5' font-size='20' fill='#ffffff' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >B</text>
+<text x='620.0' y='1169.0' font-size='18' fill='#111111' text-anchor='middle' font-weight='bold' font-family='Segoe UI, Arial, Helvetica, sans-serif' >AUDIENCE SIDE: you stand here</text>
+<text x='30.0' y='1201.0' font-size='14' fill='#333' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >Floor cross A: from field centre, 10 in toward RED and 34 in toward the audience.   Floor cross B: 11 in toward RED and 39 in toward the audience.</text>
+<text x='30.0' y='1223.0' font-size='14' fill='#333' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >Grey dots: tripod feet. One leg points straight away from the wall; no foot touches the wall. Dashed lines: where each camera looks. Keep people out of them.</text>
+<text x='30.0' y='1245.0' font-size='14' fill='#333' text-anchor='start' font-weight='normal' font-family='Segoe UI, Arial, Helvetica, sans-serif' >Black bars: the four printed tags. 100 and 101 lie on the slanted logo panel; 102 and 103 stand at the HIVE's base corners on the audience side.</text>
+</svg>

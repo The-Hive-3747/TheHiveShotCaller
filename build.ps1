@@ -62,6 +62,7 @@ WHERE YOUR DATA GOES
 DOCUMENTATION
   See the docs folder next to the exe:
     docs\operator_guide.md      start here
+    docs\builder_setup.md       building the rig: where parts go, wiring (builder_field_map.png, builder_wiring.png)
     docs\camera_placement.md    where to put and aim the cameras (map: camera_placement.png)
     docs\calibration.md         camera calibration
     docs\troubleshooting.md     common problems
